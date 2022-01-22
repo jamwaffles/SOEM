@@ -186,15 +186,22 @@ int akd_setup(uint16 slave)
     return 1;
 }
 
+// Mapped by 0x1701 - ethercat manual p. 44
 typedef struct PACKED
 {
-   uint16_t value_6040;
+   int32_t TargetPosition;
+   uint16_t ControlWord;
 } akd_outputs_t;
 
+// Mapped by 0x1b01 - ethercat manual p. 44
 typedef struct PACKED
 {
-   uint16_t value_6041;
+   int32_t PositionActualValue;
+   uint16_t StatusWord;
 } akd_inputs_t;
+
+akd_outputs_t *out_ptr;
+akd_inputs_t *in_ptr;
 
 void simpletest(char *ifname)
 {
@@ -233,6 +240,13 @@ void simpletest(char *ifname)
 
          ec_configdc();
 
+         // Send process data a few times to make outputs happy
+         for(int i = 0 ; i < 15000; i++)
+         {
+            ec_send_processdata();
+            ec_receive_processdata(EC_TIMEOUTRET);
+         }
+
          printf("Slaves mapped, state to SAFE_OP.\n");
          /* wait for all slaves to reach SAFE_OP state */
          ec_statecheck(0, EC_STATE_SAFE_OP,  EC_TIMEOUTSTATE * 4);
@@ -243,6 +257,9 @@ void simpletest(char *ifname)
          iloop = ec_slave[0].Ibytes;
          if ((iloop == 0) && (ec_slave[0].Ibits > 0)) iloop = 1;
          if (iloop > 8) iloop = 8;
+
+         in_ptr = (akd_inputs_t *)ec_slave[0].inputs;
+         out_ptr = (akd_outputs_t *)ec_slave[0].outputs;
 
          printf("segments : %d : %d %d %d %d\n",ec_group[0].nsegments ,ec_group[0].IOsegment[0],ec_group[0].IOsegment[1],ec_group[0].IOsegment[2],ec_group[0].IOsegment[3]);
 
@@ -264,10 +281,74 @@ void simpletest(char *ifname)
             ec_statecheck(0, EC_STATE_OPERATIONAL, 50000);
          }
          while (chk-- && (ec_slave[0].state != EC_STATE_OPERATIONAL));
+
+
+
          if (ec_slave[0].state == EC_STATE_OPERATIONAL )
          {
             printf("Operational state reached for all slaves.\n");
             inOP = TRUE;
+
+            // If we've faulted, clear faults by setting clear fault flag high
+            if((in_ptr->StatusWord & 0b1000) > 0x0) {
+               out_ptr->ControlWord = 0x80; //clear errors, rising edge
+
+               do {
+                  printf("Wait for 6040 fault cleared, got %#04x\n", in_ptr->StatusWord);
+
+                  ec_send_processdata();
+                  ec_receive_processdata(EC_TIMEOUTRET);
+
+                  osal_usleep(5000); // 0.5ms
+
+               } while ((in_ptr->StatusWord & 0b1000) > 0); // Fault flag is bit 4, wait for clear
+            }
+
+            // Shutdown
+            out_ptr->ControlWord = 0x6;
+
+            do {
+               printf("Wait for 6040 fault cleared again, got %#04x\n", in_ptr->StatusWord);
+
+               ec_send_processdata();
+               ec_receive_processdata(EC_TIMEOUTRET);
+
+               osal_usleep(5000); // 0.5ms
+
+            } while ((in_ptr->StatusWord & 0b1) == 0); // ready to switch on, wait for it to be set
+
+            // Switch on - this disengages the brake and "primes" the servo, but won't accept motion
+            // commands yet.
+            out_ptr->ControlWord = 0x7;
+
+            do {
+               printf("Wait for 6040 switch on, got %#04x\n", in_ptr->StatusWord);
+
+               ec_send_processdata();
+               ec_receive_processdata(EC_TIMEOUTRET);
+
+               osal_usleep(5000); // 0.5ms
+
+            } while ((in_ptr->StatusWord & 0b10) == 0); // switched on, wait for bit to be set
+
+            // Prevent motor from jumping on startup (I shit bricks lmao)
+            out_ptr->TargetPosition = in_ptr->PositionActualValue;
+
+            // Enable operation - starts accepting motion comments
+            out_ptr->ControlWord = 0xf;
+
+            do {
+               printf("Wait for 6040 switch on, got %#04x\n", in_ptr->StatusWord);
+
+               ec_send_processdata();
+               ec_receive_processdata(EC_TIMEOUTRET);
+
+               osal_usleep(5000); // 0.5ms
+
+            } while ((in_ptr->StatusWord & 0b100) == 0); // operation enable, wait for bit to be set
+
+            printf("AKD state transitioned to Enable Operation\n");
+
                 /* cyclic loop */
             for(i = 1; i <= 10000; i++)
             {
@@ -278,18 +359,20 @@ void simpletest(char *ifname)
                     {
                         // omron_inputs_t * inputs = (omron_inputs_t)ec_slave[0].inputs;
 
-                        printf("Processdata cycle %4d, WKC %d , O:", i, wkc);
+                        // out_ptr->TargetPosition = in_ptr->PositionActualValue + 10;
 
-                        for(j = 0 ; j < oloop; j++)
-                        {
-                            printf(" %2.2x", *(ec_slave[0].outputs + j));
-                        }
+                        printf("Processdata cycle %4d, WKC %d, status %#04x, actual pos %d, target pos %d", i, wkc, in_ptr->StatusWord, in_ptr->PositionActualValue, out_ptr->TargetPosition);
 
-                        printf(" I:");
-                        for(j = 0 ; j < iloop; j++)
-                        {
-                            printf(" %2.2x", *(ec_slave[0].inputs + j));
-                        }
+                        // for(j = 0 ; j < oloop; j++)
+                        // {
+                        //     printf(" %2.2x", *(ec_slave[0].outputs + j));
+                        // }
+
+                        // printf(" I:");
+                        // for(j = 0 ; j < iloop; j++)
+                        // {
+                        //     printf(" %2.2x", *(ec_slave[0].inputs + j));
+                        // }
                         printf(" T:%"PRId64"\r",ec_DCtime);
                         needlf = TRUE;
                     }
