@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#include <math.h>
 
 #include "ethercat.h"
 
@@ -157,11 +158,13 @@ int akd_setup(uint16 slave)
     ec_SDOwrite(slave, 0x1C12, 00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM); // Clear SM PDO
     u8val = 0x00;
     ec_SDOwrite(slave, 0x1C13, 00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM); // Clear SM PDO
-    u16val = 0x1701;
+    // u16val = 0x1701;
+    u16val = 0x1724;                                                               // Allows CSP target position
     ec_SDOwrite(slave, 0x1C12, 01, FALSE, sizeof(u16val), &u16val, EC_TIMEOUTRXM); // Set fixed RXPDO map
     u8val = 0x01;
     ec_SDOwrite(slave, 0x1C12, 00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM); // One item mapped
     u16val = 0x1B01;
+    // u16val = 0x1B24;                                                               // Read position from PL.FB instead of FB1.P
     ec_SDOwrite(slave, 0x1C13, 01, FALSE, sizeof(u16val), &u16val, EC_TIMEOUTRXM); // Set fixed TXPDO
     u8val = 0x01;
     ec_SDOwrite(slave, 0x1C13, 00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM); // One item mapped
@@ -173,12 +176,15 @@ int akd_setup(uint16 slave)
     ec_SDOwrite(slave, 0x60C2, 01, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM); // Interpolation time period
     u8val = 0xFD;
     ec_SDOwrite(slave, 0x60C2, 02, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM); // Interpolation time index
-    u8val = 0x90;
-    ec_SDOwrite(slave, 0x36E9, 00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM); // FBUS.PARAM05 = 144
-    u8val = 0x01;
-    ec_SDOwrite(slave, 0x204C, 01, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM); // DS402.VELSCALENUM = 1
-    u8val = 0x0A;
-    ec_SDOwrite(slave, 0x204C, 02, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM); // DS402.VELSCALEDENOM = 10
+
+    // u8val = 0x90;
+    // u8val = 0b10000;                                                             // Scale based on 0x6091 and 0x6092 https://www.kollmorgen.com/en-us/developer-network/position-scaling-akd-drive-ethercat-communication/
+    u8val = 0;
+    ec_SDOwrite(slave, 0x36E9, 00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM); // FBUS.PARAM05
+    // u8val = 0x01;
+    // ec_SDOwrite(slave, 0x204C, 01, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM); // DS402.VELSCALENUM = 1
+    // u8val = 0x0A;
+    // ec_SDOwrite(slave, 0x204C, 02, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM); // DS402.VELSCALEDENOM = 10
 
     // ---
 
@@ -335,8 +341,12 @@ void simpletest(char *ifname)
 
                 } while ((in_ptr->StatusWord & 0b10) == 0); // switched on, wait for bit to be set
 
-                // // Prevent motor from jumping on startup (I shit bricks lmao)
-                // out_ptr->TargetPosition = in_ptr->PositionActualValue;
+                int32_t current_turns = in_ptr->PositionActualValue;
+                int32_t target_turns = current_turns + (2 * pow(2, 20));
+                int32_t pos = current_turns;
+
+                // Prevent motor from jumping on startup (I shit bricks lmao)
+                out_ptr->TargetPosition = current_turns;
 
                 // Enable operation - starts accepting motion comments
                 out_ptr->ControlWord = 0xf;
@@ -362,11 +372,25 @@ void simpletest(char *ifname)
 
                     if (wkc >= expectedWKC)
                     {
+                        if (pos < target_turns)
+                        {
+                            pos += 1000;
+                        }
+
                         // omron_inputs_t * inputs = (omron_inputs_t)ec_slave[0].inputs;
 
-                        // out_ptr->TargetPosition = in_ptr->PositionActualValue + 10;
+                        out_ptr->TargetPosition = pos;
 
-                        printf("Processdata cycle %4d, WKC %d, status %#04x, actual pos %d, target pos %d", i, wkc, in_ptr->StatusWord, in_ptr->PositionActualValue, out_ptr->TargetPosition);
+                        // TODO: Read 20 from FB1.PSCALE
+                        // NOTE: FB1.PSCALE is not readable through ethercat, but defaults to 20.
+                        // TODO: Make configurable
+                        float turns = in_ptr->PositionActualValue / pow(2, 20);
+                        float target_turns = out_ptr->TargetPosition / pow(2, 20);
+                        // float target_turns = pos / pow(2, 20);
+
+                        printf(
+                            "Processdata cycle %4d, WKC %d, status %#04x, actual pos %d (%f turns), target pos %d (%f turns)",
+                            i, wkc, in_ptr->StatusWord, in_ptr->PositionActualValue, turns, out_ptr->TargetPosition, target_turns);
 
                         // for(j = 0 ; j < oloop; j++)
                         // {
