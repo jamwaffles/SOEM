@@ -1,1 +1,0 @@
-/usr/bin/cc  -Wall -Wextra  -rdynamic CMakeFiles/akd.dir/akd.c.o  -o akd  ../../../libsoem.a -lpthread -lrt 

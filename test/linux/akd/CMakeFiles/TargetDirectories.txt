@@ -1,7 +1,0 @@
-/home/pi/Repositories/soem-sys/SOEM/test/linux/akd/CMakeFiles/install/strip.dir
-/home/pi/Repositories/soem-sys/SOEM/test/linux/akd/CMakeFiles/edit_cache.dir
-/home/pi/Repositories/soem-sys/SOEM/test/linux/akd/CMakeFiles/install.dir
-/home/pi/Repositories/soem-sys/SOEM/test/linux/akd/CMakeFiles/rebuild_cache.dir
-/home/pi/Repositories/soem-sys/SOEM/test/linux/akd/CMakeFiles/list_install_components.dir
-/home/pi/Repositories/soem-sys/SOEM/test/linux/akd/CMakeFiles/akd.dir
-/home/pi/Repositories/soem-sys/SOEM/test/linux/akd/CMakeFiles/install/local.dir
