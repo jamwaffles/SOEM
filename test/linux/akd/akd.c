@@ -159,7 +159,8 @@ int akd_setup(uint16 slave)
     u8val = 0x00;
     ec_SDOwrite(slave, 0x1C13, 00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM); // Clear SM PDO
     // u16val = 0x1701;
-    u16val = 0x1724;                                                               // Allows CSP target position
+    // u16val = 0x1724;                                                               // Allows CSP target position
+    u16val = 0x1702;                                                               // Synchronous velocity mode
     ec_SDOwrite(slave, 0x1C12, 01, FALSE, sizeof(u16val), &u16val, EC_TIMEOUTRXM); // Set fixed RXPDO map
     u8val = 0x01;
     ec_SDOwrite(slave, 0x1C12, 00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM); // One item mapped
@@ -168,8 +169,9 @@ int akd_setup(uint16 slave)
     ec_SDOwrite(slave, 0x1C13, 01, FALSE, sizeof(u16val), &u16val, EC_TIMEOUTRXM); // Set fixed TXPDO
     u8val = 0x01;
     ec_SDOwrite(slave, 0x1C13, 00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM); // One item mapped
-    u8val = 0x08;
-    ec_SDOwrite(slave, 0x6060, 00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM); // Opmode - Cyclic Synchronous Position
+    // u8val = 0x08;                                                                // Opmode - Cyclic Synchronous Position
+    u8val = 0x09; // Opmode - Cyclic Synchronous Velocity
+    ec_SDOwrite(slave, 0x6060, 00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
 
     //
     u8val = 0x02;
@@ -192,10 +194,17 @@ int akd_setup(uint16 slave)
     return 1;
 }
 
-// Mapped by 0x1701 - ethercat manual p. 44
+// // Mapped by 0x1701 - ethercat manual p. 44
+// typedef struct PACKED
+// {
+//     int32_t TargetPosition;
+//     uint16_t ControlWord;
+// } akd_outputs_t;
+
+// Mapped by 0x1720 - CSV mode
 typedef struct PACKED
 {
-    int32_t TargetPosition;
+    int32_t TargetVelocity;
     uint16_t ControlWord;
 } akd_outputs_t;
 
@@ -341,12 +350,12 @@ void simpletest(char *ifname)
 
                 } while ((in_ptr->StatusWord & 0b10) == 0); // switched on, wait for bit to be set
 
-                int32_t current_turns = in_ptr->PositionActualValue;
-                int32_t target_turns = current_turns + (2 * pow(2, 20));
-                int32_t pos = current_turns;
+                // int32_t current_turns = in_ptr->PositionActualValue;
+                // int32_t target_turns = current_turns + (2 * pow(2, 20));
+                // int32_t pos = current_turns;
 
                 // Prevent motor from jumping on startup (I shit bricks lmao)
-                out_ptr->TargetPosition = current_turns;
+                out_ptr->TargetVelocity = 0;
 
                 // Enable operation - starts accepting motion comments
                 out_ptr->ControlWord = 0xf;
@@ -364,6 +373,8 @@ void simpletest(char *ifname)
 
                 printf("AKD state transitioned to Enable Operation\n");
 
+                int32_t pos = 0;
+
                 /* cyclic loop */
                 for (i = 1; i <= 10000; i++)
                 {
@@ -372,25 +383,25 @@ void simpletest(char *ifname)
 
                     if (wkc >= expectedWKC)
                     {
-                        if (pos < target_turns)
+                        if (pos < 1000000)
                         {
                             pos += 1000;
                         }
 
                         // omron_inputs_t * inputs = (omron_inputs_t)ec_slave[0].inputs;
 
-                        out_ptr->TargetPosition = pos;
+                        out_ptr->TargetVelocity = pos;
 
                         // TODO: Read 20 from FB1.PSCALE
                         // NOTE: FB1.PSCALE is not readable through ethercat, but defaults to 20.
                         // TODO: Make configurable
                         float turns = in_ptr->PositionActualValue / pow(2, 20);
-                        float target_turns = out_ptr->TargetPosition / pow(2, 20);
+                        float target_turns = out_ptr->TargetVelocity / pow(2, 20);
                         // float target_turns = pos / pow(2, 20);
 
                         printf(
                             "Processdata cycle %4d, WKC %d, status %#04x, actual pos %d (%f turns), target pos %d (%f turns)",
-                            i, wkc, in_ptr->StatusWord, in_ptr->PositionActualValue, turns, out_ptr->TargetPosition, target_turns);
+                            i, wkc, in_ptr->StatusWord, in_ptr->PositionActualValue, turns, out_ptr->TargetVelocity, target_turns);
 
                         // for(j = 0 ; j < oloop; j++)
                         // {
