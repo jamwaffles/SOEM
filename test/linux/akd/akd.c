@@ -26,7 +26,7 @@ volatile int wkc;
 boolean inOP;
 uint8 currentgroup = 0;
 
-int akd_setup(uint16 slave)
+int akd_setup(ecx_contextt *context, uint16 slave)
 {
     int retval;
     uint8 u8val;
@@ -245,7 +245,7 @@ void simpletest(char *ifname)
                     if ((ec_slave[slc].eep_man == 0x0000006a) && (ec_slave[slc].eep_id == 0x00414b44))
                     {
                         printf("Found %s at position %d\n", ec_slave[slc].name, slc);
-                        ec_slave[slc].PO2SOconfig = &akd_setup;
+                        ec_slave[slc].PO2SOconfigx = &akd_setup;
                     }
                 }
             }
