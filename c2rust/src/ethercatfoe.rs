@@ -3,7 +3,7 @@ use crate::{
         ec_clearmbx, ec_mbxbuft, ec_mbxheadert, ec_nextmbxcnt, ecx_context, ecx_contextt,
         ecx_mbxreceive, ecx_mbxsend,
     },
-    ethercattype::{ec_err_type, FoEOpCode, MailboxType},
+    ethercattype::{ec_err_type, FoEOpCode, MailboxType, EC_TIMEOUTTXM},
 };
 use libc::{memcpy, strlen};
 
@@ -140,7 +140,12 @@ pub unsafe extern "C" fn ecx_FOEread(
         fnsize as usize,
     );
     /* send FoE request to slave */
-    wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+    wkc = ecx_mbxsend(
+        context,
+        slave,
+        &mut MbxOut as *mut ec_mbxbuft,
+        EC_TIMEOUTTXM,
+    );
     if wkc > 0i32 {
         /* succeeded to place mailbox in slave ? */
         loop {
@@ -193,7 +198,7 @@ pub unsafe extern "C" fn ecx_FOEread(
                                 context,
                                 slave,
                                 &mut MbxOut as *mut ec_mbxbuft,
-                                20000i32,
+                                EC_TIMEOUTTXM,
                             );
                             if wkc <= 0i32 {
                                 worktodo = 0u8
@@ -301,7 +306,12 @@ pub unsafe extern "C" fn ecx_FOEwrite(
         fnsize as usize,
     );
     /* send FoE request to slave */
-    wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+    wkc = ecx_mbxsend(
+        context,
+        slave,
+        &mut MbxOut as *mut ec_mbxbuft,
+        EC_TIMEOUTTXM,
+    );
     if wkc > 0i32 {
         /* succeeded to place mailbox in slave ? */
         loop {
@@ -374,7 +384,7 @@ pub unsafe extern "C" fn ecx_FOEwrite(
                                         context,
                                         slave,
                                         &mut MbxOut as *mut ec_mbxbuft,
-                                        20000i32,
+                                        EC_TIMEOUTTXM,
                                     );
                                     if wkc <= 0i32 {
                                         worktodo = 0u8

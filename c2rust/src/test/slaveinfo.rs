@@ -11,7 +11,7 @@ use crate::{
         ec_slavecount, ec_statecheck, EcatError,
     },
     ethercatprint::{ec_ALstatuscode2string, ec_elist2string},
-    ethercattype::{ec_state, SIICategory},
+    ethercattype::{ec_state, SIICategory, ECT_SDO_PDOASSIGN, EC_TIMEOUTRXM, EC_TIMEOUTSTATE},
 };
 use libc::{memset, snprintf, sprintf, strcat, strcpy, strncmp};
 
@@ -349,7 +349,7 @@ pub unsafe extern "C" fn SDO2string(
         0u8,
         &mut l,
         &mut usdo as *mut [libc::c_char; 128] as *mut libc::c_void,
-        700000i32,
+        EC_TIMEOUTRXM,
     );
     if EcatError != 0 {
         return ec_elist2string();
@@ -541,7 +541,7 @@ pub unsafe extern "C" fn si_PDOassign(
         0u8,
         &mut rdl,
         &mut rdat as *mut uint16 as *mut libc::c_void,
-        700000i32,
+        EC_TIMEOUTRXM,
     );
     rdat = rdat;
     /* positive result from slave ? */
@@ -562,7 +562,7 @@ pub unsafe extern "C" fn si_PDOassign(
                 0u8,
                 &mut rdl,
                 &mut rdat as *mut uint16 as *mut libc::c_void,
-                700000i32,
+                EC_TIMEOUTRXM,
             );
             /* result is index of PDO */
             idx = rdat;
@@ -577,7 +577,7 @@ pub unsafe extern "C" fn si_PDOassign(
                     0u8,
                     &mut rdl,
                     &mut subcnt as *mut uint8 as *mut libc::c_void,
-                    700000i32,
+                    EC_TIMEOUTRXM,
                 );
                 subidx = subcnt as uint16;
                 /* for each subindex */
@@ -593,7 +593,7 @@ pub unsafe extern "C" fn si_PDOassign(
                         0u8,
                         &mut rdl,
                         &mut rdat2 as *mut int32 as *mut libc::c_void,
-                        700000i32,
+                        EC_TIMEOUTRXM,
                     );
                     rdat2 = rdat2;
                     /* extract bitlength of SDO */
@@ -679,7 +679,7 @@ pub unsafe extern "C" fn si_map_sdo(mut slave: libc::c_int) -> libc::c_int {
         0u8,
         &mut rdl,
         &mut nSM as *mut uint8 as *mut libc::c_void,
-        700000i32,
+        EC_TIMEOUTRXM,
     );
     /* positive result from slave ? */
     if wkc > 0i32 && nSM as libc::c_int > 2i32 {
@@ -702,7 +702,7 @@ pub unsafe extern "C" fn si_map_sdo(mut slave: libc::c_int) -> libc::c_int {
                 0u8,
                 &mut rdl,
                 &mut tSM as *mut uint8 as *mut libc::c_void,
-                700000i32,
+                EC_TIMEOUTRXM,
             );
             if wkc > 0i32 {
                 if iSM as libc::c_int == 2i32 && tSM as libc::c_int == 2i32 {
@@ -723,7 +723,7 @@ pub unsafe extern "C" fn si_map_sdo(mut slave: libc::c_int) -> libc::c_int {
                     );
                     Tsize = si_PDOassign(
                         slave as uint16,
-                        (0x1c10i32 + iSM as libc::c_int) as uint16,
+                        ECT_SDO_PDOASSIGN + iSM as u16,
                         ec_slave[slave as usize]
                             .outputs
                             .offset_from(&mut *IOmap.as_mut_ptr().offset(0isize)
@@ -742,7 +742,7 @@ pub unsafe extern "C" fn si_map_sdo(mut slave: libc::c_int) -> libc::c_int {
                     );
                     Tsize = si_PDOassign(
                         slave as uint16,
-                        (0x1c10i32 + iSM as libc::c_int) as uint16,
+                        ECT_SDO_PDOASSIGN + iSM as u16,
                         ec_slave[slave as usize]
                             .inputs
                             .offset_from(&mut *IOmap.as_mut_ptr().offset(0isize)
@@ -1112,7 +1112,7 @@ pub unsafe extern "C" fn si_sdo(mut cnt: libc::c_int) {
                     0u8,
                     &mut l,
                     &mut max_sub as *mut uint8_t as *mut libc::c_void,
-                    700000i32,
+                    EC_TIMEOUTRXM,
                 );
             } else {
                 max_sub = ODlist.MaxSub[i as usize]
@@ -1223,7 +1223,7 @@ pub unsafe extern "C" fn slaveinfo(mut ifname: *mut libc::c_char) {
             ec_statecheck(
                 0u16,
                 ec_state::EC_STATE_SAFE_OP as uint16,
-                2000000i32 * 3i32,
+                EC_TIMEOUTSTATE * 3i32,
             );
             if ec_slave[0usize].state as libc::c_int != ec_state::EC_STATE_SAFE_OP as libc::c_int {
                 println!("Not all slaves reached safe operational state.");

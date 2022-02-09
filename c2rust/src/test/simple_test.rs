@@ -7,7 +7,7 @@ use crate::{
         ec_statecheck, ec_writestate,
     },
     ethercatprint::ec_ALstatuscode2string,
-    ethercattype::{self, ec_state},
+    ethercattype::{self, ec_state, EC_TIMEOUTSTATE},
     osal::linux::osal::{osal_thread_create, osal_usleep},
 };
 use libc::{c_void, pthread_t};
@@ -78,7 +78,7 @@ pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
             ec_statecheck(
                 0u16,
                 ec_state::EC_STATE_SAFE_OP as uint16,
-                2000000i32 * 4i32,
+                EC_TIMEOUTSTATE * 4i32,
             );
             oloop = ec_slave[0usize].Obytes as libc::c_int;
             if oloop == 0i32 && ec_slave[0usize].Obits as libc::c_int > 0i32 {

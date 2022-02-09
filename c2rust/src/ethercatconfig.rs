@@ -10,7 +10,10 @@ use crate::{
         ecx_siistring, ecx_statecheck,
     },
     ethercatsoe::ecx_readIDNmap,
-    ethercattype::{self, ec_state, EthercatRegister, SIICategory, SIIGeneral},
+    ethercattype::{
+        self, ec_state, EthercatRegister, SIICategory, SIIGeneral, EC_TIMEOUTEEP, EC_TIMEOUTRET3,
+        EC_TIMEOUTSAFE, EC_TIMEOUTSTATE,
+    },
     osal::linux::osal::osal_usleep,
 };
 use libc::{memcpy, memset, sprintf, strcpy};
@@ -568,7 +571,7 @@ pub unsafe extern "C" fn ecx_detect_slaves(mut context: *mut ecx_contextt) -> li
         EthercatRegister::ECT_REG_DLALIAS as uint16,
         ::core::mem::size_of::<uint8>() as uint16,
         &mut b as *mut uint8 as *mut libc::c_void,
-        2000i32 * 3i32,
+        EC_TIMEOUTRET3,
     ); /* Reset all slaves to Init */
     b = (ec_state::EC_STATE_INIT as libc::c_int | ethercattype::EC_STATE_ACK as libc::c_int)
         as uint8;
@@ -578,7 +581,7 @@ pub unsafe extern "C" fn ecx_detect_slaves(mut context: *mut ecx_contextt) -> li
         EthercatRegister::ECT_REG_ALCTL as uint16,
         ::core::mem::size_of::<uint8>() as uint16,
         &mut b as *mut uint8 as *mut libc::c_void,
-        2000i32 * 3i32,
+        EC_TIMEOUTRET3,
     );
     /* netX100 should now be happy */
     ecx_BWR(
@@ -587,7 +590,7 @@ pub unsafe extern "C" fn ecx_detect_slaves(mut context: *mut ecx_contextt) -> li
         EthercatRegister::ECT_REG_ALCTL as uint16,
         ::core::mem::size_of::<uint8>() as uint16,
         &mut b as *mut uint8 as *mut libc::c_void,
-        2000i32 * 3i32,
+        EC_TIMEOUTRET3,
     ); /* Reset all slaves to Init */
     wkc = ecx_BRD(
         (*context).port,
@@ -595,7 +598,7 @@ pub unsafe extern "C" fn ecx_detect_slaves(mut context: *mut ecx_contextt) -> li
         EthercatRegister::ECT_REG_TYPE as uint16,
         ::core::mem::size_of::<uint16>() as uint16,
         &mut w as *mut uint16 as *mut libc::c_void,
-        20000i32,
+        EC_TIMEOUTSAFE,
     ); /* detect number of slaves */
     if wkc > 0i32 {
         /* this is strictly "less than" since the master is "slave 0" */
@@ -623,7 +626,7 @@ unsafe extern "C" fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
         EthercatRegister::ECT_REG_DLPORT as uint16,
         ::core::mem::size_of::<uint8>() as uint16,
         &mut b as *mut uint8 as *mut libc::c_void,
-        2000i32 * 3i32,
+        EC_TIMEOUTRET3,
     ); /* DC speedstart */
     w = 0x4u16; /* DC filt expr */
     ecx_BWR(
@@ -632,7 +635,7 @@ unsafe extern "C" fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
         EthercatRegister::ECT_REG_IRQMASK as uint16,
         ::core::mem::size_of::<uint16>() as uint16,
         &mut w as *mut uint16 as *mut libc::c_void,
-        2000i32 * 3i32,
+        EC_TIMEOUTRET3,
     ); /* Ignore Alias register */
     ecx_BWR(
         (*context).port,
@@ -640,7 +643,7 @@ unsafe extern "C" fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
         EthercatRegister::ECT_REG_RXERR as uint16,
         8u16,
         &mut zbuf as *mut [uint8; 64] as *mut libc::c_void,
-        2000i32 * 3i32,
+        EC_TIMEOUTRET3,
     ); /* Reset all slaves to Init */
     ecx_BWR(
         (*context).port,
@@ -648,7 +651,7 @@ unsafe extern "C" fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
         EthercatRegister::ECT_REG_FMMU0 as uint16,
         (16i32 * 3i32) as uint16,
         &mut zbuf as *mut [uint8; 64] as *mut libc::c_void,
-        2000i32 * 3i32,
+        EC_TIMEOUTRET3,
     ); /* force Eeprom from PDI */
     ecx_BWR(
         (*context).port,
@@ -656,7 +659,7 @@ unsafe extern "C" fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
         EthercatRegister::ECT_REG_SM0 as uint16,
         (8i32 * 4i32) as uint16,
         &mut zbuf as *mut [uint8; 64] as *mut libc::c_void,
-        2000i32 * 3i32,
+        EC_TIMEOUTRET3,
     );
     b = 0u8;
     ecx_BWR(
@@ -665,7 +668,7 @@ unsafe extern "C" fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
         EthercatRegister::ECT_REG_DCSYNCACT as uint16,
         ::core::mem::size_of::<uint8>() as uint16,
         &mut b as *mut uint8 as *mut libc::c_void,
-        2000i32 * 3i32,
+        EC_TIMEOUTRET3,
     );
     ecx_BWR(
         (*context).port,
@@ -673,7 +676,7 @@ unsafe extern "C" fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
         EthercatRegister::ECT_REG_DCSYSTIME as uint16,
         4u16,
         &mut zbuf as *mut [uint8; 64] as *mut libc::c_void,
-        2000i32 * 3i32,
+        EC_TIMEOUTRET3,
     );
     w = 0x1000u16;
     ecx_BWR(
@@ -682,7 +685,7 @@ unsafe extern "C" fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
         EthercatRegister::ECT_REG_DCSPEEDCNT as uint16,
         ::core::mem::size_of::<uint16>() as uint16,
         &mut w as *mut uint16 as *mut libc::c_void,
-        2000i32 * 3i32,
+        EC_TIMEOUTRET3,
     );
     w = 0xc00u16;
     ecx_BWR(
@@ -691,7 +694,7 @@ unsafe extern "C" fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
         EthercatRegister::ECT_REG_DCTIMEFILT as uint16,
         ::core::mem::size_of::<uint16>() as uint16,
         &mut w as *mut uint16 as *mut libc::c_void,
-        2000i32 * 3i32,
+        EC_TIMEOUTRET3,
     );
     b = 0u8;
     ecx_BWR(
@@ -700,7 +703,7 @@ unsafe extern "C" fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
         EthercatRegister::ECT_REG_DLALIAS as uint16,
         ::core::mem::size_of::<uint8>() as uint16,
         &mut b as *mut uint8 as *mut libc::c_void,
-        2000i32 * 3i32,
+        EC_TIMEOUTRET3,
     );
     b = (ec_state::EC_STATE_INIT as libc::c_int | ethercattype::EC_STATE_ACK as libc::c_int)
         as uint8;
@@ -710,7 +713,7 @@ unsafe extern "C" fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
         EthercatRegister::ECT_REG_ALCTL as uint16,
         ::core::mem::size_of::<uint8>() as uint16,
         &mut b as *mut uint8 as *mut libc::c_void,
-        2000i32 * 3i32,
+        EC_TIMEOUTRET3,
     );
     b = 2u8;
     ecx_BWR(
@@ -719,7 +722,7 @@ unsafe extern "C" fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
         EthercatRegister::ECT_REG_EEPCFG as uint16,
         ::core::mem::size_of::<uint8>() as uint16,
         &mut b as *mut uint8 as *mut libc::c_void,
-        2000i32 * 3i32,
+        EC_TIMEOUTRET3,
     );
     b = 0u8;
     ecx_BWR(
@@ -728,7 +731,7 @@ unsafe extern "C" fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
         EthercatRegister::ECT_REG_EEPCFG as uint16,
         ::core::mem::size_of::<uint8>() as uint16,
         &mut b as *mut uint8 as *mut libc::c_void,
-        2000i32 * 3i32,
+        EC_TIMEOUTRET3,
     );
     /* set Eeprom to master */
 }
@@ -902,7 +905,7 @@ pub unsafe extern "C" fn ecx_config_init(
                 (*context).port,
                 ADPh,
                 EthercatRegister::ECT_REG_PDICTL as uint16,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             ); /* read interface type of slave */
             (*(*context).slavelist.offset(slave as isize)).Itype = val16;
             ecx_APWRw(
@@ -910,7 +913,7 @@ pub unsafe extern "C" fn ecx_config_init(
                 ADPh,
                 EthercatRegister::ECT_REG_STADR as uint16,
                 (slave as libc::c_int + 0x1000i32) as uint16,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             );
             if slave as libc::c_int == 1i32 {
                 b = 1u8
@@ -927,13 +930,13 @@ pub unsafe extern "C" fn ecx_config_init(
                 ADPh,
                 EthercatRegister::ECT_REG_DLCTL as uint16,
                 b as uint16,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             );
             configadr = ecx_APRDw(
                 (*context).port,
                 ADPh,
                 EthercatRegister::ECT_REG_STADR as uint16,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             );
             configadr = configadr;
             (*(*context).slavelist.offset(slave as isize)).configadr = configadr;
@@ -943,7 +946,7 @@ pub unsafe extern "C" fn ecx_config_init(
                 EthercatRegister::ECT_REG_ALIAS as uint16,
                 ::core::mem::size_of::<int16>() as uint16,
                 &mut aliasadr as *mut int16 as *mut libc::c_void,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             );
             (*(*context).slavelist.offset(slave as isize)).aliasadr = aliasadr as uint16;
             ecx_FPRD(
@@ -952,7 +955,7 @@ pub unsafe extern "C" fn ecx_config_init(
                 EthercatRegister::ECT_REG_EEPSTAT as uint16,
                 ::core::mem::size_of::<uint16>() as uint16,
                 &mut estat as *mut uint16 as *mut libc::c_void,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             );
             estat = estat;
             if estat as libc::c_int & 0x40i32 != 0 {
@@ -964,7 +967,7 @@ pub unsafe extern "C" fn ecx_config_init(
         }
         slave = 1u16;
         while slave as libc::c_int <= *(*context).slavecount {
-            eedat = ecx_readeeprom2(context, slave, 20000i32);
+            eedat = ecx_readeeprom2(context, slave, EC_TIMEOUTEEP);
             (*(*context).slavelist.offset(slave as isize)).eep_man = eedat;
             ecx_readeeprom1(context, slave, SIIGeneral::ECT_SII_ID as uint16);
             slave = slave.wrapping_add(1)
@@ -972,7 +975,7 @@ pub unsafe extern "C" fn ecx_config_init(
         } /* ID */
         slave = 1u16;
         while slave as libc::c_int <= *(*context).slavecount {
-            eedat = ecx_readeeprom2(context, slave, 20000i32);
+            eedat = ecx_readeeprom2(context, slave, EC_TIMEOUTEEP);
             (*(*context).slavelist.offset(slave as isize)).eep_id = eedat;
             ecx_readeeprom1(context, slave, SIIGeneral::ECT_SII_REV as uint16);
             slave = slave.wrapping_add(1)
@@ -980,7 +983,7 @@ pub unsafe extern "C" fn ecx_config_init(
         } /* revision */
         slave = 1u16;
         while slave as libc::c_int <= *(*context).slavecount {
-            eedat = ecx_readeeprom2(context, slave, 20000i32);
+            eedat = ecx_readeeprom2(context, slave, EC_TIMEOUTEEP);
             (*(*context).slavelist.offset(slave as isize)).eep_rev = eedat;
             ecx_readeeprom1(context, slave, SIIGeneral::ECT_SII_RXMBXADR as uint16);
             slave = slave.wrapping_add(1)
@@ -988,7 +991,7 @@ pub unsafe extern "C" fn ecx_config_init(
         } /* write mailbox address and mailboxsize */
         slave = 1u16;
         while slave as libc::c_int <= *(*context).slavecount {
-            eedat = ecx_readeeprom2(context, slave, 20000i32);
+            eedat = ecx_readeeprom2(context, slave, EC_TIMEOUTEEP);
             (*(*context).slavelist.offset(slave as isize)).mbx_wo = (eedat & 0xffffu32) as uint16;
             (*(*context).slavelist.offset(slave as isize)).mbx_l = (eedat >> 16i32) as uint16;
             if (*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int > 0i32 {
@@ -1000,7 +1003,7 @@ pub unsafe extern "C" fn ecx_config_init(
         slave = 1u16; /*read mailbox length */
         while slave as libc::c_int <= *(*context).slavecount {
             if (*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int > 0i32 {
-                eedat = ecx_readeeprom2(context, slave, 20000i32);
+                eedat = ecx_readeeprom2(context, slave, EC_TIMEOUTEEP);
                 (*(*context).slavelist.offset(slave as isize)).mbx_ro =
                     (eedat & 0xffffu32) as uint16;
                 (*(*context).slavelist.offset(slave as isize)).mbx_rl = (eedat >> 16i32) as uint16;
@@ -1015,7 +1018,7 @@ pub unsafe extern "C" fn ecx_config_init(
                 (*context).port,
                 configadr,
                 EthercatRegister::ECT_REG_ESCSUP as uint16,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             );
             if val16 as libc::c_int & 0x4i32 > 0i32 {
                 /* Support DC? */
@@ -1027,7 +1030,7 @@ pub unsafe extern "C" fn ecx_config_init(
                 (*context).port,
                 configadr,
                 EthercatRegister::ECT_REG_DLSTAT as uint16,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             );
             topology = topology;
             h = 0u8;
@@ -1057,7 +1060,7 @@ pub unsafe extern "C" fn ecx_config_init(
                 (*context).port,
                 configadr,
                 EthercatRegister::ECT_REG_PORTDES as uint16,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             );
             (*(*context).slavelist.offset(slave as isize)).ptype =
                 (val16 as libc::c_int & 0xffi32) as uint8;
@@ -1104,7 +1107,7 @@ pub unsafe extern "C" fn ecx_config_init(
                 context,
                 slave,
                 ec_state::EC_STATE_INIT as uint16,
-                2000000i32,
+                EC_TIMEOUTSTATE,
             );
             /* set default mailbox configuration if slave has mailbox */
             if (*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int > 0i32 {
@@ -1122,7 +1125,7 @@ pub unsafe extern "C" fn ecx_config_init(
                 (*(*context).slavelist.offset(slave as isize)).SM[1usize].SMlength =
                     (*(*context).slavelist.offset(slave as isize)).mbx_rl;
                 (*(*context).slavelist.offset(slave as isize)).SM[1usize].SMflags = 0x10022u32;
-                eedat = ecx_readeeprom2(context, slave, 20000i32);
+                eedat = ecx_readeeprom2(context, slave, EC_TIMEOUTEEP);
                 (*(*context).slavelist.offset(slave as isize)).mbx_proto = eedat as uint16
             }
             cindex = 0i32;
@@ -1272,7 +1275,7 @@ pub unsafe extern "C" fn ecx_config_init(
                         .SM
                         .as_mut_ptr()
                         .offset(0isize) as *mut ec_smt as *mut libc::c_void,
-                    2000i32 * 3i32,
+                    EC_TIMEOUTRET3,
                 );
             }
             /* some slaves need eeprom available to PDI in init->preop transition */
@@ -1286,7 +1289,7 @@ pub unsafe extern "C" fn ecx_config_init(
                     EthercatRegister::ECT_REG_ALCTL as uint16,
                     (ec_state::EC_STATE_PRE_OP as libc::c_int
                         | ethercattype::EC_STATE_ACK as libc::c_int) as uint16,
-                    2000i32 * 3i32,
+                    EC_TIMEOUTRET3,
                 );
                 /* set preop status */
             }
@@ -1348,7 +1351,7 @@ unsafe extern "C" fn ecx_map_coe_soe(
         context,
         slave,
         ec_state::EC_STATE_PRE_OP as uint16,
-        2000000i32,
+        EC_TIMEOUTSTATE,
     );
     /* execute special slave configuration hook Pre-Op to Safe-OP */
     if (*(*context).slavelist.offset(slave as isize))
@@ -1474,7 +1477,7 @@ unsafe extern "C" fn ecx_map_sm(mut context: *mut ecx_contextt, mut slave: uint1
                 .SM
                 .as_mut_ptr()
                 .offset(0isize) as *mut ec_smt as *mut libc::c_void,
-            2000i32 * 3i32,
+            EC_TIMEOUTRET3,
         );
     }
     if (*(*context).slavelist.offset(slave as isize)).mbx_l == 0
@@ -1489,7 +1492,7 @@ unsafe extern "C" fn ecx_map_sm(mut context: *mut ecx_contextt, mut slave: uint1
                 .SM
                 .as_mut_ptr()
                 .offset(1isize) as *mut ec_smt as *mut libc::c_void,
-            2000i32 * 3i32,
+            EC_TIMEOUTRET3,
         );
     }
     /* program SM2 to SMx */
@@ -1521,7 +1524,7 @@ unsafe extern "C" fn ecx_map_sm(mut context: *mut ecx_contextt, mut slave: uint1
                     .SM
                     .as_mut_ptr()
                     .offset(nSM as isize) as *mut ec_smt as *mut libc::c_void,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             );
         }
         nSM += 1
@@ -1731,7 +1734,7 @@ unsafe extern "C" fn ecx_config_create_input_mappings(
                     .FMMU
                     .as_mut_ptr()
                     .offset(FMMUc as isize) as *mut ec_fmmut as *mut libc::c_void,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             );
             /* Set flag to add one for an input FMMU,
             a single ESC can only contribute once */
@@ -1899,7 +1902,7 @@ unsafe extern "C" fn ecx_config_create_output_mappings(
                     .FMMU
                     .as_mut_ptr()
                     .offset(FMMUc as isize) as *mut ec_fmmut as *mut libc::c_void,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             );
             /* Set flag to add one for an output FMMU,
             a single ESC can only contribute once */
@@ -2078,7 +2081,7 @@ pub unsafe extern "C" fn ecx_config_map_group(
                         configadr,
                         EthercatRegister::ECT_REG_ALCTL as uint16,
                         ec_state::EC_STATE_SAFE_OP as uint16,
-                        2000i32 * 3i32,
+                        EC_TIMEOUTRET3,
                     );
                     /* set safeop status */
                 }
@@ -2236,7 +2239,7 @@ pub unsafe extern "C" fn ecx_config_overlap_map_group(
                         configadr,
                         EthercatRegister::ECT_REG_ALCTL as uint16,
                         ec_state::EC_STATE_SAFE_OP as uint16,
-                        2000i32 * 3i32,
+                        EC_TIMEOUTRET3,
                     );
                 }
                 if (*(*context).slavelist.offset(slave as isize)).blockLRW != 0 {
@@ -2373,16 +2376,24 @@ pub unsafe extern "C" fn ecx_recover_slave(
             timeout,
         ) as libc::c_int
             == (*(*context).slavelist.offset(slave as isize)).aliasadr as libc::c_int
-            && ecx_readeeprom(context, slave, SIIGeneral::ECT_SII_ID as uint16, 20000i32)
-                == (*(*context).slavelist.offset(slave as isize)).eep_id
+            && ecx_readeeprom(
+                context,
+                slave,
+                SIIGeneral::ECT_SII_ID as uint16,
+                EC_TIMEOUTEEP,
+            ) == (*(*context).slavelist.offset(slave as isize)).eep_id
             && ecx_readeeprom(
                 context,
                 slave,
                 SIIGeneral::ECT_SII_MANUF as uint16,
-                20000i32,
+                EC_TIMEOUTEEP,
             ) == (*(*context).slavelist.offset(slave as isize)).eep_man
-            && ecx_readeeprom(context, slave, SIIGeneral::ECT_SII_REV as uint16, 20000i32)
-                == (*(*context).slavelist.offset(slave as isize)).eep_rev
+            && ecx_readeeprom(
+                context,
+                slave,
+                SIIGeneral::ECT_SII_REV as uint16,
+                EC_TIMEOUTEEP,
+            ) == (*(*context).slavelist.offset(slave as isize)).eep_rev
         {
             rval = ecx_FPWRw(
                 (*context).port,
@@ -2441,7 +2452,7 @@ pub unsafe extern "C" fn ecx_reconfig_slave(
         context,
         slave,
         ec_state::EC_STATE_INIT as uint16,
-        2000000i32,
+        EC_TIMEOUTSTATE,
     ) as libc::c_int;
     if state == ec_state::EC_STATE_INIT as libc::c_int {
         /* program all enabled SM */
@@ -2477,7 +2488,7 @@ pub unsafe extern "C" fn ecx_reconfig_slave(
             context,
             slave,
             ec_state::EC_STATE_PRE_OP as uint16,
-            2000000i32,
+            EC_TIMEOUTSTATE,
         ) as libc::c_int;
         if state == ec_state::EC_STATE_PRE_OP as libc::c_int {
             /* execute special slave configuration hook Pre-Op to Safe-OP */
@@ -2510,7 +2521,7 @@ pub unsafe extern "C" fn ecx_reconfig_slave(
                 context,
                 slave,
                 ec_state::EC_STATE_SAFE_OP as uint16,
-                2000000i32,
+                EC_TIMEOUTSTATE,
             ) as libc::c_int;
             /* program configured FMMU */
             FMMUc = 0i32;

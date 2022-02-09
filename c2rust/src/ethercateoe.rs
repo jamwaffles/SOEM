@@ -3,7 +3,7 @@ use crate::{
         ec_clearmbx, ec_mbxbuft, ec_mbxheadert, ec_nextmbxcnt, ecx_contextt, ecx_mbxreceive,
         ecx_mbxsend,
     },
-    ethercattype::{ec_err_type, MailboxType},
+    ethercattype::{ec_err_type, MailboxType, EC_TIMEOUTTXM},
 };
 use ::c2rust_bitfields;
 use libc::memcpy;
@@ -264,7 +264,12 @@ pub unsafe extern "C" fn ecx_EOEsetIp(
     (*EOEp).mbxheader.length = (4i32 + data_offset as libc::c_int) as uint16;
     (*EOEp).data[0usize] = flags;
     /* send EoE request to slave */
-    wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+    wkc = ecx_mbxsend(
+        context,
+        slave,
+        &mut MbxOut as *mut ec_mbxbuft,
+        EC_TIMEOUTTXM,
+    );
     if wkc > 0i32 {
         /* succeeded to place mailbox in slave ? */
         /* clean mailboxbuffer */
@@ -340,7 +345,12 @@ pub unsafe extern "C" fn ecx_EOEgetIp(
     (*EOEp).mbxheader.length = 0x4u16;
     (*EOEp).data[0usize] = flags;
     /* send EoE request to slave */
-    wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+    wkc = ecx_mbxsend(
+        context,
+        slave,
+        &mut MbxOut as *mut ec_mbxbuft,
+        EC_TIMEOUTTXM,
+    );
     if wkc > 0i32 {
         /* succeeded to place mailbox in slave ? */
         /* clean mailboxbuffer */

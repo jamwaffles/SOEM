@@ -1,3 +1,5 @@
+use std::mem;
+
 use crate::{
     ethercatconfig::{
         ecx_config_init, ecx_config_map_group, ecx_reconfig_slave, ecx_recover_slave,
@@ -10,11 +12,13 @@ use crate::{
         ecx_receive_processdata, ecx_send_processdata, ecx_statecheck, ecx_writestate,
     },
     ethercatprint::ec_ALstatuscode2string,
-    ethercattype::{self, ec_bufT, ec_err_type, ec_errort, ec_state, C2RustUnnamed_0},
+    ethercattype::{
+        self, ec_bufT, ec_err_type, ec_errort, ec_state, C2RustUnnamed_0, EC_TIMEOUTSTATE,
+    },
     osal::linux::osal::{ec_timet, osal_current_time, osal_time_diff, osal_usleep},
     oshw::linux::nicdrv::{ec_stackT, ecx_portt, ecx_redportt},
 };
-use libc::{memset, pthread_mutex_t};
+use libc::memset;
 
 pub type __uint8_t = libc::c_uchar;
 pub type __int16_t = libc::c_short;
@@ -188,7 +192,7 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
         context,
         0u16,
         ec_state::EC_STATE_SAFE_OP as uint16,
-        2000000i32 * 4i32,
+        EC_TIMEOUTSTATE * 4i32,
     );
 
     println!("done");
@@ -210,7 +214,7 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
             context,
             0u16,
             ec_state::EC_STATE_OPERATIONAL as uint16,
-            2000000i32 / 10i32,
+            EC_TIMEOUTSTATE / 10i32,
         );
         if (*slave).state as libc::c_int == ec_state::EC_STATE_OPERATIONAL as libc::c_int {
             println!(" all slaves are now operational");
@@ -422,51 +426,9 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             lastidx: 0,
             redstate: 0,
             redport: 0 as *mut ecx_redportt,
-            getindex_mutex: pthread_mutex_t {
-                __data: __pthread_mutex_s {
-                    __lock: 0,
-                    __count: 0,
-                    __owner: 0,
-                    __nusers: 0,
-                    __kind: 0,
-                    __spins: 0,
-                    __elision: 0,
-                    __list: __pthread_list_t {
-                        __prev: 0 as *mut __pthread_internal_list,
-                        __next: 0 as *mut __pthread_internal_list,
-                    },
-                },
-            },
-            tx_mutex: pthread_mutex_t {
-                __data: __pthread_mutex_s {
-                    __lock: 0,
-                    __count: 0,
-                    __owner: 0,
-                    __nusers: 0,
-                    __kind: 0,
-                    __spins: 0,
-                    __elision: 0,
-                    __list: __pthread_list_t {
-                        __prev: 0 as *mut __pthread_internal_list,
-                        __next: 0 as *mut __pthread_internal_list,
-                    },
-                },
-            },
-            rx_mutex: pthread_mutex_t {
-                __data: __pthread_mutex_s {
-                    __lock: 0,
-                    __count: 0,
-                    __owner: 0,
-                    __nusers: 0,
-                    __kind: 0,
-                    __spins: 0,
-                    __elision: 0,
-                    __list: __pthread_list_t {
-                        __prev: 0 as *mut __pthread_internal_list,
-                        __next: 0 as *mut __pthread_internal_list,
-                    },
-                },
-            },
+            getindex_mutex: unsafe { mem::zeroed() },
+            tx_mutex: unsafe { mem::zeroed() },
+            rx_mutex: unsafe { mem::zeroed() },
         },
         slavelist: [ec_slavet {
             state: 0,

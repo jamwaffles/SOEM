@@ -1,3 +1,5 @@
+use std::mem;
+
 use crate::{
     ethercatbase::{
         ecx_APRD, ecx_APWR, ecx_BRD, ecx_BWR, ecx_FPRD, ecx_FPWR, ecx_FPWRw, ecx_adddatagram,
@@ -6,6 +8,7 @@ use crate::{
     ethercattype::{
         ec_bufT, ec_bufstate, ec_cmdtype, ec_comt, ec_ecmdtype, ec_err_type, ec_errort,
         ec_etherheadert, ec_state, C2RustUnnamed_0, EthercatRegister, MailboxType, SIICategory,
+        EC_TIMEOUTEEP,
     },
     osal::linux::osal::{
         ec_timet, osal_current_time, osal_timer_is_expired, osal_timer_start, osal_timert,
@@ -19,7 +22,7 @@ use crate::{
         oshw::{oshw_find_adapters, oshw_free_adapters, oshw_htons},
     },
 };
-use libc::{memcpy, memset, pthread_mutex_t};
+use libc::{memcpy, memset};
 
 pub type __uint8_t = libc::c_uchar;
 pub type __int16_t = libc::c_short;
@@ -44,6 +47,45 @@ pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type int64 = int64_t;
 pub type uint64 = uint64_t;
+
+/** max. entries in EtherCAT error list */
+pub const EC_MAXELIST: u16 = 64;
+/** max. length of readable name in slavelist and Object Description List */
+pub const EC_MAXNAME: usize = 40;
+/** max. number of slaves in array */
+pub const EC_MAXSLAVE: u16 = 200;
+/** max. number of groups */
+pub const EC_MAXGROUP: u16 = 2;
+/** max. number of IO segments per group */
+pub const EC_MAXIOSEGMENTS: u16 = 64;
+/** max. mailbox size */
+pub const EC_MAXMBX: u16 = 1486;
+/** max. eeprom PDO entries */
+pub const EC_MAXEEPDO: u16 = 0x200;
+/** max. SM used */
+pub const EC_MAXSM: usize = 8;
+/** max. FMMU used */
+pub const EC_MAXFMMU: u16 = 4;
+/** max. Adapter */
+pub const EC_MAXLEN_ADAPTERNAME: u16 = 128;
+/** define maximum number of concurrent threads in mapping */
+pub const EC_MAX_MAPT: u16 = 1;
+
+pub const ECT_MBXPROT_AOE: i32 = 0x0001;
+pub const ECT_MBXPROT_EOE: i32 = 0x0002;
+pub const ECT_MBXPROT_COE: i32 = 0x0004;
+pub const ECT_MBXPROT_FOE: i32 = 0x0008;
+pub const ECT_MBXPROT_SOE: i32 = 0x0010;
+pub const ECT_MBXPROT_VOE: i32 = 0x0020;
+
+pub const ECT_COEDET_SDO: i32 = 0x01;
+pub const ECT_COEDET_SDOINFO: i32 = 0x02;
+pub const ECT_COEDET_PDOASSIGN: i32 = 0x04;
+pub const ECT_COEDET_PDOCONFIG: i32 = 0x08;
+pub const ECT_COEDET_UPLOAD: i32 = 0x10;
+pub const ECT_COEDET_SDOCA: i32 = 0x20;
+
+pub const EC_SMENABLEMASK: u32 = 0xfffeffff;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -562,52 +604,9 @@ pub static mut ecx_port: ecx_portt = ecx_portt {
     lastidx: 0,
     redstate: 0,
     redport: 0 as *mut ecx_redportt,
-    getindex_mutex: pthread_mutex_t {
-        __data: __pthread_mutex_s {
-            __lock: 0,
-            __count: 0,
-            __owner: 0,
-            __nusers: 0,
-            __kind: 0,
-            __spins: 0,
-            __elision: 0,
-            __list: __pthread_list_t {
-                __prev: 0 as *mut __pthread_internal_list,
-                __next: 0 as *mut __pthread_internal_list,
-            },
-        },
-    },
-    tx_mutex: pthread_mutex_t {
-        __data: __pthread_mutex_s {
-            __lock: 0,
-            __count: 0,
-            __owner: 0,
-            __nusers: 0,
-            __kind: 0,
-            __spins: 0,
-            __elision: 0,
-            __list: __pthread_list_t {
-                __prev: 0 as *mut __pthread_internal_list,
-                __next: 0 as *mut __pthread_internal_list,
-            },
-        },
-        size: [u8; 56],
-    },
-    rx_mutex: pthread_mutex_t {
-        __data: __pthread_mutex_s {
-            __lock: 0,
-            __count: 0,
-            __owner: 0,
-            __nusers: 0,
-            __kind: 0,
-            __spins: 0,
-            __elision: 0,
-            __list: __pthread_list_t {
-                __prev: 0 as *mut __pthread_internal_list,
-                __next: 0 as *mut __pthread_internal_list,
-            },
-        },
-    },
+    getindex_mutex: unsafe { mem::zeroed() },
+    tx_mutex: unsafe { mem::zeroed() },
+    rx_mutex: unsafe { mem::zeroed() },
 };
 #[no_mangle]
 pub static mut ecx_redport: ecx_redportt = ecx_redportt {
@@ -946,7 +945,7 @@ pub unsafe extern "C" fn ecx_siigetbyte(
             configadr = (*(*context).slavelist.offset(slave as isize)).configadr; /* set eeprom control to master */
             ecx_eeprom2master(context, slave);
             eadr = (address as libc::c_int >> 1i32) as uint16;
-            edat64 = ecx_readeepromFP(context, configadr, eadr, 20000i32);
+            edat64 = ecx_readeepromFP(context, configadr, eadr, EC_TIMEOUTEEP);
             /* 8 byte response */
             if (*(*context).slavelist.offset(slave as isize)).eep_8byte != 0 {
                 memcpy(
@@ -1415,7 +1414,7 @@ pub unsafe extern "C" fn ecx_FPRD_multi(
     let mut sldatapos: [uint16; 64] = [0; 64];
     let mut slcnt: libc::c_int = 0;
     port = (*context).port;
-    idx = ecx_clearindex(port);
+    idx = ecx_getindex(port);
     slcnt = 0i32;
     ecx_setupdatagram(
         port,
@@ -2023,7 +2022,7 @@ pub unsafe extern "C" fn ecx_esidump(
         incr = 2u16
     }
     loop {
-        edat = ecx_readeepromFP(context, configadr, address, 20000i32);
+        edat = ecx_readeepromFP(context, configadr, address, EC_TIMEOUTEEP);
         p64 = p16 as *mut uint64;
         *p64 = edat;
         p16 = p16.offset(incr as libc::c_int as isize);
@@ -2721,7 +2720,7 @@ pub unsafe extern "C" fn ecx_readeeprom1(
     let mut cnt: libc::c_int = 0i32;
     ecx_eeprom2master(context, slave);
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
-    if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, 20000i32) != 0 {
+    if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, EC_TIMEOUTEEP) != 0 {
         if estat as libc::c_int & 0x7800i32 != 0 {
             /* error bits are set */
             estat = ec_ecmdtype::EC_ECMD_NOP as uint16; /* clear error bits */

@@ -1,13 +1,9 @@
 use crate::{
     ethercatmain::{ecx_context, ecx_contextt, ecx_poperror},
     ethercattype::{ec_err_type, ec_errort, C2RustUnnamed_0},
-    osal::linux::osal::{ec_timet, osal_timer_is_expired, osal_timer_start},
+    osal::linux::osal::ec_timet,
 };
-use libc::{
-    bind, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
-    pthread_mutex_unlock, pthread_mutexattr_init, pthread_mutexattr_t, recv, send, setsockopt,
-    sockaddr, socket, sprintf, strcpy, timeval,
-};
+use libc::sprintf;
 
 pub type __uint8_t = libc::c_uchar;
 pub type __int16_t = libc::c_short;

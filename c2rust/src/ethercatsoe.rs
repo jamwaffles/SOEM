@@ -3,7 +3,10 @@ use crate::{
         ec_clearmbx, ec_mbxbuft, ec_mbxheadert, ec_nextmbxcnt, ecx_context, ecx_contextt,
         ecx_mbxempty, ecx_mbxreceive, ecx_mbxsend, ecx_packeterror, ecx_pusherror,
     },
-    ethercattype::{ec_err_type, ec_errort, C2RustUnnamed_0, MailboxType, SoEOpCode},
+    ethercattype::{
+        ec_err_type, ec_errort, C2RustUnnamed_0, MailboxType, SoEOpCode, EC_TIMEOUTRXM,
+        EC_TIMEOUTTXM,
+    },
     osal::linux::osal::{ec_timet, osal_current_time},
 };
 use libc::{memcpy, memset};
@@ -179,7 +182,12 @@ pub unsafe extern "C" fn ecx_SoEread(
         .offset(::core::mem::size_of::<ec_SoEt>() as isize);
     NotLast = 1u8;
     /* send SoE request to slave */
-    wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+    wkc = ecx_mbxsend(
+        context,
+        slave,
+        &mut MbxOut as *mut ec_mbxbuft,
+        EC_TIMEOUTTXM,
+    );
     if wkc > 0i32 {
         /* succeeded to place mailbox in slave ? */
         while NotLast != 0 {
@@ -345,7 +353,12 @@ pub unsafe extern "C" fn ecx_SoEwrite(
         hp = hp.offset(framedatasize as isize);
         psize -= framedatasize;
         /* send SoE request to slave */
-        wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+        wkc = ecx_mbxsend(
+            context,
+            slave,
+            &mut MbxOut as *mut ec_mbxbuft,
+            EC_TIMEOUTTXM,
+        );
         if wkc > 0i32 {
             /* succeeded to place mailbox in slave ? */
             if NotLast == 0 || ecx_mbxempty(context, slave, timeout) == 0 {
@@ -443,7 +456,7 @@ pub unsafe extern "C" fn ecx_readIDNmap(
             24u16,
             &mut psize,
             &mut SoEmapping as *mut ec_SoEmappingt as *mut libc::c_void,
-            700000i32,
+            EC_TIMEOUTRXM,
         );
         if wkc > 0i32
             && psize >= 4i32
@@ -467,7 +480,7 @@ pub unsafe extern "C" fn ecx_readIDNmap(
                     SoEmapping.idn[itemcount as usize],
                     &mut psize,
                     &mut SoEattribute as *mut ec_SoEattributet as *mut libc::c_void,
-                    700000i32,
+                    EC_TIMEOUTRXM,
                 );
                 if wkc > 0i32 && SoEattribute.list() == 0 {
                     /* length : 0 = 8bit, 1 = 16bit .... */
@@ -488,7 +501,7 @@ pub unsafe extern "C" fn ecx_readIDNmap(
             16u16,
             &mut psize,
             &mut SoEmapping as *mut ec_SoEmappingt as *mut libc::c_void,
-            700000i32,
+            EC_TIMEOUTRXM,
         );
         if wkc > 0i32
             && psize >= 4i32
@@ -512,7 +525,7 @@ pub unsafe extern "C" fn ecx_readIDNmap(
                     SoEmapping.idn[itemcount as usize],
                     &mut psize,
                     &mut SoEattribute as *mut ec_SoEattributet as *mut libc::c_void,
-                    700000i32,
+                    EC_TIMEOUTRXM,
                 );
                 if wkc > 0i32 && SoEattribute.list() == 0 {
                     /* length : 0 = 8bit, 1 = 16bit .... */

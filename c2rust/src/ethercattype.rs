@@ -417,13 +417,13 @@ pub enum EthercatRegister {
 }
 
 /** standard SDO Sync Manager Communication Type */
-pub const ECT_SDO_SMCOMMTYPE: i32 = 0x1c00;
+pub const ECT_SDO_SMCOMMTYPE: u16 = 0x1c00;
 /** standard SDO PDO assignment */
-pub const ECT_SDO_PDOASSIGN: i32 = 0x1c10;
+pub const ECT_SDO_PDOASSIGN: u16 = 0x1c10;
 /** standard SDO RxPDO assignment */
-pub const ECT_SDO_RXPDOASSIGN: i32 = 0x1c12;
+pub const ECT_SDO_RXPDOASSIGN: u16 = 0x1c12;
 /** standard SDO TxPDO assignment */
-pub const ECT_SDO_TXPDOASSIGN: i32 = 0x1c13;
+pub const ECT_SDO_TXPDOASSIGN: u16 = 0x1c13;
 
 /** Ethercat packet type */
 pub const ETH_P_ECAT: i32 = 0x88A4;

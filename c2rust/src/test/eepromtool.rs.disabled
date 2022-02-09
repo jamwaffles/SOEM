@@ -399,7 +399,7 @@ pub unsafe extern "C" fn eeprom_read(
             ainc = 8i32;
             i = start;
             while i < start + length {
-                b8 = ec_readeepromAP(aiadr, (i >> 1i32) as uint16, 20000i32);
+                b8 = ec_readeepromAP(aiadr, (i >> 1i32) as uint16, EC_TIMEOUTEEP);
                 ebuf[i as usize] = (b8 & 0xffu64) as uint8;
                 ebuf[(i + 1i32) as usize] = (b8 >> 8i32 & 0xffu64) as uint8;
                 ebuf[(i + 2i32) as usize] = (b8 >> 16i32 & 0xffu64) as uint8;
@@ -413,7 +413,7 @@ pub unsafe extern "C" fn eeprom_read(
         } else {
             i = start;
             while i < start + length {
-                b4 = (ec_readeepromAP(aiadr, (i >> 1i32) as uint16, 20000i32) & 0xffffffffu64)
+                b4 = (ec_readeepromAP(aiadr, (i >> 1i32) as uint16, EC_TIMEOUTEEP) & 0xffffffffu64)
                     as uint32;
                 ebuf[i as usize] = (b4 & 0xffu32) as uint8;
                 ebuf[(i + 1i32) as usize] = (b4 >> 8i32 & 0xffu32) as uint8;
@@ -463,7 +463,7 @@ pub unsafe extern "C" fn eeprom_write(
                 aiadr,
                 (i >> 1i32) as uint16,
                 *wbuf.offset((i >> 1i32) as isize),
-                20000i32,
+                EC_TIMEOUTEEP,
             );
             dc += 1;
             if dc >= 100i32 {
@@ -504,9 +504,9 @@ pub unsafe extern "C" fn eeprom_writealias(
             &mut eepctl as *mut uint8 as *mut libc::c_void,
             2000i32,
         );
-        ret = ec_writeeepromAP(aiadr, 0x4u16, alias_0 as uint16, 20000i32);
+        ret = ec_writeeepromAP(aiadr, 0x4u16, alias_0 as uint16, EC_TIMEOUTEEP);
         if ret != 0 {
-            ret = ec_writeeepromAP(aiadr, 0x7u16, crc, 20000i32)
+            ret = ec_writeeepromAP(aiadr, 0x7u16, crc, EC_TIMEOUTEEP)
         }
         return ret;
     }
@@ -537,7 +537,7 @@ pub unsafe extern "C" fn eepromtool(
             EthercatRegister::ECT_REG_TYPE as uint16,
             ::core::mem::size_of::<libc::c_int>() as uint16,
             &mut w as *mut libc::c_int as *mut libc::c_void,
-            20000i32,
+            EC_TIMEOUTTXM,
         ); // read reminder
         if wkc > 0i32 {
             ec_slavecount = wkc;

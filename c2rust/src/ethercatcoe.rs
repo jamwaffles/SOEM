@@ -2,11 +2,12 @@ use crate::{
     ethercatmain::{
         ec_PDOassignt, ec_PDOdesct, ec_SMcommtypet, ec_clearmbx, ec_mbxbuft, ec_mbxheadert,
         ec_nextmbxcnt, ecx_context, ecx_contextt, ecx_mbxreceive, ecx_mbxsend, ecx_packeterror,
-        ecx_pusherror,
+        ecx_pusherror, EC_MAXNAME, EC_MAXSM, EC_SMENABLEMASK,
     },
     ethercattype::{
         ec_err_type, ec_errort, C2RustUnnamed_0, CoEMailboxType, CoEObjectDescription,
-        CoESDOCommand, MailboxType,
+        CoESDOCommand, MailboxType, ECT_SDO_PDOASSIGN, ECT_SDO_SMCOMMTYPE, EC_TIMEOUTRXM,
+        EC_TIMEOUTTXM,
     },
     osal::linux::osal::{ec_timet, osal_current_time},
 };
@@ -33,27 +34,33 @@ pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type int64 = int64_t;
 
+/** max entries in Object Description list */
+pub const EC_MAXODLIST: usize = 1024;
+
+/** max entries in Object Entry list */
+pub const EC_MAXOELIST: usize = 256;
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_ODlistt {
     pub Slave: uint16,
     pub Entries: uint16,
-    pub Index: [uint16; 1024],
-    pub DataType: [uint16; 1024],
-    pub ObjectCode: [uint8; 1024],
-    pub MaxSub: [uint8; 1024],
-    pub Name: [[libc::c_char; 41]; 1024],
+    pub Index: [uint16; EC_MAXODLIST],
+    pub DataType: [uint16; EC_MAXODLIST],
+    pub ObjectCode: [uint8; EC_MAXODLIST],
+    pub MaxSub: [uint8; EC_MAXODLIST],
+    pub Name: [[libc::c_char; EC_MAXNAME + 1]; EC_MAXODLIST],
 }
 
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_OElistt {
     pub Entries: uint16,
-    pub ValueInfo: [uint8; 256],
-    pub DataType: [uint16; 256],
-    pub BitLength: [uint16; 256],
-    pub ObjAccess: [uint16; 256],
-    pub Name: [[libc::c_char; 41]; 256],
+    pub ValueInfo: [uint8; EC_MAXOELIST],
+    pub DataType: [uint16; EC_MAXOELIST],
+    pub BitLength: [uint16; EC_MAXOELIST],
+    pub ObjAccess: [uint16; EC_MAXOELIST],
+    pub Name: [[libc::c_char; 41]; EC_MAXOELIST],
 }
 
 #[repr(C)]
@@ -241,7 +248,12 @@ pub unsafe extern "C" fn ecx_SDOread(
     (*SDOp).SubIndex = subindex;
     (*SDOp).c2rust_unnamed.ldata[0usize] = 0u32;
     /* send CoE request to slave */
-    wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+    wkc = ecx_mbxsend(
+        context,
+        slave,
+        &mut MbxOut as *mut ec_mbxbuft,
+        EC_TIMEOUTTXM,
+    );
     if wkc > 0i32 {
         /* succeeded to place mailbox in slave ? */
         /* clean mailboxbuffer */
@@ -330,7 +342,7 @@ pub unsafe extern "C" fn ecx_SDOread(
                                     context,
                                     slave,
                                     &mut MbxOut as *mut ec_mbxbuft,
-                                    20000i32,
+                                    EC_TIMEOUTTXM,
                                 );
                                 if wkc > 0i32 {
                                     ec_clearmbx(&mut MbxIn);
@@ -526,7 +538,12 @@ pub unsafe extern "C" fn ecx_SDOwrite(
             psize as usize,
         );
         /* send mailbox SDO download request to slave */
-        wkc = ecx_mbxsend(context, Slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+        wkc = ecx_mbxsend(
+            context,
+            Slave,
+            &mut MbxOut as *mut ec_mbxbuft,
+            EC_TIMEOUTTXM,
+        );
         if wkc > 0i32 {
             ec_clearmbx(&mut MbxIn);
             /* read slave response */
@@ -602,7 +619,12 @@ pub unsafe extern "C" fn ecx_SDOwrite(
         hp = hp.offset(framedatasize as isize);
         psize -= framedatasize;
         /* send mailbox SDO download request to slave */
-        wkc = ecx_mbxsend(context, Slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+        wkc = ecx_mbxsend(
+            context,
+            Slave,
+            &mut MbxOut as *mut ec_mbxbuft,
+            EC_TIMEOUTTXM,
+        );
         if wkc > 0i32 {
             ec_clearmbx(&mut MbxIn);
             /* read slave response */
@@ -659,7 +681,12 @@ pub unsafe extern "C" fn ecx_SDOwrite(
                         );
                         hp = hp.offset(framedatasize as isize);
                         psize -= framedatasize;
-                        wkc = ecx_mbxsend(context, Slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+                        wkc = ecx_mbxsend(
+                            context,
+                            Slave,
+                            &mut MbxOut as *mut ec_mbxbuft,
+                            EC_TIMEOUTTXM,
+                        );
                         if wkc > 0i32 {
                             ec_clearmbx(&mut MbxIn);
                             /* get new mailbox counter value */
@@ -785,7 +812,12 @@ pub unsafe extern "C" fn ecx_RxPDO(
         framedatasize as usize,
     );
     /* send mailbox RxPDO request to slave */
-    wkc = ecx_mbxsend(context, Slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+    wkc = ecx_mbxsend(
+        context,
+        Slave,
+        &mut MbxOut as *mut ec_mbxbuft,
+        EC_TIMEOUTTXM,
+    );
     return wkc;
 }
 /* * CoE TxPDO read remote request, blocking.
@@ -834,7 +866,12 @@ pub unsafe extern "C" fn ecx_TxPDO(
     (*SDOp).CANOpen = ((TxPDOnumber as libc::c_int & 0x1ffi32)
         + ((CoEMailboxType::ECT_COES_TXPDO_RR as libc::c_int) << 12i32))
         as uint16;
-    wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+    wkc = ecx_mbxsend(
+        context,
+        slave,
+        &mut MbxOut as *mut ec_mbxbuft,
+        EC_TIMEOUTTXM,
+    );
     if wkc > 0i32 {
         /* clean mailboxbuffer */
         ec_clearmbx(&mut MbxIn);
@@ -921,7 +958,7 @@ pub unsafe extern "C" fn ecx_readPDOassign(
         0u8,
         &mut rdl,
         &mut rdat as *mut uint16 as *mut libc::c_void,
-        700000i32,
+        EC_TIMEOUTRXM,
     );
     rdat = rdat;
     /* positive result from slave ? */
@@ -943,7 +980,7 @@ pub unsafe extern "C" fn ecx_readPDOassign(
                 0u8,
                 &mut rdl,
                 &mut rdat as *mut uint16 as *mut libc::c_void,
-                700000i32,
+                EC_TIMEOUTRXM,
             );
             /* result is index of PDO */
             idx = rdat;
@@ -959,7 +996,7 @@ pub unsafe extern "C" fn ecx_readPDOassign(
                     0u8,
                     &mut rdl,
                     &mut subcnt as *mut uint8 as *mut libc::c_void,
-                    700000i32,
+                    EC_TIMEOUTRXM,
                 );
                 subidx = subcnt as uint16;
                 /* for each subindex */
@@ -976,7 +1013,7 @@ pub unsafe extern "C" fn ecx_readPDOassign(
                         0u8,
                         &mut rdl,
                         &mut rdat2 as *mut int32 as *mut libc::c_void,
-                        700000i32,
+                        EC_TIMEOUTRXM,
                     );
                     rdat2 = rdat2;
                     /* extract bitlength of SDO */
@@ -1033,7 +1070,7 @@ pub unsafe extern "C" fn ecx_readPDOassignCA(
         &mut rdl,
         &mut *(*context).PDOassign.offset(Thread_n as isize) as *mut ec_PDOassignt
             as *mut libc::c_void,
-        700000i32,
+        EC_TIMEOUTRXM,
     );
     /* positive result from slave ? */
     if wkc > 0i32 && (*(*context).PDOassign.offset(Thread_n as isize)).n as libc::c_int > 0i32 {
@@ -1058,7 +1095,7 @@ pub unsafe extern "C" fn ecx_readPDOassignCA(
                     &mut rdl,
                     &mut *(*context).PDOdesc.offset(Thread_n as isize) as *mut ec_PDOdesct
                         as *mut libc::c_void,
-                    700000i32,
+                    EC_TIMEOUTRXM,
                 );
                 subidx = (*(*context).PDOdesc.offset(Thread_n as isize)).n as uint16;
                 /* extract all bitlengths of SDO's */
@@ -1130,18 +1167,18 @@ pub unsafe extern "C" fn ecx_readPDOmap(
     wkc = ecx_SDOread(
         context,
         Slave,
-        0x1c00u16,
+        ECT_SDO_SMCOMMTYPE,
         0u8,
         0u8,
         &mut rdl,
         &mut nSM as *mut uint8 as *mut libc::c_void,
-        700000i32,
+        EC_TIMEOUTRXM,
     );
     /* positive result from slave ? */
     if wkc > 0i32 && nSM as libc::c_int > 2i32 {
         /* limit to maximum number of SM defined, if true the slave can't be configured */
-        if nSM as libc::c_int > 8i32 {
-            nSM = 8u8
+        if nSM as usize > EC_MAXSM {
+            nSM = EC_MAXSM as u8
         }
         /* iterate for every SM type defined */
         iSM = 2u8;
@@ -1152,12 +1189,12 @@ pub unsafe extern "C" fn ecx_readPDOmap(
             wkc = ecx_SDOread(
                 context,
                 Slave,
-                0x1c00u16,
+                ECT_SDO_SMCOMMTYPE,
                 (iSM as libc::c_int + 1i32) as uint8,
                 0u8,
                 &mut rdl,
                 &mut tSM as *mut uint8 as *mut libc::c_void,
-                700000i32,
+                EC_TIMEOUTRXM,
             );
             if wkc > 0i32 {
                 // start slave bug prevention code, remove if possible
@@ -1188,11 +1225,7 @@ pub unsafe extern "C" fn ecx_readPDOmap(
                 }
                 if tSM as libc::c_int == 3i32 || tSM as libc::c_int == 4i32 {
                     /* read the assign PDO */
-                    Tsize = ecx_readPDOassign(
-                        context,
-                        Slave,
-                        (0x1c10i32 + iSM as libc::c_int) as uint16,
-                    );
+                    Tsize = ecx_readPDOassign(context, Slave, ECT_SDO_PDOASSIGN + iSM as u16);
                     /* if a mapping is found */
                     if Tsize != 0 {
                         (*(*context).slavelist.offset(Slave as isize)).SM[iSM as usize].SMlength =
@@ -1254,20 +1287,20 @@ pub unsafe extern "C" fn ecx_readPDOmapCA(
     wkc = ecx_SDOread(
         context,
         Slave,
-        0x1c00u16,
+        ECT_SDO_SMCOMMTYPE,
         0u8,
         1u8,
         &mut rdl,
         &mut *(*context).SMcommtype.offset(Thread_n as isize) as *mut ec_SMcommtypet
             as *mut libc::c_void,
-        700000i32,
+        EC_TIMEOUTRXM,
     );
     /* positive result from slave ? */
     if wkc > 0i32 && (*(*context).SMcommtype.offset(Thread_n as isize)).n as libc::c_int > 2i32 {
         nSM = (*(*context).SMcommtype.offset(Thread_n as isize)).n;
         /* limit to maximum number of SM defined, if true the slave can't be configured */
-        if nSM as libc::c_int > 8i32 {
-            nSM = 8u8;
+        if nSM as usize > EC_MAXSM {
+            nSM = EC_MAXSM as u8;
             ecx_packeterror(context, Slave, 0u16, 0u8, 10u16);
             /* #SM larger than EC_MAXSM */
         }
@@ -1291,16 +1324,12 @@ pub unsafe extern "C" fn ecx_readPDOmapCA(
             if tSM as libc::c_int == 0i32 {
                 (*(*context).slavelist.offset(Slave as isize)).SM[iSM as usize].SMflags =
                     (*(*context).slavelist.offset(Slave as isize)).SM[iSM as usize].SMflags
-                        & 0xfffeffffu32
+                        & EC_SMENABLEMASK
             }
             if tSM as libc::c_int == 3i32 || tSM as libc::c_int == 4i32 {
                 /* read the assign PDO */
-                Tsize = ecx_readPDOassignCA(
-                    context,
-                    Slave,
-                    Thread_n,
-                    (0x1c10i32 + iSM as libc::c_int) as uint16,
-                );
+                Tsize =
+                    ecx_readPDOassignCA(context, Slave, Thread_n, ECT_SDO_PDOASSIGN + iSM as u16);
                 /* if a mapping is found */
                 if Tsize != 0 {
                     (*(*context).slavelist.offset(Slave as isize)).SM[iSM as usize].SMlength =
@@ -1373,7 +1402,7 @@ pub unsafe extern "C" fn ecx_readODlist(
     (*SDOp).Fragments = 0u16;
     (*SDOp).c2rust_unnamed.wdata[0usize] = 0x1u16;
     /* send get object description list request to slave */
-    wkc = ecx_mbxsend(context, Slave, &mut MbxOut, 20000i32);
+    wkc = ecx_mbxsend(context, Slave, &mut MbxOut, EC_TIMEOUTTXM);
     /* mailbox placed in slave ? */
     if wkc > 0i32 {
         x = 0u16; /* offset to skip info header in first frame, otherwise set to 0 */
@@ -1384,7 +1413,7 @@ pub unsafe extern "C" fn ecx_readODlist(
             stop = 1u8;
             ec_clearmbx(&mut MbxIn);
             /* read slave response */
-            wkc = ecx_mbxreceive(context, Slave, &mut MbxIn, 700000i32);
+            wkc = ecx_mbxreceive(context, Slave, &mut MbxIn, EC_TIMEOUTRXM);
             /* got response ? */
             if wkc > 0i32 {
                 /* response should be CoE and "get object description list response" */
@@ -1506,12 +1535,12 @@ pub unsafe extern "C" fn ecx_readODdescription(
     (*SDOp).Fragments = 0u16;
     (*SDOp).c2rust_unnamed.wdata[0usize] = (*pODlist).Index[Item as usize];
     /* send get object description request to slave */
-    wkc = ecx_mbxsend(context, Slave, &mut MbxOut, 20000i32);
+    wkc = ecx_mbxsend(context, Slave, &mut MbxOut, EC_TIMEOUTTXM);
     /* mailbox placed in slave ? */
     if wkc > 0i32 {
         ec_clearmbx(&mut MbxIn);
         /* read slave response */
-        wkc = ecx_mbxreceive(context, Slave, &mut MbxIn, 700000i32);
+        wkc = ecx_mbxreceive(context, Slave, &mut MbxIn, EC_TIMEOUTRXM);
         /* got response ? */
         if wkc > 0i32 {
             if (*aSDOp).MbxHeader.mbxtype as libc::c_int & 0xfi32
@@ -1612,12 +1641,12 @@ pub unsafe extern "C" fn ecx_readOEsingle(
     (*SDOp).c2rust_unnamed.bdata[2usize] = SubI;
     (*SDOp).c2rust_unnamed.bdata[3usize] = (1i32 + 2i32 + 4i32) as uint8;
     /* send get object entry description request to slave */
-    wkc = ecx_mbxsend(context, Slave, &mut MbxOut, 20000i32);
+    wkc = ecx_mbxsend(context, Slave, &mut MbxOut, EC_TIMEOUTTXM);
     /* mailbox placed in slave ? */
     if wkc > 0i32 {
         ec_clearmbx(&mut MbxIn);
         /* read slave response */
-        wkc = ecx_mbxreceive(context, Slave, &mut MbxIn, 700000i32);
+        wkc = ecx_mbxreceive(context, Slave, &mut MbxIn, EC_TIMEOUTRXM);
         /* got response ? */
         if wkc > 0i32 {
             if (*aSDOp).MbxHeader.mbxtype as libc::c_int & 0xfi32
