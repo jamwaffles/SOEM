@@ -93,7 +93,7 @@ pub unsafe extern "C" fn ecx_SoEerror(
         Slave: 0,
         Index: 0,
         SubIdx: 0,
-        Etype: EC_ERR_TYPE_SDO_ERROR,
+        Etype: ec_err_type::EC_CMD_SDO_ERROR,
         c2rust_unnamed: C2RustUnnamed_1 { AbortCode: 0 },
     };
     memset(
@@ -106,7 +106,7 @@ pub unsafe extern "C" fn ecx_SoEerror(
     Ec.Index = idn;
     Ec.SubIdx = 0u8;
     *(*context).ecaterror = 1u8;
-    Ec.Etype = EC_ERR_TYPE_SOE_ERROR;
+    Ec.Etype = ec_err_type::EC_CMD_SOE_ERROR;
     Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode = Error;
     ecx_pusherror(context, &mut Ec);
 }

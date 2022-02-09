@@ -32,28 +32,6 @@ pub type uint32 = uint32_t;
 pub type int64 = int64_t;
 pub type uint64 = uint64_t;
 
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ec_ODlistt {
-    pub Slave: uint16,
-    pub Entries: uint16,
-    pub Index: [uint16; 1024],
-    pub DataType: [uint16; 1024],
-    pub ObjectCode: [uint8; 1024],
-    pub MaxSub: [uint8; 1024],
-    pub Name: [[libc::c_char; 41]; 1024],
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ec_OElistt {
-    pub Entries: uint16,
-    pub ValueInfo: [uint8; 256],
-    pub DataType: [uint16; 256],
-    pub BitLength: [uint16; 256],
-    pub ObjAccess: [uint16; 256],
-    pub Name: [[libc::c_char; 41]; 256],
-}
 /* * \file
  * \brief Example code for Simple Open EtherCAT master
  *
@@ -1232,13 +1210,20 @@ pub unsafe extern "C" fn slaveinfo(mut ifname: *mut libc::c_char) {
                 + ec_group[0usize].inputsWKC as libc::c_int;
             println!("Calculated workcounter {:}", expectedWKC as libc::c_int);
             /* wait for all slaves to reach SAFE_OP state */
-            ec_statecheck(0u16, EC_STATE_SAFE_OP as uint16, 2000000i32 * 3i32);
-            if ec_slave[0usize].state as libc::c_int != EC_STATE_SAFE_OP as libc::c_int {
+            ec_statecheck(
+                0u16,
+                ec_state::ec_err_type::EC_STATE_SAFE_OP as uint16,
+                2000000i32 * 3i32,
+            );
+            if ec_slave[0usize].state as libc::c_int
+                != ec_state::ec_err_type::EC_STATE_SAFE_OP as libc::c_int
+            {
                 println!("Not all slaves reached safe operational state.");
                 ec_readstate();
                 i = 1i32;
                 while i <= ec_slavecount {
-                    if ec_slave[i as usize].state as libc::c_int != EC_STATE_SAFE_OP as libc::c_int
+                    if ec_slave[i as usize].state as libc::c_int
+                        != ec_state::ec_err_type::EC_STATE_SAFE_OP as libc::c_int
                     {
                         println!(
                             "Slave {:} State={:2x} StatusCode={:4x} : {:}",

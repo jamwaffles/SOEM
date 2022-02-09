@@ -1,6 +1,10 @@
-use crate::osal::linux::osal::{osal_timer_is_expired, osal_timer_start};
+use crate::{
+    ethercatmain::{ec_mbxheadert, ecx_contextt, ecx_pusherror},
+    ethercattype::{ec_err_type, ec_errort, C2RustUnnamed_0},
+    osal::linux::osal::{ec_timet, osal_current_time, osal_timer_is_expired, osal_timer_start},
+};
 use libc::{
-    bind, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
+    bind, ioctl, memcpy, memset, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
     pthread_mutex_unlock, pthread_mutexattr_init, pthread_mutexattr_t, recv, send, setsockopt,
     sockaddr, socket, strcpy, timeval,
 };
@@ -108,8 +112,8 @@ pub unsafe extern "C" fn ecx_SDOerror(
         Slave: 0,
         Index: 0,
         SubIdx: 0,
-        Etype: EC_ERR_TYPE_SDO_ERROR,
-        c2rust_unnamed: C2RustUnnamed_3 { AbortCode: 0 },
+        Etype: ec_err_type::EC_CMD_SDO_ERROR,
+        c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
     };
     memset(
         &mut Ec as *mut ec_errort as *mut libc::c_void,
@@ -121,7 +125,7 @@ pub unsafe extern "C" fn ecx_SDOerror(
     Ec.Index = Index;
     Ec.SubIdx = SubIdx;
     *(*context).ecaterror = 1u8;
-    Ec.Etype = EC_ERR_TYPE_SDO_ERROR;
+    Ec.Etype = ec_err_type::EC_CMD_SDO_ERROR;
     Ec.c2rust_unnamed.AbortCode = AbortCode;
     ecx_pusherror(context, &mut Ec);
 }
@@ -146,8 +150,8 @@ unsafe extern "C" fn ecx_SDOinfoerror(
         Slave: 0,
         Index: 0,
         SubIdx: 0,
-        Etype: EC_ERR_TYPE_SDO_ERROR,
-        c2rust_unnamed: C2RustUnnamed_3 { AbortCode: 0 },
+        Etype: ec_err_type::EC_CMD_SDO_ERROR,
+        c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
     };
     memset(
         &mut Ec as *mut ec_errort as *mut libc::c_void,
@@ -158,7 +162,7 @@ unsafe extern "C" fn ecx_SDOinfoerror(
     Ec.Index = Index;
     Ec.SubIdx = SubIdx;
     *(*context).ecaterror = 1u8;
-    Ec.Etype = EC_ERR_TYPE_SDOINFO_ERROR;
+    Ec.Etype = ec_err_type::EC_CMD_SDOINFO_ERROR;
     Ec.c2rust_unnamed.AbortCode = AbortCode;
     ecx_pusherror(context, &mut Ec);
 }

@@ -68,7 +68,11 @@ pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
             ec_configdc();
             println!("Slaves mapped, state to SAFE_OP.");
             /* wait for all slaves to reach SAFE_OP state */
-            ec_statecheck(0u16, EC_STATE_SAFE_OP as uint16, 2000000i32 * 4i32);
+            ec_statecheck(
+                0u16,
+                ec_state::ec_err_type::EC_STATE_SAFE_OP as uint16,
+                2000000i32 * 4i32,
+            );
             oloop = ec_slave[0usize].Obytes as libc::c_int;
             if oloop == 0i32 && ec_slave[0usize].Obits as libc::c_int > 0i32 {
                 oloop = 1i32
@@ -96,7 +100,7 @@ pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
             expectedWKC = ec_group[0usize].outputsWKC as libc::c_int * 2i32
                 + ec_group[0usize].inputsWKC as libc::c_int;
             println!("Calculated workcounter {:}", expectedWKC as libc::c_int);
-            ec_slave[0usize].state = EC_STATE_OPERATIONAL as uint16;
+            ec_slave[0usize].state = ec_state::ec_err_type::EC_STATE_OPERATIONAL as uint16;
             /* send one valid process data to make outputs in slaves happy*/
             ec_send_processdata();
             ec_receive_processdata(2000i32);
@@ -108,16 +112,23 @@ pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
             {
                 ec_send_processdata();
                 ec_receive_processdata(2000i32);
-                ec_statecheck(0u16, EC_STATE_OPERATIONAL as uint16, 50000i32);
+                ec_statecheck(
+                    0u16,
+                    ec_state::ec_err_type::EC_STATE_OPERATIONAL as uint16,
+                    50000i32,
+                );
                 let fresh0 = chk;
                 chk = chk - 1;
                 if !(fresh0 != 0
-                    && ec_slave[0usize].state as libc::c_int != EC_STATE_OPERATIONAL as libc::c_int)
+                    && ec_slave[0usize].state as libc::c_int
+                        != ec_state::ec_err_type::EC_STATE_OPERATIONAL as libc::c_int)
                 {
                     break;
                 }
             }
-            if ec_slave[0usize].state as libc::c_int == EC_STATE_OPERATIONAL as libc::c_int {
+            if ec_slave[0usize].state as libc::c_int
+                == ec_state::ec_err_type::EC_STATE_OPERATIONAL as libc::c_int
+            {
                 println!("Operational state reached for all slaves.");
                 inOP = 1u8;
                 /* cyclic loop */
@@ -165,7 +176,7 @@ pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
                 i = 1i32;
                 while i <= ec_slavecount {
                     if ec_slave[i as usize].state as libc::c_int
-                        != EC_STATE_OPERATIONAL as libc::c_int
+                        != ec_state::ec_err_type::EC_STATE_OPERATIONAL as libc::c_int
                     {
                         println!(
                             "Slave {:} State=0x{:2.2x} StatusCode=0x{:4.4x} : {:}",
@@ -186,7 +197,7 @@ pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
                 }
             }
             println!("\nRequest init state for all slaves");
-            ec_slave[0usize].state = EC_STATE_INIT as uint16;
+            ec_slave[0usize].state = ec_state::ec_err_type::EC_STATE_INIT as uint16;
             /* request INIT state for all slaves */
             ec_writestate(0u16);
         } else {
@@ -223,31 +234,33 @@ pub unsafe extern "C" fn ecatcheck(mut _ptr: *mut libc::c_void) {
             while slave <= ec_slavecount {
                 if ec_slave[slave as usize].group as libc::c_int == currentgroup as libc::c_int
                     && ec_slave[slave as usize].state as libc::c_int
-                        != EC_STATE_OPERATIONAL as libc::c_int
+                        != ec_state::ec_err_type::EC_STATE_OPERATIONAL as libc::c_int
                 {
                     ec_group[currentgroup as usize].docheckstate = 1u8;
                     if ec_slave[slave as usize].state as libc::c_int
-                        == EC_STATE_SAFE_OP as libc::c_int + EC_STATE_ERROR as libc::c_int
+                        == ec_state::ec_err_type::EC_STATE_SAFE_OP as libc::c_int
+                            + ec_state::ec_err_type::EC_STATE_ERROR as libc::c_int
                     {
                         println!(
                             "ERROR : slave {:} is in SAFE_OP + ERROR, attempting ack.",
                             slave as libc::c_int
                         );
                         ec_slave[slave as usize].state = (EC_STATE_SAFE_OP as libc::c_int
-                            + EC_STATE_ACK as libc::c_int)
+                            + ec_state::ec_err_type::EC_STATE_ACK as libc::c_int)
                             as uint16;
                         ec_writestate(slave as uint16);
                     } else if ec_slave[slave as usize].state as libc::c_int
-                        == EC_STATE_SAFE_OP as libc::c_int
+                        == ec_state::ec_err_type::EC_STATE_SAFE_OP as libc::c_int
                     {
                         println!(
                             "WARNING : slave {:} is in SAFE_OP, change to OPERATIONAL.",
                             slave as libc::c_int
                         );
-                        ec_slave[slave as usize].state = EC_STATE_OPERATIONAL as uint16;
+                        ec_slave[slave as usize].state =
+                            ec_state::ec_err_type::EC_STATE_OPERATIONAL as uint16;
                         ec_writestate(slave as uint16);
                     } else if ec_slave[slave as usize].state as libc::c_int
-                        > EC_STATE_NONE as libc::c_int
+                        > ec_state::ec_err_type::EC_STATE_NONE as libc::c_int
                     {
                         if ec_reconfig_slave(slave as uint16, 500i32) != 0 {
                             ec_slave[slave as usize].islost = 0u8;
@@ -255,9 +268,13 @@ pub unsafe extern "C" fn ecatcheck(mut _ptr: *mut libc::c_void) {
                         }
                     } else if ec_slave[slave as usize].islost == 0 {
                         /* re-check state */
-                        ec_statecheck(slave as uint16, EC_STATE_OPERATIONAL as uint16, 2000i32);
+                        ec_statecheck(
+                            slave as uint16,
+                            ec_state::ec_err_type::EC_STATE_OPERATIONAL as uint16,
+                            2000i32,
+                        );
                         if ec_slave[slave as usize].state as libc::c_int
-                            == EC_STATE_NONE as libc::c_int
+                            == ec_state::ec_err_type::EC_STATE_NONE as libc::c_int
                         {
                             ec_slave[slave as usize].islost = 1u8;
                             println!("ERROR : slave {:} lost", slave as libc::c_int);
@@ -265,7 +282,8 @@ pub unsafe extern "C" fn ecatcheck(mut _ptr: *mut libc::c_void) {
                     }
                 }
                 if ec_slave[slave as usize].islost != 0 {
-                    if ec_slave[slave as usize].state as libc::c_int == EC_STATE_NONE as libc::c_int
+                    if ec_slave[slave as usize].state as libc::c_int
+                        == ec_state::ec_err_type::EC_STATE_NONE as libc::c_int
                     {
                         if ec_recover_slave(slave as uint16, 500i32) != 0 {
                             ec_slave[slave as usize].islost = 0u8;

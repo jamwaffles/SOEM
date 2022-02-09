@@ -479,7 +479,7 @@ static mut ec_elist: ec_eringt = ec_eringt {
         Slave: 0,
         Index: 0,
         SubIdx: 0,
-        Etype: EC_ERR_TYPE_SDO_ERROR,
+        Etype: ec_err_type::EC_CMD_SDO_ERROR,
         c2rust_unnamed: C2RustUnnamed_6 { AbortCode: 0 },
     }; 65],
 };
@@ -743,7 +743,7 @@ pub unsafe extern "C" fn ecx_packeterror(
         Slave: 0,
         Index: 0,
         SubIdx: 0,
-        Etype: EC_ERR_TYPE_SDO_ERROR,
+        Etype: ec_err_type::EC_CMD_SDO_ERROR,
         c2rust_unnamed: C2RustUnnamed_6 { AbortCode: 0 },
     };
     memset(
@@ -756,7 +756,7 @@ pub unsafe extern "C" fn ecx_packeterror(
     Ec.Index = Index;
     Ec.SubIdx = SubIdx;
     *(*context).ecaterror = 1u8;
-    Ec.Etype = EC_ERR_TYPE_PACKET_ERROR;
+    Ec.Etype = ec_err_type::EC_CMD_PACKET_ERROR;
     Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode = ErrorCode;
     ecx_pusherror(context, &mut Ec);
 }
@@ -777,7 +777,7 @@ unsafe extern "C" fn ecx_mbxerror(
         Slave: 0,
         Index: 0,
         SubIdx: 0,
-        Etype: EC_ERR_TYPE_SDO_ERROR,
+        Etype: ec_err_type::EC_CMD_SDO_ERROR,
         c2rust_unnamed: C2RustUnnamed_6 { AbortCode: 0 },
     };
     memset(
@@ -789,7 +789,7 @@ unsafe extern "C" fn ecx_mbxerror(
     Ec.Slave = Slave;
     Ec.Index = 0u16;
     Ec.SubIdx = 0u8;
-    Ec.Etype = EC_ERR_TYPE_MBX_ERROR;
+    Ec.Etype = ec_err_type::EC_CMD_MBX_ERROR;
     Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode = Detail;
     ecx_pusherror(context, &mut Ec);
 }
@@ -818,7 +818,7 @@ unsafe extern "C" fn ecx_mbxemergencyerror(
         Slave: 0,
         Index: 0,
         SubIdx: 0,
-        Etype: EC_ERR_TYPE_SDO_ERROR,
+        Etype: ec_err_type::EC_CMD_SDO_ERROR,
         c2rust_unnamed: C2RustUnnamed_6 { AbortCode: 0 },
     };
     memset(
@@ -830,7 +830,7 @@ unsafe extern "C" fn ecx_mbxemergencyerror(
     Ec.Slave = Slave;
     Ec.Index = 0u16;
     Ec.SubIdx = 0u8;
-    Ec.Etype = EC_ERR_TYPE_EMERGENCY;
+    Ec.Etype = ec_err_type::EC_CMD_EMERGENCY;
     Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode = ErrorCode;
     Ec.c2rust_unnamed.c2rust_unnamed.ErrorReg = ErrorReg as uint8;
     Ec.c2rust_unnamed.c2rust_unnamed.b1 = b1;
@@ -1418,7 +1418,7 @@ pub unsafe extern "C" fn ecx_FPRD_multi(
         ec_cmdtype::EC_CMD_FPRD as uint8,
         idx,
         *configlst.offset(slcnt as isize),
-        ECT_REG_ALSTAT as uint16,
+        EthercatRegister::ec_err_type::EC_REG_ALSTAT as uint16,
         ::core::mem::size_of::<ec_alstatust>() as uint16,
         slstatlst.offset(slcnt as isize) as *mut libc::c_void,
     );
@@ -1436,7 +1436,7 @@ pub unsafe extern "C" fn ecx_FPRD_multi(
             idx,
             1u8,
             *configlst.offset(slcnt as isize),
-            ECT_REG_ALSTAT as uint16,
+            EthercatRegister::ec_err_type::EC_REG_ALSTAT as uint16,
             ::core::mem::size_of::<ec_alstatust>() as uint16,
             slstatlst.offset(slcnt as isize) as *mut libc::c_void,
         )
@@ -1450,7 +1450,7 @@ pub unsafe extern "C" fn ecx_FPRD_multi(
             idx,
             0u8,
             *configlst.offset(slcnt as isize),
-            ECT_REG_ALSTAT as uint16,
+            EthercatRegister::ec_err_type::EC_REG_ALSTAT as uint16,
             ::core::mem::size_of::<ec_alstatust>() as uint16,
             slstatlst.offset(slcnt as isize) as *mut libc::c_void,
         )
@@ -1502,7 +1502,7 @@ pub unsafe extern "C" fn ecx_readstate(mut context: *mut ecx_contextt) -> libc::
     wkc = ecx_BRD(
         (*context).port,
         0u16,
-        ECT_REG_ALSTAT as uint16,
+        EthercatRegister::ec_err_type::EC_REG_ALSTAT as uint16,
         ::core::mem::size_of::<uint16>() as uint16,
         &mut rval as *mut uint16 as *mut libc::c_void,
         2000i32,
@@ -1512,7 +1512,7 @@ pub unsafe extern "C" fn ecx_readstate(mut context: *mut ecx_contextt) -> libc::
     }
     rval = rval;
     bitwisestate = (rval as libc::c_int & 0xfi32) as uint16;
-    if rval as libc::c_int & EC_STATE_ERROR as libc::c_int == 0i32 {
+    if rval as libc::c_int & ec_state::ec_err_type::EC_STATE_ERROR as libc::c_int == 0i32 {
         noerrorflag = 1u8;
         (*(*context).slavelist.offset(0isize)).ALstatuscode = 0u16
     } else {
@@ -1617,7 +1617,7 @@ pub unsafe extern "C" fn ecx_writestate(
         ret = ecx_BWR(
             (*context).port,
             0u16,
-            ECT_REG_ALCTL as uint16,
+            EthercatRegister::ec_err_type::EC_REG_ALCTL as uint16,
             ::core::mem::size_of::<uint16>() as uint16,
             &mut slstate as *mut uint16 as *mut libc::c_void,
             2000i32 * 3i32,
@@ -1627,7 +1627,7 @@ pub unsafe extern "C" fn ecx_writestate(
         ret = ecx_FPWRw(
             (*context).port,
             configadr,
-            ECT_REG_ALCTL as uint16,
+            EthercatRegister::ec_err_type::EC_REG_ALCTL as uint16,
             (*(*context).slavelist.offset(slave as isize)).state,
             2000i32 * 3i32,
         )
@@ -1672,7 +1672,7 @@ pub unsafe extern "C" fn ecx_statecheck(
             ecx_BRD(
                 (*context).port,
                 0u16,
-                ECT_REG_ALSTAT as uint16,
+                EthercatRegister::ec_err_type::EC_REG_ALSTAT as uint16,
                 ::core::mem::size_of::<uint16>() as uint16,
                 &mut rval as *mut uint16 as *mut libc::c_void,
                 2000i32,
@@ -1684,7 +1684,7 @@ pub unsafe extern "C" fn ecx_statecheck(
             ecx_FPRD(
                 (*context).port,
                 configadr,
-                ECT_REG_ALSTAT as uint16,
+                EthercatRegister::ec_err_type::EC_REG_ALSTAT as uint16,
                 ::core::mem::size_of::<ec_alstatust>() as uint16,
                 &mut slstat as *mut ec_alstatust as *mut libc::c_void,
                 2000i32,
@@ -1751,7 +1751,7 @@ pub unsafe extern "C" fn ecx_mbxempty(
         wkc = ecx_FPRD(
             (*context).port,
             configadr,
-            ECT_REG_SM0STAT as uint16,
+            EthercatRegister::ec_err_type::EC_REG_SM0STAT as uint16,
             ::core::mem::size_of::<uint8>() as uint16,
             &mut SMstat as *mut uint8 as *mut libc::c_void,
             2000i32,
@@ -1849,7 +1849,7 @@ pub unsafe extern "C" fn ecx_mbxreceive(
             wkc = ecx_FPRD(
                 (*context).port,
                 configadr,
-                ECT_REG_SM1STAT as uint16,
+                EthercatRegister::ec_err_type::EC_REG_SM1STAT as uint16,
                 ::core::mem::size_of::<uint16>() as uint16,
                 &mut SMstat as *mut uint16 as *mut libc::c_void,
                 2000i32,
@@ -1932,7 +1932,7 @@ pub unsafe extern "C" fn ecx_mbxreceive(
                     wkc2 = ecx_FPWR(
                         (*context).port,
                         configadr,
-                        ECT_REG_SM1STAT as uint16,
+                        EthercatRegister::ec_err_type::EC_REG_SM1STAT as uint16,
                         ::core::mem::size_of::<uint16>() as uint16,
                         &mut SMstat as *mut uint16 as *mut libc::c_void,
                         2000i32,
@@ -1943,7 +1943,7 @@ pub unsafe extern "C" fn ecx_mbxreceive(
                         wkc2 = ecx_FPRD(
                             (*context).port,
                             configadr,
-                            ECT_REG_SM1CONTR as uint16,
+                            EthercatRegister::ec_err_type::EC_REG_SM1CONTR as uint16,
                             ::core::mem::size_of::<uint8>() as uint16,
                             &mut SMcontr as *mut uint8 as *mut libc::c_void,
                             2000i32,
@@ -1961,7 +1961,7 @@ pub unsafe extern "C" fn ecx_mbxreceive(
                         wkc2 = ecx_FPRD(
                             (*context).port,
                             configadr,
-                            ECT_REG_SM1STAT as uint16,
+                            EthercatRegister::ec_err_type::EC_REG_SM1STAT as uint16,
                             ::core::mem::size_of::<uint16>() as uint16,
                             &mut SMstat as *mut uint16 as *mut libc::c_void,
                             2000i32,
@@ -2092,7 +2092,7 @@ pub unsafe extern "C" fn ecx_eeprom2master(
             wkc = ecx_FPWR(
                 (*context).port,
                 configadr,
-                ECT_REG_EEPCFG as uint16,
+                EthercatRegister::ec_err_type::EC_REG_EEPCFG as uint16,
                 ::core::mem::size_of::<uint8>() as uint16,
                 &mut eepctl as *mut uint8 as *mut libc::c_void,
                 2000i32,
@@ -2112,7 +2112,7 @@ pub unsafe extern "C" fn ecx_eeprom2master(
             wkc = ecx_FPWR(
                 (*context).port,
                 configadr,
-                ECT_REG_EEPCFG as uint16,
+                EthercatRegister::ec_err_type::EC_REG_EEPCFG as uint16,
                 ::core::mem::size_of::<uint8>() as uint16,
                 &mut eepctl as *mut uint8 as *mut libc::c_void,
                 2000i32,
@@ -2151,7 +2151,7 @@ pub unsafe extern "C" fn ecx_eeprom2pdi(
             wkc = ecx_FPWR(
                 (*context).port,
                 configadr,
-                ECT_REG_EEPCFG as uint16,
+                EthercatRegister::ec_err_type::EC_REG_EEPCFG as uint16,
                 ::core::mem::size_of::<uint8>() as uint16,
                 &mut eepctl as *mut uint8 as *mut libc::c_void,
                 2000i32,
@@ -2193,7 +2193,7 @@ pub unsafe extern "C" fn ecx_eeprom_waitnotbusyAP(
         wkc = ecx_APRD(
             (*context).port,
             aiadr,
-            ECT_REG_EEPSTAT as uint16,
+            EthercatRegister::ec_err_type::EC_REG_EEPSTAT as uint16,
             ::core::mem::size_of::<uint16>() as uint16,
             estat as *mut libc::c_void,
             2000i32,
@@ -2244,7 +2244,7 @@ pub unsafe extern "C" fn ecx_readeepromAP(
             wkc = ecx_APWR(
                 (*context).port,
                 aiadr,
-                ECT_REG_EEPCTL as uint16,
+                EthercatRegister::ec_err_type::EC_REG_EEPCTL as uint16,
                 ::core::mem::size_of::<uint16>() as uint16,
                 &mut estat as *mut uint16 as *mut libc::c_void,
                 2000i32 * 3i32,
@@ -2259,7 +2259,7 @@ pub unsafe extern "C" fn ecx_readeepromAP(
                 wkc = ecx_APWR(
                     (*context).port,
                     aiadr,
-                    ECT_REG_EEPCTL as uint16,
+                    EthercatRegister::ec_err_type::EC_REG_EEPCTL as uint16,
                     ::core::mem::size_of::<ec_eepromt>() as uint16,
                     &mut ed as *mut ec_eepromt as *mut libc::c_void,
                     2000i32,
@@ -2287,7 +2287,7 @@ pub unsafe extern "C" fn ecx_readeepromAP(
                                 wkc = ecx_APRD(
                                     (*context).port,
                                     aiadr,
-                                    ECT_REG_EEPDAT as uint16,
+                                    EthercatRegister::ec_err_type::EC_REG_EEPDAT as uint16,
                                     ::core::mem::size_of::<uint64>() as uint16,
                                     &mut edat64 as *mut uint64 as *mut libc::c_void,
                                     2000i32,
@@ -2306,7 +2306,7 @@ pub unsafe extern "C" fn ecx_readeepromAP(
                                 wkc = ecx_APRD(
                                     (*context).port,
                                     aiadr,
-                                    ECT_REG_EEPDAT as uint16,
+                                    EthercatRegister::ec_err_type::EC_REG_EEPDAT as uint16,
                                     ::core::mem::size_of::<uint32>() as uint16,
                                     &mut edat32 as *mut uint32 as *mut libc::c_void,
                                     2000i32,
@@ -2364,7 +2364,7 @@ pub unsafe extern "C" fn ecx_writeeepromAP(
             wkc = ecx_APWR(
                 (*context).port,
                 aiadr,
-                ECT_REG_EEPCTL as uint16,
+                EthercatRegister::ec_err_type::EC_REG_EEPCTL as uint16,
                 ::core::mem::size_of::<uint16>() as uint16,
                 &mut estat as *mut uint16 as *mut libc::c_void,
                 2000i32 * 3i32,
@@ -2376,7 +2376,7 @@ pub unsafe extern "C" fn ecx_writeeepromAP(
                 wkc = ecx_APWR(
                     (*context).port,
                     aiadr,
-                    ECT_REG_EEPDAT as uint16,
+                    EthercatRegister::ec_err_type::EC_REG_EEPDAT as uint16,
                     ::core::mem::size_of::<uint16>() as uint16,
                     &mut data as *mut uint16 as *mut libc::c_void,
                     2000i32,
@@ -2397,7 +2397,7 @@ pub unsafe extern "C" fn ecx_writeeepromAP(
                 wkc = ecx_APWR(
                     (*context).port,
                     aiadr,
-                    ECT_REG_EEPCTL as uint16,
+                    EthercatRegister::ec_err_type::EC_REG_EEPCTL as uint16,
                     ::core::mem::size_of::<ec_eepromt>() as uint16,
                     &mut ed as *mut ec_eepromt as *mut libc::c_void,
                     2000i32,
@@ -2454,7 +2454,7 @@ pub unsafe extern "C" fn ecx_eeprom_waitnotbusyFP(
         wkc = ecx_FPRD(
             (*context).port,
             configadr,
-            ECT_REG_EEPSTAT as uint16,
+            EthercatRegister::ec_err_type::EC_REG_EEPSTAT as uint16,
             ::core::mem::size_of::<uint16>() as uint16,
             estat as *mut libc::c_void,
             2000i32,
@@ -2505,7 +2505,7 @@ pub unsafe extern "C" fn ecx_readeepromFP(
             wkc = ecx_FPWR(
                 (*context).port,
                 configadr,
-                ECT_REG_EEPCTL as uint16,
+                EthercatRegister::ec_err_type::EC_REG_EEPCTL as uint16,
                 ::core::mem::size_of::<uint16>() as uint16,
                 &mut estat as *mut uint16 as *mut libc::c_void,
                 2000i32 * 3i32,
@@ -2520,7 +2520,7 @@ pub unsafe extern "C" fn ecx_readeepromFP(
                 wkc = ecx_FPWR(
                     (*context).port,
                     configadr,
-                    ECT_REG_EEPCTL as uint16,
+                    EthercatRegister::ec_err_type::EC_REG_EEPCTL as uint16,
                     ::core::mem::size_of::<ec_eepromt>() as uint16,
                     &mut ed as *mut ec_eepromt as *mut libc::c_void,
                     2000i32,
@@ -2548,7 +2548,7 @@ pub unsafe extern "C" fn ecx_readeepromFP(
                                 wkc = ecx_FPRD(
                                     (*context).port,
                                     configadr,
-                                    ECT_REG_EEPDAT as uint16,
+                                    EthercatRegister::ec_err_type::EC_REG_EEPDAT as uint16,
                                     ::core::mem::size_of::<uint64>() as uint16,
                                     &mut edat64 as *mut uint64 as *mut libc::c_void,
                                     2000i32,
@@ -2567,7 +2567,7 @@ pub unsafe extern "C" fn ecx_readeepromFP(
                                 wkc = ecx_FPRD(
                                     (*context).port,
                                     configadr,
-                                    ECT_REG_EEPDAT as uint16,
+                                    EthercatRegister::ec_err_type::EC_REG_EEPDAT as uint16,
                                     ::core::mem::size_of::<uint32>() as uint16,
                                     &mut edat32 as *mut uint32 as *mut libc::c_void,
                                     2000i32,
@@ -2625,7 +2625,7 @@ pub unsafe extern "C" fn ecx_writeeepromFP(
             wkc = ecx_FPWR(
                 (*context).port,
                 configadr,
-                ECT_REG_EEPCTL as uint16,
+                EthercatRegister::ec_err_type::EC_REG_EEPCTL as uint16,
                 ::core::mem::size_of::<uint16>() as uint16,
                 &mut estat as *mut uint16 as *mut libc::c_void,
                 2000i32 * 3i32,
@@ -2637,7 +2637,7 @@ pub unsafe extern "C" fn ecx_writeeepromFP(
                 wkc = ecx_FPWR(
                     (*context).port,
                     configadr,
-                    ECT_REG_EEPDAT as uint16,
+                    EthercatRegister::ec_err_type::EC_REG_EEPDAT as uint16,
                     ::core::mem::size_of::<uint16>() as uint16,
                     &mut data as *mut uint16 as *mut libc::c_void,
                     2000i32,
@@ -2658,7 +2658,7 @@ pub unsafe extern "C" fn ecx_writeeepromFP(
                 wkc = ecx_FPWR(
                     (*context).port,
                     configadr,
-                    ECT_REG_EEPCTL as uint16,
+                    EthercatRegister::ec_err_type::EC_REG_EEPCTL as uint16,
                     ::core::mem::size_of::<ec_eepromt>() as uint16,
                     &mut ed as *mut ec_eepromt as *mut libc::c_void,
                     2000i32,
@@ -2721,7 +2721,7 @@ pub unsafe extern "C" fn ecx_readeeprom1(
             wkc = ecx_FPWR(
                 (*context).port,
                 configadr,
-                ECT_REG_EEPCTL as uint16,
+                EthercatRegister::ec_err_type::EC_REG_EEPCTL as uint16,
                 ::core::mem::size_of::<uint16>() as uint16,
                 &mut estat as *mut uint16 as *mut libc::c_void,
                 2000i32 * 3i32,
@@ -2734,7 +2734,7 @@ pub unsafe extern "C" fn ecx_readeeprom1(
             wkc = ecx_FPWR(
                 (*context).port,
                 configadr,
-                ECT_REG_EEPCTL as uint16,
+                EthercatRegister::ec_err_type::EC_REG_EEPCTL as uint16,
                 ::core::mem::size_of::<ec_eepromt>() as uint16,
                 &mut ed as *mut ec_eepromt as *mut libc::c_void,
                 2000i32,
@@ -2775,7 +2775,7 @@ pub unsafe extern "C" fn ecx_readeeprom2(
             wkc = ecx_FPRD(
                 (*context).port,
                 configadr,
-                ECT_REG_EEPDAT as uint16,
+                EthercatRegister::ec_err_type::EC_REG_EEPDAT as uint16,
                 ::core::mem::size_of::<uint32>() as uint16,
                 &mut edat as *mut uint32 as *mut libc::c_void,
                 2000i32,
@@ -2949,7 +2949,7 @@ unsafe extern "C" fn ecx_main_send_processdata(
                                 (*(*context).grouplist.offset(group as isize)).DCnext as isize,
                             ))
                             .configadr,
-                            ECT_REG_DCSYSTIME as uint16,
+                            EthercatRegister::ec_err_type::EC_REG_DCSYSTIME as uint16,
                             ::core::mem::size_of::<int64>() as uint16,
                             (*context).DCtime as *mut libc::c_void,
                         );
@@ -3016,7 +3016,7 @@ unsafe extern "C" fn ecx_main_send_processdata(
                                 (*(*context).grouplist.offset(group as isize)).DCnext as isize,
                             ))
                             .configadr,
-                            ECT_REG_DCSYSTIME as uint16,
+                            EthercatRegister::ec_err_type::EC_REG_DCSYSTIME as uint16,
                             ::core::mem::size_of::<int64>() as uint16,
                             (*context).DCtime as *mut libc::c_void,
                         );
@@ -3083,7 +3083,7 @@ unsafe extern "C" fn ecx_main_send_processdata(
                             (*(*context).grouplist.offset(group as isize)).DCnext as isize,
                         ))
                         .configadr,
-                        ECT_REG_DCSYSTIME as uint16,
+                        EthercatRegister::ec_err_type::EC_REG_DCSYSTIME as uint16,
                         ::core::mem::size_of::<int64>() as uint16,
                         (*context).DCtime as *mut libc::c_void,
                     );

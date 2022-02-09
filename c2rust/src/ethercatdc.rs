@@ -1,4 +1,9 @@
-use crate::osal::linux::osal::{osal_timer_is_expired, osal_timer_start};
+use crate::{
+    ethercatbase::{ecx_BWR, ecx_FPRD, ecx_FPWR},
+    ethercatmain::{ecx_context, ecx_contextt},
+    ethercattype::EthercatRegister,
+    osal::linux::osal::{ec_timet, osal_current_time, osal_timer_is_expired, osal_timer_start},
+};
 use libc::{
     bind, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
     pthread_mutex_unlock, pthread_mutexattr_init, pthread_mutexattr_t, recv, send, setsockopt,
@@ -32,62 +37,6 @@ pub type uint32 = uint32_t;
 pub type int64 = int64_t;
 pub type uint64 = uint64_t;
 
-pub type C2RustUnnamed = libc::c_uint;
-pub const ECT_REG_DCCYCLE1: C2RustUnnamed = 2468;
-pub const ECT_REG_DCCYCLE0: C2RustUnnamed = 2464;
-pub const ECT_REG_DCSTART0: C2RustUnnamed = 2448;
-pub const ECT_REG_DCSYNCACT: C2RustUnnamed = 2433;
-pub const ECT_REG_DCCUC: C2RustUnnamed = 2432;
-pub const ECT_REG_DCTIMEFILT: C2RustUnnamed = 2356;
-pub const ECT_REG_DCSPEEDCNT: C2RustUnnamed = 2352;
-pub const ECT_REG_DCSYSDIFF: C2RustUnnamed = 2348;
-pub const ECT_REG_DCSYSDELAY: C2RustUnnamed = 2344;
-pub const ECT_REG_DCSYSOFFSET: C2RustUnnamed = 2336;
-pub const ECT_REG_DCSOF: C2RustUnnamed = 2328;
-pub const ECT_REG_DCSYSTIME: C2RustUnnamed = 2320;
-pub const ECT_REG_DCTIME3: C2RustUnnamed = 2316;
-pub const ECT_REG_DCTIME2: C2RustUnnamed = 2312;
-pub const ECT_REG_DCTIME1: C2RustUnnamed = 2308;
-pub const ECT_REG_DCTIME0: C2RustUnnamed = 2304;
-pub const ECT_REG_SM1CONTR: C2RustUnnamed = 2063;
-pub const ECT_REG_SM1ACT: C2RustUnnamed = 2062;
-pub const ECT_REG_SM1STAT: C2RustUnnamed = 2061;
-pub const ECT_REG_SM0STAT: C2RustUnnamed = 2053;
-pub const ECT_REG_SM3: C2RustUnnamed = 2072;
-pub const ECT_REG_SM2: C2RustUnnamed = 2064;
-pub const ECT_REG_SM1: C2RustUnnamed = 2056;
-pub const ECT_REG_SM0: C2RustUnnamed = 2048;
-pub const ECT_REG_FMMU3: C2RustUnnamed = 1584;
-pub const ECT_REG_FMMU2: C2RustUnnamed = 1568;
-pub const ECT_REG_FMMU1: C2RustUnnamed = 1552;
-pub const ECT_REG_FMMU0: C2RustUnnamed = 1536;
-pub const ECT_REG_EEPDAT: C2RustUnnamed = 1288;
-pub const ECT_REG_EEPADR: C2RustUnnamed = 1284;
-pub const ECT_REG_EEPSTAT: C2RustUnnamed = 1282;
-pub const ECT_REG_EEPCTL: C2RustUnnamed = 1282;
-pub const ECT_REG_EEPCFG: C2RustUnnamed = 1280;
-pub const ECT_REG_WDCNT: C2RustUnnamed = 1090;
-pub const ECT_REG_LLCNT: C2RustUnnamed = 784;
-pub const ECT_REG_PECODE: C2RustUnnamed = 782;
-pub const ECT_REG_PECNT: C2RustUnnamed = 781;
-pub const ECT_REG_EPUECNT: C2RustUnnamed = 780;
-pub const ECT_REG_FRXERR: C2RustUnnamed = 776;
-pub const ECT_REG_RXERR: C2RustUnnamed = 768;
-pub const ECT_REG_IRQMASK: C2RustUnnamed = 512;
-pub const ECT_REG_PDICTL: C2RustUnnamed = 320;
-pub const ECT_REG_ALSTATCODE: C2RustUnnamed = 308;
-pub const ECT_REG_ALSTAT: C2RustUnnamed = 304;
-pub const ECT_REG_ALCTL: C2RustUnnamed = 288;
-pub const ECT_REG_DLSTAT: C2RustUnnamed = 272;
-pub const ECT_REG_DLALIAS: C2RustUnnamed = 259;
-pub const ECT_REG_DLPORT: C2RustUnnamed = 257;
-pub const ECT_REG_DLCTL: C2RustUnnamed = 256;
-pub const ECT_REG_ALIAS: C2RustUnnamed = 18;
-pub const ECT_REG_STADR: C2RustUnnamed = 16;
-pub const ECT_REG_ESCSUP: C2RustUnnamed = 8;
-pub const ECT_REG_PORTDES: C2RustUnnamed = 7;
-pub const ECT_REG_TYPE: C2RustUnnamed = 0;
-
 /* *
  * Set DC of slave to fire sync0 at CyclTime interval with CyclShift offset.
  *
@@ -117,7 +66,7 @@ pub unsafe extern "C" fn ecx_dcsync0(
     ecx_FPWR(
         (*context).port,
         slaveh,
-        ECT_REG_DCSYNCACT as uint16,
+        EthercatRegister::ec_err_type::EC_REG_DCSYNCACT as uint16,
         ::core::mem::size_of::<uint8>() as uint16,
         &mut RA as *mut uint8 as *mut libc::c_void,
         2000i32,
@@ -130,7 +79,7 @@ pub unsafe extern "C" fn ecx_dcsync0(
     ecx_FPWR(
         (*context).port,
         slaveh,
-        ECT_REG_DCCUC as uint16,
+        EthercatRegister::ec_err_type::EC_REG_DCCUC as uint16,
         ::core::mem::size_of::<uint8>() as uint16,
         &mut h as *mut uint8 as *mut libc::c_void,
         2000i32,
@@ -139,7 +88,7 @@ pub unsafe extern "C" fn ecx_dcsync0(
     ecx_FPRD(
         (*context).port,
         slaveh,
-        ECT_REG_DCSYSTIME as uint16,
+        EthercatRegister::ec_err_type::EC_REG_DCSYSTIME as uint16,
         ::core::mem::size_of::<int64>() as uint16,
         &mut t1 as *mut int64 as *mut libc::c_void,
         2000i32,
@@ -161,7 +110,7 @@ pub unsafe extern "C" fn ecx_dcsync0(
     ecx_FPWR(
         (*context).port,
         slaveh,
-        ECT_REG_DCSTART0 as uint16,
+        EthercatRegister::ec_err_type::EC_REG_DCSTART0 as uint16,
         ::core::mem::size_of::<int64>() as uint16,
         &mut t as *mut int64 as *mut libc::c_void,
         2000i32,
@@ -170,7 +119,7 @@ pub unsafe extern "C" fn ecx_dcsync0(
     ecx_FPWR(
         (*context).port,
         slaveh,
-        ECT_REG_DCCYCLE0 as uint16,
+        EthercatRegister::ec_err_type::EC_REG_DCCYCLE0 as uint16,
         ::core::mem::size_of::<int32>() as uint16,
         &mut tc as *mut int32 as *mut libc::c_void,
         2000i32,
@@ -178,7 +127,7 @@ pub unsafe extern "C" fn ecx_dcsync0(
     ecx_FPWR(
         (*context).port,
         slaveh,
-        ECT_REG_DCSYNCACT as uint16,
+        EthercatRegister::ec_err_type::EC_REG_DCSYNCACT as uint16,
         ::core::mem::size_of::<uint8>() as uint16,
         &mut RA as *mut uint8 as *mut libc::c_void,
         2000i32,
@@ -227,7 +176,7 @@ pub unsafe extern "C" fn ecx_dcsync01(
     ecx_FPWR(
         (*context).port,
         slaveh,
-        ECT_REG_DCSYNCACT as uint16,
+        EthercatRegister::ec_err_type::EC_REG_DCSYNCACT as uint16,
         ::core::mem::size_of::<uint8>() as uint16,
         &mut RA as *mut uint8 as *mut libc::c_void,
         2000i32,
@@ -240,7 +189,7 @@ pub unsafe extern "C" fn ecx_dcsync01(
     ecx_FPWR(
         (*context).port,
         slaveh,
-        ECT_REG_DCCUC as uint16,
+        EthercatRegister::ec_err_type::EC_REG_DCCUC as uint16,
         ::core::mem::size_of::<uint8>() as uint16,
         &mut h as *mut uint8 as *mut libc::c_void,
         2000i32,
@@ -249,7 +198,7 @@ pub unsafe extern "C" fn ecx_dcsync01(
     ecx_FPRD(
         (*context).port,
         slaveh,
-        ECT_REG_DCSYSTIME as uint16,
+        EthercatRegister::ec_err_type::EC_REG_DCSYSTIME as uint16,
         ::core::mem::size_of::<int64>() as uint16,
         &mut t1 as *mut int64 as *mut libc::c_void,
         2000i32,
@@ -271,7 +220,7 @@ pub unsafe extern "C" fn ecx_dcsync01(
     ecx_FPWR(
         (*context).port,
         slaveh,
-        ECT_REG_DCSTART0 as uint16,
+        EthercatRegister::ec_err_type::EC_REG_DCSTART0 as uint16,
         ::core::mem::size_of::<int64>() as uint16,
         &mut t as *mut int64 as *mut libc::c_void,
         2000i32,
@@ -280,7 +229,7 @@ pub unsafe extern "C" fn ecx_dcsync01(
     ecx_FPWR(
         (*context).port,
         slaveh,
-        ECT_REG_DCCYCLE0 as uint16,
+        EthercatRegister::ec_err_type::EC_REG_DCCYCLE0 as uint16,
         ::core::mem::size_of::<int32>() as uint16,
         &mut tc as *mut int32 as *mut libc::c_void,
         2000i32,
@@ -289,7 +238,7 @@ pub unsafe extern "C" fn ecx_dcsync01(
     ecx_FPWR(
         (*context).port,
         slaveh,
-        ECT_REG_DCCYCLE1 as uint16,
+        EthercatRegister::ec_err_type::EC_REG_DCCYCLE1 as uint16,
         ::core::mem::size_of::<int32>() as uint16,
         &mut tc as *mut int32 as *mut libc::c_void,
         2000i32,
@@ -297,7 +246,7 @@ pub unsafe extern "C" fn ecx_dcsync01(
     ecx_FPWR(
         (*context).port,
         slaveh,
-        ECT_REG_DCSYNCACT as uint16,
+        EthercatRegister::ec_err_type::EC_REG_DCSYNCACT as uint16,
         ::core::mem::size_of::<uint8>() as uint16,
         &mut RA as *mut uint8 as *mut libc::c_void,
         2000i32,
@@ -425,7 +374,7 @@ pub unsafe extern "C" fn ecx_configdc(mut context: *mut ecx_contextt) -> boolean
     ecx_BWR(
         (*context).port,
         0u16,
-        ECT_REG_DCTIME0 as uint16,
+        EthercatRegister::ec_err_type::EC_REG_DCTIME0 as uint16,
         ::core::mem::size_of::<int32>() as uint16,
         &mut ht as *mut int32 as *mut libc::c_void,
         2000i32,
@@ -464,7 +413,7 @@ pub unsafe extern "C" fn ecx_configdc(mut context: *mut ecx_contextt) -> boolean
             ecx_FPRD(
                 (*context).port,
                 slaveh,
-                ECT_REG_DCTIME0 as uint16,
+                EthercatRegister::ec_err_type::EC_REG_DCTIME0 as uint16,
                 ::core::mem::size_of::<int32>() as uint16,
                 &mut ht as *mut int32 as *mut libc::c_void,
                 2000i32,
@@ -474,7 +423,7 @@ pub unsafe extern "C" fn ecx_configdc(mut context: *mut ecx_contextt) -> boolean
             ecx_FPRD(
                 (*context).port,
                 slaveh,
-                ECT_REG_DCSOF as uint16,
+                EthercatRegister::ec_err_type::EC_REG_DCSOF as uint16,
                 ::core::mem::size_of::<int64>() as uint16,
                 &mut hrt as *mut int64 as *mut libc::c_void,
                 2000i32,
@@ -485,7 +434,7 @@ pub unsafe extern "C" fn ecx_configdc(mut context: *mut ecx_contextt) -> boolean
             ecx_FPWR(
                 (*context).port,
                 slaveh,
-                ECT_REG_DCSYSOFFSET as uint16,
+                EthercatRegister::ec_err_type::EC_REG_DCSYSOFFSET as uint16,
                 ::core::mem::size_of::<int64>() as uint16,
                 &mut hrt as *mut int64 as *mut libc::c_void,
                 2000i32,
@@ -493,7 +442,7 @@ pub unsafe extern "C" fn ecx_configdc(mut context: *mut ecx_contextt) -> boolean
             ecx_FPRD(
                 (*context).port,
                 slaveh,
-                ECT_REG_DCTIME1 as uint16,
+                EthercatRegister::ec_err_type::EC_REG_DCTIME1 as uint16,
                 ::core::mem::size_of::<int32>() as uint16,
                 &mut ht as *mut int32 as *mut libc::c_void,
                 2000i32,
@@ -502,7 +451,7 @@ pub unsafe extern "C" fn ecx_configdc(mut context: *mut ecx_contextt) -> boolean
             ecx_FPRD(
                 (*context).port,
                 slaveh,
-                ECT_REG_DCTIME2 as uint16,
+                EthercatRegister::ec_err_type::EC_REG_DCTIME2 as uint16,
                 ::core::mem::size_of::<int32>() as uint16,
                 &mut ht as *mut int32 as *mut libc::c_void,
                 2000i32,
@@ -511,7 +460,7 @@ pub unsafe extern "C" fn ecx_configdc(mut context: *mut ecx_contextt) -> boolean
             ecx_FPRD(
                 (*context).port,
                 slaveh,
-                ECT_REG_DCTIME3 as uint16,
+                EthercatRegister::ec_err_type::EC_REG_DCTIME3 as uint16,
                 ::core::mem::size_of::<int32>() as uint16,
                 &mut ht as *mut int32 as *mut libc::c_void,
                 2000i32,
@@ -646,7 +595,7 @@ pub unsafe extern "C" fn ecx_configdc(mut context: *mut ecx_contextt) -> boolean
                 ecx_FPWR(
                     (*context).port,
                     slaveh,
-                    ECT_REG_DCSYSDELAY as uint16,
+                    EthercatRegister::ec_err_type::EC_REG_DCSYSDELAY as uint16,
                     ::core::mem::size_of::<int32>() as uint16,
                     &mut ht as *mut int32 as *mut libc::c_void,
                     2000i32,
