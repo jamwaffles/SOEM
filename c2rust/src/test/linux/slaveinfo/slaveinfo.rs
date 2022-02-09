@@ -1221,7 +1221,7 @@ pub unsafe extern "C" fn si_map_sdo(mut slave: libc::c_int) -> libc::c_int {
                         (0x1c10i32 + iSM as libc::c_int) as uint16,
                         ec_slave[slave as usize]
                             .outputs
-                            .wrapping_offset_from(&mut *IOmap.as_mut_ptr().offset(0isize)
+                            .offset_from(&mut *IOmap.as_mut_ptr().offset(0isize)
                                 as *mut libc::c_char
                                 as *mut uint8) as libc::c_int,
                         outputs_bo,
@@ -1240,7 +1240,7 @@ pub unsafe extern "C" fn si_map_sdo(mut slave: libc::c_int) -> libc::c_int {
                         (0x1c10i32 + iSM as libc::c_int) as uint16,
                         ec_slave[slave as usize]
                             .inputs
-                            .wrapping_offset_from(&mut *IOmap.as_mut_ptr().offset(0isize)
+                            .offset_from(&mut *IOmap.as_mut_ptr().offset(0isize)
                                 as *mut libc::c_char
                                 as *mut uint8) as libc::c_int,
                         inputs_bo,
@@ -1487,7 +1487,7 @@ pub unsafe extern "C" fn si_map_sii(mut slave: libc::c_int) -> libc::c_int {
         1u8,
         ec_slave[slave as usize]
             .outputs
-            .wrapping_offset_from(&mut IOmap as *mut [libc::c_char; 4096] as *mut uint8)
+            .offset_from(&mut IOmap as *mut [libc::c_char; 4096] as *mut uint8)
             as libc::c_int,
         outputs_bo,
     );
@@ -1498,7 +1498,7 @@ pub unsafe extern "C" fn si_map_sii(mut slave: libc::c_int) -> libc::c_int {
         0u8,
         ec_slave[slave as usize]
             .inputs
-            .wrapping_offset_from(&mut IOmap as *mut [libc::c_char; 4096] as *mut uint8)
+            .offset_from(&mut IOmap as *mut [libc::c_char; 4096] as *mut uint8)
             as libc::c_int,
         inputs_bo,
     );

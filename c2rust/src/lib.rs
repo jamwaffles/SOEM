@@ -5,13 +5,6 @@
 #![allow(non_upper_case_globals)]
 #![allow(unused_assignments)]
 #![allow(unused_mut)]
-#![feature(const_raw_ptr_to_usize_cast)]
-#![feature(const_transmute)]
-#![feature(extern_types)]
-#![feature(main)]
-#![feature(ptr_wrapping_offset_from)]
-#![feature(register_tool)]
-#![register_tool(c2rust)]
 
 #[macro_use]
 extern crate c2rust_bitfields;
@@ -41,9 +34,9 @@ pub mod soem {
 } // mod soem
 pub mod test {
     pub mod linux {
-        pub mod eepromtool {
-            pub mod eepromtool;
-        } // mod eepromtool
+        // pub mod eepromtool {
+        //     pub mod eepromtool;
+        // } // mod eepromtool
         pub mod simple_test {
             pub mod simple_test;
         } // mod simple_test
