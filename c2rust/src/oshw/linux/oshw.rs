@@ -1,4 +1,8 @@
-use libc::strncpy;
+use crate::{
+    ethercatmain::ec_adaptert,
+    ethercattype::{htons, ntohs},
+};
+use libc::{if_freenameindex, malloc, strncpy};
 
 pub type __uint16_t = libc::c_ushort;
 

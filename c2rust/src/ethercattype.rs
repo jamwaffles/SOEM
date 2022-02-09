@@ -104,13 +104,13 @@ pub struct ec_comt {
 }
 
 /** EtherCAT header size */
-pub const EC_HEADERSIZE: i32 = size_of::<ec_comt>();
+pub const EC_HEADERSIZE: usize = size_of::<ec_comt>();
 /** size of ec_comt.elength item in EtherCAT header */
-pub const EC_ELENGTHSIZE: i32 = size_of::<u16>();
+pub const EC_ELENGTHSIZE: usize = size_of::<u16>();
 /** offset position of command in EtherCAT header */
-pub const EC_CMDOFFSET: i32 = EC_ELENGTHSIZE;
+pub const EC_CMDOFFSET: usize = EC_ELENGTHSIZE;
 /** size of workcounter item in EtherCAT datagram */
-pub const EC_WKCSIZE: i32 = size_of::<u16>();
+pub const EC_WKCSIZE: usize = size_of::<u16>();
 /** definition of datagram follows bit in ec_comt.dlength */
 pub const EC_DATAGRAMFOLLOWS: i32 = 1 << 15;
 
@@ -145,7 +145,7 @@ pub enum ec_state {
     /** Operational */
     EC_STATE_OPERATIONAL = 0x08,
     /** Error or ACK error */
-    EC_STATE_ACK = 0x10,
+    // EC_STATE_ACK = 0x10,
     EC_STATE_ERROR = 0x10,
 }
 
@@ -288,15 +288,15 @@ pub enum MailboxType {
     /** Error mailbox type */
     ECT_MBXT_ERR = 0x00,
     /** ADS over EtherCAT mailbox type */
-    ECT_MBXT_AOE,
+    ECT_MBXT_AOE = 0x01,
     /** Ethernet over EtherCAT mailbox type */
-    ECT_MBXT_EOE,
+    ECT_MBXT_EOE = 0x02,
     /** CANopen over EtherCAT mailbox type */
-    ECT_MBXT_COE,
+    ECT_MBXT_COE = 0x03,
     /** File over EtherCAT mailbox type */
-    ECT_MBXT_FOE,
+    ECT_MBXT_FOE = 0x04,
     /** Servo over EtherCAT mailbox type */
-    ECT_MBXT_SOE,
+    ECT_MBXT_SOE = 0x05,
     /** Vendor over EtherCAT mailbox type */
     ECT_MBXT_VOE = 0x0f,
 }
@@ -348,15 +348,15 @@ pub enum FoEOpCode {
 /** SoE opcodes */
 pub enum SoEOpCode {
     ECT_SOE_READREQ = 0x01,
-    ECT_SOE_READRES,
-    ECT_SOE_WRITEREQ,
-    ECT_SOE_WRITERES,
-    ECT_SOE_NOTIFICATION,
-    ECT_SOE_EMERGENCY,
+    ECT_SOE_READRES = 0x02,
+    ECT_SOE_WRITEREQ = 0x03,
+    ECT_SOE_WRITERES = 0x04,
+    ECT_SOE_NOTIFICATION = 0x05,
+    ECT_SOE_EMERGENCY = 0x06,
 }
 
 /** Ethercat registers */
-enum EthercatRegister {
+pub enum EthercatRegister {
     ECT_REG_TYPE = 0x0000,
     ECT_REG_PORTDES = 0x0007,
     ECT_REG_ESCSUP = 0x0008,
@@ -380,7 +380,7 @@ enum EthercatRegister {
     ECT_REG_WDCNT = 0x0442,
     ECT_REG_EEPCFG = 0x0500,
     ECT_REG_EEPCTL = 0x0502,
-    ECT_REG_EEPSTAT = 0x0502,
+    ECT_REG_EEPSTAT = 0x0503,
     ECT_REG_EEPADR = 0x0504,
     ECT_REG_EEPDAT = 0x0508,
     ECT_REG_FMMU0 = 0x0600,
@@ -426,6 +426,8 @@ pub const ECT_SDO_TXPDOASSIGN: i32 = 0x1c13;
 pub const ETH_P_ECAT: i32 = 0x88A4;
 
 /** Error types */
+#[repr(C)]
+#[derive(Copy, Clone)]
 pub enum ec_err_type {
     EC_ERR_TYPE_SDO_ERROR = 0,
     EC_ERR_TYPE_EMERGENCY = 1,
@@ -469,6 +471,10 @@ pub struct C2RustUnnamed_1 {
     pub w2: u16,
 }
 
+///
+/// NOOP functions as we're only going to support LE systems
+///
+
 pub fn htoes<T>(input: T) -> T {
     input
 }
@@ -486,4 +492,11 @@ pub fn etohl<T>(input: T) -> T {
 }
 pub fn etohll<T>(input: T) -> T {
     input
+}
+
+pub fn htons(u: u16) -> u16 {
+    u.to_be()
+}
+pub fn ntohs(u: u16) -> u16 {
+    u16::from_be(u)
 }

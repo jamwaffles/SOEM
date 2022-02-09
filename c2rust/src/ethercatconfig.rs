@@ -26,15 +26,6 @@ pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type int64 = int64_t;
 
-pub type C2RustUnnamed = libc::c_uint;
-pub const EC_STATE_ERROR: C2RustUnnamed = 16;
-pub const EC_STATE_ACK: C2RustUnnamed = 16;
-pub const EC_STATE_OPERATIONAL: C2RustUnnamed = 8;
-pub const EC_STATE_SAFE_OP: C2RustUnnamed = 4;
-pub const EC_STATE_BOOT: C2RustUnnamed = 3;
-pub const EC_STATE_PRE_OP: C2RustUnnamed = 2;
-pub const EC_STATE_INIT: C2RustUnnamed = 1;
-pub const EC_STATE_NONE: C2RustUnnamed = 0;
 pub type C2RustUnnamed_0 = libc::c_uint;
 pub const ECT_SII_PDO: C2RustUnnamed_0 = 50;
 pub const ECT_SII_SM: C2RustUnnamed_0 = 41;
@@ -106,49 +97,6 @@ pub const ECT_REG_STADR: C2RustUnnamed_2 = 16;
 pub const ECT_REG_ESCSUP: C2RustUnnamed_2 = 8;
 pub const ECT_REG_PORTDES: C2RustUnnamed_2 = 7;
 pub const ECT_REG_TYPE: C2RustUnnamed_2 = 0;
-pub type ec_err_type = libc::c_uint;
-pub const EC_ERR_TYPE_EOE_INVALID_RX_DATA: ec_err_type = 11;
-pub const EC_ERR_TYPE_FOE_FILE_NOTFOUND: ec_err_type = 10;
-pub const EC_ERR_TYPE_MBX_ERROR: ec_err_type = 9;
-pub const EC_ERR_TYPE_SOE_ERROR: ec_err_type = 8;
-pub const EC_ERR_TYPE_FOE_PACKETNUMBER: ec_err_type = 7;
-pub const EC_ERR_TYPE_FOE_BUF2SMALL: ec_err_type = 6;
-pub const EC_ERR_TYPE_FOE_ERROR: ec_err_type = 5;
-pub const EC_ERR_TYPE_SDOINFO_ERROR: ec_err_type = 4;
-pub const EC_ERR_TYPE_PACKET_ERROR: ec_err_type = 3;
-pub const EC_ERR_TYPE_EMERGENCY: ec_err_type = 1;
-pub const EC_ERR_TYPE_SDO_ERROR: ec_err_type = 0;
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ec_errort {
-    pub Time: ec_timet,
-    pub Signal: boolean,
-    pub Slave: uint16,
-    pub Index: uint16,
-    pub SubIdx: uint8,
-    pub Etype: ec_err_type,
-    pub c2rust_unnamed: C2RustUnnamed_3,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union C2RustUnnamed_3 {
-    pub AbortCode: int32,
-    pub c2rust_unnamed: C2RustUnnamed_4,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct C2RustUnnamed_4 {
-    pub ErrorCode: uint16,
-    pub ErrorReg: uint8,
-    pub b1: uint8,
-    pub w1: uint16,
-    pub w2: uint16,
-}
-
-pub type ec_eepromFMMUt = ec_eepromFMMU;
 
 #[repr(C)]
 #[derive(Copy, Clone)]

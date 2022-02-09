@@ -1,8 +1,13 @@
-use crate::osal::linux::osal::{ec_timet, osal_timer_is_expired, osal_timer_start};
+use crate::{
+    ethercatmain::ecx_port,
+    ethercattype::{ec_bufT, ec_bufstate, ec_comt, ec_etherheadert, htons, ntohs},
+    osal::linux::osal::{ec_timet, osal_timer_is_expired, osal_timer_start, osal_timert},
+};
 use libc::{
     bind, close, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
-    pthread_mutex_unlock, pthread_mutexattr_init, recv, send, setsockopt, sockaddr, socket, strcpy,
-    timeval,
+    pthread_mutex_unlock, pthread_mutexattr_init, pthread_mutexattr_t, recv, send, setsockopt,
+    sockaddr, sockaddr_ll, socket, socklen_t, strcpy, timeval, IFF_BROADCAST, IFF_PROMISC,
+    SOCK_RAW,
 };
 
 pub type __uint8_t = libc::c_uchar;
@@ -15,37 +20,6 @@ pub type __caddr_t = *mut libc::c_char;
 pub type __socklen_t = libc::c_uint;
 pub type ssize_t = __ssize_t;
 pub type size_t = usize;
-
-pub type socklen_t = __socklen_t;
-pub type __socket_type = libc::c_uint;
-pub const SOCK_NONBLOCK: __socket_type = 2048;
-pub const SOCK_CLOEXEC: __socket_type = 524288;
-pub const SOCK_PACKET: __socket_type = 10;
-pub const SOCK_DCCP: __socket_type = 6;
-pub const SOCK_SEQPACKET: __socket_type = 5;
-pub const SOCK_RDM: __socket_type = 4;
-pub const SOCK_RAW: __socket_type = 3;
-pub const SOCK_DGRAM: __socket_type = 2;
-pub const SOCK_STREAM: __socket_type = 1;
-pub type sa_family_t = libc::c_ushort;
-
-pub type C2RustUnnamed = libc::c_uint;
-pub const IFF_DYNAMIC: C2RustUnnamed = 32768;
-pub const IFF_AUTOMEDIA: C2RustUnnamed = 16384;
-pub const IFF_PORTSEL: C2RustUnnamed = 8192;
-pub const IFF_MULTICAST: C2RustUnnamed = 4096;
-pub const IFF_SLAVE: C2RustUnnamed = 2048;
-pub const IFF_MASTER: C2RustUnnamed = 1024;
-pub const IFF_ALLMULTI: C2RustUnnamed = 512;
-pub const IFF_PROMISC: C2RustUnnamed = 256;
-pub const IFF_NOARP: C2RustUnnamed = 128;
-pub const IFF_RUNNING: C2RustUnnamed = 64;
-pub const IFF_NOTRAILERS: C2RustUnnamed = 32;
-pub const IFF_POINTOPOINT: C2RustUnnamed = 16;
-pub const IFF_LOOPBACK: C2RustUnnamed = 8;
-pub const IFF_DEBUG: C2RustUnnamed = 4;
-pub const IFF_BROADCAST: C2RustUnnamed = 2;
-pub const IFF_UP: C2RustUnnamed = 1;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -91,35 +65,13 @@ pub type uint8_t = __uint8_t;
 pub type uint16_t = __uint16_t;
 pub type uint32_t = __uint32_t;
 
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct sockaddr_ll {
-    pub sll_family: libc::c_ushort,
-    pub sll_protocol: libc::c_ushort,
-    pub sll_ifindex: libc::c_int,
-    pub sll_hatype: libc::c_ushort,
-    pub sll_pkttype: libc::c_uchar,
-    pub sll_halen: libc::c_uchar,
-    pub sll_addr: [libc::c_uchar; 8],
-}
-pub type C2RustUnnamed_2 = libc::c_uint;
-pub const PTHREAD_PRIO_PROTECT: C2RustUnnamed_2 = 2;
-pub const PTHREAD_PRIO_INHERIT: C2RustUnnamed_2 = 1;
-pub const PTHREAD_PRIO_NONE: C2RustUnnamed_2 = 0;
 pub type boolean = uint8_t;
 pub type uint8 = uint8_t;
 pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 
-pub type C2RustUnnamed_3 = libc::c_uint;
-pub const EC_BUF_COMPLETE: C2RustUnnamed_3 = 4;
-pub const EC_BUF_RCVD: C2RustUnnamed_3 = 3;
-pub const EC_BUF_TX: C2RustUnnamed_3 = 2;
-pub const EC_BUF_ALLOC: C2RustUnnamed_3 = 1;
-pub const EC_BUF_EMPTY: C2RustUnnamed_3 = 0;
-
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct ec_stackT {
     pub sock: *mut libc::c_int,
     pub txbuf: *mut [ec_bufT; 16],
@@ -131,7 +83,7 @@ pub struct ec_stackT {
 }
 
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct ecx_redportt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
@@ -142,7 +94,7 @@ pub struct ecx_redportt {
 }
 
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct ecx_portt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
@@ -214,7 +166,7 @@ unsafe extern "C" fn ecx_clear_rxbufstat(mut rxbufstat: *mut libc::c_int) {
     let mut i: libc::c_int = 0;
     i = 0i32;
     while i < 16i32 {
-        *rxbufstat.offset(i as isize) = EC_BUF_EMPTY as libc::c_int;
+        *rxbufstat.offset(i as isize) = ec_bufstate::EC_BUF_EMPTY as libc::c_int;
         i += 1
     }
 }
@@ -257,7 +209,7 @@ pub unsafe extern "C" fn ecx_setupnic(
         sll_addr: [0; 8],
     };
     let mut psock: *mut libc::c_int = 0 as *mut libc::c_int;
-    let mut mutexattr: pthread_mutexattr_t = pthread_mutexattr_t { __size: [0; 4] };
+    let mut mutexattr: pthread_mutexattr_t = pthread_mutexattr_t { size: [0; 4] };
     rval = 0i32;
     if secondary != 0 {
         /* secondary port struct available? */
@@ -356,7 +308,7 @@ pub unsafe extern "C" fn ecx_setupnic(
             &mut *(*port).txbuf.as_mut_ptr().offset(i as isize) as *mut ec_bufT
                 as *mut libc::c_void,
         );
-        (*port).rxbufstat[i as usize] = EC_BUF_EMPTY as libc::c_int;
+        (*port).rxbufstat[i as usize] = ec_bufstate::EC_BUF_EMPTY as libc::c_int;
         i += 1
     }
     ec_setupheader(&mut (*port).txbuf2 as *mut ec_bufT as *mut libc::c_void);
@@ -412,7 +364,7 @@ pub unsafe extern "C" fn ecx_getindex(mut port: *mut ecx_portt) -> uint8 {
     }
     cnt = 0u8;
     /* try to find unused index */
-    while (*port).rxbufstat[idx as usize] != EC_BUF_EMPTY as libc::c_int
+    while (*port).rxbufstat[idx as usize] != ec_bufstate::EC_BUF_EMPTY as libc::c_int
         && (cnt as libc::c_int) < 16i32
     {
         idx = idx.wrapping_add(1);
@@ -421,9 +373,9 @@ pub unsafe extern "C" fn ecx_getindex(mut port: *mut ecx_portt) -> uint8 {
             idx = 0u8
         }
     }
-    (*port).rxbufstat[idx as usize] = EC_BUF_ALLOC as libc::c_int;
+    (*port).rxbufstat[idx as usize] = ec_bufstate::EC_BUF_ALLOC as libc::c_int;
     if (*port).redstate != ECT_RED_NONE as libc::c_int {
-        (*(*port).redport).rxbufstat[idx as usize] = EC_BUF_ALLOC as libc::c_int
+        (*(*port).redport).rxbufstat[idx as usize] = ec_bufstate::EC_BUF_ALLOC as libc::c_int
     }
     (*port).lastidx = idx;
     pthread_mutex_unlock(&mut (*port).getindex_mutex);
@@ -466,7 +418,7 @@ pub unsafe extern "C" fn ecx_outframe(
         stack = &mut (*(*port).redport).stack
     }
     lp = (*(*stack).txbuflength)[idx as usize];
-    (*(*stack).rxbufstat)[idx as usize] = EC_BUF_TX as libc::c_int;
+    (*(*stack).rxbufstat)[idx as usize] = ec_bufstate::EC_BUF_TX as libc::c_int;
     rval = send(
         *(*stack).sock,
         (*(*stack).txbuf)[idx as usize].as_mut_ptr() as *const libc::c_void,
@@ -474,7 +426,7 @@ pub unsafe extern "C" fn ecx_outframe(
         0i32,
     ) as libc::c_int;
     if rval == -(1i32) {
-        (*(*stack).rxbufstat)[idx as usize] = EC_BUF_EMPTY as libc::c_int
+        (*(*stack).rxbufstat)[idx as usize] = ec_bufstate::EC_BUF_EMPTY as libc::c_int
     }
     return rval;
 }
@@ -508,7 +460,7 @@ pub unsafe extern "C" fn ecx_outframe_red(mut port: *mut ecx_portt, mut idx: uin
         /* rewrite MAC source address 1 to secondary */
         (*ehp).sa1 = htons(secMAC[1usize]);
         /* transmit over secondary socket */
-        (*(*port).redport).rxbufstat[idx as usize] = EC_BUF_TX as libc::c_int;
+        (*(*port).redport).rxbufstat[idx as usize] = ec_bufstate::EC_BUF_TX as libc::c_int;
         if send(
             (*(*port).redport).sockhandle,
             &mut (*port).txbuf2 as *mut ec_bufT as *const libc::c_void,
@@ -516,7 +468,7 @@ pub unsafe extern "C" fn ecx_outframe_red(mut port: *mut ecx_portt, mut idx: uin
             0i32,
         ) == -1i64
         {
-            (*(*port).redport).rxbufstat[idx as usize] = EC_BUF_EMPTY as libc::c_int
+            (*(*port).redport).rxbufstat[idx as usize] = ec_bufstate::EC_BUF_EMPTY as libc::c_int
         }
         pthread_mutex_unlock(&mut (*port).tx_mutex);
     }
@@ -587,7 +539,7 @@ pub unsafe extern "C" fn ecx_inframe(
     rxbuf = &mut *(*(*stack).rxbuf).as_mut_ptr().offset(idx as isize) as *mut ec_bufT;
     /* check if requested index is already in buffer ? */
     if (idx as libc::c_int) < 16i32
-        && (*(*stack).rxbufstat)[idx as usize] == EC_BUF_RCVD as libc::c_int
+        && (*(*stack).rxbufstat)[idx as usize] == ec_bufstate::EC_BUF_RCVD as libc::c_int
     {
         l = ((*rxbuf)[0usize] as libc::c_int
             + ((((*rxbuf)[1usize] as libc::c_int & 0xfi32) as uint16 as libc::c_int) << 8i32))
@@ -596,7 +548,7 @@ pub unsafe extern "C" fn ecx_inframe(
         rval = (*rxbuf)[l as usize] as libc::c_int
             + (((*rxbuf)[(l as libc::c_int + 1i32) as usize] as libc::c_int) << 8i32);
         /* mark as completed */
-        (*(*stack).rxbufstat)[idx as usize] = EC_BUF_COMPLETE as libc::c_int
+        (*(*stack).rxbufstat)[idx as usize] = ec_bufstate::EC_BUF_COMPLETE as libc::c_int
     } else {
         pthread_mutex_lock(&mut (*port).rx_mutex);
         /* non blocking call to retrieve frame from socket */
@@ -627,11 +579,12 @@ pub unsafe extern "C" fn ecx_inframe(
                     rval = (*rxbuf)[l as usize] as libc::c_int
                         + (((*rxbuf)[(l as libc::c_int + 1i32) as usize] as libc::c_int) << 8i32);
                     /* mark as completed */
-                    (*(*stack).rxbufstat)[idx as usize] = EC_BUF_COMPLETE as libc::c_int;
+                    (*(*stack).rxbufstat)[idx as usize] =
+                        ec_bufstate::EC_BUF_COMPLETE as libc::c_int;
                     /* store MAC source word 1 for redundant routing info */
                     (*(*stack).rxsa)[idx as usize] = ntohs((*ehp).sa1) as libc::c_int
                 } else if (idxf as libc::c_int) < 16i32
-                    && (*(*stack).rxbufstat)[idxf as usize] == EC_BUF_TX as libc::c_int
+                    && (*(*stack).rxbufstat)[idxf as usize] == ec_bufstate::EC_BUF_TX as libc::c_int
                 {
                     rxbuf =
                         &mut *(*(*stack).rxbuf).as_mut_ptr().offset(idxf as isize) as *mut ec_bufT;
@@ -647,7 +600,7 @@ pub unsafe extern "C" fn ecx_inframe(
                             .wrapping_sub(core::mem::size_of::<ec_etherheadert>),
                     );
                     /* mark as received */
-                    (*(*stack).rxbufstat)[idxf as usize] = EC_BUF_RCVD as libc::c_int;
+                    (*(*stack).rxbufstat)[idxf as usize] = ec_bufstate::EC_BUF_RCVD as libc::c_int;
                     (*(*stack).rxsa)[idxf as usize] = ntohs((*ehp).sa1) as libc::c_int
                 }
             }

@@ -28,63 +28,6 @@ pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type int64 = int64_t;
 
-pub type C2RustUnnamed = libc::c_uint;
-pub const ECT_MBXT_VOE: C2RustUnnamed = 15;
-pub const ECT_MBXT_SOE: C2RustUnnamed = 5;
-pub const ECT_MBXT_FOE: C2RustUnnamed = 4;
-pub const ECT_MBXT_COE: C2RustUnnamed = 3;
-pub const ECT_MBXT_EOE: C2RustUnnamed = 2;
-pub const ECT_MBXT_AOE: C2RustUnnamed = 1;
-pub const ECT_MBXT_ERR: C2RustUnnamed = 0;
-pub type C2RustUnnamed_0 = libc::c_uint;
-pub const ECT_FOE_BUSY: C2RustUnnamed_0 = 6;
-pub const ECT_FOE_ERROR: C2RustUnnamed_0 = 5;
-pub const ECT_FOE_ACK: C2RustUnnamed_0 = 4;
-pub const ECT_FOE_DATA: C2RustUnnamed_0 = 3;
-pub const ECT_FOE_WRITE: C2RustUnnamed_0 = 2;
-pub const ECT_FOE_READ: C2RustUnnamed_0 = 1;
-pub type ec_err_type = libc::c_uint;
-pub const EC_ERR_TYPE_EOE_INVALID_RX_DATA: ec_err_type = 11;
-pub const EC_ERR_TYPE_FOE_FILE_NOTFOUND: ec_err_type = 10;
-pub const EC_ERR_TYPE_MBX_ERROR: ec_err_type = 9;
-pub const EC_ERR_TYPE_SOE_ERROR: ec_err_type = 8;
-pub const EC_ERR_TYPE_FOE_PACKETNUMBER: ec_err_type = 7;
-pub const EC_ERR_TYPE_FOE_BUF2SMALL: ec_err_type = 6;
-pub const EC_ERR_TYPE_FOE_ERROR: ec_err_type = 5;
-pub const EC_ERR_TYPE_SDOINFO_ERROR: ec_err_type = 4;
-pub const EC_ERR_TYPE_PACKET_ERROR: ec_err_type = 3;
-pub const EC_ERR_TYPE_EMERGENCY: ec_err_type = 1;
-pub const EC_ERR_TYPE_SDO_ERROR: ec_err_type = 0;
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ec_errort {
-    pub Time: ec_timet,
-    pub Signal: boolean,
-    pub Slave: uint16,
-    pub Index: uint16,
-    pub SubIdx: uint8,
-    pub Etype: ec_err_type,
-    pub c2rust_unnamed: C2RustUnnamed_1,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union C2RustUnnamed_1 {
-    pub AbortCode: int32,
-    pub c2rust_unnamed: C2RustUnnamed_2,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct C2RustUnnamed_2 {
-    pub ErrorCode: uint16,
-    pub ErrorReg: uint8,
-    pub b1: uint8,
-    pub w1: uint16,
-    pub w2: uint16,
-}
-
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
 pub struct ec_FOEt {

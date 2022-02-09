@@ -27,27 +27,6 @@ pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type int64 = int64_t;
 
-pub type C2RustUnnamed = libc::c_uint;
-pub const ECT_MBXT_VOE: C2RustUnnamed = 15;
-pub const ECT_MBXT_SOE: C2RustUnnamed = 5;
-pub const ECT_MBXT_FOE: C2RustUnnamed = 4;
-pub const ECT_MBXT_COE: C2RustUnnamed = 3;
-pub const ECT_MBXT_EOE: C2RustUnnamed = 2;
-pub const ECT_MBXT_AOE: C2RustUnnamed = 1;
-pub const ECT_MBXT_ERR: C2RustUnnamed = 0;
-pub type ec_err_type = libc::c_uint;
-pub const EC_ERR_TYPE_EOE_INVALID_RX_DATA: ec_err_type = 11;
-pub const EC_ERR_TYPE_FOE_FILE_NOTFOUND: ec_err_type = 10;
-pub const EC_ERR_TYPE_MBX_ERROR: ec_err_type = 9;
-pub const EC_ERR_TYPE_SOE_ERROR: ec_err_type = 8;
-pub const EC_ERR_TYPE_FOE_PACKETNUMBER: ec_err_type = 7;
-pub const EC_ERR_TYPE_FOE_BUF2SMALL: ec_err_type = 6;
-pub const EC_ERR_TYPE_FOE_ERROR: ec_err_type = 5;
-pub const EC_ERR_TYPE_SDOINFO_ERROR: ec_err_type = 4;
-pub const EC_ERR_TYPE_PACKET_ERROR: ec_err_type = 3;
-pub const EC_ERR_TYPE_EMERGENCY: ec_err_type = 1;
-pub const EC_ERR_TYPE_SDO_ERROR: ec_err_type = 0;
-
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct eoe_ip4_addr {

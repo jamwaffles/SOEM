@@ -41,153 +41,6 @@ pub type uint32 = uint32_t;
 pub type int64 = int64_t;
 pub type uint64 = uint64_t;
 
-pub type C2RustUnnamed = libc::c_uint;
-pub const EC_STATE_ERROR: C2RustUnnamed = 16;
-pub const EC_STATE_ACK: C2RustUnnamed = 16;
-pub const EC_STATE_OPERATIONAL: C2RustUnnamed = 8;
-pub const EC_STATE_SAFE_OP: C2RustUnnamed = 4;
-pub const EC_STATE_BOOT: C2RustUnnamed = 3;
-pub const EC_STATE_PRE_OP: C2RustUnnamed = 2;
-pub const EC_STATE_INIT: C2RustUnnamed = 1;
-pub const EC_STATE_NONE: C2RustUnnamed = 0;
-pub type C2RustUnnamed_0 = libc::c_uint;
-pub const EC_BUF_COMPLETE: C2RustUnnamed_0 = 4;
-pub const EC_BUF_RCVD: C2RustUnnamed_0 = 3;
-pub const EC_BUF_TX: C2RustUnnamed_0 = 2;
-pub const EC_BUF_ALLOC: C2RustUnnamed_0 = 1;
-pub const EC_BUF_EMPTY: C2RustUnnamed_0 = 0;
-pub type C2RustUnnamed_1 = libc::c_uint;
-pub const EC_CMD_FRMW: C2RustUnnamed_1 = 14;
-pub const EC_CMD_ARMW: C2RustUnnamed_1 = 13;
-pub const EC_CMD_LRW: C2RustUnnamed_1 = 12;
-pub const EC_CMD_LWR: C2RustUnnamed_1 = 11;
-pub const EC_CMD_LRD: C2RustUnnamed_1 = 10;
-pub const EC_CMD_BRW: C2RustUnnamed_1 = 9;
-pub const EC_CMD_BWR: C2RustUnnamed_1 = 8;
-pub const EC_CMD_BRD: C2RustUnnamed_1 = 7;
-pub const EC_CMD_FPRW: C2RustUnnamed_1 = 6;
-pub const EC_CMD_FPWR: C2RustUnnamed_1 = 5;
-pub const EC_CMD_FPRD: C2RustUnnamed_1 = 4;
-pub const EC_CMD_APRW: C2RustUnnamed_1 = 3;
-pub const EC_CMD_APWR: C2RustUnnamed_1 = 2;
-pub const EC_CMD_APRD: C2RustUnnamed_1 = 1;
-pub const EC_CMD_NOP: C2RustUnnamed_1 = 0;
-pub type C2RustUnnamed_2 = libc::c_uint;
-pub const EC_ECMD_RELOAD: C2RustUnnamed_2 = 768;
-pub const EC_ECMD_WRITE: C2RustUnnamed_2 = 513;
-pub const EC_ECMD_READ: C2RustUnnamed_2 = 256;
-pub const EC_ECMD_NOP: C2RustUnnamed_2 = 0;
-pub type C2RustUnnamed_3 = libc::c_uint;
-pub const ECT_SII_PDO: C2RustUnnamed_3 = 50;
-pub const ECT_SII_SM: C2RustUnnamed_3 = 41;
-pub const ECT_SII_FMMU: C2RustUnnamed_3 = 40;
-pub const ECT_SII_GENERAL: C2RustUnnamed_3 = 30;
-pub const ECT_SII_STRING: C2RustUnnamed_3 = 10;
-pub type C2RustUnnamed_4 = libc::c_uint;
-pub const ECT_MBXT_VOE: C2RustUnnamed_4 = 15;
-pub const ECT_MBXT_SOE: C2RustUnnamed_4 = 5;
-pub const ECT_MBXT_FOE: C2RustUnnamed_4 = 4;
-pub const ECT_MBXT_COE: C2RustUnnamed_4 = 3;
-pub const ECT_MBXT_EOE: C2RustUnnamed_4 = 2;
-pub const ECT_MBXT_AOE: C2RustUnnamed_4 = 1;
-pub const ECT_MBXT_ERR: C2RustUnnamed_4 = 0;
-pub type C2RustUnnamed_5 = libc::c_uint;
-pub const ECT_REG_DCCYCLE1: C2RustUnnamed_5 = 2468;
-pub const ECT_REG_DCCYCLE0: C2RustUnnamed_5 = 2464;
-pub const ECT_REG_DCSTART0: C2RustUnnamed_5 = 2448;
-pub const ECT_REG_DCSYNCACT: C2RustUnnamed_5 = 2433;
-pub const ECT_REG_DCCUC: C2RustUnnamed_5 = 2432;
-pub const ECT_REG_DCTIMEFILT: C2RustUnnamed_5 = 2356;
-pub const ECT_REG_DCSPEEDCNT: C2RustUnnamed_5 = 2352;
-pub const ECT_REG_DCSYSDIFF: C2RustUnnamed_5 = 2348;
-pub const ECT_REG_DCSYSDELAY: C2RustUnnamed_5 = 2344;
-pub const ECT_REG_DCSYSOFFSET: C2RustUnnamed_5 = 2336;
-pub const ECT_REG_DCSOF: C2RustUnnamed_5 = 2328;
-pub const ECT_REG_DCSYSTIME: C2RustUnnamed_5 = 2320;
-pub const ECT_REG_DCTIME3: C2RustUnnamed_5 = 2316;
-pub const ECT_REG_DCTIME2: C2RustUnnamed_5 = 2312;
-pub const ECT_REG_DCTIME1: C2RustUnnamed_5 = 2308;
-pub const ECT_REG_DCTIME0: C2RustUnnamed_5 = 2304;
-pub const ECT_REG_SM1CONTR: C2RustUnnamed_5 = 2063;
-pub const ECT_REG_SM1ACT: C2RustUnnamed_5 = 2062;
-pub const ECT_REG_SM1STAT: C2RustUnnamed_5 = 2061;
-pub const ECT_REG_SM0STAT: C2RustUnnamed_5 = 2053;
-pub const ECT_REG_SM3: C2RustUnnamed_5 = 2072;
-pub const ECT_REG_SM2: C2RustUnnamed_5 = 2064;
-pub const ECT_REG_SM1: C2RustUnnamed_5 = 2056;
-pub const ECT_REG_SM0: C2RustUnnamed_5 = 2048;
-pub const ECT_REG_FMMU3: C2RustUnnamed_5 = 1584;
-pub const ECT_REG_FMMU2: C2RustUnnamed_5 = 1568;
-pub const ECT_REG_FMMU1: C2RustUnnamed_5 = 1552;
-pub const ECT_REG_FMMU0: C2RustUnnamed_5 = 1536;
-pub const ECT_REG_EEPDAT: C2RustUnnamed_5 = 1288;
-pub const ECT_REG_EEPADR: C2RustUnnamed_5 = 1284;
-pub const ECT_REG_EEPSTAT: C2RustUnnamed_5 = 1282;
-pub const ECT_REG_EEPCTL: C2RustUnnamed_5 = 1282;
-pub const ECT_REG_EEPCFG: C2RustUnnamed_5 = 1280;
-pub const ECT_REG_WDCNT: C2RustUnnamed_5 = 1090;
-pub const ECT_REG_LLCNT: C2RustUnnamed_5 = 784;
-pub const ECT_REG_PECODE: C2RustUnnamed_5 = 782;
-pub const ECT_REG_PECNT: C2RustUnnamed_5 = 781;
-pub const ECT_REG_EPUECNT: C2RustUnnamed_5 = 780;
-pub const ECT_REG_FRXERR: C2RustUnnamed_5 = 776;
-pub const ECT_REG_RXERR: C2RustUnnamed_5 = 768;
-pub const ECT_REG_IRQMASK: C2RustUnnamed_5 = 512;
-pub const ECT_REG_PDICTL: C2RustUnnamed_5 = 320;
-pub const ECT_REG_ALSTATCODE: C2RustUnnamed_5 = 308;
-pub const ECT_REG_ALSTAT: C2RustUnnamed_5 = 304;
-pub const ECT_REG_ALCTL: C2RustUnnamed_5 = 288;
-pub const ECT_REG_DLSTAT: C2RustUnnamed_5 = 272;
-pub const ECT_REG_DLALIAS: C2RustUnnamed_5 = 259;
-pub const ECT_REG_DLPORT: C2RustUnnamed_5 = 257;
-pub const ECT_REG_DLCTL: C2RustUnnamed_5 = 256;
-pub const ECT_REG_ALIAS: C2RustUnnamed_5 = 18;
-pub const ECT_REG_STADR: C2RustUnnamed_5 = 16;
-pub const ECT_REG_ESCSUP: C2RustUnnamed_5 = 8;
-pub const ECT_REG_PORTDES: C2RustUnnamed_5 = 7;
-pub const ECT_REG_TYPE: C2RustUnnamed_5 = 0;
-pub type ec_err_type = libc::c_uint;
-pub const EC_ERR_TYPE_EOE_INVALID_RX_DATA: ec_err_type = 11;
-pub const EC_ERR_TYPE_FOE_FILE_NOTFOUND: ec_err_type = 10;
-pub const EC_ERR_TYPE_MBX_ERROR: ec_err_type = 9;
-pub const EC_ERR_TYPE_SOE_ERROR: ec_err_type = 8;
-pub const EC_ERR_TYPE_FOE_PACKETNUMBER: ec_err_type = 7;
-pub const EC_ERR_TYPE_FOE_BUF2SMALL: ec_err_type = 6;
-pub const EC_ERR_TYPE_FOE_ERROR: ec_err_type = 5;
-pub const EC_ERR_TYPE_SDOINFO_ERROR: ec_err_type = 4;
-pub const EC_ERR_TYPE_PACKET_ERROR: ec_err_type = 3;
-pub const EC_ERR_TYPE_EMERGENCY: ec_err_type = 1;
-pub const EC_ERR_TYPE_SDO_ERROR: ec_err_type = 0;
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ec_errort {
-    pub Time: ec_timet,
-    pub Signal: boolean,
-    pub Slave: uint16,
-    pub Index: uint16,
-    pub SubIdx: uint8,
-    pub Etype: ec_err_type,
-    pub c2rust_unnamed: C2RustUnnamed_6,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union C2RustUnnamed_6 {
-    pub AbortCode: int32,
-    pub c2rust_unnamed: C2RustUnnamed_7,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct C2RustUnnamed_7 {
-    pub ErrorCode: uint16,
-    pub ErrorReg: uint8,
-    pub b1: uint8,
-    pub w1: uint16,
-    pub w2: uint16,
-}
-
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_adapter {
@@ -1024,7 +877,7 @@ pub unsafe extern "C" fn ecx_init_redundant(
     ecx_setupdatagram(
         (*context).port,
         &mut (*(*context).port).txbuf2 as *mut ec_bufT as *mut libc::c_void,
-        EC_CMD_BRD as uint8,
+        ec_cmdtype::EC_CMD_BRD as uint8,
         0u8,
         0u16,
         0u16,
@@ -1562,7 +1415,7 @@ pub unsafe extern "C" fn ecx_FPRD_multi(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        EC_CMD_FPRD as uint8,
+        ec_cmdtype::EC_CMD_FPRD as uint8,
         idx,
         *configlst.offset(slcnt as isize),
         ECT_REG_ALSTAT as uint16,
@@ -1579,7 +1432,7 @@ pub unsafe extern "C" fn ecx_FPRD_multi(
             port,
             &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                 as *mut libc::c_void,
-            EC_CMD_FPRD as uint8,
+            ec_cmdtype::EC_CMD_FPRD as uint8,
             idx,
             1u8,
             *configlst.offset(slcnt as isize),
@@ -1593,7 +1446,7 @@ pub unsafe extern "C" fn ecx_FPRD_multi(
             port,
             &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                 as *mut libc::c_void,
-            EC_CMD_FPRD as uint8,
+            ec_cmdtype::EC_CMD_FPRD as uint8,
             idx,
             0u8,
             *configlst.offset(slcnt as isize),
@@ -1617,7 +1470,7 @@ pub unsafe extern "C" fn ecx_FPRD_multi(
             slcnt += 1
         }
     }
-    ecx_setbufstat(port, idx, EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
     return wkc;
 }
 /* * Read all slave states in ec_slave.
@@ -3076,7 +2929,7 @@ unsafe extern "C" fn ecx_main_send_processdata(
                         (*context).port,
                         &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize)
                             as *mut ec_bufT as *mut libc::c_void,
-                        EC_CMD_LRD as uint8,
+                        ec_cmdtype::EC_CMD_LRD as uint8,
                         idx,
                         w1,
                         w2,
@@ -3089,7 +2942,7 @@ unsafe extern "C" fn ecx_main_send_processdata(
                             (*context).port,
                             &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize)
                                 as *mut ec_bufT as *mut libc::c_void,
-                            EC_CMD_FRMW as uint8,
+                            ec_cmdtype::EC_CMD_FRMW as uint8,
                             idx,
                             0u8,
                             (*(*context).slavelist.offset(
@@ -3143,7 +2996,7 @@ unsafe extern "C" fn ecx_main_send_processdata(
                         (*context).port,
                         &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize)
                             as *mut ec_bufT as *mut libc::c_void,
-                        EC_CMD_LWR as uint8,
+                        ec_cmdtype::EC_CMD_LWR as uint8,
                         idx,
                         w1,
                         w2,
@@ -3156,7 +3009,7 @@ unsafe extern "C" fn ecx_main_send_processdata(
                             (*context).port,
                             &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize)
                                 as *mut ec_bufT as *mut libc::c_void,
-                            EC_CMD_FRMW as uint8,
+                            ec_cmdtype::EC_CMD_FRMW as uint8,
                             idx,
                             0u8,
                             (*(*context).slavelist.offset(
@@ -3210,7 +3063,7 @@ unsafe extern "C" fn ecx_main_send_processdata(
                     (*context).port,
                     &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                         as *mut libc::c_void,
-                    EC_CMD_LRW as uint8,
+                    ec_cmdtype::EC_CMD_LRW as uint8,
                     idx,
                     w1,
                     w2,
@@ -3223,7 +3076,7 @@ unsafe extern "C" fn ecx_main_send_processdata(
                         (*context).port,
                         &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize)
                             as *mut ec_bufT as *mut libc::c_void,
-                        EC_CMD_FRMW as uint8,
+                        ec_cmdtype::EC_CMD_FRMW as uint8,
                         idx,
                         0u8,
                         (*(*context).slavelist.offset(
@@ -3339,9 +3192,9 @@ pub unsafe extern "C" fn ecx_receive_processdata_group(
         /* check if there is input data in frame */
         if wkc2 > -(1i32) {
             if (*rxbuf.offset(idx as isize))[::core::mem::size_of::<uint16>()] as libc::c_int
-                == EC_CMD_LRD as libc::c_int
+                == ec_cmdtype::EC_CMD_LRD as libc::c_int
                 || (*rxbuf.offset(idx as isize))[::core::mem::size_of::<uint16>()] as libc::c_int
-                    == EC_CMD_LRW as libc::c_int
+                    == ec_cmdtype::EC_CMD_LRW as libc::c_int
             {
                 if (*idxstack).dcoffset[pos as usize] as libc::c_int > 0i32 {
                     memcpy(
@@ -3386,7 +3239,7 @@ pub unsafe extern "C" fn ecx_receive_processdata_group(
                 }
                 valid_wkc = 1i32
             } else if (*rxbuf.offset(idx as isize))[::core::mem::size_of::<uint16>()] as libc::c_int
-                == EC_CMD_LWR as libc::c_int
+                == ec_cmdtype::EC_CMD_LWR as libc::c_int
             {
                 if (*idxstack).dcoffset[pos as usize] as libc::c_int > 0i32 {
                     memcpy(
@@ -3418,7 +3271,11 @@ pub unsafe extern "C" fn ecx_receive_processdata_group(
             }
         }
         /* release buffer */
-        ecx_setbufstat((*context).port, idx, EC_BUF_EMPTY as libc::c_int);
+        ecx_setbufstat(
+            (*context).port,
+            idx,
+            ec_bufstate::EC_BUF_EMPTY as libc::c_int,
+        );
         /* get next index */
         pos = ecx_pullindex(context)
     }

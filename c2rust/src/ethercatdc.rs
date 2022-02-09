@@ -87,49 +87,6 @@ pub const ECT_REG_STADR: C2RustUnnamed = 16;
 pub const ECT_REG_ESCSUP: C2RustUnnamed = 8;
 pub const ECT_REG_PORTDES: C2RustUnnamed = 7;
 pub const ECT_REG_TYPE: C2RustUnnamed = 0;
-pub type ec_err_type = libc::c_uint;
-pub const EC_ERR_TYPE_EOE_INVALID_RX_DATA: ec_err_type = 11;
-pub const EC_ERR_TYPE_FOE_FILE_NOTFOUND: ec_err_type = 10;
-pub const EC_ERR_TYPE_MBX_ERROR: ec_err_type = 9;
-pub const EC_ERR_TYPE_SOE_ERROR: ec_err_type = 8;
-pub const EC_ERR_TYPE_FOE_PACKETNUMBER: ec_err_type = 7;
-pub const EC_ERR_TYPE_FOE_BUF2SMALL: ec_err_type = 6;
-pub const EC_ERR_TYPE_FOE_ERROR: ec_err_type = 5;
-pub const EC_ERR_TYPE_SDOINFO_ERROR: ec_err_type = 4;
-pub const EC_ERR_TYPE_PACKET_ERROR: ec_err_type = 3;
-pub const EC_ERR_TYPE_EMERGENCY: ec_err_type = 1;
-pub const EC_ERR_TYPE_SDO_ERROR: ec_err_type = 0;
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ec_errort {
-    pub Time: ec_timet,
-    pub Signal: boolean,
-    pub Slave: uint16,
-    pub Index: uint16,
-    pub SubIdx: uint8,
-    pub Etype: ec_err_type,
-    pub c2rust_unnamed: C2RustUnnamed_0,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union C2RustUnnamed_0 {
-    pub AbortCode: int32,
-    pub c2rust_unnamed: C2RustUnnamed_1,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct C2RustUnnamed_1 {
-    pub ErrorCode: uint16,
-    pub ErrorReg: uint8,
-    pub b1: uint8,
-    pub w1: uint16,
-    pub w2: uint16,
-}
-
-pub type ec_eepromFMMUt = ec_eepromFMMU;
 
 /* *
  * Set DC of slave to fire sync0 at CyclTime interval with CyclShift offset.

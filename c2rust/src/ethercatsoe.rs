@@ -1,9 +1,11 @@
-use crate::osal::linux::osal::{ec_timet, osal_timer_is_expired, osal_timer_start};
-use libc::{
-    bind, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
-    pthread_mutex_unlock, pthread_mutexattr_init, pthread_mutexattr_t, recv, send, setsockopt,
-    sockaddr, socket, strcpy, timeval,
+use crate::{
+    ethercatmain::{
+        ec_clearmbx, ec_mbxbuft, ec_mbxheadert, ec_nextmbxcnt, ecx_context, ecx_contextt,
+        ecx_mbxempty, ecx_mbxreceive, ecx_mbxsend, ecx_packeterror, ecx_pusherror,
+    },
+    osal::linux::osal::{ec_timet, osal_current_time},
 };
+use libc::{memcpy, memset};
 
 pub type __uint8_t = libc::c_uchar;
 pub type __int16_t = libc::c_short;
@@ -25,63 +27,6 @@ pub type uint8 = uint8_t;
 pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type int64 = int64_t;
-
-pub type C2RustUnnamed = libc::c_uint;
-pub const ECT_MBXT_VOE: C2RustUnnamed = 15;
-pub const ECT_MBXT_SOE: C2RustUnnamed = 5;
-pub const ECT_MBXT_FOE: C2RustUnnamed = 4;
-pub const ECT_MBXT_COE: C2RustUnnamed = 3;
-pub const ECT_MBXT_EOE: C2RustUnnamed = 2;
-pub const ECT_MBXT_AOE: C2RustUnnamed = 1;
-pub const ECT_MBXT_ERR: C2RustUnnamed = 0;
-pub type C2RustUnnamed_0 = libc::c_uint;
-pub const ECT_SOE_EMERGENCY: C2RustUnnamed_0 = 6;
-pub const ECT_SOE_NOTIFICATION: C2RustUnnamed_0 = 5;
-pub const ECT_SOE_WRITERES: C2RustUnnamed_0 = 4;
-pub const ECT_SOE_WRITEREQ: C2RustUnnamed_0 = 3;
-pub const ECT_SOE_READRES: C2RustUnnamed_0 = 2;
-pub const ECT_SOE_READREQ: C2RustUnnamed_0 = 1;
-pub type ec_err_type = libc::c_uint;
-pub const EC_ERR_TYPE_EOE_INVALID_RX_DATA: ec_err_type = 11;
-pub const EC_ERR_TYPE_FOE_FILE_NOTFOUND: ec_err_type = 10;
-pub const EC_ERR_TYPE_MBX_ERROR: ec_err_type = 9;
-pub const EC_ERR_TYPE_SOE_ERROR: ec_err_type = 8;
-pub const EC_ERR_TYPE_FOE_PACKETNUMBER: ec_err_type = 7;
-pub const EC_ERR_TYPE_FOE_BUF2SMALL: ec_err_type = 6;
-pub const EC_ERR_TYPE_FOE_ERROR: ec_err_type = 5;
-pub const EC_ERR_TYPE_SDOINFO_ERROR: ec_err_type = 4;
-pub const EC_ERR_TYPE_PACKET_ERROR: ec_err_type = 3;
-pub const EC_ERR_TYPE_EMERGENCY: ec_err_type = 1;
-pub const EC_ERR_TYPE_SDO_ERROR: ec_err_type = 0;
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ec_errort {
-    pub Time: ec_timet,
-    pub Signal: boolean,
-    pub Slave: uint16,
-    pub Index: uint16,
-    pub SubIdx: uint8,
-    pub Etype: ec_err_type,
-    pub c2rust_unnamed: C2RustUnnamed_1,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union C2RustUnnamed_1 {
-    pub AbortCode: int32,
-    pub c2rust_unnamed: C2RustUnnamed_2,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct C2RustUnnamed_2 {
-    pub ErrorCode: uint16,
-    pub ErrorReg: uint8,
-    pub b1: uint8,
-    pub w1: uint16,
-    pub w2: uint16,
-}
 
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
@@ -251,8 +196,8 @@ pub unsafe extern "C" fn ecx_SoEread(
                     && (*aSoEp).elementflags as libc::c_int == elementflags as libc::c_int
                 {
                     framedatasize = ((*aSoEp).MbxHeader.length as libc::c_ulong)
-                        .wrapping_sub(core::mem::size_of::<ec_SoEt>())
-                        .wrapping_add(core::mem::size_of::<ec_mbxheadert>())
+                        .wrapping_sub(core::mem::size_of::<ec_SoEt>() as u64)
+                        .wrapping_add(core::mem::size_of::<ec_mbxheadert>() as u64)
                         as libc::c_int;
                     totalsize += framedatasize;
                     /* Does parameter fit in parameter buffer ? */
@@ -261,7 +206,7 @@ pub unsafe extern "C" fn ecx_SoEread(
                         memcpy(
                             bp as *mut libc::c_void,
                             mp as *const libc::c_void,
-                            framedatasize as libc::c_ulong,
+                            framedatasize as usize,
                         );
                         /* increment buffer pointer */
                         bp = bp.offset(framedatasize as isize)
@@ -273,7 +218,7 @@ pub unsafe extern "C" fn ecx_SoEread(
                             memcpy(
                                 bp as *mut libc::c_void,
                                 mp as *const libc::c_void,
-                                framedatasize as libc::c_ulong,
+                                framedatasize as usize,
                             );
                         }
                     }
@@ -291,8 +236,8 @@ pub unsafe extern "C" fn ecx_SoEread(
                     {
                         mp = (&mut MbxIn as *mut ec_mbxbuft as *mut uint8).offset(
                             ((*aSoEp).MbxHeader.length as libc::c_ulong)
-                                .wrapping_add(core::mem::size_of::<ec_mbxheadert>())
-                                .wrapping_sub(core::mem::size_of::<uint16>())
+                                .wrapping_add(core::mem::size_of::<ec_mbxheadert>() as u64)
+                                .wrapping_sub(core::mem::size_of::<uint16>() as u64)
                                 as isize,
                         );
                         errorcode = mp as *mut uint16;
@@ -366,7 +311,7 @@ pub unsafe extern "C" fn ecx_SoEwrite(
     mp = (&mut MbxOut as *mut ec_mbxbuft as *mut uint8)
         .offset(::core::mem::size_of::<ec_SoEt>() as isize);
     maxdata = ((*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_ulong)
-        .wrapping_sub(core::mem::size_of::<ec_SoEt>()) as libc::c_int;
+        .wrapping_sub(core::mem::size_of::<ec_SoEt>() as u64) as libc::c_int;
     NotLast = 1u8;
     while NotLast != 0 {
         framedatasize = psize;
@@ -381,8 +326,7 @@ pub unsafe extern "C" fn ecx_SoEwrite(
         }
         (*SoEp).MbxHeader.length = core::mem::size_of::<ec_SoEt>()
             .wrapping_sub(core::mem::size_of::<ec_mbxheadert>())
-            .wrapping_add(framedatasize as libc::c_ulong)
-            as uint16;
+            .wrapping_add(framedatasize as usize) as uint16;
         /* get new mailbox counter, used for session handle */
         cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* SoE */
         (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
@@ -393,7 +337,7 @@ pub unsafe extern "C" fn ecx_SoEwrite(
         memcpy(
             mp as *mut libc::c_void,
             hp as *const libc::c_void,
-            framedatasize as libc::c_ulong,
+            framedatasize as usize,
         );
         hp = hp.offset(framedatasize as isize);
         psize -= framedatasize;
@@ -425,8 +369,8 @@ pub unsafe extern "C" fn ecx_SoEwrite(
                         {
                             mp = (&mut MbxIn as *mut ec_mbxbuft as *mut uint8).offset(
                                 ((*aSoEp).MbxHeader.length as libc::c_ulong)
-                                    .wrapping_add(core::mem::size_of::<ec_mbxheadert>())
-                                    .wrapping_sub(core::mem::size_of::<uint16>())
+                                    .wrapping_add(core::mem::size_of::<ec_mbxheadert>() as u64)
+                                    .wrapping_sub(core::mem::size_of::<uint16>() as u64)
                                     as isize,
                             );
                             errorcode = mp as *mut uint16;

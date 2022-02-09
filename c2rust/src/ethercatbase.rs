@@ -1,9 +1,9 @@
-use crate::osal::linux::osal::{osal_timer_is_expired, osal_timer_start};
-use libc::{
-    bind, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
-    pthread_mutex_unlock, pthread_mutexattr_init, pthread_mutexattr_t, recv, send, setsockopt,
-    sockaddr, socket, strcpy, timeval,
+use crate::{
+    ethercatmain::ecx_port,
+    ethercattype::{ec_bufT, ec_bufstate, ec_cmdtype, ec_comt, ec_etherheadert, EthercatRegister},
+    oshw::linux::nicdrv::{ecx_getindex, ecx_portt, ecx_setbufstat, ecx_srconfirm},
 };
+use libc::{memcpy, memset};
 
 pub type __uint8_t = libc::c_uchar;
 pub type __uint16_t = libc::c_ushort;
@@ -22,84 +22,6 @@ pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type int64 = int64_t;
 pub type uint64 = uint64_t;
-
-pub type C2RustUnnamed = libc::c_uint;
-pub const EC_BUF_COMPLETE: C2RustUnnamed = 4;
-pub const EC_BUF_RCVD: C2RustUnnamed = 3;
-pub const EC_BUF_TX: C2RustUnnamed = 2;
-pub const EC_BUF_ALLOC: C2RustUnnamed = 1;
-pub const EC_BUF_EMPTY: C2RustUnnamed = 0;
-pub type ec_cmdtype = libc::c_uint;
-pub const EC_CMD_FRMW: ec_cmdtype = 14;
-pub const EC_CMD_ARMW: ec_cmdtype = 13;
-pub const EC_CMD_LRW: ec_cmdtype = 12;
-pub const EC_CMD_LWR: ec_cmdtype = 11;
-pub const EC_CMD_LRD: ec_cmdtype = 10;
-pub const EC_CMD_BRW: ec_cmdtype = 9;
-pub const EC_CMD_BWR: ec_cmdtype = 8;
-pub const EC_CMD_BRD: ec_cmdtype = 7;
-pub const EC_CMD_FPRW: ec_cmdtype = 6;
-pub const EC_CMD_FPWR: ec_cmdtype = 5;
-pub const EC_CMD_FPRD: ec_cmdtype = 4;
-pub const EC_CMD_APRW: ec_cmdtype = 3;
-pub const EC_CMD_APWR: ec_cmdtype = 2;
-pub const EC_CMD_APRD: ec_cmdtype = 1;
-pub const EC_CMD_NOP: ec_cmdtype = 0;
-pub type C2RustUnnamed_0 = libc::c_uint;
-pub const ECT_REG_DCCYCLE1: C2RustUnnamed_0 = 2468;
-pub const ECT_REG_DCCYCLE0: C2RustUnnamed_0 = 2464;
-pub const ECT_REG_DCSTART0: C2RustUnnamed_0 = 2448;
-pub const ECT_REG_DCSYNCACT: C2RustUnnamed_0 = 2433;
-pub const ECT_REG_DCCUC: C2RustUnnamed_0 = 2432;
-pub const ECT_REG_DCTIMEFILT: C2RustUnnamed_0 = 2356;
-pub const ECT_REG_DCSPEEDCNT: C2RustUnnamed_0 = 2352;
-pub const ECT_REG_DCSYSDIFF: C2RustUnnamed_0 = 2348;
-pub const ECT_REG_DCSYSDELAY: C2RustUnnamed_0 = 2344;
-pub const ECT_REG_DCSYSOFFSET: C2RustUnnamed_0 = 2336;
-pub const ECT_REG_DCSOF: C2RustUnnamed_0 = 2328;
-pub const ECT_REG_DCSYSTIME: C2RustUnnamed_0 = 2320;
-pub const ECT_REG_DCTIME3: C2RustUnnamed_0 = 2316;
-pub const ECT_REG_DCTIME2: C2RustUnnamed_0 = 2312;
-pub const ECT_REG_DCTIME1: C2RustUnnamed_0 = 2308;
-pub const ECT_REG_DCTIME0: C2RustUnnamed_0 = 2304;
-pub const ECT_REG_SM1CONTR: C2RustUnnamed_0 = 2063;
-pub const ECT_REG_SM1ACT: C2RustUnnamed_0 = 2062;
-pub const ECT_REG_SM1STAT: C2RustUnnamed_0 = 2061;
-pub const ECT_REG_SM0STAT: C2RustUnnamed_0 = 2053;
-pub const ECT_REG_SM3: C2RustUnnamed_0 = 2072;
-pub const ECT_REG_SM2: C2RustUnnamed_0 = 2064;
-pub const ECT_REG_SM1: C2RustUnnamed_0 = 2056;
-pub const ECT_REG_SM0: C2RustUnnamed_0 = 2048;
-pub const ECT_REG_FMMU3: C2RustUnnamed_0 = 1584;
-pub const ECT_REG_FMMU2: C2RustUnnamed_0 = 1568;
-pub const ECT_REG_FMMU1: C2RustUnnamed_0 = 1552;
-pub const ECT_REG_FMMU0: C2RustUnnamed_0 = 1536;
-pub const ECT_REG_EEPDAT: C2RustUnnamed_0 = 1288;
-pub const ECT_REG_EEPADR: C2RustUnnamed_0 = 1284;
-pub const ECT_REG_EEPSTAT: C2RustUnnamed_0 = 1282;
-pub const ECT_REG_EEPCTL: C2RustUnnamed_0 = 1282;
-pub const ECT_REG_EEPCFG: C2RustUnnamed_0 = 1280;
-pub const ECT_REG_WDCNT: C2RustUnnamed_0 = 1090;
-pub const ECT_REG_LLCNT: C2RustUnnamed_0 = 784;
-pub const ECT_REG_PECODE: C2RustUnnamed_0 = 782;
-pub const ECT_REG_PECNT: C2RustUnnamed_0 = 781;
-pub const ECT_REG_EPUECNT: C2RustUnnamed_0 = 780;
-pub const ECT_REG_FRXERR: C2RustUnnamed_0 = 776;
-pub const ECT_REG_RXERR: C2RustUnnamed_0 = 768;
-pub const ECT_REG_IRQMASK: C2RustUnnamed_0 = 512;
-pub const ECT_REG_PDICTL: C2RustUnnamed_0 = 320;
-pub const ECT_REG_ALSTATCODE: C2RustUnnamed_0 = 308;
-pub const ECT_REG_ALSTAT: C2RustUnnamed_0 = 304;
-pub const ECT_REG_ALCTL: C2RustUnnamed_0 = 288;
-pub const ECT_REG_DLSTAT: C2RustUnnamed_0 = 272;
-pub const ECT_REG_DLALIAS: C2RustUnnamed_0 = 259;
-pub const ECT_REG_DLPORT: C2RustUnnamed_0 = 257;
-pub const ECT_REG_DLCTL: C2RustUnnamed_0 = 256;
-pub const ECT_REG_ALIAS: C2RustUnnamed_0 = 18;
-pub const ECT_REG_STADR: C2RustUnnamed_0 = 16;
-pub const ECT_REG_ESCSUP: C2RustUnnamed_0 = 8;
-pub const ECT_REG_PORTDES: C2RustUnnamed_0 = 7;
-pub const ECT_REG_TYPE: C2RustUnnamed_0 = 0;
 
 /*
  * Licensed under the GNU General Public License version 2 with exceptions. See
@@ -362,7 +284,7 @@ pub unsafe extern "C" fn ecx_BWR(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        EC_CMD_BWR as uint8,
+        ec_cmdtype::EC_CMD_BWR as uint8,
         idx,
         ADP,
         ADO,
@@ -372,7 +294,7 @@ pub unsafe extern "C" fn ecx_BWR(
     /* send data and wait for answer */
     wkc = ecx_srconfirm(port, idx, timeout);
     /* clear buffer status */
-    ecx_setbufstat(port, idx, EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
     return wkc;
 }
 /* * BRD "broadcast read" primitive. Blocking.
@@ -402,7 +324,7 @@ pub unsafe extern "C" fn ecx_BRD(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        EC_CMD_BRD as uint8,
+        ec_cmdtype::EC_CMD_BRD as uint8,
         idx,
         ADP,
         ADO,
@@ -423,7 +345,7 @@ pub unsafe extern "C" fn ecx_BRD(
         );
     }
     /* clear buffer status */
-    ecx_setbufstat(port, idx, EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
     return wkc;
 }
 /* * APRD "auto increment address read" primitive. Blocking.
@@ -451,7 +373,7 @@ pub unsafe extern "C" fn ecx_APRD(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        EC_CMD_APRD as uint8,
+        ec_cmdtype::EC_CMD_APRD as uint8,
         idx,
         ADP,
         ADO,
@@ -469,7 +391,7 @@ pub unsafe extern "C" fn ecx_APRD(
             length as libc::c_ulong,
         );
     }
-    ecx_setbufstat(port, idx, EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
     return wkc;
 }
 /* * APRMW "auto increment address read, multiple write" primitive. Blocking.
@@ -498,7 +420,7 @@ pub unsafe extern "C" fn ecx_ARMW(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        EC_CMD_ARMW as uint8,
+        ec_cmdtype::EC_CMD_ARMW as uint8,
         idx,
         ADP,
         ADO,
@@ -516,7 +438,7 @@ pub unsafe extern "C" fn ecx_ARMW(
             length as libc::c_ulong,
         );
     }
-    ecx_setbufstat(port, idx, EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
     return wkc;
 }
 /* * FPRMW "configured address read, multiple write" primitive. Blocking.
@@ -545,7 +467,7 @@ pub unsafe extern "C" fn ecx_FRMW(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        EC_CMD_FRMW as uint8,
+        ec_cmdtype::EC_CMD_FRMW as uint8,
         idx,
         ADP,
         ADO,
@@ -563,7 +485,7 @@ pub unsafe extern "C" fn ecx_FRMW(
             length as libc::c_ulong,
         );
     }
-    ecx_setbufstat(port, idx, EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
     return wkc;
 }
 /* * APRDw "auto increment address read" word return primitive. Blocking.
@@ -618,7 +540,7 @@ pub unsafe extern "C" fn ecx_FPRD(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        EC_CMD_FPRD as uint8,
+        ec_cmdtype::EC_CMD_FPRD as uint8,
         idx,
         ADP,
         ADO,
@@ -636,7 +558,7 @@ pub unsafe extern "C" fn ecx_FPRD(
             length as libc::c_ulong,
         );
     }
-    ecx_setbufstat(port, idx, EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
     return wkc;
 }
 /* * FPRDw "configured address read" word return primitive. Blocking.
@@ -691,7 +613,7 @@ pub unsafe extern "C" fn ecx_APWR(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        EC_CMD_APWR as uint8,
+        ec_cmdtype::EC_CMD_APWR as uint8,
         idx,
         ADP,
         ADO,
@@ -699,7 +621,7 @@ pub unsafe extern "C" fn ecx_APWR(
         data,
     );
     wkc = ecx_srconfirm(port, idx, timeout);
-    ecx_setbufstat(port, idx, EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
     return wkc;
 }
 /* * APWRw "auto increment address write" word primitive. Blocking.
@@ -753,7 +675,7 @@ pub unsafe extern "C" fn ecx_FPWR(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        EC_CMD_FPWR as uint8,
+        ec_cmdtype::EC_CMD_FPWR as uint8,
         idx,
         ADP,
         ADO,
@@ -761,7 +683,7 @@ pub unsafe extern "C" fn ecx_FPWR(
         data,
     );
     wkc = ecx_srconfirm(port, idx, timeout);
-    ecx_setbufstat(port, idx, EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
     return wkc;
 }
 /* * FPWR "configured address write" primitive. Blocking.
@@ -813,7 +735,7 @@ pub unsafe extern "C" fn ecx_LRW(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        EC_CMD_LRW as uint8,
+        ec_cmdtype::EC_CMD_LRW as uint8,
         idx,
         (LogAdr & 0xffffu32) as uint16,
         (LogAdr >> 16i32) as uint16,
@@ -823,7 +745,7 @@ pub unsafe extern "C" fn ecx_LRW(
     wkc = ecx_srconfirm(port, idx, timeout);
     if wkc > 0i32
         && (*port).rxbuf[idx as usize][::core::mem::size_of::<uint16>()] as libc::c_int
-            == EC_CMD_LRW as libc::c_int
+            == ec_cmdtype::EC_CMD_LRW as libc::c_int
     {
         memcpy(
             data,
@@ -834,7 +756,7 @@ pub unsafe extern "C" fn ecx_LRW(
             length as libc::c_ulong,
         );
     }
-    ecx_setbufstat(port, idx, EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
     return wkc;
 }
 /* * LRD "logical memory read" primitive. Blocking.
@@ -860,7 +782,7 @@ pub unsafe extern "C" fn ecx_LRD(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        EC_CMD_LRD as uint8,
+        ec_cmdtype::EC_CMD_LRD as uint8,
         idx,
         (LogAdr & 0xffffu32) as uint16,
         (LogAdr >> 16i32) as uint16,
@@ -870,7 +792,7 @@ pub unsafe extern "C" fn ecx_LRD(
     wkc = ecx_srconfirm(port, idx, timeout);
     if wkc > 0i32
         && (*port).rxbuf[idx as usize][::core::mem::size_of::<uint16>()] as libc::c_int
-            == EC_CMD_LRD as libc::c_int
+            == ec_cmdtype::EC_CMD_LRD as libc::c_int
     {
         memcpy(
             data,
@@ -881,7 +803,7 @@ pub unsafe extern "C" fn ecx_LRD(
             length as libc::c_ulong,
         );
     }
-    ecx_setbufstat(port, idx, EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
     return wkc;
 }
 /* * LWR "logical memory write" primitive. Blocking.
@@ -907,7 +829,7 @@ pub unsafe extern "C" fn ecx_LWR(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        EC_CMD_LWR as uint8,
+        ec_cmdtype::EC_CMD_LWR as uint8,
         idx,
         (LogAdr & 0xffffu32) as uint16,
         (LogAdr >> 16i32) as uint16,
@@ -915,7 +837,7 @@ pub unsafe extern "C" fn ecx_LWR(
         data,
     );
     wkc = ecx_srconfirm(port, idx, timeout);
-    ecx_setbufstat(port, idx, EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
     return wkc;
 }
 /* * LRW "logical memory read / write" primitive plus Clock Distribution. Blocking.
@@ -949,7 +871,7 @@ pub unsafe extern "C" fn ecx_LRWDC(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        EC_CMD_LRW as uint8,
+        ec_cmdtype::EC_CMD_LRW as uint8,
         idx,
         (LogAdr & 0xffffu32) as uint16,
         (LogAdr >> 16i32) as uint16,
@@ -961,18 +883,18 @@ pub unsafe extern "C" fn ecx_LRWDC(
     DCtO = ecx_adddatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        EC_CMD_FRMW as uint8,
+        ec_cmdtype::EC_CMD_FRMW as uint8,
         idx,
         0u8,
         DCrs,
-        ECT_REG_DCSYSTIME as uint16,
+        EthercatRegister::ECT_REG_DCSYSTIME as uint16,
         ::core::mem::size_of::<*mut int64>() as uint16,
         &mut DCtE as *mut uint64 as *mut libc::c_void,
     );
     wkc = ecx_srconfirm(port, idx, timeout);
     if wkc > 0i32
         && (*port).rxbuf[idx as usize][::core::mem::size_of::<uint16>()] as libc::c_int
-            == EC_CMD_LRW as libc::c_int
+            == ec_cmdtype::EC_CMD_LRW as libc::c_int
     {
         memcpy(
             data,
@@ -1000,7 +922,7 @@ pub unsafe extern "C" fn ecx_LRWDC(
         );
         *DCtime = DCtE as int64
     }
-    ecx_setbufstat(port, idx, EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
     return wkc;
 }
 #[no_mangle]
