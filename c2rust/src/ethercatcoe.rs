@@ -13,19 +13,6 @@ use crate::{
 };
 use libc::{memcpy, memset, strncpy};
 
-pub type i64 = libc::c_long;
-pub type u16 = libc::c_ushort;
-pub type u32 = libc::c_uint;
-pub type u64 = libc::c_ulong;
-pub type u8 = libc::c_uchar;
-pub type bool = u8;
-pub type i16 = i16;
-pub type i32 = i32;
-pub type u8 = u8;
-pub type u16 = u16;
-pub type u32 = u32;
-pub type i64 = i64;
-
 /** max entries in Object Description list */
 pub const EC_MAXODLIST: usize = 1024;
 

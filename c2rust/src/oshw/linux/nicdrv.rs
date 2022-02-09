@@ -12,23 +12,6 @@ use libc::{
     SOCK_RAW,
 };
 
-pub type __time_t = libc::c_long;
-pub type __suseconds_t = libc::c_long;
-pub type __ssize_t = libc::c_long;
-pub type __caddr_t = *mut libc::c_char;
-pub type __socklen_t = libc::c_uint;
-pub type ssize_t = __ssize_t;
-pub type size_t = usize;
-
-pub type u8 = libc::c_uchar;
-pub type u16 = libc::c_ushort;
-pub type u32 = libc::c_uint;
-
-pub type bool = u8;
-pub type u8 = u8;
-pub type u16 = u16;
-pub type u32 = u32;
-
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ifmap {
@@ -61,7 +44,7 @@ pub union C2RustUnnamed_0 {
     pub ifru_map: ifmap,
     pub ifru_slave: [libc::c_char; 16],
     pub ifru_newname: [libc::c_char; 16],
-    pub ifru_data: __caddr_t,
+    pub ifru_data: caddr_t,
 }
 
 #[repr(C)]

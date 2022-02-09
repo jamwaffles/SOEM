@@ -5,24 +5,6 @@ use crate::{
     osal::linux::osal::{ec_timet, osal_current_time},
 };
 
-pub type i16 = libc::c_short;
-pub type i32 = libc::c_int;
-pub type i64 = libc::c_long;
-pub type i8 = libc::c_schar;
-pub type u16 = libc::c_ushort;
-pub type u32 = libc::c_uint;
-pub type u64 = libc::c_ulong;
-pub type u8 = libc::c_uchar;
-pub type bool = u8;
-pub type i8 = i8;
-pub type i16 = i16;
-pub type i32 = i32;
-pub type u8 = u8;
-pub type u16 = u16;
-pub type u32 = u32;
-pub type i64 = i64;
-pub type u64 = u64;
-
 /* *
  * Set DC of slave to fire sync0 at CyclTime interval with CyclShift offset.
  *

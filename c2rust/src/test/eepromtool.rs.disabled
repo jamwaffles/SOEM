@@ -5,14 +5,6 @@ use libc::{
     sockaddr, socket, strcpy, timeval,
 };
 
-pub type size_t = usize;
-pub type __uint8_t = libc::c_uchar;
-pub type __uint16_t = libc::c_ushort;
-pub type __uint32_t = libc::c_uint;
-pub type __uint64_t = libc::c_ulong;
-pub type __off_t = libc::c_long;
-pub type __off64_t = libc::c_long;
-
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct _IO_FILE {
@@ -32,31 +24,20 @@ pub struct _IO_FILE {
     pub _chain: *mut _IO_FILE,
     pub _fileno: libc::c_int,
     pub _flags2: libc::c_int,
-    pub _old_offset: __off_t,
+    pub _old_offset: off_t,
     pub _cur_column: libc::c_ushort,
     pub _vtable_offset: libc::c_schar,
     pub _shortbuf: [libc::c_char; 1],
     pub _lock: *mut libc::c_void,
-    pub _offset: __off64_t,
+    pub _offset: off64_t,
     pub _codecvt: *mut _IO_codecvt,
     pub _wide_data: *mut _IO_wide_data,
     pub _freeres_list: *mut _IO_FILE,
     pub _freeres_buf: *mut libc::c_void,
-    pub __pad5: size_t,
+    pub pad5: size_t,
     pub _mode: libc::c_int,
     pub _unused2: [libc::c_char; 20],
 }
-pub type _IO_lock_t = ();
-pub type FILE = _IO_FILE;
-pub type u8 = __uint8_t;
-pub type u16 = __uint16_t;
-pub type u32 = __uint32_t;
-pub type u64 = __uint64_t;
-pub type u8 = u8;
-pub type u16 = u16;
-pub type u32 = u32;
-pub type u64 = u64;
-
 
 pub type C2RustUnnamed = libc::c_uint;
 pub const EthercatRegister::ECT_REG_DCCYCLE1: C2RustUnnamed = 2468;

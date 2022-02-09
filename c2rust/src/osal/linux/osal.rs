@@ -3,21 +3,8 @@ use std::mem;
 use libc::{
     clock_gettime, free, malloc, memset, nanosleep, pthread_attr_destroy, pthread_attr_init,
     pthread_attr_setstacksize, pthread_attr_t, pthread_create, pthread_setschedparam, pthread_t,
-    sched_param, timespec, timeval,
+    sched_param, suseconds_t, time_t, timespec, timeval,
 };
-
-pub type size_t = usize;
-pub type __uint8_t = libc::c_uchar;
-pub type __uint32_t = libc::c_uint;
-pub type __time_t = libc::c_long;
-pub type __suseconds_t = libc::c_long;
-pub type __clockid_t = libc::c_int;
-pub type __syscall_slong_t = libc::c_long;
-
-pub type u8 = __uint8_t;
-pub type u32 = __uint32_t;
-pub type bool = u8;
-pub type u32 = u32;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -39,8 +26,8 @@ pub unsafe fn osal_usleep(mut usec: u32) -> libc::c_int {
         tv_sec: 0,
         tv_nsec: 0,
     };
-    ts.tv_sec = usec.wrapping_div(1000000u32) as __time_t;
-    ts.tv_nsec = usec.wrapping_rem(1000000u32).wrapping_mul(1000u32) as __syscall_slong_t;
+    ts.tv_sec = usec.wrapping_div(1000000u32) as time_t;
+    ts.tv_nsec = usec.wrapping_rem(1000000u32).wrapping_mul(1000u32) as syscall_slong_t;
     /* usleep is deprecated, use nanosleep instead */
     return nanosleep(&mut ts, 0 as *mut timespec);
 }
@@ -103,8 +90,8 @@ pub unsafe fn osal_timer_start(mut self_0: *mut osal_timert, mut timeout_usec: u
         tv_usec: 0,
     };
     osal_getrelativetime(&mut start_time);
-    timeout.tv_sec = timeout_usec.wrapping_div(1000000u32) as __time_t;
-    timeout.tv_usec = timeout_usec.wrapping_rem(1000000u32) as __suseconds_t;
+    timeout.tv_sec = timeout_usec.wrapping_div(1000000u32) as time_t;
+    timeout.tv_usec = timeout_usec.wrapping_rem(1000000u32) as suseconds_t;
     stop_time.tv_sec = start_time.tv_sec + timeout.tv_sec;
     stop_time.tv_usec = start_time.tv_usec + timeout.tv_usec;
     if stop_time.tv_usec >= 1000000i64 {
@@ -126,8 +113,8 @@ pub unsafe fn osal_timer_is_expired(mut self_0: *mut osal_timert) -> bool {
     };
     let mut is_not_yet_expired: libc::c_int = 0;
     osal_getrelativetime(&mut current_time);
-    stop_time.tv_sec = (*self_0).stop_time.sec as __time_t;
-    stop_time.tv_usec = (*self_0).stop_time.usec as __suseconds_t;
+    stop_time.tv_sec = (*self_0).stop_time.sec as time_t;
+    stop_time.tv_usec = (*self_0).stop_time.usec as suseconds_t;
     is_not_yet_expired = if current_time.tv_sec == stop_time.tv_sec {
         (current_time.tv_usec < stop_time.tv_usec) as libc::c_int
     } else {
