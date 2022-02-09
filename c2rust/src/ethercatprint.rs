@@ -5,45 +5,45 @@ use crate::{
 };
 use libc::sprintf;
 
-pub type uint8_t = libc::c_uchar;
-pub type int16_t = libc::c_short;
-pub type uint16_t = libc::c_ushort;
-pub type int32_t = libc::c_int;
-pub type uint32_t = libc::c_uint;
-pub type int64_t = libc::c_long;
-pub type boolean = uint8_t;
-pub type int16 = int16_t;
-pub type int32 = int32_t;
-pub type uint8 = uint8_t;
-pub type uint16 = uint16_t;
-pub type uint32 = uint32_t;
-pub type int64 = int64_t;
+pub type u8 = libc::c_uchar;
+pub type i16 = libc::c_short;
+pub type u16 = libc::c_ushort;
+pub type i32 = libc::c_int;
+pub type u32 = libc::c_uint;
+pub type i64 = libc::c_long;
+pub type bool = u8;
+pub type i16 = i16;
+pub type i32 = i32;
+pub type u8 = u8;
+pub type u16 = u16;
+pub type u32 = u32;
+pub type i64 = i64;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_sdoerrorlist_t {
-    pub errorcode: uint32,
+    pub errorcode: u32,
     pub errordescription: [libc::c_char; 128],
 }
 
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_ALstatuscodelist_t {
-    pub ALstatuscode: uint16,
+    pub ALstatuscode: u16,
     pub ALstatuscodedescription: [libc::c_char; 128],
 }
 
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_soeerrorlist_t {
-    pub errorcode: uint16,
+    pub errorcode: u16,
     pub errordescription: [libc::c_char; 128],
 }
 
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_mbxerrorlist_t {
-    pub errorcode: uint16,
+    pub errorcode: u16,
     pub errordescription: [libc::c_char; 128],
 }
 #[no_mangle]
@@ -1329,7 +1329,7 @@ pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] = unsafe {
  * @return readable string
  */
 #[no_mangle]
-pub unsafe fn ec_sdoerror2string(mut sdoerrorcode: uint32) -> *const libc::c_char {
+pub unsafe fn ec_sdoerror2string(mut sdoerrorcode: u32) -> *const libc::c_char {
     let mut i: libc::c_int = 0i32;
     while ec_sdoerrorlist[i as usize].errorcode as libc::c_ulong != 0xffffffffu64
         && ec_sdoerrorlist[i as usize].errorcode != sdoerrorcode
@@ -1344,7 +1344,7 @@ pub unsafe fn ec_sdoerror2string(mut sdoerrorcode: uint32) -> *const libc::c_cha
  * @return readable string
  */
 #[no_mangle]
-pub unsafe fn ec_ALstatuscode2string(mut ALstatuscode: uint16) -> *mut libc::c_char {
+pub unsafe fn ec_ALstatuscode2string(mut ALstatuscode: u16) -> *mut libc::c_char {
     let mut i: libc::c_int = 0i32;
     while ec_ALstatuscodelist[i as usize].ALstatuscode as libc::c_int != 0xffffi32
         && ec_ALstatuscodelist[i as usize].ALstatuscode as libc::c_int
@@ -1362,7 +1362,7 @@ pub unsafe fn ec_ALstatuscode2string(mut ALstatuscode: uint16) -> *mut libc::c_c
  * @return readable string
  */
 #[no_mangle]
-pub unsafe fn ec_soeerror2string(mut errorcode: uint16) -> *mut libc::c_char {
+pub unsafe fn ec_soeerror2string(mut errorcode: u16) -> *mut libc::c_char {
     let mut i: libc::c_int = 0i32;
     while ec_soeerrorlist[i as usize].errorcode as libc::c_int != 0xffffi32
         && ec_soeerrorlist[i as usize].errorcode as libc::c_int != errorcode as libc::c_int
@@ -1377,7 +1377,7 @@ pub unsafe fn ec_soeerror2string(mut errorcode: uint16) -> *mut libc::c_char {
  * @return readable string
  */
 #[no_mangle]
-pub unsafe fn ec_mbxerror2string(mut errorcode: uint16) -> *mut libc::c_char {
+pub unsafe fn ec_mbxerror2string(mut errorcode: u16) -> *mut libc::c_char {
     let mut i: libc::c_int = 0i32;
     while ec_mbxerrorlist[i as usize].errorcode as libc::c_int != 0xffffi32
         && ec_mbxerrorlist[i as usize].errorcode as libc::c_int != errorcode as libc::c_int
@@ -1410,7 +1410,7 @@ pub unsafe fn ecx_err2string(Ec: ec_errort) -> *mut libc::c_char {
                 Ec.Index as libc::c_int,
                 Ec.SubIdx as libc::c_int,
                 Ec.c2rust_unnamed.AbortCode as libc::c_uint,
-                ec_sdoerror2string(Ec.c2rust_unnamed.AbortCode as uint32),
+                ec_sdoerror2string(Ec.c2rust_unnamed.AbortCode as u32),
             );
         }
         ec_err_type::EC_ERR_TYPE_EMERGENCY => {
@@ -1444,7 +1444,7 @@ pub unsafe fn ecx_err2string(Ec: ec_errort) -> *mut libc::c_char {
                 Ec.Index as libc::c_int,
                 Ec.SubIdx as libc::c_int,
                 Ec.c2rust_unnamed.AbortCode as libc::c_uint,
-                ec_sdoerror2string(Ec.c2rust_unnamed.AbortCode as uint32),
+                ec_sdoerror2string(Ec.c2rust_unnamed.AbortCode as u32),
             );
         }
         ec_err_type::EC_ERR_TYPE_SOE_ERROR => {

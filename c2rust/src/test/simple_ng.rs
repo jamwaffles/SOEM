@@ -20,38 +20,38 @@ use crate::{
 };
 use libc::memset;
 
-pub type uint8_t = libc::c_uchar;
-pub type int16_t = libc::c_short;
-pub type uint16_t = libc::c_ushort;
-pub type int32_t = libc::c_int;
-pub type uint32_t = libc::c_uint;
-pub type int64_t = libc::c_long;
-pub type boolean = uint8_t;
-pub type int16 = int16_t;
-pub type int32 = int32_t;
-pub type uint8 = uint8_t;
-pub type uint16 = uint16_t;
-pub type uint32 = uint32_t;
-pub type int64 = int64_t;
+pub type u8 = libc::c_uchar;
+pub type i16 = libc::c_short;
+pub type u16 = libc::c_ushort;
+pub type i32 = libc::c_int;
+pub type u32 = libc::c_uint;
+pub type i64 = libc::c_long;
+pub type bool = u8;
+pub type i16 = i16;
+pub type i32 = i32;
+pub type u8 = u8;
+pub type u16 = u16;
+pub type u32 = u32;
+pub type i64 = i64;
 
 #[repr(C)]
 #[derive(Clone)]
 pub struct Fieldbus {
     pub context: ecx_contextt,
     pub iface: *mut libc::c_char,
-    pub group: uint8,
+    pub group: u8,
     pub roundtrip_time: libc::c_int,
-    pub map: [uint8; 4096],
+    pub map: [u8; 4096],
     pub port: ecx_portt,
     pub slavelist: [ec_slavet; 200],
     pub slavecount: libc::c_int,
     pub grouplist: [ec_groupt; 2],
-    pub esibuf: [uint8; 4096],
-    pub esimap: [uint32; 128],
+    pub esibuf: [u8; 4096],
+    pub esimap: [u32; 128],
     pub elist: ec_eringt,
     pub idxstack: ec_idxstackT,
-    pub ecaterror: boolean,
-    pub DCtime: int64,
+    pub ecaterror: bool,
+    pub DCtime: i64,
     pub SMcommtype: [ec_SMcommtypet; 1],
     pub PDOassign: [ec_PDOassignt; 1],
     pub PDOdesc: [ec_PDOdesct; 1],
@@ -110,7 +110,7 @@ unsafe fn fieldbus_roundtrip(mut fieldbus: *mut Fieldbus) -> libc::c_int {
         diff.sec.wrapping_mul(1000000u32).wrapping_add(diff.usec) as libc::c_int;
     return wkc;
 }
-unsafe fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
+unsafe fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> bool {
     let mut context: *mut ecx_contextt = 0 as *mut ecx_contextt;
     let mut grp: *mut ec_groupt = 0 as *mut ec_groupt;
     let mut slave: *mut ec_slavet = 0 as *mut ec_slavet;
@@ -181,7 +181,7 @@ unsafe fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
     ecx_statecheck(
         context,
         0u16,
-        ec_state::EC_STATE_SAFE_OP as uint16,
+        ec_state::EC_STATE_SAFE_OP as u16,
         EC_TIMEOUTSTATE * 4i32,
     );
 
@@ -193,7 +193,7 @@ unsafe fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
     print!("Setting operational state..");
     /* Act on slave 0 (a virtual slave used for broadcasting) */
     slave = (*fieldbus).slavelist.as_mut_ptr();
-    (*slave).state = ec_state::EC_STATE_OPERATIONAL as uint16;
+    (*slave).state = ec_state::EC_STATE_OPERATIONAL as u16;
     ecx_writestate(context, 0u16);
     /* Poll the result ten times before giving up */
     i = 0i32;
@@ -203,7 +203,7 @@ unsafe fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
         ecx_statecheck(
             context,
             0u16,
-            ec_state::EC_STATE_OPERATIONAL as uint16,
+            ec_state::EC_STATE_OPERATIONAL as u16,
             EC_TIMEOUTSTATE / 10i32,
         );
         if (*slave).state as libc::c_int == ec_state::EC_STATE_OPERATIONAL as libc::c_int {
@@ -244,7 +244,7 @@ unsafe fn fieldbus_stop(mut fieldbus: *mut Fieldbus) {
     /* Act on slave 0 (a virtual slave used for broadcasting) */
     slave = (*fieldbus).slavelist.as_mut_ptr();
     print!("Requesting init state on all slaves... ");
-    (*slave).state = ec_state::EC_STATE_INIT as uint16;
+    (*slave).state = ec_state::EC_STATE_INIT as u16;
     ecx_writestate(context, 0u16);
 
     println!("done");
@@ -252,9 +252,9 @@ unsafe fn fieldbus_stop(mut fieldbus: *mut Fieldbus) {
     ecx_close(context);
     println!("done");
 }
-unsafe fn fieldbus_dump(mut fieldbus: *mut Fieldbus) -> boolean {
+unsafe fn fieldbus_dump(mut fieldbus: *mut Fieldbus) -> bool {
     let mut grp: *mut ec_groupt = 0 as *mut ec_groupt;
-    let mut n: uint32 = 0;
+    let mut n: u32 = 0;
     let mut wkc: libc::c_int = 0;
     let mut expected_wkc: libc::c_int = 0;
     grp = (*fieldbus)
@@ -320,26 +320,26 @@ unsafe fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
                     );
                     (*slave).state = (ec_state::EC_STATE_SAFE_OP as libc::c_int
                         + ethercattype::EC_STATE_ACK as libc::c_int)
-                        as uint16;
-                    ecx_writestate(context, i as uint16);
+                        as u16;
+                    ecx_writestate(context, i as u16);
                 } else if (*slave).state as libc::c_int == ec_state::EC_STATE_SAFE_OP as libc::c_int
                 {
                     println!(
                         "* Slave {:} is in SAFE_OP, change to OPERATIONAL",
                         i as libc::c_int
                     );
-                    (*slave).state = ec_state::EC_STATE_OPERATIONAL as uint16;
-                    ecx_writestate(context, i as uint16);
+                    (*slave).state = ec_state::EC_STATE_OPERATIONAL as u16;
+                    ecx_writestate(context, i as u16);
                 } else if (*slave).state as libc::c_int > ec_state::EC_STATE_NONE as libc::c_int {
-                    if ecx_reconfig_slave(context, i as uint16, 2000i32) != 0 {
+                    if ecx_reconfig_slave(context, i as u16, 2000i32) != 0 {
                         (*slave).islost = 0u8;
                         println!("* Slave {:} reconfigured", i as libc::c_int);
                     }
                 } else if (*slave).islost == 0 {
                     ecx_statecheck(
                         context,
-                        i as uint16,
-                        ec_state::EC_STATE_OPERATIONAL as uint16,
+                        i as u16,
+                        ec_state::EC_STATE_OPERATIONAL as u16,
                         2000i32,
                     );
                     if (*slave).state as libc::c_int == ec_state::EC_STATE_NONE as libc::c_int {
@@ -351,7 +351,7 @@ unsafe fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
                 if (*slave).state as libc::c_int != ec_state::EC_STATE_NONE as libc::c_int {
                     (*slave).islost = 0u8;
                     println!("* Slave {:} found", i as libc::c_int);
-                } else if ecx_recover_slave(context, i as uint16, 2000i32) != 0 {
+                } else if ecx_recover_slave(context, i as u16, 2000i32) != 0 {
                     (*slave).islost = 0u8;
                     println!("* Slave {:} recovered", i as libc::c_int);
                 }
@@ -372,13 +372,13 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             maxslave: 0,
             grouplist: 0 as *mut ec_groupt,
             maxgroup: 0,
-            esibuf: 0 as *mut uint8,
-            esimap: 0 as *mut uint32,
+            esibuf: 0 as *mut u8,
+            esimap: 0 as *mut u32,
             esislave: 0,
             elist: 0 as *mut ec_eringt,
             idxstack: 0 as *mut ec_idxstackT,
-            ecaterror: 0 as *mut boolean,
-            DCtime: 0 as *mut int64,
+            ecaterror: 0 as *mut bool,
+            DCtime: 0 as *mut i64,
             SMcommtype: 0 as *mut ec_SMcommtypet,
             PDOassign: 0 as *mut ec_PDOassignt,
             PDOdesc: 0 as *mut ec_PDOdesct,
@@ -432,11 +432,11 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             Dtype: 0,
             Obits: 0,
             Obytes: 0,
-            outputs: 0 as *mut uint8,
+            outputs: 0 as *mut u8,
             Ostartbit: 0,
             Ibits: 0,
             Ibytes: 0,
-            inputs: 0 as *mut uint8,
+            inputs: 0 as *mut u8,
             Istartbit: 0,
             SM: [ec_smt {
                 StartAddr: 0,
@@ -505,9 +505,9 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
         grouplist: [ec_groupt {
             logstartaddr: 0,
             Obytes: 0,
-            outputs: 0 as *mut uint8,
+            outputs: 0 as *mut u8,
             Ibytes: 0,
-            inputs: 0 as *mut uint8,
+            inputs: 0 as *mut u8,
             hasdc: 0,
             DCnext: 0,
             Ebuscurrent: 0,

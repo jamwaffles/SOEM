@@ -5,18 +5,6 @@ use crate::{
 };
 use libc::{memcpy, memset};
 
-pub type int64_t = libc::c_long;
-pub type uint16_t = libc::c_ushort;
-pub type uint32_t = libc::c_uint;
-pub type uint64_t = libc::c_ulong;
-pub type uint8_t = libc::c_uchar;
-pub type boolean = uint8_t;
-pub type uint8 = uint8_t;
-pub type uint16 = uint16_t;
-pub type uint32 = uint32_t;
-pub type int64 = int64_t;
-pub type uint64 = uint64_t;
-
 /*
  * Licensed under the GNU General Public License version 2 with exceptions. See
  * LICENSE file in the project root for full license information
@@ -41,7 +29,7 @@ pub type uint64 = uint64_t;
 unsafe fn ecx_writedatagramdata(
     mut datagramdata: *mut libc::c_void,
     mut com: ec_cmdtype,
-    mut length: uint16,
+    mut length: u16,
     mut data: *const libc::c_void,
 ) {
     if length as libc::c_int > 0i32 {
@@ -77,22 +65,22 @@ pub unsafe fn ecx_setupdatagram(
     mut port: *mut ecx_portt,
     mut frame: *mut libc::c_void,
     mut com: ec_cmdtype,
-    mut idx: uint8,
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut idx: u8,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
 ) -> libc::c_int {
     let mut datagramP: *mut ec_comt = 0 as *mut ec_comt;
-    let mut frameP: *mut uint8 = 0 as *mut uint8;
-    frameP = frame as *mut uint8;
+    let mut frameP: *mut u8 = 0 as *mut u8;
+    frameP = frame as *mut u8;
     /* Ethernet header is preset and fixed in frame buffers
     EtherCAT header needs to be added after that */
-    datagramP = &mut *frameP.offset(::core::mem::size_of::<ec_etherheadert>() as isize)
-        as *mut uint8 as *mut ec_comt;
+    datagramP = &mut *frameP.offset(::core::mem::size_of::<ec_etherheadert>() as isize) as *mut u8
+        as *mut ec_comt;
     (*datagramP).elength = (0x1000u64)
         .wrapping_add(core::mem::size_of::<ec_comt>() as u64)
-        .wrapping_add(length as u64) as uint16;
+        .wrapping_add(length as u64) as u16;
     (*datagramP).command = com as u8;
     (*datagramP).index = idx;
     (*datagramP).ADP = ADP;
@@ -102,7 +90,7 @@ pub unsafe fn ecx_setupdatagram(
         &mut *frameP.offset(
             core::mem::size_of::<ec_etherheadert>().wrapping_add(core::mem::size_of::<ec_comt>())
                 as isize,
-        ) as *mut uint8 as *mut libc::c_void,
+        ) as *mut u8 as *mut libc::c_void,
         com,
         length,
         data,
@@ -122,7 +110,7 @@ pub unsafe fn ecx_setupdatagram(
     /* set size of frame in buffer array */
     (*port).txbuflength[idx as usize] = core::mem::size_of::<ec_etherheadert>()
         .wrapping_add(core::mem::size_of::<ec_comt>())
-        .wrapping_add(core::mem::size_of::<uint16>())
+        .wrapping_add(core::mem::size_of::<u16>())
         .wrapping_add(length as usize) as libc::c_int;
     return 0i32;
 }
@@ -144,38 +132,38 @@ pub unsafe fn ecx_adddatagram(
     mut port: *mut ecx_portt,
     mut frame: *mut libc::c_void,
     mut com: ec_cmdtype,
-    mut idx: uint8,
-    mut more: boolean,
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut idx: u8,
+    mut more: bool,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
-) -> uint16 {
+) -> u16 {
     let mut datagramP: *mut ec_comt = 0 as *mut ec_comt;
-    let mut frameP: *mut uint8 = 0 as *mut uint8;
-    let mut prevlength: uint16 = 0;
-    frameP = frame as *mut uint8;
+    let mut frameP: *mut u8 = 0 as *mut u8;
+    let mut prevlength: u16 = 0;
+    frameP = frame as *mut u8;
     /* copy previous frame size */
-    prevlength = (*port).txbuflength[idx as usize] as uint16;
-    datagramP = &mut *frameP.offset(::core::mem::size_of::<ec_etherheadert>() as isize)
-        as *mut uint8 as *mut ec_comt;
+    prevlength = (*port).txbuflength[idx as usize] as u16;
+    datagramP = &mut *frameP.offset(::core::mem::size_of::<ec_etherheadert>() as isize) as *mut u8
+        as *mut ec_comt;
     /* add new datagram to ethernet frame size */
     (*datagramP).elength = ((*datagramP).elength as usize)
         .wrapping_add(core::mem::size_of::<ec_comt>())
-        .wrapping_add(length as usize) as uint16;
+        .wrapping_add(length as usize) as u16;
     /* add "datagram follows" flag to previous subframe dlength */
-    (*datagramP).dlength = ((*datagramP).dlength as libc::c_int | (1i32) << 15i32) as uint16;
+    (*datagramP).dlength = ((*datagramP).dlength as libc::c_int | (1i32) << 15i32) as u16;
     /* set new EtherCAT header position */
     datagramP = &mut *frameP
-        .offset((prevlength as usize).wrapping_sub(core::mem::size_of::<uint16>()) as isize)
-        as *mut uint8 as *mut ec_comt;
+        .offset((prevlength as usize).wrapping_sub(core::mem::size_of::<u16>()) as isize)
+        as *mut u8 as *mut ec_comt;
     (*datagramP).command = com as u8;
     (*datagramP).index = idx;
     (*datagramP).ADP = ADP;
     (*datagramP).ADO = ADO;
     if more != 0 {
         /* this is not the last datagram to add */
-        (*datagramP).dlength = (length as libc::c_int | (1i32) << 15i32) as uint16
+        (*datagramP).dlength = (length as libc::c_int | (1i32) << 15i32) as u16
     } else {
         /* this is the last datagram in the frame */
         (*datagramP).dlength = length
@@ -184,8 +172,8 @@ pub unsafe fn ecx_adddatagram(
         &mut *frameP.offset(
             (prevlength as usize)
                 .wrapping_add(core::mem::size_of::<ec_comt>())
-                .wrapping_sub(core::mem::size_of::<uint16>()) as isize,
-        ) as *mut uint8 as *mut libc::c_void,
+                .wrapping_sub(core::mem::size_of::<u16>()) as isize,
+        ) as *mut u8 as *mut libc::c_void,
         com,
         length,
         data,
@@ -194,28 +182,28 @@ pub unsafe fn ecx_adddatagram(
     *frameP.offset(
         (prevlength as usize)
             .wrapping_add(core::mem::size_of::<ec_comt>())
-            .wrapping_sub(core::mem::size_of::<uint16>())
+            .wrapping_sub(core::mem::size_of::<u16>())
             .wrapping_add(length as usize) as isize,
     ) = 0u8;
     *frameP.offset(
         (prevlength as usize)
             .wrapping_add(core::mem::size_of::<ec_comt>())
-            .wrapping_sub(core::mem::size_of::<uint16>())
+            .wrapping_sub(core::mem::size_of::<u16>())
             .wrapping_add(length as usize)
             .wrapping_add(1usize) as isize,
     ) = 0u8;
     /* set size of frame in buffer array */
     (*port).txbuflength[idx as usize] = (prevlength as usize)
         .wrapping_add(core::mem::size_of::<ec_comt>())
-        .wrapping_sub(core::mem::size_of::<uint16>())
-        .wrapping_add(core::mem::size_of::<uint16>())
+        .wrapping_sub(core::mem::size_of::<u16>())
+        .wrapping_add(core::mem::size_of::<u16>())
         .wrapping_add(length as usize) as libc::c_int;
     /* return offset to data in rx frame
     14 bytes smaller than tx frame due to stripping of ethernet header */
     return (prevlength as usize)
         .wrapping_add(core::mem::size_of::<ec_comt>())
-        .wrapping_sub(core::mem::size_of::<uint16>())
-        .wrapping_sub(core::mem::size_of::<ec_etherheadert>()) as uint16;
+        .wrapping_sub(core::mem::size_of::<u16>())
+        .wrapping_sub(core::mem::size_of::<ec_etherheadert>()) as u16;
 }
 /* * BRW "broadcast write" primitive. Blocking.
  *
@@ -230,13 +218,13 @@ pub unsafe fn ecx_adddatagram(
 #[no_mangle]
 pub unsafe fn ecx_BWR(
     mut port: *mut ecx_portt,
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
-    let mut idx: uint8 = 0;
+    let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
     /* get fresh index */
     idx = ecx_getindex(port);
@@ -270,13 +258,13 @@ pub unsafe fn ecx_BWR(
 #[no_mangle]
 pub unsafe fn ecx_BRD(
     mut port: *mut ecx_portt,
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
-    let mut idx: uint8 = 0;
+    let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
     /* get fresh index */
     idx = ecx_getindex(port);
@@ -299,7 +287,7 @@ pub unsafe fn ecx_BRD(
             data,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut uint8
+                .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut u8
                 as *const libc::c_void,
             length as usize,
         );
@@ -321,14 +309,14 @@ pub unsafe fn ecx_BRD(
 #[no_mangle]
 pub unsafe fn ecx_APRD(
     mut port: *mut ecx_portt,
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
-    let mut idx: uint8 = 0;
+    let mut idx: u8 = 0;
     idx = ecx_getindex(port);
     ecx_setupdatagram(
         port,
@@ -346,7 +334,7 @@ pub unsafe fn ecx_APRD(
             data,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut uint8
+                .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut u8
                 as *const libc::c_void,
             length as usize,
         );
@@ -368,14 +356,14 @@ pub unsafe fn ecx_APRD(
 #[no_mangle]
 pub unsafe fn ecx_ARMW(
     mut port: *mut ecx_portt,
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
-    let mut idx: uint8 = 0;
+    let mut idx: u8 = 0;
     idx = ecx_getindex(port);
     ecx_setupdatagram(
         port,
@@ -393,7 +381,7 @@ pub unsafe fn ecx_ARMW(
             data,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut uint8
+                .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut u8
                 as *const libc::c_void,
             length as usize,
         );
@@ -415,14 +403,14 @@ pub unsafe fn ecx_ARMW(
 #[no_mangle]
 pub unsafe fn ecx_FRMW(
     mut port: *mut ecx_portt,
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
-    let mut idx: uint8 = 0;
+    let mut idx: u8 = 0;
     idx = ecx_getindex(port);
     ecx_setupdatagram(
         port,
@@ -440,7 +428,7 @@ pub unsafe fn ecx_FRMW(
             data,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut uint8
+                .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut u8
                 as *const libc::c_void,
             length as usize,
         );
@@ -459,18 +447,18 @@ pub unsafe fn ecx_FRMW(
 #[no_mangle]
 pub unsafe fn ecx_APRDw(
     mut port: *mut ecx_portt,
-    mut ADP: uint16,
-    mut ADO: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
     mut timeout: libc::c_int,
-) -> uint16 {
-    let mut w: uint16 = 0;
+) -> u16 {
+    let mut w: u16 = 0;
     w = 0u16;
     ecx_APRD(
         port,
         ADP,
         ADO,
-        ::core::mem::size_of::<uint16>() as uint16,
-        &mut w as *mut uint16 as *mut libc::c_void,
+        ::core::mem::size_of::<u16>() as u16,
+        &mut w as *mut u16 as *mut libc::c_void,
         timeout,
     );
     return w;
@@ -488,14 +476,14 @@ pub unsafe fn ecx_APRDw(
 #[no_mangle]
 pub unsafe fn ecx_FPRD(
     mut port: *mut ecx_portt,
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
-    let mut idx: uint8 = 0;
+    let mut idx: u8 = 0;
     idx = ecx_getindex(port);
     ecx_setupdatagram(
         port,
@@ -513,7 +501,7 @@ pub unsafe fn ecx_FPRD(
             data,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut uint8
+                .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut u8
                 as *const libc::c_void,
             length as usize,
         );
@@ -532,18 +520,18 @@ pub unsafe fn ecx_FPRD(
 #[no_mangle]
 pub unsafe fn ecx_FPRDw(
     mut port: *mut ecx_portt,
-    mut ADP: uint16,
-    mut ADO: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
     mut timeout: libc::c_int,
-) -> uint16 {
-    let mut w: uint16 = 0;
+) -> u16 {
+    let mut w: u16 = 0;
     w = 0u16;
     ecx_FPRD(
         port,
         ADP,
         ADO,
-        ::core::mem::size_of::<uint16>() as uint16,
-        &mut w as *mut uint16 as *mut libc::c_void,
+        ::core::mem::size_of::<u16>() as u16,
+        &mut w as *mut u16 as *mut libc::c_void,
         timeout,
     );
     return w;
@@ -561,13 +549,13 @@ pub unsafe fn ecx_FPRDw(
 #[no_mangle]
 pub unsafe fn ecx_APWR(
     mut port: *mut ecx_portt,
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
-    let mut idx: uint8 = 0;
+    let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
     idx = ecx_getindex(port);
     ecx_setupdatagram(
@@ -596,17 +584,17 @@ pub unsafe fn ecx_APWR(
 #[no_mangle]
 pub unsafe fn ecx_APWRw(
     mut port: *mut ecx_portt,
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut data: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut data: u16,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
     return ecx_APWR(
         port,
         ADP,
         ADO,
-        ::core::mem::size_of::<uint16>() as uint16,
-        &mut data as *mut uint16 as *mut libc::c_void,
+        ::core::mem::size_of::<u16>() as u16,
+        &mut data as *mut u16 as *mut libc::c_void,
         timeout,
     );
 }
@@ -623,14 +611,14 @@ pub unsafe fn ecx_APWRw(
 #[no_mangle]
 pub unsafe fn ecx_FPWR(
     mut port: *mut ecx_portt,
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
-    let mut idx: uint8 = 0;
+    let mut idx: u8 = 0;
     idx = ecx_getindex(port);
     ecx_setupdatagram(
         port,
@@ -658,17 +646,17 @@ pub unsafe fn ecx_FPWR(
 #[no_mangle]
 pub unsafe fn ecx_FPWRw(
     mut port: *mut ecx_portt,
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut data: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut data: u16,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
     return ecx_FPWR(
         port,
         ADP,
         ADO,
-        ::core::mem::size_of::<uint16>() as uint16,
-        &mut data as *mut uint16 as *mut libc::c_void,
+        ::core::mem::size_of::<u16>() as u16,
+        &mut data as *mut u16 as *mut libc::c_void,
         timeout,
     );
 }
@@ -684,12 +672,12 @@ pub unsafe fn ecx_FPWRw(
 #[no_mangle]
 pub unsafe fn ecx_LRW(
     mut port: *mut ecx_portt,
-    mut LogAdr: uint32,
-    mut length: uint16,
+    mut LogAdr: u32,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
-    let mut idx: uint8 = 0;
+    let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
     idx = ecx_getindex(port);
     ecx_setupdatagram(
@@ -697,21 +685,21 @@ pub unsafe fn ecx_LRW(
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
         ec_cmdtype::EC_CMD_LRW,
         idx,
-        (LogAdr & 0xffffu32) as uint16,
-        (LogAdr >> 16i32) as uint16,
+        (LogAdr & 0xffffu32) as u16,
+        (LogAdr >> 16i32) as u16,
         length,
         data,
     );
     wkc = ecx_srconfirm(port, idx, timeout);
     if wkc > 0i32
-        && (*port).rxbuf[idx as usize][::core::mem::size_of::<uint16>()] as libc::c_int
+        && (*port).rxbuf[idx as usize][::core::mem::size_of::<u16>()] as libc::c_int
             == ec_cmdtype::EC_CMD_LRW as libc::c_int
     {
         memcpy(
             data,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut uint8
+                .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut u8
                 as *const libc::c_void,
             length as usize,
         );
@@ -731,12 +719,12 @@ pub unsafe fn ecx_LRW(
 #[no_mangle]
 pub unsafe fn ecx_LRD(
     mut port: *mut ecx_portt,
-    mut LogAdr: uint32,
-    mut length: uint16,
+    mut LogAdr: u32,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
-    let mut idx: uint8 = 0;
+    let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
     idx = ecx_getindex(port);
     ecx_setupdatagram(
@@ -744,21 +732,21 @@ pub unsafe fn ecx_LRD(
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
         ec_cmdtype::EC_CMD_LRD,
         idx,
-        (LogAdr & 0xffffu32) as uint16,
-        (LogAdr >> 16i32) as uint16,
+        (LogAdr & 0xffffu32) as u16,
+        (LogAdr >> 16i32) as u16,
         length,
         data,
     );
     wkc = ecx_srconfirm(port, idx, timeout);
     if wkc > 0i32
-        && (*port).rxbuf[idx as usize][::core::mem::size_of::<uint16>()] as libc::c_int
+        && (*port).rxbuf[idx as usize][::core::mem::size_of::<u16>()] as libc::c_int
             == ec_cmdtype::EC_CMD_LRD as libc::c_int
     {
         memcpy(
             data,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut uint8
+                .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut u8
                 as *const libc::c_void,
             length as usize,
         );
@@ -778,12 +766,12 @@ pub unsafe fn ecx_LRD(
 #[no_mangle]
 pub unsafe fn ecx_LWR(
     mut port: *mut ecx_portt,
-    mut LogAdr: uint32,
-    mut length: uint16,
+    mut LogAdr: u32,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
-    let mut idx: uint8 = 0;
+    let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
     idx = ecx_getindex(port);
     ecx_setupdatagram(
@@ -791,8 +779,8 @@ pub unsafe fn ecx_LWR(
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
         ec_cmdtype::EC_CMD_LWR,
         idx,
-        (LogAdr & 0xffffu32) as uint16,
-        (LogAdr >> 16i32) as uint16,
+        (LogAdr & 0xffffu32) as u16,
+        (LogAdr >> 16i32) as u16,
         length,
         data,
     );
@@ -815,17 +803,17 @@ pub unsafe fn ecx_LWR(
 #[no_mangle]
 pub unsafe fn ecx_LRWDC(
     mut port: *mut ecx_portt,
-    mut LogAdr: uint32,
-    mut length: uint16,
+    mut LogAdr: u32,
+    mut length: u16,
     mut data: *mut libc::c_void,
-    mut DCrs: uint16,
-    mut DCtime: *mut int64,
+    mut DCrs: u16,
+    mut DCtime: *mut i64,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
-    let mut DCtO: uint16 = 0;
-    let mut idx: uint8 = 0;
+    let mut DCtO: u16 = 0;
+    let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
-    let mut DCtE: uint64 = 0;
+    let mut DCtE: u64 = 0;
     idx = ecx_getindex(port);
     /* LRW in first datagram */
     ecx_setupdatagram(
@@ -833,13 +821,13 @@ pub unsafe fn ecx_LRWDC(
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
         ec_cmdtype::EC_CMD_LRW,
         idx,
-        (LogAdr & 0xffffu32) as uint16,
-        (LogAdr >> 16i32) as uint16,
+        (LogAdr & 0xffffu32) as u16,
+        (LogAdr >> 16i32) as u16,
         length,
         data,
     );
     /* FPRMW in second datagram */
-    DCtE = *DCtime as uint64;
+    DCtE = *DCtime as u64;
     DCtO = ecx_adddatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
@@ -847,20 +835,20 @@ pub unsafe fn ecx_LRWDC(
         idx,
         0u8,
         DCrs,
-        EthercatRegister::ECT_REG_DCSYSTIME as uint16,
-        ::core::mem::size_of::<*mut int64>() as uint16,
-        &mut DCtE as *mut uint64 as *mut libc::c_void,
+        EthercatRegister::ECT_REG_DCSYSTIME as u16,
+        ::core::mem::size_of::<*mut i64>() as u16,
+        &mut DCtE as *mut u64 as *mut libc::c_void,
     );
     wkc = ecx_srconfirm(port, idx, timeout);
     if wkc > 0i32
-        && (*port).rxbuf[idx as usize][::core::mem::size_of::<uint16>()] as libc::c_int
+        && (*port).rxbuf[idx as usize][::core::mem::size_of::<u16>()] as libc::c_int
             == ec_cmdtype::EC_CMD_LRW as libc::c_int
     {
         memcpy(
             data,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut uint8
+                .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut u8
                 as *const libc::c_void,
             length as usize,
         );
@@ -869,17 +857,17 @@ pub unsafe fn ecx_LRWDC(
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
                 .offset(core::mem::size_of::<ec_comt>().wrapping_add(length as usize) as isize)
-                as *mut uint8 as *const libc::c_void,
-            core::mem::size_of::<uint16>(),
+                as *mut u8 as *const libc::c_void,
+            core::mem::size_of::<u16>(),
         );
         memcpy(
-            &mut DCtE as *mut uint64 as *mut libc::c_void,
+            &mut DCtE as *mut u64 as *mut libc::c_void,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(DCtO as isize) as *mut uint8 as *const libc::c_void,
-            core::mem::size_of::<int64>(),
+                .offset(DCtO as isize) as *mut u8 as *const libc::c_void,
+            core::mem::size_of::<i64>(),
         );
-        *DCtime = DCtE as int64
+        *DCtime = DCtE as i64
     }
     ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
     return wkc;
@@ -888,10 +876,10 @@ pub unsafe fn ecx_LRWDC(
 pub unsafe fn ec_setupdatagram(
     mut frame: *mut libc::c_void,
     mut com: ec_cmdtype,
-    mut idx: uint8,
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut idx: u8,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
 ) -> libc::c_int {
     return ecx_setupdatagram(&mut ecx_port, frame, com, idx, ADP, ADO, length, data);
@@ -900,20 +888,20 @@ pub unsafe fn ec_setupdatagram(
 pub unsafe fn ec_adddatagram(
     mut frame: *mut libc::c_void,
     mut com: ec_cmdtype,
-    mut idx: uint8,
-    mut more: boolean,
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut idx: u8,
+    mut more: bool,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
-) -> uint16 {
+) -> u16 {
     return ecx_adddatagram(&mut ecx_port, frame, com, idx, more, ADP, ADO, length, data);
 }
 #[no_mangle]
 pub unsafe fn ec_BWR(
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
@@ -921,9 +909,9 @@ pub unsafe fn ec_BWR(
 }
 #[no_mangle]
 pub unsafe fn ec_BRD(
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
@@ -931,9 +919,9 @@ pub unsafe fn ec_BRD(
 }
 #[no_mangle]
 pub unsafe fn ec_APRD(
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
@@ -941,9 +929,9 @@ pub unsafe fn ec_APRD(
 }
 #[no_mangle]
 pub unsafe fn ec_ARMW(
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
@@ -951,55 +939,55 @@ pub unsafe fn ec_ARMW(
 }
 #[no_mangle]
 pub unsafe fn ec_FRMW(
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
     return ecx_FRMW(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
 #[no_mangle]
-pub unsafe fn ec_APRDw(mut ADP: uint16, mut ADO: uint16, mut timeout: libc::c_int) -> uint16 {
-    let mut w: uint16 = 0;
+pub unsafe fn ec_APRDw(mut ADP: u16, mut ADO: u16, mut timeout: libc::c_int) -> u16 {
+    let mut w: u16 = 0;
     w = 0u16;
     ec_APRD(
         ADP,
         ADO,
-        ::core::mem::size_of::<uint16>() as uint16,
-        &mut w as *mut uint16 as *mut libc::c_void,
+        ::core::mem::size_of::<u16>() as u16,
+        &mut w as *mut u16 as *mut libc::c_void,
         timeout,
     );
     return w;
 }
 #[no_mangle]
 pub unsafe fn ec_FPRD(
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
     return ecx_FPRD(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
 #[no_mangle]
-pub unsafe fn ec_FPRDw(mut ADP: uint16, mut ADO: uint16, mut timeout: libc::c_int) -> uint16 {
-    let mut w: uint16 = 0;
+pub unsafe fn ec_FPRDw(mut ADP: u16, mut ADO: u16, mut timeout: libc::c_int) -> u16 {
+    let mut w: u16 = 0;
     w = 0u16;
     ec_FPRD(
         ADP,
         ADO,
-        ::core::mem::size_of::<uint16>() as uint16,
-        &mut w as *mut uint16 as *mut libc::c_void,
+        ::core::mem::size_of::<u16>() as u16,
+        &mut w as *mut u16 as *mut libc::c_void,
         timeout,
     );
     return w;
 }
 #[no_mangle]
 pub unsafe fn ec_APWR(
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
@@ -1007,24 +995,24 @@ pub unsafe fn ec_APWR(
 }
 #[no_mangle]
 pub unsafe fn ec_APWRw(
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut data: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut data: u16,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
     return ec_APWR(
         ADP,
         ADO,
-        ::core::mem::size_of::<uint16>() as uint16,
-        &mut data as *mut uint16 as *mut libc::c_void,
+        ::core::mem::size_of::<u16>() as u16,
+        &mut data as *mut u16 as *mut libc::c_void,
         timeout,
     );
 }
 #[no_mangle]
 pub unsafe fn ec_FPWR(
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut length: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
@@ -1032,23 +1020,23 @@ pub unsafe fn ec_FPWR(
 }
 #[no_mangle]
 pub unsafe fn ec_FPWRw(
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut data: uint16,
+    mut ADP: u16,
+    mut ADO: u16,
+    mut data: u16,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
     return ec_FPWR(
         ADP,
         ADO,
-        ::core::mem::size_of::<uint16>() as uint16,
-        &mut data as *mut uint16 as *mut libc::c_void,
+        ::core::mem::size_of::<u16>() as u16,
+        &mut data as *mut u16 as *mut libc::c_void,
         timeout,
     );
 }
 #[no_mangle]
 pub unsafe fn ec_LRW(
-    mut LogAdr: uint32,
-    mut length: uint16,
+    mut LogAdr: u32,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
@@ -1056,8 +1044,8 @@ pub unsafe fn ec_LRW(
 }
 #[no_mangle]
 pub unsafe fn ec_LRD(
-    mut LogAdr: uint32,
-    mut length: uint16,
+    mut LogAdr: u32,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
@@ -1065,8 +1053,8 @@ pub unsafe fn ec_LRD(
 }
 #[no_mangle]
 pub unsafe fn ec_LWR(
-    mut LogAdr: uint32,
-    mut length: uint16,
+    mut LogAdr: u32,
+    mut length: u16,
     mut data: *mut libc::c_void,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
@@ -1074,11 +1062,11 @@ pub unsafe fn ec_LWR(
 }
 #[no_mangle]
 pub unsafe fn ec_LRWDC(
-    mut LogAdr: uint32,
-    mut length: uint16,
+    mut LogAdr: u32,
+    mut length: u16,
     mut data: *mut libc::c_void,
-    mut DCrs: uint16,
-    mut DCtime: *mut int64,
+    mut DCrs: u16,
+    mut DCtime: *mut i64,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
     return ecx_LRWDC(&mut ecx_port, LogAdr, length, data, DCrs, DCtime, timeout);

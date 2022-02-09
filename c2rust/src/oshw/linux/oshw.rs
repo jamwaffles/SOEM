@@ -4,8 +4,8 @@ use crate::{
 };
 use libc::{free, if_freenameindex, if_nameindex, malloc, strncpy};
 
-pub type uint16_t = libc::c_ushort;
-pub type uint16 = uint16_t;
+pub type u16 = libc::c_ushort;
+pub type u16 = u16;
 
 /*
  * Licensed under the GNU General Public License version 2 with exceptions. See
@@ -18,8 +18,8 @@ pub type uint16 = uint16_t;
  * header which is big endian as usual.
  */
 #[no_mangle]
-pub unsafe fn oshw_htons(mut host: uint16) -> uint16 {
-    let mut network: uint16 = htons(host);
+pub unsafe fn oshw_htons(mut host: u16) -> u16 {
+    let mut network: u16 = htons(host);
     return network;
 }
 /* *
@@ -29,8 +29,8 @@ pub unsafe fn oshw_htons(mut host: uint16) -> uint16 {
  * header which is big endian as usual.
  */
 #[no_mangle]
-pub unsafe fn oshw_ntohs(mut network: uint16) -> uint16 {
-    let mut host: uint16 = ntohs(network);
+pub unsafe fn oshw_ntohs(mut network: u16) -> u16 {
+    let mut host: u16 = ntohs(network);
     return host;
 }
 /* * Create list over available network adapters.

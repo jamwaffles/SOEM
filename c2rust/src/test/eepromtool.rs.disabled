@@ -48,14 +48,14 @@ pub struct _IO_FILE {
 }
 pub type _IO_lock_t = ();
 pub type FILE = _IO_FILE;
-pub type uint8_t = __uint8_t;
-pub type uint16_t = __uint16_t;
-pub type uint32_t = __uint32_t;
-pub type uint64_t = __uint64_t;
-pub type uint8 = uint8_t;
-pub type uint16 = uint16_t;
-pub type uint32 = uint32_t;
-pub type uint64 = uint64_t;
+pub type u8 = __uint8_t;
+pub type u16 = __uint16_t;
+pub type u32 = __uint32_t;
+pub type u64 = __uint64_t;
+pub type u8 = u8;
+pub type u16 = u16;
+pub type u32 = u32;
+pub type u64 = u64;
 
 
 pub type C2RustUnnamed = libc::c_uint;
@@ -116,11 +116,11 @@ pub const EthercatRegister::ECT_REG_TYPE: C2RustUnnamed = 0;
 
 
 #[no_mangle]
-pub static mut ebuf: [uint8; 524288] = [0; 524288];
+pub static mut ebuf: [u8; 524288] = [0; 524288];
 #[no_mangle]
-pub static mut ob: uint8 = 0;
+pub static mut ob: u8 = 0;
 #[no_mangle]
-pub static mut ow: uint16 = 0;
+pub static mut ow: u16 = 0;
 #[no_mangle]
 pub static mut os: libc::c_int = 0;
 #[no_mangle]
@@ -140,23 +140,23 @@ pub static mut mode: libc::c_int = 0;
 #[no_mangle]
 pub static mut sline: [libc::c_char; 256] = [0; 256];
 #[no_mangle]
-pub unsafe  fn calc_crc(mut crc: *mut uint8, mut b: uint8) {
+pub unsafe  fn calc_crc(mut crc: *mut u8, mut b: u8) {
     let mut j: libc::c_int = 0; /* force Eeprom from PDI */
-    *crc = (*crc as libc::c_int ^ b as libc::c_int) as uint8; /* set Eeprom to master */
+    *crc = (*crc as libc::c_int ^ b as libc::c_int) as u8; /* set Eeprom to master */
     j = 0i32; /* read eeprom status */
     while j <= 7i32 {
         if *crc as libc::c_int & 0x80i32 != 0 {
-            *crc = ((*crc as libc::c_int) << 1i32 ^ 0x7i32) as uint8
+            *crc = ((*crc as libc::c_int) << 1i32 ^ 0x7i32) as u8
         } else {
-            *crc = ((*crc as libc::c_int) << 1i32) as uint8
+            *crc = ((*crc as libc::c_int) << 1i32) as u8
         } /* force Eeprom from PDI */
         j += 1
     } /* set Eeprom to master */
 }
 #[no_mangle]
-pub unsafe  fn SIIcrc(mut buf: *mut uint8) -> uint16 {
+pub unsafe  fn SIIcrc(mut buf: *mut u8) -> u16 {
     let mut i: libc::c_int = 0; /* force Eeprom from PDI */
-    let mut crc: uint8 = 0; /* set Eeprom to master */
+    let mut crc: u8 = 0; /* set Eeprom to master */
     crc = 0xffu8;
     i = 0i32;
     while i <= 13i32 {
@@ -165,7 +165,7 @@ pub unsafe  fn SIIcrc(mut buf: *mut uint8) -> uint16 {
         calc_crc(&mut crc, *fresh0);
         i += 1
     }
-    return crc as uint16;
+    return crc as u16;
 }
 #[no_mangle]
 pub unsafe  fn input_bin(
@@ -186,7 +186,7 @@ pub unsafe  fn input_bin(
         }
         let fresh1 = cc;
         cc = cc + 1;
-        ebuf[fresh1 as usize] = c as uint8
+        ebuf[fresh1 as usize] = c as u8
     }
     *length = cc;
     fclose(fp);
@@ -256,8 +256,8 @@ pub unsafe  fn input_intelhex(
                         b"%2x\x00" as *const u8 as *const libc::c_char,
                         &mut lval as *mut libc::c_int,
                     );
-                    ebuf[(ladr + i) as usize] = lval as uint8;
-                    sum += lval as uint8 as libc::c_int;
+                    ebuf[(ladr + i) as usize] = lval as u8;
+                    sum += lval as u8 as libc::c_int;
                     i += 1
                 }
                 if ladr + ll - hstart > hlength {
@@ -362,36 +362,36 @@ pub unsafe  fn eeprom_read(
 ) -> libc::c_int {
     let mut i: libc::c_int = 0;
     let mut ainc: libc::c_int = 4i32;
-    let mut estat: uint16 = 0;
-    let mut aiadr: uint16 = 0;
-    let mut b4: uint32 = 0;
-    let mut b8: uint64 = 0;
-    let mut eepctl: uint8 = 0;
+    let mut estat: u16 = 0;
+    let mut aiadr: u16 = 0;
+    let mut b4: u32 = 0;
+    let mut b8: u64 = 0;
+    let mut eepctl: u8 = 0;
     if ec_slavecount >= slave_0 && slave_0 > 0i32 && start + length <= 524288i32 {
-        aiadr = (1i32 - slave_0) as uint16;
+        aiadr = (1i32 - slave_0) as u16;
         eepctl = 2u8;
         ec_APWR(
             aiadr,
-            EthercatRegister::ECT_REG_EEPCFG as uint16,
-            ::core::mem::size_of::<uint8>() as uint16,
-            &mut eepctl as *mut uint8 as *mut libc::c_void,
+            EthercatRegister::ECT_REG_EEPCFG as u16,
+            ::core::mem::size_of::<u8>() as u16,
+            &mut eepctl as *mut u8 as *mut libc::c_void,
             2000i32,
         );
         eepctl = 0u8;
         ec_APWR(
             aiadr,
-            EthercatRegister::ECT_REG_EEPCFG as uint16,
-            ::core::mem::size_of::<uint8>() as uint16,
-            &mut eepctl as *mut uint8 as *mut libc::c_void,
+            EthercatRegister::ECT_REG_EEPCFG as u16,
+            ::core::mem::size_of::<u8>() as u16,
+            &mut eepctl as *mut u8 as *mut libc::c_void,
             2000i32,
         );
         estat = 0u16;
-        aiadr = (1i32 - slave_0) as uint16;
+        aiadr = (1i32 - slave_0) as u16;
         ec_APRD(
             aiadr,
-            EthercatRegister::ECT_REG_EEPSTAT as uint16,
-            ::core::mem::size_of::<uint16>() as uint16,
-            &mut estat as *mut uint16 as *mut libc::c_void,
+            EthercatRegister::ECT_REG_EEPSTAT as u16,
+            ::core::mem::size_of::<u16>() as u16,
+            &mut estat as *mut u16 as *mut libc::c_void,
             2000i32,
         );
         estat = estat;
@@ -399,26 +399,26 @@ pub unsafe  fn eeprom_read(
             ainc = 8i32;
             i = start;
             while i < start + length {
-                b8 = ec_readeepromAP(aiadr, (i >> 1i32) as uint16, EC_TIMEOUTEEP);
-                ebuf[i as usize] = (b8 & 0xffu64) as uint8;
-                ebuf[(i + 1i32) as usize] = (b8 >> 8i32 & 0xffu64) as uint8;
-                ebuf[(i + 2i32) as usize] = (b8 >> 16i32 & 0xffu64) as uint8;
-                ebuf[(i + 3i32) as usize] = (b8 >> 24i32 & 0xffu64) as uint8;
-                ebuf[(i + 4i32) as usize] = (b8 >> 32i32 & 0xffu64) as uint8;
-                ebuf[(i + 5i32) as usize] = (b8 >> 40i32 & 0xffu64) as uint8;
-                ebuf[(i + 6i32) as usize] = (b8 >> 48i32 & 0xffu64) as uint8;
-                ebuf[(i + 7i32) as usize] = (b8 >> 56i32 & 0xffu64) as uint8;
+                b8 = ec_readeepromAP(aiadr, (i >> 1i32) as u16, EC_TIMEOUTEEP);
+                ebuf[i as usize] = (b8 & 0xffu64) as u8;
+                ebuf[(i + 1i32) as usize] = (b8 >> 8i32 & 0xffu64) as u8;
+                ebuf[(i + 2i32) as usize] = (b8 >> 16i32 & 0xffu64) as u8;
+                ebuf[(i + 3i32) as usize] = (b8 >> 24i32 & 0xffu64) as u8;
+                ebuf[(i + 4i32) as usize] = (b8 >> 32i32 & 0xffu64) as u8;
+                ebuf[(i + 5i32) as usize] = (b8 >> 40i32 & 0xffu64) as u8;
+                ebuf[(i + 6i32) as usize] = (b8 >> 48i32 & 0xffu64) as u8;
+                ebuf[(i + 7i32) as usize] = (b8 >> 56i32 & 0xffu64) as u8;
                 i += ainc
             }
         } else {
             i = start;
             while i < start + length {
-                b4 = (ec_readeepromAP(aiadr, (i >> 1i32) as uint16, EC_TIMEOUTEEP) & 0xffffffffu64)
-                    as uint32;
-                ebuf[i as usize] = (b4 & 0xffu32) as uint8;
-                ebuf[(i + 1i32) as usize] = (b4 >> 8i32 & 0xffu32) as uint8;
-                ebuf[(i + 2i32) as usize] = (b4 >> 16i32 & 0xffu32) as uint8;
-                ebuf[(i + 3i32) as usize] = (b4 >> 24i32 & 0xffu32) as uint8;
+                b4 = (ec_readeepromAP(aiadr, (i >> 1i32) as u16, EC_TIMEOUTEEP) & 0xffffffffu64)
+                    as u32;
+                ebuf[i as usize] = (b4 & 0xffu32) as u8;
+                ebuf[(i + 1i32) as usize] = (b4 >> 8i32 & 0xffu32) as u8;
+                ebuf[(i + 2i32) as usize] = (b4 >> 16i32 & 0xffu32) as u8;
+                ebuf[(i + 3i32) as usize] = (b4 >> 24i32 & 0xffu32) as u8;
                 i += ainc
             }
         }
@@ -434,34 +434,34 @@ pub unsafe  fn eeprom_write(
 ) -> libc::c_int {
     let mut i: libc::c_int = 0;
     let mut dc: libc::c_int = 0i32;
-    let mut aiadr: uint16 = 0;
-    let mut wbuf: *mut uint16 = 0 as *mut uint16;
-    let mut eepctl: uint8 = 0;
+    let mut aiadr: u16 = 0;
+    let mut wbuf: *mut u16 = 0 as *mut u16;
+    let mut eepctl: u8 = 0;
     if ec_slavecount >= slave_0 && slave_0 > 0i32 && start + length <= 524288i32 {
-        aiadr = (1i32 - slave_0) as uint16;
+        aiadr = (1i32 - slave_0) as u16;
         eepctl = 2u8;
         ec_APWR(
             aiadr,
-            EthercatRegister::ECT_REG_EEPCFG as uint16,
-            ::core::mem::size_of::<uint8>() as uint16,
-            &mut eepctl as *mut uint8 as *mut libc::c_void,
+            EthercatRegister::ECT_REG_EEPCFG as u16,
+            ::core::mem::size_of::<u8>() as u16,
+            &mut eepctl as *mut u8 as *mut libc::c_void,
             2000i32,
         );
         eepctl = 0u8;
         ec_APWR(
             aiadr,
-            EthercatRegister::ECT_REG_EEPCFG as uint16,
-            ::core::mem::size_of::<uint8>() as uint16,
-            &mut eepctl as *mut uint8 as *mut libc::c_void,
+            EthercatRegister::ECT_REG_EEPCFG as u16,
+            ::core::mem::size_of::<u8>() as u16,
+            &mut eepctl as *mut u8 as *mut libc::c_void,
             2000i32,
         );
-        aiadr = (1i32 - slave_0) as uint16;
-        wbuf = &mut *ebuf.as_mut_ptr().offset(0isize) as *mut uint8 as *mut uint16;
+        aiadr = (1i32 - slave_0) as u16;
+        wbuf = &mut *ebuf.as_mut_ptr().offset(0isize) as *mut u8 as *mut u16;
         i = start;
         while i < start + length {
             ec_writeeepromAP(
                 aiadr,
-                (i >> 1i32) as uint16,
+                (i >> 1i32) as u16,
                 *wbuf.offset((i >> 1i32) as isize),
                 EC_TIMEOUTEEP,
             );
@@ -481,30 +481,30 @@ pub unsafe  fn eeprom_write(
 pub unsafe  fn eeprom_writealias(
     mut slave_0: libc::c_int,
     mut alias_0: libc::c_int,
-    mut crc: uint16,
+    mut crc: u16,
 ) -> libc::c_int {
-    let mut aiadr: uint16 = 0;
-    let mut eepctl: uint8 = 0;
+    let mut aiadr: u16 = 0;
+    let mut eepctl: u8 = 0;
     let mut ret: libc::c_int = 0;
     if ec_slavecount >= slave_0 && slave_0 > 0i32 && alias_0 <= 0xffffi32 {
-        aiadr = (1i32 - slave_0) as uint16;
+        aiadr = (1i32 - slave_0) as u16;
         eepctl = 2u8;
         ec_APWR(
             aiadr,
-            EthercatRegister::ECT_REG_EEPCFG as uint16,
-            ::core::mem::size_of::<uint8>() as uint16,
-            &mut eepctl as *mut uint8 as *mut libc::c_void,
+            EthercatRegister::ECT_REG_EEPCFG as u16,
+            ::core::mem::size_of::<u8>() as u16,
+            &mut eepctl as *mut u8 as *mut libc::c_void,
             2000i32,
         );
         eepctl = 0u8;
         ec_APWR(
             aiadr,
-            EthercatRegister::ECT_REG_EEPCFG as uint16,
-            ::core::mem::size_of::<uint8>() as uint16,
-            &mut eepctl as *mut uint8 as *mut libc::c_void,
+            EthercatRegister::ECT_REG_EEPCFG as u16,
+            ::core::mem::size_of::<u8>() as u16,
+            &mut eepctl as *mut u8 as *mut libc::c_void,
             2000i32,
         );
-        ret = ec_writeeepromAP(aiadr, 0x4u16, alias_0 as uint16, EC_TIMEOUTEEP);
+        ret = ec_writeeepromAP(aiadr, 0x4u16, alias_0 as u16, EC_TIMEOUTEEP);
         if ret != 0 {
             ret = ec_writeeepromAP(aiadr, 0x7u16, crc, EC_TIMEOUTEEP)
         }
@@ -523,7 +523,7 @@ pub unsafe  fn eepromtool(
     let mut rc: libc::c_int = 0i32;
     let mut estart: libc::c_int = 0;
     let mut esize: libc::c_int = 0;
-    let mut wbuf: *mut uint16 = 0 as *mut uint16;
+    let mut wbuf: *mut u16 = 0 as *mut u16;
     /* initialise SOEM, bind socket to ifname */
     if ec_init(ifname) != 0 {
         println!("ec_init on {:} succeeded.", unsafe {
@@ -534,8 +534,8 @@ pub unsafe  fn eepromtool(
         w = 0i32; // read first 128 bytes
         wkc = ec_BRD(
             0u16,
-            EthercatRegister::ECT_REG_TYPE as uint16,
-            ::core::mem::size_of::<libc::c_int>() as uint16,
+            EthercatRegister::ECT_REG_TYPE as u16,
+            ::core::mem::size_of::<libc::c_int>() as u16,
             &mut w as *mut libc::c_int as *mut libc::c_void,
             EC_TIMEOUTTXM,
         ); // read reminder
@@ -546,7 +546,7 @@ pub unsafe  fn eepromtool(
                 if mode_0 == 6i32 || mode_0 == 1i32 || mode_0 == 2i32 {
                     tstart = osal_current_time();
                     eeprom_read(slave_0, 0i32, 128i32);
-                    wbuf = &mut *ebuf.as_mut_ptr().offset(0isize) as *mut uint8 as *mut uint16;
+                    wbuf = &mut *ebuf.as_mut_ptr().offset(0isize) as *mut u8 as *mut u16;
 
                     println!("Slave {:} data", slave_0 as libc::c_int);
                     println!(
@@ -572,19 +572,19 @@ pub unsafe  fn eepromtool(
                     );
                     println!(
                         " Vendor ID        : {:8.8X}",
-                        *(wbuf.offset(0x8isize) as *mut uint32) as libc::c_uint
+                        *(wbuf.offset(0x8isize) as *mut u32) as libc::c_uint
                     );
                     println!(
                         " Product Code     : {:8.8X}",
-                        *(wbuf.offset(0xaisize) as *mut uint32) as libc::c_uint
+                        *(wbuf.offset(0xaisize) as *mut u32) as libc::c_uint
                     );
                     println!(
                         " Revision Number  : {:8.8X}",
-                        *(wbuf.offset(0xcisize) as *mut uint32) as libc::c_uint
+                        *(wbuf.offset(0xcisize) as *mut u32) as libc::c_uint
                     );
                     println!(
                         " Serial Number    : {:8.8X}",
-                        *(wbuf.offset(0xeisize) as *mut uint32) as libc::c_uint
+                        *(wbuf.offset(0xeisize) as *mut u32) as libc::c_uint
                     );
                     println!(
                         " Mailbox Protocol : {:4.4X}",
@@ -632,24 +632,24 @@ pub unsafe  fn eepromtool(
                         rc = input_bin(fname, &mut esize)
                     }
                     if rc > 0i32 {
-                        wbuf = &mut *ebuf.as_mut_ptr().offset(0isize) as *mut uint8 as *mut uint16;
+                        wbuf = &mut *ebuf.as_mut_ptr().offset(0isize) as *mut u8 as *mut u16;
 
                         println!("Slave {:}", slave_0 as libc::c_int);
                         println!(
                             " Vendor ID        : {:8.8X}",
-                            *(wbuf.offset(0x8isize) as *mut uint32) as libc::c_uint
+                            *(wbuf.offset(0x8isize) as *mut u32) as libc::c_uint
                         );
                         println!(
                             " Product Code     : {:8.8X}",
-                            *(wbuf.offset(0xaisize) as *mut uint32) as libc::c_uint
+                            *(wbuf.offset(0xaisize) as *mut u32) as libc::c_uint
                         );
                         println!(
                             " Revision Number  : {:8.8X}",
-                            *(wbuf.offset(0xcisize) as *mut uint32) as libc::c_uint
+                            *(wbuf.offset(0xcisize) as *mut u32) as libc::c_uint
                         );
                         println!(
                             " Serial Number    : {:8.8X}",
-                            *(wbuf.offset(0xeisize) as *mut uint32) as libc::c_uint
+                            *(wbuf.offset(0xeisize) as *mut u32) as libc::c_uint
                         );
                         print!("Busy");
                         fflush(stdout);
@@ -669,8 +669,8 @@ pub unsafe  fn eepromtool(
                 if mode_0 == 5i32 {
                     if eeprom_read(slave_0, 0i32, 14i32) != 0 {
                         // read first 14 bytes
-                        wbuf = &mut *ebuf.as_mut_ptr().offset(0isize) as *mut uint8 as *mut uint16;
-                        *wbuf.offset(0x4isize) = alias as uint16;
+                        wbuf = &mut *ebuf.as_mut_ptr().offset(0isize) as *mut u8 as *mut u16;
+                        *wbuf.offset(0x4isize) = alias as u16;
                         if eeprom_writealias(
                             slave_0,
                             alias,

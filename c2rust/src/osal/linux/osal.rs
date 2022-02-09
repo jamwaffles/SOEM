@@ -14,16 +14,16 @@ pub type __suseconds_t = libc::c_long;
 pub type __clockid_t = libc::c_int;
 pub type __syscall_slong_t = libc::c_long;
 
-pub type uint8_t = __uint8_t;
-pub type uint32_t = __uint32_t;
-pub type boolean = uint8_t;
-pub type uint32 = uint32_t;
+pub type u8 = __uint8_t;
+pub type u32 = __uint32_t;
+pub type bool = u8;
+pub type u32 = u32;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_timet {
-    pub sec: uint32,
-    pub usec: uint32,
+    pub sec: u32,
+    pub usec: u32,
 }
 
 #[repr(C)]
@@ -34,7 +34,7 @@ pub struct osal_timer {
 pub type osal_timert = osal_timer;
 
 #[no_mangle]
-pub unsafe fn osal_usleep(mut usec: uint32) -> libc::c_int {
+pub unsafe fn osal_usleep(mut usec: u32) -> libc::c_int {
     let mut ts: timespec = timespec {
         tv_sec: 0,
         tv_nsec: 0,
@@ -52,8 +52,8 @@ pub unsafe fn osal_current_time() -> ec_timet {
     };
     let mut return_value: ec_timet = ec_timet { sec: 0, usec: 0 };
     clock_gettime(0i32, &mut current_time);
-    return_value.sec = current_time.tv_sec as uint32;
-    return_value.usec = (current_time.tv_nsec / 1000i64) as uint32;
+    return_value.sec = current_time.tv_sec as u32;
+    return_value.usec = (current_time.tv_nsec / 1000i64) as u32;
     return return_value;
 }
 #[no_mangle]
@@ -89,7 +89,7 @@ unsafe fn osal_getrelativetime(mut tv: *mut timeval) {
     (*tv).tv_usec = ts.tv_nsec / 1000i64;
 }
 #[no_mangle]
-pub unsafe fn osal_timer_start(mut self_0: *mut osal_timert, mut timeout_usec: uint32) {
+pub unsafe fn osal_timer_start(mut self_0: *mut osal_timert, mut timeout_usec: u32) {
     let mut start_time: timeval = timeval {
         tv_sec: 0,
         tv_usec: 0,
@@ -111,11 +111,11 @@ pub unsafe fn osal_timer_start(mut self_0: *mut osal_timert, mut timeout_usec: u
         stop_time.tv_sec += 1;
         stop_time.tv_usec -= 1000000i64
     }
-    (*self_0).stop_time.sec = stop_time.tv_sec as uint32;
-    (*self_0).stop_time.usec = stop_time.tv_usec as uint32;
+    (*self_0).stop_time.sec = stop_time.tv_sec as u32;
+    (*self_0).stop_time.usec = stop_time.tv_usec as u32;
 }
 #[no_mangle]
-pub unsafe fn osal_timer_is_expired(mut self_0: *mut osal_timert) -> boolean {
+pub unsafe fn osal_timer_is_expired(mut self_0: *mut osal_timert) -> bool {
     let mut current_time: timeval = timeval {
         tv_sec: 0,
         tv_usec: 0,
@@ -133,7 +133,7 @@ pub unsafe fn osal_timer_is_expired(mut self_0: *mut osal_timert) -> boolean {
     } else {
         (current_time.tv_sec < stop_time.tv_sec) as libc::c_int
     };
-    return (is_not_yet_expired == 0i32) as boolean;
+    return (is_not_yet_expired == 0i32) as bool;
 }
 #[no_mangle]
 pub unsafe fn osal_malloc(mut size: size_t) -> *mut libc::c_void {

@@ -12,21 +12,21 @@ use crate::{
 };
 use libc::{c_void, pthread_t};
 
-pub type uint8_t = libc::c_uchar;
-pub type int16_t = libc::c_short;
-pub type uint16_t = libc::c_ushort;
-pub type int32_t = libc::c_int;
-pub type uint32_t = libc::c_uint;
-pub type int64_t = libc::c_long;
+pub type u8 = libc::c_uchar;
+pub type i16 = libc::c_short;
+pub type u16 = libc::c_ushort;
+pub type i32 = libc::c_int;
+pub type u32 = libc::c_uint;
+pub type i64 = libc::c_long;
 pub type time_t = libc::c_long;
 
-pub type boolean = uint8_t;
-pub type int16 = int16_t;
-pub type int32 = int32_t;
-pub type uint8 = uint8_t;
-pub type uint16 = uint16_t;
-pub type uint32 = uint32_t;
-pub type int64 = int64_t;
+pub type bool = u8;
+pub type i16 = i16;
+pub type i32 = i32;
+pub type u8 = u8;
+pub type u16 = u16;
+pub type u32 = u32;
+pub type i64 = i64;
 
 static mut IOmap: [libc::c_char; 4096] = [0; 4096];
 #[no_mangle]
@@ -34,13 +34,13 @@ pub static mut thread1: *mut pthread_t = 0 as *mut pthread_t;
 #[no_mangle]
 pub static mut expectedWKC: libc::c_int = 0;
 #[no_mangle]
-pub static mut needlf: boolean = 0;
+pub static mut needlf: bool = 0;
 
 static mut wkc: libc::c_int = 0;
 #[no_mangle]
-pub static mut inOP: boolean = 0;
+pub static mut inOP: bool = 0;
 #[no_mangle]
-pub static mut currentgroup: uint8 = 0u8;
+pub static mut currentgroup: u8 = 0u8;
 #[no_mangle]
 pub unsafe fn simpletest(mut ifname: *mut libc::c_char) {
     let mut i: libc::c_int = 0;
@@ -70,7 +70,7 @@ pub unsafe fn simpletest(mut ifname: *mut libc::c_char) {
             /* wait for all slaves to reach SAFE_OP state */
             ec_statecheck(
                 0u16,
-                ec_state::EC_STATE_SAFE_OP as uint16,
+                ec_state::EC_STATE_SAFE_OP as u16,
                 EC_TIMEOUTSTATE * 4i32,
             );
             oloop = ec_slave[0usize].Obytes as libc::c_int;
@@ -100,7 +100,7 @@ pub unsafe fn simpletest(mut ifname: *mut libc::c_char) {
             expectedWKC = ec_group[0usize].outputsWKC as libc::c_int * 2i32
                 + ec_group[0usize].inputsWKC as libc::c_int;
             println!("Calculated workcounter {:}", expectedWKC as libc::c_int);
-            ec_slave[0usize].state = ec_state::EC_STATE_OPERATIONAL as uint16;
+            ec_slave[0usize].state = ec_state::EC_STATE_OPERATIONAL as u16;
             /* send one valid process data to make outputs in slaves happy*/
             ec_send_processdata();
             ec_receive_processdata(2000i32);
@@ -112,7 +112,7 @@ pub unsafe fn simpletest(mut ifname: *mut libc::c_char) {
             {
                 ec_send_processdata();
                 ec_receive_processdata(2000i32);
-                ec_statecheck(0u16, ec_state::EC_STATE_OPERATIONAL as uint16, 50000i32);
+                ec_statecheck(0u16, ec_state::EC_STATE_OPERATIONAL as u16, 50000i32);
                 let fresh0 = chk;
                 chk = chk - 1;
                 if !(fresh0 != 0
@@ -193,7 +193,7 @@ pub unsafe fn simpletest(mut ifname: *mut libc::c_char) {
                 }
             }
             println!("\nRequest init state for all slaves");
-            ec_slave[0usize].state = ec_state::EC_STATE_INIT as uint16;
+            ec_slave[0usize].state = ec_state::EC_STATE_INIT as u16;
             /* request INIT state for all slaves */
             ec_writestate(0u16);
         } else {
@@ -243,8 +243,8 @@ pub unsafe fn ecatcheck(mut _ptr: *mut libc::c_void) {
                         );
                         ec_slave[slave as usize].state = (ec_state::EC_STATE_SAFE_OP as libc::c_int
                             + ethercattype::EC_STATE_ACK as libc::c_int)
-                            as uint16;
-                        ec_writestate(slave as uint16);
+                            as u16;
+                        ec_writestate(slave as u16);
                     } else if ec_slave[slave as usize].state as libc::c_int
                         == ec_state::EC_STATE_SAFE_OP as libc::c_int
                     {
@@ -252,22 +252,18 @@ pub unsafe fn ecatcheck(mut _ptr: *mut libc::c_void) {
                             "WARNING : slave {:} is in SAFE_OP, change to OPERATIONAL.",
                             slave as libc::c_int
                         );
-                        ec_slave[slave as usize].state = ec_state::EC_STATE_OPERATIONAL as uint16;
-                        ec_writestate(slave as uint16);
+                        ec_slave[slave as usize].state = ec_state::EC_STATE_OPERATIONAL as u16;
+                        ec_writestate(slave as u16);
                     } else if ec_slave[slave as usize].state as libc::c_int
                         > ec_state::EC_STATE_NONE as libc::c_int
                     {
-                        if ec_reconfig_slave(slave as uint16, 500i32) != 0 {
+                        if ec_reconfig_slave(slave as u16, 500i32) != 0 {
                             ec_slave[slave as usize].islost = 0u8;
                             println!("MESSAGE : slave {:} reconfigured", slave as libc::c_int);
                         }
                     } else if ec_slave[slave as usize].islost == 0 {
                         /* re-check state */
-                        ec_statecheck(
-                            slave as uint16,
-                            ec_state::EC_STATE_OPERATIONAL as uint16,
-                            2000i32,
-                        );
+                        ec_statecheck(slave as u16, ec_state::EC_STATE_OPERATIONAL as u16, 2000i32);
                         if ec_slave[slave as usize].state as libc::c_int
                             == ec_state::EC_STATE_NONE as libc::c_int
                         {
@@ -280,7 +276,7 @@ pub unsafe fn ecatcheck(mut _ptr: *mut libc::c_void) {
                     if ec_slave[slave as usize].state as libc::c_int
                         == ec_state::EC_STATE_NONE as libc::c_int
                     {
-                        if ec_recover_slave(slave as uint16, 500i32) != 0 {
+                        if ec_recover_slave(slave as u16, 500i32) != 0 {
                             ec_slave[slave as usize].islost = 0u8;
                             println!("MESSAGE : slave {:} recovered", slave as libc::c_int);
                         }

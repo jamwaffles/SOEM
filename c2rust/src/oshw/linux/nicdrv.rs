@@ -20,14 +20,14 @@ pub type __socklen_t = libc::c_uint;
 pub type ssize_t = __ssize_t;
 pub type size_t = usize;
 
-pub type uint8_t = libc::c_uchar;
-pub type uint16_t = libc::c_ushort;
-pub type uint32_t = libc::c_uint;
+pub type u8 = libc::c_uchar;
+pub type u16 = libc::c_ushort;
+pub type u32 = libc::c_uint;
 
-pub type boolean = uint8_t;
-pub type uint8 = uint8_t;
-pub type uint16 = uint16_t;
-pub type uint32 = uint32_t;
+pub type bool = u8;
+pub type u8 = u8;
+pub type u16 = u16;
+pub type u32 = u32;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -107,7 +107,7 @@ pub struct ecx_portt {
     pub txbuflength: [libc::c_int; 16],
     pub txbuf2: ec_bufT,
     pub txbuflength2: libc::c_int,
-    pub lastidx: uint8,
+    pub lastidx: u8,
     pub redstate: libc::c_int,
     pub redport: *mut ecx_redportt,
     pub getindex_mutex: pthread_mutex_t,
@@ -158,10 +158,10 @@ pub type C2RustUnnamed_4 = libc::c_uint;
  * segment. This is needed to find out the packet flow in redundant
  * configurations. */
 #[no_mangle]
-pub static mut priMAC: [uint16; 3] = [0x101u16, 0x101u16, 0x101u16];
+pub static mut priMAC: [u16; 3] = [0x101u16, 0x101u16, 0x101u16];
 /* * Secondary source MAC address used for EtherCAT. */
 #[no_mangle]
-pub static mut secMAC: [uint16; 3] = [0x404u16, 0x404u16, 0x404u16];
+pub static mut secMAC: [u16; 3] = [0x404u16, 0x404u16, 0x404u16];
 unsafe fn ecx_clear_rxbufstat(mut rxbufstat: *mut libc::c_int) {
     let mut i: libc::c_int = 0;
     i = 0i32;
@@ -353,11 +353,11 @@ pub unsafe fn ec_setupheader(mut p: *mut libc::c_void) {
  * @return new index.
  */
 #[no_mangle]
-pub unsafe fn ecx_getindex(mut port: *mut ecx_portt) -> uint8 {
-    let mut idx: uint8 = 0;
-    let mut cnt: uint8 = 0;
+pub unsafe fn ecx_getindex(mut port: *mut ecx_portt) -> u8 {
+    let mut idx: u8 = 0;
+    let mut cnt: u8 = 0;
     pthread_mutex_lock(&mut (*port).getindex_mutex);
-    idx = ((*port).lastidx as libc::c_int + 1i32) as uint8;
+    idx = ((*port).lastidx as libc::c_int + 1i32) as u8;
     /* index can't be larger than buffer array */
     if idx as libc::c_int >= 16i32 {
         idx = 0u8
@@ -387,7 +387,7 @@ pub unsafe fn ecx_getindex(mut port: *mut ecx_portt) -> uint8 {
  * @param[in] bufstat  = status to set
  */
 #[no_mangle]
-pub unsafe fn ecx_setbufstat(mut port: *mut ecx_portt, mut idx: uint8, mut bufstat: libc::c_int) {
+pub unsafe fn ecx_setbufstat(mut port: *mut ecx_portt, mut idx: u8, mut bufstat: libc::c_int) {
     (*port).rxbufstat[idx as usize] = bufstat;
     if (*port).redstate != ECT_RED_NONE as libc::c_int {
         (*(*port).redport).rxbufstat[idx as usize] = bufstat
@@ -402,7 +402,7 @@ pub unsafe fn ecx_setbufstat(mut port: *mut ecx_portt, mut idx: uint8, mut bufst
 #[no_mangle]
 pub unsafe fn ecx_outframe(
     mut port: *mut ecx_portt,
-    mut idx: uint8,
+    mut idx: u8,
     mut stacknumber: libc::c_int,
 ) -> libc::c_int {
     let mut lp: libc::c_int = 0;
@@ -432,7 +432,7 @@ pub unsafe fn ecx_outframe(
  * @return socket send result
  */
 #[no_mangle]
-pub unsafe fn ecx_outframe_red(mut port: *mut ecx_portt, mut idx: uint8) -> libc::c_int {
+pub unsafe fn ecx_outframe_red(mut port: *mut ecx_portt, mut idx: u8) -> libc::c_int {
     let mut datagramP: *mut ec_comt = 0 as *mut ec_comt;
     let mut ehp: *mut ec_etherheadert = 0 as *mut ec_etherheadert;
     let mut rval: libc::c_int = 0;
@@ -450,7 +450,7 @@ pub unsafe fn ecx_outframe_red(mut port: *mut ecx_portt, mut idx: uint8) -> libc
             .txbuf2
             .as_mut_ptr()
             .offset(::core::mem::size_of::<ec_etherheadert>() as isize)
-            as *mut uint8 as *mut ec_comt;
+            as *mut u8 as *mut ec_comt;
         /* write index to frame */
         (*datagramP).index = idx;
         /* rewrite MAC source address 1 to secondary */
@@ -513,12 +513,12 @@ unsafe fn ecx_recvpkt(mut port: *mut ecx_portt, mut stacknumber: libc::c_int) ->
 #[no_mangle]
 pub unsafe fn ecx_inframe(
     mut port: *mut ecx_portt,
-    mut idx: uint8,
+    mut idx: u8,
     mut stacknumber: libc::c_int,
 ) -> libc::c_int {
-    let mut l: uint16 = 0;
+    let mut l: u16 = 0;
     let mut rval: libc::c_int = 0;
-    let mut idxf: uint8 = 0;
+    let mut idxf: u8 = 0;
     let mut ehp: *mut ec_etherheadert = 0 as *mut ec_etherheadert;
     let mut ecp: *mut ec_comt = 0 as *mut ec_comt;
     let mut stack: *mut ec_stackT = 0 as *mut ec_stackT;
@@ -535,8 +535,8 @@ pub unsafe fn ecx_inframe(
         && (*(*stack).rxbufstat)[idx as usize] == ec_bufstate::EC_BUF_RCVD as libc::c_int
     {
         l = ((*rxbuf)[0usize] as libc::c_int
-            + ((((*rxbuf)[1usize] as libc::c_int & 0xfi32) as uint16 as libc::c_int) << 8i32))
-            as uint16;
+            + ((((*rxbuf)[1usize] as libc::c_int & 0xfi32) as u16 as libc::c_int) << 8i32))
+            as u16;
         /* return WKC */
         rval = (*rxbuf)[l as usize] as libc::c_int
             + (((*rxbuf)[(l as libc::c_int + 1i32) as usize] as libc::c_int) << 8i32);
@@ -553,8 +553,8 @@ pub unsafe fn ecx_inframe(
                 ecp = &mut *(*(*stack).tempbuf)
                     .as_mut_ptr()
                     .offset(::core::mem::size_of::<ec_etherheadert>() as isize)
-                    as *mut uint8 as *mut ec_comt;
-                l = ((*ecp).elength as libc::c_int & 0xfffi32) as uint16;
+                    as *mut u8 as *mut ec_comt;
+                l = ((*ecp).elength as libc::c_int & 0xfffi32) as u16;
                 idxf = (*ecp).index;
                 /* found index equals requested index ? */
                 if idxf as libc::c_int == idx as libc::c_int {
@@ -564,7 +564,7 @@ pub unsafe fn ecx_inframe(
                         &mut *(*(*stack).tempbuf)
                             .as_mut_ptr()
                             .offset(::core::mem::size_of::<ec_etherheadert>() as isize)
-                            as *mut uint8 as *const libc::c_void,
+                            as *mut u8 as *const libc::c_void,
                         ((*(*stack).txbuflength)[idx as usize] as usize)
                             .wrapping_sub(core::mem::size_of::<ec_etherheadert>()),
                     );
@@ -588,7 +588,7 @@ pub unsafe fn ecx_inframe(
                         &mut *(*(*stack).tempbuf)
                             .as_mut_ptr()
                             .offset(::core::mem::size_of::<ec_etherheadert>() as isize)
-                            as *mut uint8 as *const libc::c_void,
+                            as *mut u8 as *const libc::c_void,
                         ((*(*stack).txbuflength)[idxf as usize] as usize)
                             .wrapping_sub(core::mem::size_of::<ec_etherheadert>()),
                     );
@@ -617,7 +617,7 @@ pub unsafe fn ecx_inframe(
  */
 unsafe fn ecx_waitinframe_red(
     mut port: *mut ecx_portt,
-    mut idx: uint8,
+    mut idx: u8,
     mut timer: *mut osal_timert,
 ) -> libc::c_int {
     let mut timer2: osal_timert = osal_timert {
@@ -688,7 +688,7 @@ unsafe fn ecx_waitinframe_red(
                     &mut *(*(*port).txbuf.as_mut_ptr().offset(idx as isize))
                         .as_mut_ptr()
                         .offset(::core::mem::size_of::<ec_etherheadert>() as isize)
-                        as *mut uint8 as *mut libc::c_void,
+                        as *mut u8 as *mut libc::c_void,
                     &mut *(*port).rxbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                         as *const libc::c_void,
                     ((*port).txbuflength[idx as usize] as usize)
@@ -732,14 +732,14 @@ unsafe fn ecx_waitinframe_red(
 #[no_mangle]
 pub unsafe fn ecx_waitinframe(
     mut port: *mut ecx_portt,
-    mut idx: uint8,
+    mut idx: u8,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut timer: osal_timert = osal_timert {
         stop_time: ec_timet { sec: 0, usec: 0 },
     };
-    osal_timer_start(&mut timer, timeout as uint32);
+    osal_timer_start(&mut timer, timeout as u32);
     wkc = ecx_waitinframe_red(port, idx, &mut timer);
     return wkc;
 }
@@ -758,7 +758,7 @@ pub unsafe fn ecx_waitinframe(
 #[no_mangle]
 pub unsafe fn ecx_srconfirm(
     mut port: *mut ecx_portt,
-    mut idx: uint8,
+    mut idx: u8,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
     let mut wkc: libc::c_int = -(1i32);
@@ -768,12 +768,12 @@ pub unsafe fn ecx_srconfirm(
     let mut timer2: osal_timert = osal_timert {
         stop_time: ec_timet { sec: 0, usec: 0 },
     };
-    osal_timer_start(&mut timer1, timeout as uint32);
+    osal_timer_start(&mut timer1, timeout as u32);
     loop {
         /* tx frame on primary and if in redundant mode a dummy on secondary */
         ecx_outframe_red(port, idx);
         if timeout < EC_TIMEOUTRET {
-            osal_timer_start(&mut timer2, timeout as uint32);
+            osal_timer_start(&mut timer2, timeout as u32);
         } else {
             /* wait for answer with WKC>=0 or otherwise retry until timeout */
             /* normally use partial timeout for rx */
@@ -798,31 +798,31 @@ pub unsafe fn ec_closenic() -> libc::c_int {
     return ecx_closenic(&mut ecx_port);
 }
 #[no_mangle]
-pub unsafe fn ec_getindex() -> uint8 {
+pub unsafe fn ec_getindex() -> u8 {
     return ecx_getindex(&mut ecx_port);
 }
 #[no_mangle]
-pub unsafe fn ec_setbufstat(mut idx: uint8, mut bufstat: libc::c_int) {
+pub unsafe fn ec_setbufstat(mut idx: u8, mut bufstat: libc::c_int) {
     ecx_setbufstat(&mut ecx_port, idx, bufstat);
 }
 #[no_mangle]
-pub unsafe fn ec_outframe(mut idx: uint8, mut stacknumber: libc::c_int) -> libc::c_int {
+pub unsafe fn ec_outframe(mut idx: u8, mut stacknumber: libc::c_int) -> libc::c_int {
     return ecx_outframe(&mut ecx_port, idx, stacknumber);
 }
 #[no_mangle]
-pub unsafe fn ec_outframe_red(mut idx: uint8) -> libc::c_int {
+pub unsafe fn ec_outframe_red(mut idx: u8) -> libc::c_int {
     return ecx_outframe_red(&mut ecx_port, idx);
 }
 #[no_mangle]
-pub unsafe fn ec_inframe(mut idx: uint8, mut stacknumber: libc::c_int) -> libc::c_int {
+pub unsafe fn ec_inframe(mut idx: u8, mut stacknumber: libc::c_int) -> libc::c_int {
     return ecx_inframe(&mut ecx_port, idx, stacknumber);
 }
 #[no_mangle]
-pub unsafe fn ec_waitinframe(mut idx: uint8, mut timeout: libc::c_int) -> libc::c_int {
+pub unsafe fn ec_waitinframe(mut idx: u8, mut timeout: libc::c_int) -> libc::c_int {
     return ecx_waitinframe(&mut ecx_port, idx, timeout);
 }
 #[no_mangle]
-pub unsafe fn ec_srconfirm(mut idx: uint8, mut timeout: libc::c_int) -> libc::c_int {
+pub unsafe fn ec_srconfirm(mut idx: u8, mut timeout: libc::c_int) -> libc::c_int {
     return ecx_srconfirm(&mut ecx_port, idx, timeout);
 }
 /* get frame from primary or if in redundant mode possibly from secondary */

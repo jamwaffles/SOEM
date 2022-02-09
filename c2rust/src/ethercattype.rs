@@ -172,7 +172,7 @@ pub enum ec_bufstate {
 /** Ethercat data types */
 #[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum ec_datatype {
-    ECT_BOOLEAN = 0x0001,
+    ECT_bool = 0x0001,
     ECT_INTEGER8 = 0x0002,
     ECT_INTEGER16 = 0x0003,
     ECT_INTEGER32 = 0x0004,

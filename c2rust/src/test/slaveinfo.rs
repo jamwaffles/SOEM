@@ -17,24 +17,24 @@ use crate::{
 };
 use libc::{memset, snprintf, sprintf, strcat, strcpy, strncmp};
 
-pub type int8_t = libc::c_schar;
-pub type uint8_t = libc::c_uchar;
-pub type int16_t = libc::c_short;
-pub type uint16_t = libc::c_ushort;
-pub type int32_t = libc::c_int;
-pub type uint32_t = libc::c_uint;
-pub type int64_t = libc::c_long;
-pub type uint64_t = libc::c_ulong;
+pub type i8 = libc::c_schar;
+pub type u8 = libc::c_uchar;
+pub type i16 = libc::c_short;
+pub type u16 = libc::c_ushort;
+pub type i32 = libc::c_int;
+pub type u32 = libc::c_uint;
+pub type i64 = libc::c_long;
+pub type u64 = libc::c_ulong;
 
-pub type boolean = uint8_t;
-pub type int8 = int8_t;
-pub type int16 = int16_t;
-pub type int32 = int32_t;
-pub type uint8 = uint8_t;
-pub type uint16 = uint16_t;
-pub type uint32 = uint32_t;
-pub type int64 = int64_t;
-pub type uint64 = uint64_t;
+pub type bool = u8;
+pub type i8 = i8;
+pub type i16 = i16;
+pub type i32 = i32;
+pub type u8 = u8;
+pub type u16 = u16;
+pub type u32 = u32;
+pub type i64 = i64;
+pub type u64 = u64;
 
 /* * \file
  * \brief Example code for Simple Open EtherCAT master
@@ -70,21 +70,21 @@ pub static mut OElist: ec_OElistt = ec_OElistt {
     Name: [[0; 41]; EC_MAXOELIST],
 };
 #[no_mangle]
-pub static mut printSDO: boolean = 0u8;
+pub static mut printSDO: bool = 0u8;
 #[no_mangle]
-pub static mut printMAP: boolean = 0u8;
+pub static mut printMAP: bool = 0u8;
 #[no_mangle]
 pub static mut usdo: [libc::c_char; 128] = [0; 128];
 #[no_mangle]
-pub unsafe fn dtype2string(mut dtype: uint16, mut bitlen: uint16) -> *mut libc::c_char {
+pub unsafe fn dtype2string(mut dtype: u16, mut bitlen: u16) -> *mut libc::c_char {
     let dtype = ec_datatype::from_repr(dtype as usize).expect("Unknown data type");
 
     static mut str: [libc::c_char; 32] = [0u8; 32];
     match dtype {
-        ec_datatype::ECT_BOOLEAN => {
+        ec_datatype::ECT_bool => {
             sprintf(
                 str.as_mut_ptr(),
-                b"BOOLEAN\x00" as *const u8 as *const libc::c_char,
+                b"bool\x00" as *const u8 as *const libc::c_char,
             );
         }
         ec_datatype::ECT_INTEGER8 => {
@@ -233,7 +233,7 @@ pub unsafe fn dtype2string(mut dtype: uint16, mut bitlen: uint16) -> *mut libc::
     return str.as_mut_ptr();
 }
 #[no_mangle]
-pub unsafe fn otype2string(mut otype: uint16) -> *mut libc::c_char {
+pub unsafe fn otype2string(mut otype: u16) -> *mut libc::c_char {
     static mut str: [libc::c_char; 32] = [0u8; 32];
     match otype as libc::c_int {
         7 => {
@@ -265,7 +265,7 @@ pub unsafe fn otype2string(mut otype: uint16) -> *mut libc::c_char {
     return str.as_mut_ptr();
 }
 #[no_mangle]
-pub unsafe fn access2string(mut access: uint16) -> *mut libc::c_char {
+pub unsafe fn access2string(mut access: u16) -> *mut libc::c_char {
     static mut str: [libc::c_char; 32] = [0u8; 32];
     sprintf(
         str.as_mut_ptr(),
@@ -305,24 +305,24 @@ pub unsafe fn access2string(mut access: uint16) -> *mut libc::c_char {
 }
 #[no_mangle]
 pub unsafe fn SDO2string(
-    mut slave: uint16,
-    mut index: uint16,
-    mut subidx: uint8,
-    mut dtype: uint16,
+    mut slave: u16,
+    mut index: u16,
+    mut subidx: u8,
+    mut dtype: u16,
 ) -> *mut libc::c_char {
     let dtype = ec_datatype::from_repr(dtype as usize).expect("Unknown data type");
 
     let mut l: libc::c_int =
         core::mem::size_of::<[libc::c_char; 128]>().wrapping_sub(1usize) as libc::c_int;
     let mut i: libc::c_int = 0;
-    let mut u8: *mut uint8 = 0 as *mut uint8;
-    let mut i8: *mut int8 = 0 as *mut int8;
-    let mut u16: *mut uint16 = 0 as *mut uint16;
-    let mut i16: *mut int16 = 0 as *mut int16;
-    let mut u32: *mut uint32 = 0 as *mut uint32;
-    let mut i32: *mut int32 = 0 as *mut int32;
-    let mut u64: *mut uint64 = 0 as *mut uint64;
-    let mut i64: *mut int64 = 0 as *mut int64;
+    let mut u8: *mut u8 = 0 as *mut u8;
+    let mut i8: *mut i8 = 0 as *mut i8;
+    let mut u16: *mut u16 = 0 as *mut u16;
+    let mut i16: *mut i16 = 0 as *mut i16;
+    let mut u32: *mut u32 = 0 as *mut u32;
+    let mut i32: *mut i32 = 0 as *mut i32;
+    let mut u64: *mut u64 = 0 as *mut u64;
+    let mut i64: *mut i64 = 0 as *mut i64;
     let mut sr: *mut libc::c_float = 0 as *mut libc::c_float;
     let mut dr: *mut libc::c_double = 0 as *mut libc::c_double;
     let mut es: [libc::c_char; 32] = [0; 32];
@@ -345,8 +345,8 @@ pub unsafe fn SDO2string(
     } else {
         static mut str: [libc::c_char; 64] = [0u8; 64];
         match dtype {
-            ec_datatype::ECT_BOOLEAN => {
-                u8 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut uint8;
+            ec_datatype::ECT_bool => {
+                u8 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut u8;
                 if *u8 != 0 {
                     sprintf(
                         str.as_mut_ptr(),
@@ -369,7 +369,7 @@ pub unsafe fn SDO2string(
                 );
             }
             ec_datatype::ECT_INTEGER16 => {
-                i16 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut int16;
+                i16 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut i16;
                 sprintf(
                     str.as_mut_ptr(),
                     b"0x%4.4x / %d\x00" as *const u8 as *const libc::c_char,
@@ -378,7 +378,7 @@ pub unsafe fn SDO2string(
                 );
             }
             ec_datatype::ECT_INTEGER32 | ec_datatype::ECT_INTEGER24 => {
-                i32 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut int32;
+                i32 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut i32;
                 sprintf(
                     str.as_mut_ptr(),
                     b"0x%8.8x / %d\x00" as *const u8 as *const libc::c_char,
@@ -387,7 +387,7 @@ pub unsafe fn SDO2string(
                 );
             }
             ec_datatype::ECT_INTEGER64 => {
-                i64 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut int64;
+                i64 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut i64;
                 sprintf(
                     str.as_mut_ptr(),
                     b"0x%16.16lx / %ld\x00" as *const u8 as *const libc::c_char,
@@ -396,7 +396,7 @@ pub unsafe fn SDO2string(
                 );
             }
             ec_datatype::ECT_UNSIGNED8 => {
-                u8 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut uint8;
+                u8 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut u8;
                 sprintf(
                     str.as_mut_ptr(),
                     b"0x%2.2x / %u\x00" as *const u8 as *const libc::c_char,
@@ -405,7 +405,7 @@ pub unsafe fn SDO2string(
                 );
             }
             ec_datatype::ECT_UNSIGNED16 => {
-                u16 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut uint16;
+                u16 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut u16;
                 sprintf(
                     str.as_mut_ptr(),
                     b"0x%4.4x / %u\x00" as *const u8 as *const libc::c_char,
@@ -414,7 +414,7 @@ pub unsafe fn SDO2string(
                 );
             }
             ec_datatype::ECT_UNSIGNED32 | ec_datatype::ECT_UNSIGNED24 => {
-                u32 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut uint32;
+                u32 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut u32;
                 sprintf(
                     str.as_mut_ptr(),
                     b"0x%8.8x / %u\x00" as *const u8 as *const libc::c_char,
@@ -423,7 +423,7 @@ pub unsafe fn SDO2string(
                 );
             }
             ec_datatype::ECT_UNSIGNED64 => {
-                u64 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut uint64;
+                u64 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut u64;
                 sprintf(
                     str.as_mut_ptr(),
                     b"0x%16.16lx / %lu\x00" as *const u8 as *const libc::c_char,
@@ -457,7 +457,7 @@ pub unsafe fn SDO2string(
             | ec_datatype::ECT_BIT6
             | ec_datatype::ECT_BIT7
             | ec_datatype::ECT_BIT8 => {
-                u8 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut uint8;
+                u8 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut u8;
                 sprintf(
                     str.as_mut_ptr(),
                     b"0x%x / %u\x00" as *const u8 as *const libc::c_char,
@@ -502,28 +502,28 @@ pub unsafe fn SDO2string(
 /* * Read PDO assign structure */
 #[no_mangle]
 pub unsafe fn si_PDOassign(
-    mut slave: uint16,
-    mut PDOassign: uint16,
+    mut slave: u16,
+    mut PDOassign: u16,
     mut mapoffset: libc::c_int,
     mut bitoffset: libc::c_int,
 ) -> libc::c_int {
-    let mut idxloop: uint16 = 0;
-    let mut nidx: uint16 = 0;
-    let mut subidxloop: uint16 = 0;
-    let mut rdat: uint16 = 0;
-    let mut idx: uint16 = 0;
-    let mut subidx: uint16 = 0;
-    let mut subcnt: uint8 = 0;
+    let mut idxloop: u16 = 0;
+    let mut nidx: u16 = 0;
+    let mut subidxloop: u16 = 0;
+    let mut rdat: u16 = 0;
+    let mut idx: u16 = 0;
+    let mut subidx: u16 = 0;
+    let mut subcnt: u8 = 0;
     let mut wkc: libc::c_int = 0;
     let mut bsize: libc::c_int = 0i32;
     let mut rdl: libc::c_int = 0;
-    let mut rdat2: int32 = 0;
-    let mut bitlen: uint8 = 0;
-    let mut obj_subidx: uint8 = 0;
-    let mut obj_idx: uint16 = 0;
+    let mut rdat2: i32 = 0;
+    let mut bitlen: u8 = 0;
+    let mut obj_subidx: u8 = 0;
+    let mut obj_idx: u16 = 0;
     let mut abs_offset: libc::c_int = 0;
     let mut abs_bit: libc::c_int = 0;
-    rdl = ::core::mem::size_of::<uint16>() as libc::c_int;
+    rdl = ::core::mem::size_of::<u16>() as libc::c_int;
     rdat = 0u16;
     /* read PDO assign subindex 0 ( = number of PDO's) */
     wkc = ec_SDOread(
@@ -532,7 +532,7 @@ pub unsafe fn si_PDOassign(
         0u8,
         0u8,
         &mut rdl,
-        &mut rdat as *mut uint16 as *mut libc::c_void,
+        &mut rdat as *mut u16 as *mut libc::c_void,
         EC_TIMEOUTRXM,
     );
     rdat = rdat;
@@ -544,22 +544,22 @@ pub unsafe fn si_PDOassign(
         /* read all PDO's */
         idxloop = 1u16;
         while idxloop as libc::c_int <= nidx as libc::c_int {
-            rdl = ::core::mem::size_of::<uint16>() as libc::c_int;
+            rdl = ::core::mem::size_of::<u16>() as libc::c_int;
             rdat = 0u16;
             /* read PDO assign */
             wkc = ec_SDOread(
                 slave,
                 PDOassign,
-                idxloop as uint8,
+                idxloop as u8,
                 0u8,
                 &mut rdl,
-                &mut rdat as *mut uint16 as *mut libc::c_void,
+                &mut rdat as *mut u16 as *mut libc::c_void,
                 EC_TIMEOUTRXM,
             );
             /* result is index of PDO */
             idx = rdat;
             if idx as libc::c_int > 0i32 {
-                rdl = ::core::mem::size_of::<uint8>() as libc::c_int;
+                rdl = ::core::mem::size_of::<u8>() as libc::c_int;
                 subcnt = 0u8;
                 /* read number of subindexes of PDO */
                 wkc = ec_SDOread(
@@ -568,31 +568,31 @@ pub unsafe fn si_PDOassign(
                     0u8,
                     0u8,
                     &mut rdl,
-                    &mut subcnt as *mut uint8 as *mut libc::c_void,
+                    &mut subcnt as *mut u8 as *mut libc::c_void,
                     EC_TIMEOUTRXM,
                 );
-                subidx = subcnt as uint16;
+                subidx = subcnt as u16;
                 /* for each subindex */
                 subidxloop = 1u16;
                 while subidxloop as libc::c_int <= subidx as libc::c_int {
-                    rdl = ::core::mem::size_of::<int32>() as libc::c_int;
+                    rdl = ::core::mem::size_of::<i32>() as libc::c_int;
                     rdat2 = 0i32;
                     /* read SDO that is mapped in PDO */
                     wkc = ec_SDOread(
                         slave,
                         idx,
-                        subidxloop as uint8,
+                        subidxloop as u8,
                         0u8,
                         &mut rdl,
-                        &mut rdat2 as *mut int32 as *mut libc::c_void,
+                        &mut rdat2 as *mut i32 as *mut libc::c_void,
                         EC_TIMEOUTRXM,
                     );
                     rdat2 = rdat2;
                     /* extract bitlength of SDO */
-                    bitlen = (rdat2 & 0xffi32) as uint8;
+                    bitlen = (rdat2 & 0xffi32) as u8;
                     bsize += bitlen as libc::c_int;
-                    obj_idx = (rdat2 >> 16i32) as uint16;
-                    obj_subidx = (rdat2 >> 8i32 & 0xffi32) as uint8;
+                    obj_idx = (rdat2 >> 16i32) as u16;
+                    obj_subidx = (rdat2 >> 8i32 & 0xffi32) as u8;
                     abs_offset = mapoffset + bitoffset / 8i32;
                     abs_bit = bitoffset % 8i32;
                     ODlist.Slave = slave;
@@ -617,7 +617,7 @@ pub unsafe fn si_PDOassign(
                             {
                                 std::ffi::CStr::from_ptr(dtype2string(
                                     OElist.DataType[obj_subidx as usize],
-                                    bitlen as uint16,
+                                    bitlen as u16,
                                 )
                                     as *const libc::c_char)
                                 .to_str()
@@ -650,27 +650,27 @@ pub unsafe fn si_map_sdo(mut slave: libc::c_int) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut rdl: libc::c_int = 0;
     let mut retVal: libc::c_int = 0i32;
-    let mut nSM: uint8 = 0;
-    let mut iSM: uint8 = 0;
-    let mut tSM: uint8 = 0;
+    let mut nSM: u8 = 0;
+    let mut iSM: u8 = 0;
+    let mut tSM: u8 = 0;
     let mut Tsize: libc::c_int = 0;
     let mut outputs_bo: libc::c_int = 0;
     let mut inputs_bo: libc::c_int = 0;
-    let mut SMt_bug_add: uint8 = 0;
+    let mut SMt_bug_add: u8 = 0;
     println!("PDO mapping according to CoE :");
     SMt_bug_add = 0u8;
     outputs_bo = 0i32;
     inputs_bo = 0i32;
-    rdl = ::core::mem::size_of::<uint8>() as libc::c_int;
+    rdl = ::core::mem::size_of::<u8>() as libc::c_int;
     nSM = 0u8;
     /* read SyncManager Communication Type object count */
     wkc = ec_SDOread(
-        slave as uint16,
+        slave as u16,
         0x1c00u16,
         0u8,
         0u8,
         &mut rdl,
-        &mut nSM as *mut uint8 as *mut libc::c_void,
+        &mut nSM as *mut u8 as *mut libc::c_void,
         EC_TIMEOUTRXM,
     );
     /* positive result from slave ? */
@@ -684,16 +684,16 @@ pub unsafe fn si_map_sdo(mut slave: libc::c_int) -> libc::c_int {
         /* iterate for every SM type defined */
         iSM = 2u8;
         while iSM as libc::c_int <= nSM as libc::c_int {
-            rdl = ::core::mem::size_of::<uint8>() as libc::c_int;
+            rdl = ::core::mem::size_of::<u8>() as libc::c_int;
             tSM = 0u8;
             /* read SyncManager Communication Type */
             wkc = ec_SDOread(
-                slave as uint16,
+                slave as u16,
                 0x1c00u16,
-                (iSM as libc::c_int + 1i32) as uint8,
+                (iSM as libc::c_int + 1i32) as u8,
                 0u8,
                 &mut rdl,
-                &mut tSM as *mut uint8 as *mut libc::c_void,
+                &mut tSM as *mut u8 as *mut libc::c_void,
                 EC_TIMEOUTRXM,
             );
             if wkc > 0i32 {
@@ -704,7 +704,7 @@ pub unsafe fn si_map_sdo(mut slave: libc::c_int) -> libc::c_int {
                     // only add if SMt > 0
                 }
                 if tSM != 0 {
-                    tSM = (tSM as libc::c_int + SMt_bug_add as libc::c_int) as uint8
+                    tSM = (tSM as libc::c_int + SMt_bug_add as libc::c_int) as u8
                 }
                 if tSM as libc::c_int == 3i32 {
                     // outputs
@@ -714,13 +714,11 @@ pub unsafe fn si_map_sdo(mut slave: libc::c_int) -> libc::c_int {
                         iSM as libc::c_int as libc::c_int
                     );
                     Tsize = si_PDOassign(
-                        slave as uint16,
+                        slave as u16,
                         ECT_SDO_PDOASSIGN + iSM as u16,
-                        ec_slave[slave as usize]
-                            .outputs
-                            .offset_from(&mut *IOmap.as_mut_ptr().offset(0isize)
-                                as *mut libc::c_char
-                                as *mut uint8) as libc::c_int,
+                        ec_slave[slave as usize].outputs.offset_from(
+                            &mut *IOmap.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut u8,
+                        ) as libc::c_int,
                         outputs_bo,
                     );
                     outputs_bo += Tsize
@@ -733,13 +731,11 @@ pub unsafe fn si_map_sdo(mut slave: libc::c_int) -> libc::c_int {
                         iSM as libc::c_int as libc::c_int
                     );
                     Tsize = si_PDOassign(
-                        slave as uint16,
+                        slave as u16,
                         ECT_SDO_PDOASSIGN + iSM as u16,
-                        ec_slave[slave as usize]
-                            .inputs
-                            .offset_from(&mut *IOmap.as_mut_ptr().offset(0isize)
-                                as *mut libc::c_char
-                                as *mut uint8) as libc::c_int,
+                        ec_slave[slave as usize].inputs.offset_from(
+                            &mut *IOmap.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut u8,
+                        ) as libc::c_int,
                         inputs_bo,
                     );
                     inputs_bo += Tsize
@@ -756,23 +752,23 @@ pub unsafe fn si_map_sdo(mut slave: libc::c_int) -> libc::c_int {
 }
 #[no_mangle]
 pub unsafe fn si_siiPDO(
-    mut slave: uint16,
-    mut t: uint8,
+    mut slave: u16,
+    mut t: u8,
     mut mapoffset: libc::c_int,
     mut bitoffset: libc::c_int,
 ) -> libc::c_int {
-    let mut a: uint16 = 0;
-    let mut w: uint16 = 0;
-    let mut c: uint16 = 0;
-    let mut e: uint16 = 0;
-    let mut er: uint16 = 0;
-    let mut Size: uint16 = 0;
-    let mut eectl: uint8 = 0;
-    let mut obj_idx: uint16 = 0;
-    let mut obj_subidx: uint8 = 0;
-    let mut obj_name: uint8 = 0;
-    let mut obj_datatype: uint8 = 0;
-    let mut bitlen: uint8 = 0;
+    let mut a: u16 = 0;
+    let mut w: u16 = 0;
+    let mut c: u16 = 0;
+    let mut e: u16 = 0;
+    let mut er: u16 = 0;
+    let mut Size: u16 = 0;
+    let mut eectl: u8 = 0;
+    let mut obj_idx: u16 = 0;
+    let mut obj_subidx: u8 = 0;
+    let mut obj_name: u8 = 0;
+    let mut obj_datatype: u8 = 0;
+    let mut bitlen: u8 = 0;
     let mut totalsize: libc::c_int = 0;
     let mut eepPDO: ec_eepromPDOt = ec_eepromPDOt {
         Startpos: 0,
@@ -804,16 +800,16 @@ pub unsafe fn si_siiPDO(
     }
     (*PDO).Startpos = ec_siifind(
         slave,
-        (SIICategory::ECT_SII_PDO as libc::c_int + t as libc::c_int) as uint16,
-    ) as uint16;
+        (SIICategory::ECT_SII_PDO as libc::c_int + t as libc::c_int) as u16,
+    ) as u16;
     if (*PDO).Startpos as libc::c_int > 0i32 {
         a = (*PDO).Startpos;
         let fresh0 = a;
         a = a.wrapping_add(1);
-        w = ec_siigetbyte(slave, fresh0) as uint16;
+        w = ec_siigetbyte(slave, fresh0) as u16;
         let fresh1 = a;
         a = a.wrapping_add(1);
-        w = (w as libc::c_int + ((ec_siigetbyte(slave, fresh1) as libc::c_int) << 8i32)) as uint16;
+        w = (w as libc::c_int + ((ec_siigetbyte(slave, fresh1) as libc::c_int) << 8i32)) as u16;
         (*PDO).Length = w;
         c = 1u16;
         loop
@@ -822,33 +818,33 @@ pub unsafe fn si_siiPDO(
             (*PDO).nPDO = (*PDO).nPDO.wrapping_add(1);
             let fresh2 = a;
             a = a.wrapping_add(1);
-            (*PDO).Index[(*PDO).nPDO as usize] = ec_siigetbyte(slave, fresh2) as uint16;
+            (*PDO).Index[(*PDO).nPDO as usize] = ec_siigetbyte(slave, fresh2) as u16;
             let fresh3 = a;
             a = a.wrapping_add(1);
             (*PDO).Index[(*PDO).nPDO as usize] = ((*PDO).Index[(*PDO).nPDO as usize] as libc::c_int
                 + ((ec_siigetbyte(slave, fresh3) as libc::c_int) << 8i32))
-                as uint16;
+                as u16;
             (*PDO).BitSize[(*PDO).nPDO as usize] = 0u16;
             c = c.wrapping_add(1);
             /* limit number of PDO entries in buffer */
             let fresh4 = a;
             a = a.wrapping_add(1);
-            e = ec_siigetbyte(slave, fresh4) as uint16;
+            e = ec_siigetbyte(slave, fresh4) as u16;
             let fresh5 = a;
             a = a.wrapping_add(1);
-            (*PDO).SyncM[(*PDO).nPDO as usize] = ec_siigetbyte(slave, fresh5) as uint16;
+            (*PDO).SyncM[(*PDO).nPDO as usize] = ec_siigetbyte(slave, fresh5) as u16;
             a = a.wrapping_add(1);
             let fresh6 = a;
             a = a.wrapping_add(1);
             obj_name = ec_siigetbyte(slave, fresh6);
-            a = (a as libc::c_int + 2i32) as uint16;
-            c = (c as libc::c_int + 2i32) as uint16;
+            a = (a as libc::c_int + 2i32) as u16;
+            c = (c as libc::c_int + 2i32) as u16;
             if ((*PDO).SyncM[(*PDO).nPDO as usize] as libc::c_int) < 8i32 {
                 /* number of entries in PDO */
                 /* active and in range SM? */
                 str_name[0usize] = 0u8;
                 if obj_name != 0 {
-                    ec_siistring(str_name.as_mut_ptr(), slave, obj_name as uint16);
+                    ec_siistring(str_name.as_mut_ptr(), slave, obj_name as u16);
                 }
                 if t != 0 {
                     println!(
@@ -877,15 +873,15 @@ pub unsafe fn si_siiPDO(
                 /* read all entries defined in PDO */
                 er = 1u16;
                 while er as libc::c_int <= e as libc::c_int {
-                    c = (c as libc::c_int + 4i32) as uint16;
+                    c = (c as libc::c_int + 4i32) as u16;
                     let fresh7 = a;
                     a = a.wrapping_add(1);
-                    obj_idx = ec_siigetbyte(slave, fresh7) as uint16;
+                    obj_idx = ec_siigetbyte(slave, fresh7) as u16;
                     let fresh8 = a;
                     a = a.wrapping_add(1);
                     obj_idx = (obj_idx as libc::c_int
                         + ((ec_siigetbyte(slave, fresh8) as libc::c_int) << 8i32))
-                        as uint16;
+                        as u16;
                     let fresh9 = a;
                     a = a.wrapping_add(1);
                     obj_subidx = ec_siigetbyte(slave, fresh9);
@@ -902,13 +898,13 @@ pub unsafe fn si_siiPDO(
                     abs_bit = bitoffset % 8i32;
                     (*PDO).BitSize[(*PDO).nPDO as usize] =
                         ((*PDO).BitSize[(*PDO).nPDO as usize] as libc::c_int
-                            + bitlen as libc::c_int) as uint16;
-                    a = (a as libc::c_int + 2i32) as uint16;
+                            + bitlen as libc::c_int) as u16;
+                    a = (a as libc::c_int + 2i32) as u16;
                     /* skip entry if filler (0x0000:0x00) */
                     if obj_idx as libc::c_int != 0 || obj_subidx as libc::c_int != 0 {
                         str_name[0usize] = 0u8;
                         if obj_name != 0 {
-                            ec_siistring(str_name.as_mut_ptr(), slave, obj_name as uint16);
+                            ec_siistring(str_name.as_mut_ptr(), slave, obj_name as u16);
                         }
 
                         print!(
@@ -923,8 +919,8 @@ pub unsafe fn si_siiPDO(
                             " {:12} {:}",
                             {
                                 std::ffi::CStr::from_ptr(dtype2string(
-                                    obj_datatype as uint16,
-                                    bitlen as uint16,
+                                    obj_datatype as u16,
+                                    bitlen as u16,
                                 )
                                     as *const libc::c_char)
                                 .to_str()
@@ -946,14 +942,14 @@ pub unsafe fn si_siiPDO(
                 (*PDO).SMbitsize[(*PDO).SyncM[(*PDO).nPDO as usize] as usize] =
                     ((*PDO).SMbitsize[(*PDO).SyncM[(*PDO).nPDO as usize] as usize] as libc::c_int
                         + (*PDO).BitSize[(*PDO).nPDO as usize] as libc::c_int)
-                        as uint16;
+                        as u16;
                 Size = (Size as libc::c_int + (*PDO).BitSize[(*PDO).nPDO as usize] as libc::c_int)
-                    as uint16;
+                    as u16;
                 c = c.wrapping_add(1)
             } else {
                 /* PDO deactivated because SM is 0xff or > EC_MAXSM */
-                c = (c as libc::c_int + 4i32 * e as libc::c_int) as uint16; /* if eeprom control was previously pdi then restore */
-                a = (a as libc::c_int + 8i32 * e as libc::c_int) as uint16;
+                c = (c as libc::c_int + 4i32 * e as libc::c_int) as u16; /* if eeprom control was previously pdi then restore */
+                a = (a as libc::c_int + 8i32 * e as libc::c_int) as u16;
                 c = c.wrapping_add(1)
             }
             if (*PDO).nPDO as libc::c_int >= 0x200i32 - 1i32 {
@@ -980,23 +976,21 @@ pub unsafe fn si_map_sii(mut slave: libc::c_int) -> libc::c_int {
     inputs_bo = 0i32;
     /* read the assign RXPDOs */
     Tsize = si_siiPDO(
-        slave as uint16,
+        slave as u16,
         1u8,
         ec_slave[slave as usize]
             .outputs
-            .offset_from(&mut IOmap as *mut [libc::c_char; 4096] as *mut uint8)
-            as libc::c_int,
+            .offset_from(&mut IOmap as *mut [libc::c_char; 4096] as *mut u8) as libc::c_int,
         outputs_bo,
     );
     outputs_bo += Tsize;
     /* read the assign TXPDOs */
     Tsize = si_siiPDO(
-        slave as uint16,
+        slave as u16,
         0u8,
         ec_slave[slave as usize]
             .inputs
-            .offset_from(&mut IOmap as *mut [libc::c_char; 4096] as *mut uint8)
-            as libc::c_int,
+            .offset_from(&mut IOmap as *mut [libc::c_char; 4096] as *mut u8) as libc::c_int,
         inputs_bo,
     );
     inputs_bo += Tsize;
@@ -1016,16 +1010,16 @@ pub unsafe fn si_sdo(mut cnt: libc::c_int) {
         0i32,
         core::mem::size_of::<ec_ODlistt>(),
     );
-    if ec_readODlist(cnt as uint16, &mut ODlist) != 0 {
+    if ec_readODlist(cnt as u16, &mut ODlist) != 0 {
         println!(
             " CoE Object Description found, {:} entries.",
             ODlist.Entries as libc::c_int as libc::c_int
         );
         i = 0i32;
         while i < ODlist.Entries as libc::c_int {
-            let mut max_sub: uint8_t = 0;
+            let mut max_sub: u8 = 0;
             let mut name: [libc::c_char; 128] = [0u8; 128];
-            ec_readODdescription(i as uint16, &mut ODlist);
+            ec_readODdescription(i as u16, &mut ODlist);
             while EcatError != 0 {
                 println!(" - {:}", {
                     std::ffi::CStr::from_ptr(ec_elist2string() as *const libc::c_char)
@@ -1049,9 +1043,8 @@ pub unsafe fn si_sdo(mut cnt: libc::c_int) {
                             .unwrap()
                     },
                     {
-                        std::ffi::CStr::from_ptr(otype2string(
-                            ODlist.ObjectCode[i as usize] as uint16,
-                        ) as *const libc::c_char)
+                        std::ffi::CStr::from_ptr(otype2string(ODlist.ObjectCode[i as usize] as u16)
+                            as *const libc::c_char)
                         .to_str()
                         .unwrap()
                     }
@@ -1066,9 +1059,8 @@ pub unsafe fn si_sdo(mut cnt: libc::c_int) {
                             .unwrap()
                     },
                     {
-                        std::ffi::CStr::from_ptr(otype2string(
-                            ODlist.ObjectCode[i as usize] as uint16,
-                        ) as *const libc::c_char)
+                        std::ffi::CStr::from_ptr(otype2string(ODlist.ObjectCode[i as usize] as u16)
+                            as *const libc::c_char)
                         .to_str()
                         .unwrap()
                     },
@@ -1081,7 +1073,7 @@ pub unsafe fn si_sdo(mut cnt: libc::c_int) {
                 0i32,
                 core::mem::size_of::<ec_OElistt>(),
             );
-            ec_readOE(i as uint16, &mut ODlist, &mut OElist);
+            ec_readOE(i as u16, &mut ODlist, &mut OElist);
             while EcatError != 0 {
                 println!("- {:}", {
                     std::ffi::CStr::from_ptr(ec_elist2string() as *const libc::c_char)
@@ -1090,14 +1082,14 @@ pub unsafe fn si_sdo(mut cnt: libc::c_int) {
                 });
             }
             if ODlist.ObjectCode[i as usize] as libc::c_int != 0x7i32 {
-                let mut l: libc::c_int = ::core::mem::size_of::<uint8_t>() as libc::c_int;
+                let mut l: libc::c_int = ::core::mem::size_of::<u8>() as libc::c_int;
                 ec_SDOread(
-                    cnt as uint16,
+                    cnt as u16,
                     ODlist.Index[i as usize],
                     0u8,
                     0u8,
                     &mut l,
-                    &mut max_sub as *mut uint8_t as *mut libc::c_void,
+                    &mut max_sub as *mut u8 as *mut libc::c_void,
                     EC_TIMEOUTRXM,
                 );
             } else {
@@ -1142,9 +1134,9 @@ pub unsafe fn si_sdo(mut cnt: libc::c_int) {
                     if OElist.ObjAccess[j as usize] as libc::c_int & 0x7i32 != 0 {
                         print!("{:}", {
                             std::ffi::CStr::from_ptr(SDO2string(
-                                cnt as uint16,
+                                cnt as u16,
                                 ODlist.Index[i as usize],
-                                j as uint8,
+                                j as u8,
                                 OElist.DataType[j as usize],
                             )
                                 as *const libc::c_char)
@@ -1174,7 +1166,7 @@ pub unsafe fn slaveinfo(mut ifname: *mut libc::c_char) {
     let mut i: libc::c_int = 0;
     let mut j: libc::c_int = 0;
     let mut nSM: libc::c_int = 0;
-    let mut ssigen: uint16 = 0;
+    let mut ssigen: u16 = 0;
     let mut expectedWKC: libc::c_int = 0;
     println!("Starting slaveinfo");
     /* initialise SOEM, bind socket to ifname */
@@ -1208,7 +1200,7 @@ pub unsafe fn slaveinfo(mut ifname: *mut libc::c_char) {
             /* wait for all slaves to reach SAFE_OP state */
             ec_statecheck(
                 0u16,
-                ec_state::EC_STATE_SAFE_OP as uint16,
+                ec_state::EC_STATE_SAFE_OP as u16,
                 EC_TIMEOUTSTATE * 3i32,
             );
             if ec_slave[0usize].state as libc::c_int != ec_state::EC_STATE_SAFE_OP as libc::c_int {
@@ -1331,19 +1323,18 @@ pub unsafe fn slaveinfo(mut ifname: *mut libc::c_char) {
                     ec_slave[cnt as usize].mbx_rl as libc::c_int as libc::c_int,
                     ec_slave[cnt as usize].mbx_proto as libc::c_int as libc::c_uint
                 );
-                ssigen =
-                    ec_siifind(cnt as uint16, SIICategory::ECT_SII_GENERAL as uint16) as uint16;
+                ssigen = ec_siifind(cnt as u16, SIICategory::ECT_SII_GENERAL as u16) as u16;
                 /* SII general section */
                 if ssigen != 0 {
                     ec_slave[cnt as usize].CoEdetails =
-                        ec_siigetbyte(cnt as uint16, (ssigen as libc::c_int + 0x7i32) as uint16);
+                        ec_siigetbyte(cnt as u16, (ssigen as libc::c_int + 0x7i32) as u16);
                     ec_slave[cnt as usize].FoEdetails =
-                        ec_siigetbyte(cnt as uint16, (ssigen as libc::c_int + 0x8i32) as uint16);
+                        ec_siigetbyte(cnt as u16, (ssigen as libc::c_int + 0x8i32) as u16);
                     ec_slave[cnt as usize].EoEdetails =
-                        ec_siigetbyte(cnt as uint16, (ssigen as libc::c_int + 0x9i32) as uint16);
+                        ec_siigetbyte(cnt as u16, (ssigen as libc::c_int + 0x9i32) as u16);
                     ec_slave[cnt as usize].SoEdetails =
-                        ec_siigetbyte(cnt as uint16, (ssigen as libc::c_int + 0xai32) as uint16);
-                    if ec_siigetbyte(cnt as uint16, (ssigen as libc::c_int + 0xdi32) as uint16)
+                        ec_siigetbyte(cnt as u16, (ssigen as libc::c_int + 0xai32) as u16);
+                    if ec_siigetbyte(cnt as u16, (ssigen as libc::c_int + 0xdi32) as u16)
                         as libc::c_int
                         & 0x2i32
                         > 0i32
@@ -1352,17 +1343,15 @@ pub unsafe fn slaveinfo(mut ifname: *mut libc::c_char) {
                         ec_slave[0usize].blockLRW = ec_slave[0usize].blockLRW.wrapping_add(1)
                     }
                     ec_slave[cnt as usize].Ebuscurrent =
-                        ec_siigetbyte(cnt as uint16, (ssigen as libc::c_int + 0xei32) as uint16)
-                            as int16;
-                    ec_slave[cnt as usize].Ebuscurrent = (ec_slave[cnt as usize].Ebuscurrent
-                        as libc::c_int
-                        + ((ec_siigetbyte(cnt as uint16, (ssigen as libc::c_int + 0xfi32) as uint16)
-                            as libc::c_int)
-                            << 8i32))
-                        as int16;
+                        ec_siigetbyte(cnt as u16, (ssigen as libc::c_int + 0xei32) as u16) as i16;
+                    ec_slave[cnt as usize].Ebuscurrent =
+                        (ec_slave[cnt as usize].Ebuscurrent as libc::c_int
+                            + ((ec_siigetbyte(cnt as u16, (ssigen as libc::c_int + 0xfi32) as u16)
+                                as libc::c_int)
+                                << 8i32)) as i16;
                     ec_slave[0usize].Ebuscurrent = (ec_slave[0usize].Ebuscurrent as libc::c_int
                         + ec_slave[cnt as usize].Ebuscurrent as libc::c_int)
-                        as int16
+                        as i16
                 }
 
                 println!(" CoE details: {:2.2x} FoE details: {:2.2x} EoE details: {:2.2x} SoE details: {:2.2x}",
