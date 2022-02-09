@@ -1,3 +1,5 @@
+use std::mem;
+
 use crate::{
     ethercatmain::ecx_port,
     ethercattype::{ec_bufT, ec_bufstate, ec_comt, ec_etherheadert, htons, ntohs},
@@ -209,7 +211,7 @@ pub unsafe extern "C" fn ecx_setupnic(
         sll_addr: [0; 8],
     };
     let mut psock: *mut libc::c_int = 0 as *mut libc::c_int;
-    let mut mutexattr: pthread_mutexattr_t = pthread_mutexattr_t { size: [0; 4] };
+    let mut mutexattr: pthread_mutexattr_t = mem::zeroed();
     rval = 0i32;
     if secondary != 0 {
         /* secondary port struct available? */

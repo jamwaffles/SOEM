@@ -22,7 +22,7 @@ use crate::{
         oshw::{oshw_find_adapters, oshw_free_adapters, oshw_htons},
     },
 };
-use libc::{memcpy, memset};
+use libc::{memcpy, memset, pthread_mutex_t};
 
 pub type __uint8_t = libc::c_uchar;
 pub type __int16_t = libc::c_short;
@@ -604,9 +604,9 @@ pub static mut ecx_port: ecx_portt = ecx_portt {
     lastidx: 0,
     redstate: 0,
     redport: 0 as *mut ecx_redportt,
-    getindex_mutex: unsafe { mem::zeroed() },
-    tx_mutex: unsafe { mem::zeroed() },
-    rx_mutex: unsafe { mem::zeroed() },
+    getindex_mutex: unsafe { mem::transmute::<[u8; 40], pthread_mutex_t>([0u8; 40]) },
+    tx_mutex: unsafe { mem::transmute::<[u8; 40], pthread_mutex_t>([0u8; 40]) },
+    rx_mutex: unsafe { mem::transmute::<[u8; 40], pthread_mutex_t>([0u8; 40]) },
 };
 #[no_mangle]
 pub static mut ecx_redport: ecx_redportt = ecx_redportt {

@@ -51,8 +51,6 @@ unsafe extern "C" fn ecx_writedatagramdata(
     mut data: *const libc::c_void,
 ) {
     if length as libc::c_int > 0i32 {
-        let mut current_block_1: u64;
-
         match com {
             ec_cmdtype::EC_CMD_NOP
             | ec_cmdtype::EC_CMD_APRD

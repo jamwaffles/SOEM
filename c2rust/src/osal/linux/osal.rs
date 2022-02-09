@@ -1,3 +1,5 @@
+use std::mem;
+
 use libc::{
     clock_gettime, free, malloc, memset, nanosleep, pthread_attr_destroy, pthread_attr_init,
     pthread_attr_setstacksize, pthread_attr_t, pthread_create, pthread_setschedparam, pthread_t,
@@ -149,7 +151,7 @@ pub unsafe extern "C" fn osal_thread_create(
     mut param: *mut libc::c_void,
 ) -> libc::c_int {
     let mut ret: libc::c_int = 0;
-    let mut attr: pthread_attr_t = pthread_attr_t { __size: [0; 7] };
+    let mut attr: pthread_attr_t = mem::zeroed();
     let mut threadp: *mut pthread_t = 0 as *mut pthread_t;
     threadp = thandle as *mut pthread_t;
     pthread_attr_init(&mut attr);
@@ -176,7 +178,7 @@ pub unsafe extern "C" fn osal_thread_create_rt(
     mut param: *mut libc::c_void,
 ) -> libc::c_int {
     let mut ret: libc::c_int = 0;
-    let mut attr: pthread_attr_t = pthread_attr_t { __size: [0; 7] };
+    let mut attr: pthread_attr_t = mem::zeroed();
     let mut schparam: sched_param = sched_param { sched_priority: 0 };
     let mut threadp: *mut pthread_t = 0 as *mut pthread_t;
     threadp = thandle as *mut pthread_t;
