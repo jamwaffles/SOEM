@@ -1,12 +1,12 @@
 use crate::{
-    ethercatmain::ec_mbxheadert,
-    osal::linux::osal::{ec_timet, osal_timer_is_expired, osal_timer_start},
+    ethercatmain::{
+        ec_clearmbx, ec_mbxbuft, ec_mbxheadert, ec_nextmbxcnt, ecx_context, ecx_contextt,
+        ecx_mbxreceive, ecx_mbxsend,
+    },
+    osal::linux::osal::ec_timet,
 };
-use libc::{
-    bind, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
-    pthread_mutex_unlock, pthread_mutexattr_init, pthread_mutexattr_t, recv, send, setsockopt,
-    sockaddr, socket, strcpy, timeval,
-};
+use libc::{memcpy, strlen};
+
 pub type __uint8_t = libc::c_uchar;
 pub type __int16_t = libc::c_short;
 pub type __uint16_t = libc::c_ushort;
@@ -85,8 +85,6 @@ pub struct C2RustUnnamed_2 {
     pub w1: uint16,
     pub w2: uint16,
 }
-
-pub type ec_mbxbuft = [uint8; 1487];
 
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
@@ -197,7 +195,7 @@ pub unsafe extern "C" fn ecx_FOEread(
             .as_mut_ptr()
             .offset(0isize) as *mut libc::c_char as *mut libc::c_void,
         filename as *const libc::c_void,
-        fnsize as libc::c_ulong,
+        fnsize as usize,
     );
     /* send FoE request to slave */
     wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
@@ -226,7 +224,7 @@ pub unsafe extern "C" fn ecx_FOEread(
                                 &mut *(*aFOEp).c2rust_unnamed_0.Data.as_mut_ptr().offset(0isize)
                                     as *mut uint8
                                     as *const libc::c_void,
-                                segmentdata as libc::c_ulong,
+                                segmentdata as usize,
                             );
                             dataread += segmentdata as libc::c_int;
                             p = (p as *mut uint8).offset(segmentdata as libc::c_int as isize)
@@ -355,7 +353,7 @@ pub unsafe extern "C" fn ecx_FOEwrite(
             .as_mut_ptr()
             .offset(0isize) as *mut libc::c_char as *mut libc::c_void,
         filename as *const libc::c_void,
-        fnsize as libc::c_ulong,
+        fnsize as usize,
     );
     /* send FoE request to slave */
     wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
@@ -420,7 +418,7 @@ pub unsafe extern "C" fn ecx_FOEwrite(
                                             as *mut uint8
                                             as *mut libc::c_void,
                                         p,
-                                        segmentdata as libc::c_ulong,
+                                        segmentdata as usize,
                                     );
                                     p = (p as *mut uint8).offset(segmentdata as isize)
                                         as *mut libc::c_void;

@@ -1,4 +1,4 @@
-use crate::osal::linux::osal::{osal_timer_is_expired, osal_timer_start};
+use crate::osal::linux::osal::{ec_timet, osal_timer_is_expired, osal_timer_start};
 use ::c2rust_bitfields;
 use libc::{
     bind, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
@@ -78,9 +78,6 @@ pub struct C2RustUnnamed_1 {
     pub w2: uint16,
 }
 
-pub type ec_eepromFMMUt = ec_eepromFMMU;
-
-pub type ec_mbxbuft = [uint8; 1487];
 
 #[repr(C)]
 #[derive(Copy, Clone)]

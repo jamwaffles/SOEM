@@ -84,10 +84,6 @@ pub struct C2RustUnnamed_2 {
     pub w2: uint16,
 }
 
-pub type ec_eepromFMMUt = ec_eepromFMMU;
-
-pub type ec_mbxbuft = [uint8; 1487];
-
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
 pub struct ec_SoEmappingt {
