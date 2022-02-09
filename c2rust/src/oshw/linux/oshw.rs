@@ -20,7 +20,7 @@ pub type uint16 = uint16_t;
  * header which is big endian as usual.
  */
 #[no_mangle]
-pub unsafe extern "C" fn oshw_htons(mut host: uint16) -> uint16 {
+pub unsafe fn oshw_htons(mut host: uint16) -> uint16 {
     let mut network: uint16 = htons(host);
     return network;
 }
@@ -31,7 +31,7 @@ pub unsafe extern "C" fn oshw_htons(mut host: uint16) -> uint16 {
  * header which is big endian as usual.
  */
 #[no_mangle]
-pub unsafe extern "C" fn oshw_ntohs(mut network: uint16) -> uint16 {
+pub unsafe fn oshw_ntohs(mut network: uint16) -> uint16 {
     let mut host: uint16 = ntohs(network);
     return host;
 }
@@ -39,7 +39,7 @@ pub unsafe extern "C" fn oshw_ntohs(mut network: uint16) -> uint16 {
  * @return First element in linked list of adapters
  */
 #[no_mangle]
-pub unsafe extern "C" fn oshw_find_adapters() -> *mut ec_adaptert {
+pub unsafe fn oshw_find_adapters() -> *mut ec_adaptert {
     let mut i: libc::c_int = 0;
     let mut ids: *mut if_nameindex = 0 as *mut if_nameindex;
     let mut adapter: *mut ec_adaptert = 0 as *mut ec_adaptert;
@@ -91,7 +91,7 @@ pub unsafe extern "C" fn oshw_find_adapters() -> *mut ec_adaptert {
  * EC_NOFRAME.
  */
 #[no_mangle]
-pub unsafe extern "C" fn oshw_free_adapters(mut adapter: *mut ec_adaptert) {
+pub unsafe fn oshw_free_adapters(mut adapter: *mut ec_adaptert) {
     let mut next_adapter: *mut ec_adaptert = 0 as *mut ec_adaptert;
     /* Iterate the linked list and free all elements holding
      * adapter information

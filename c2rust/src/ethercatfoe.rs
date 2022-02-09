@@ -60,13 +60,13 @@ pub union C2RustUnnamed_4 {
  * @return 1
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_FOEdefinehook(
+pub unsafe fn ecx_FOEdefinehook(
     mut context: *mut ecx_contextt,
     mut hook: *mut libc::c_void,
 ) -> libc::c_int {
     (*context).FOEhook = ::core::mem::transmute::<
         *mut libc::c_void,
-        Option<unsafe extern "C" fn(_: uint16, _: libc::c_int, _: libc::c_int) -> libc::c_int>,
+        Option<unsafe fn(_: uint16, _: libc::c_int, _: libc::c_int) -> libc::c_int>,
     >(hook);
     return 1i32;
 }
@@ -82,7 +82,7 @@ pub unsafe extern "C" fn ecx_FOEdefinehook(
  * @return Workcounter from last slave response
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_FOEread(
+pub unsafe fn ecx_FOEread(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut filename: *mut libc::c_char,
@@ -248,7 +248,7 @@ pub unsafe extern "C" fn ecx_FOEread(
  * @return Workcounter from last slave response
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_FOEwrite(
+pub unsafe fn ecx_FOEwrite(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut filename: *mut libc::c_char,
@@ -434,11 +434,11 @@ pub unsafe extern "C" fn ecx_FOEwrite(
     return wkc;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_FOEdefinehook(mut hook: *mut libc::c_void) -> libc::c_int {
+pub unsafe fn ec_FOEdefinehook(mut hook: *mut libc::c_void) -> libc::c_int {
     return ecx_FOEdefinehook(&mut ecx_context, hook);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_FOEread(
+pub unsafe fn ec_FOEread(
     mut slave: uint16,
     mut filename: *mut libc::c_char,
     mut password: uint32,
@@ -457,7 +457,7 @@ pub unsafe extern "C" fn ec_FOEread(
     );
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_FOEwrite(
+pub unsafe fn ec_FOEwrite(
     mut slave: uint16,
     mut filename: *mut libc::c_char,
     mut password: uint32,

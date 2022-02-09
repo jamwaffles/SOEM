@@ -140,7 +140,7 @@ pub static mut mode: libc::c_int = 0;
 #[no_mangle]
 pub static mut sline: [libc::c_char; 256] = [0; 256];
 #[no_mangle]
-pub unsafe extern "C" fn calc_crc(mut crc: *mut uint8, mut b: uint8) {
+pub unsafe  fn calc_crc(mut crc: *mut uint8, mut b: uint8) {
     let mut j: libc::c_int = 0; /* force Eeprom from PDI */
     *crc = (*crc as libc::c_int ^ b as libc::c_int) as uint8; /* set Eeprom to master */
     j = 0i32; /* read eeprom status */
@@ -154,7 +154,7 @@ pub unsafe extern "C" fn calc_crc(mut crc: *mut uint8, mut b: uint8) {
     } /* set Eeprom to master */
 }
 #[no_mangle]
-pub unsafe extern "C" fn SIIcrc(mut buf: *mut uint8) -> uint16 {
+pub unsafe  fn SIIcrc(mut buf: *mut uint8) -> uint16 {
     let mut i: libc::c_int = 0; /* force Eeprom from PDI */
     let mut crc: uint8 = 0; /* set Eeprom to master */
     crc = 0xffu8;
@@ -168,7 +168,7 @@ pub unsafe extern "C" fn SIIcrc(mut buf: *mut uint8) -> uint16 {
     return crc as uint16;
 }
 #[no_mangle]
-pub unsafe extern "C" fn input_bin(
+pub unsafe  fn input_bin(
     mut fname: *mut libc::c_char,
     mut length: *mut libc::c_int,
 ) -> libc::c_int {
@@ -193,7 +193,7 @@ pub unsafe extern "C" fn input_bin(
     return 1i32;
 }
 #[no_mangle]
-pub unsafe extern "C" fn input_intelhex(
+pub unsafe  fn input_intelhex(
     mut fname: *mut libc::c_char,
     mut start: *mut libc::c_int,
     mut length: *mut libc::c_int,
@@ -289,7 +289,7 @@ pub unsafe extern "C" fn input_intelhex(
     return retval;
 }
 #[no_mangle]
-pub unsafe extern "C" fn output_bin(
+pub unsafe  fn output_bin(
     mut fname: *mut libc::c_char,
     mut length: libc::c_int,
 ) -> libc::c_int {
@@ -308,7 +308,7 @@ pub unsafe extern "C" fn output_bin(
     return 1i32;
 }
 #[no_mangle]
-pub unsafe extern "C" fn output_intelhex(
+pub unsafe  fn output_intelhex(
     mut fname: *mut libc::c_char,
     mut length: libc::c_int,
 ) -> libc::c_int {
@@ -355,7 +355,7 @@ pub unsafe extern "C" fn output_intelhex(
     return 1i32;
 }
 #[no_mangle]
-pub unsafe extern "C" fn eeprom_read(
+pub unsafe  fn eeprom_read(
     mut slave_0: libc::c_int,
     mut start: libc::c_int,
     mut length: libc::c_int,
@@ -427,7 +427,7 @@ pub unsafe extern "C" fn eeprom_read(
     return 0i32;
 }
 #[no_mangle]
-pub unsafe extern "C" fn eeprom_write(
+pub unsafe  fn eeprom_write(
     mut slave_0: libc::c_int,
     mut start: libc::c_int,
     mut length: libc::c_int,
@@ -478,7 +478,7 @@ pub unsafe extern "C" fn eeprom_write(
     return 0i32;
 }
 #[no_mangle]
-pub unsafe extern "C" fn eeprom_writealias(
+pub unsafe  fn eeprom_writealias(
     mut slave_0: libc::c_int,
     mut alias_0: libc::c_int,
     mut crc: uint16,
@@ -513,7 +513,7 @@ pub unsafe extern "C" fn eeprom_writealias(
     return 0i32;
 }
 #[no_mangle]
-pub unsafe extern "C" fn eepromtool(
+pub unsafe  fn eepromtool(
     mut ifname: *mut libc::c_char,
     mut slave_0: libc::c_int,
     mut mode_0: libc::c_int,

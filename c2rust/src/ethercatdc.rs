@@ -42,7 +42,7 @@ pub type uint64 = uint64_t;
  * @param [in] CyclShift        CyclShift in ns.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_dcsync0(
+pub unsafe fn ecx_dcsync0(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut act: boolean,
@@ -145,7 +145,7 @@ pub unsafe extern "C" fn ecx_dcsync0(
 * @param [in] CyclShift        CyclShift in ns.
 */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_dcsync01(
+pub unsafe fn ecx_dcsync01(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut act: boolean,
@@ -252,7 +252,7 @@ pub unsafe extern "C" fn ecx_dcsync01(
     (*(*context).slavelist.offset(slave as isize)).DCcycle = CyclTime0 as int32;
 }
 /* latched port time of slave */
-unsafe extern "C" fn ecx_porttime(
+unsafe fn ecx_porttime(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut port: uint8,
@@ -268,7 +268,7 @@ unsafe extern "C" fn ecx_porttime(
     return ts;
 }
 /* calculate previous active port of a slave */
-unsafe extern "C" fn ecx_prevport(
+unsafe fn ecx_prevport(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut port: uint8,
@@ -317,7 +317,7 @@ unsafe extern "C" fn ecx_prevport(
     return pport;
 }
 /* search unconsumed ports in parent, consume and return first open port */
-unsafe extern "C" fn ecx_parentport(mut context: *mut ecx_contextt, mut parent: uint16) -> uint8 {
+unsafe fn ecx_parentport(mut context: *mut ecx_contextt, mut parent: uint16) -> uint8 {
     let mut parentport: uint8 = 0u8;
     let mut b: uint8 = 0;
     /* search order is important, here 3 - 1 - 2 - 0 */
@@ -345,7 +345,7 @@ unsafe extern "C" fn ecx_parentport(mut context: *mut ecx_contextt, mut parent: 
  * @return boolean if slaves are found with DC
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_configdc(mut context: *mut ecx_contextt) -> boolean {
+pub unsafe fn ecx_configdc(mut context: *mut ecx_contextt) -> boolean {
     let mut i: uint16 = 0; /* latch DCrecvTimeA of all slaves */
     let mut slaveh: uint16 = 0; /* EtherCAT uses 2000-01-01 as epoch start instead of 1970-01-01 */
     let mut parent: uint16 = 0;
@@ -621,7 +621,7 @@ pub unsafe extern "C" fn ecx_configdc(mut context: *mut ecx_contextt) -> boolean
     return (*(*context).slavelist.offset(0isize)).hasdc;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_dcsync0(
+pub unsafe fn ec_dcsync0(
     mut slave: uint16,
     mut act: boolean,
     mut CyclTime: uint32,
@@ -630,7 +630,7 @@ pub unsafe extern "C" fn ec_dcsync0(
     ecx_dcsync0(&mut ecx_context, slave, act, CyclTime, CyclShift);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_dcsync01(
+pub unsafe fn ec_dcsync01(
     mut slave: uint16,
     mut act: boolean,
     mut CyclTime0: uint32,
@@ -647,6 +647,6 @@ pub unsafe extern "C" fn ec_dcsync01(
     );
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_configdc() -> boolean {
+pub unsafe fn ec_configdc() -> boolean {
     return ecx_configdc(&mut ecx_context);
 }

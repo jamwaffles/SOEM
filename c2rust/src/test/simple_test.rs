@@ -49,7 +49,7 @@ pub static mut inOP: boolean = 0;
 #[no_mangle]
 pub static mut currentgroup: uint8 = 0u8;
 #[no_mangle]
-pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
+pub unsafe fn simpletest(mut ifname: *mut libc::c_char) {
     let mut i: libc::c_int = 0;
     let mut j: libc::c_int = 0;
     let mut oloop: libc::c_int = 0;
@@ -218,7 +218,7 @@ pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn ecatcheck(mut _ptr: *mut libc::c_void) {
+pub unsafe fn ecatcheck(mut _ptr: *mut libc::c_void) {
     let mut slave: libc::c_int = 0;
 
     loop {
@@ -313,11 +313,9 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             &mut thread1 as *mut *mut pthread_t as *mut libc::c_void,
             128000i32,
             ::core::mem::transmute::<
-                Option<unsafe extern "C" fn(_: *mut libc::c_void) -> ()>,
+                Option<unsafe fn(_: *mut libc::c_void) -> ()>,
                 *mut libc::c_void,
-            >(Some(
-                ecatcheck as unsafe extern "C" fn(_: *mut libc::c_void) -> (),
-            )),
+            >(Some(ecatcheck as unsafe fn(_: *mut libc::c_void) -> ())),
             &mut None::<()> as *mut _ as *mut c_void,
         );
         /* start cyclic part */

@@ -65,10 +65,7 @@ pub struct Fieldbus {
     pub eepSM: ec_eepromSMt,
     pub eepFMMU: ec_eepromFMMUt,
 }
-unsafe extern "C" fn fieldbus_initialize(
-    mut fieldbus: *mut Fieldbus,
-    mut iface: *mut libc::c_char,
-) {
+unsafe fn fieldbus_initialize(mut fieldbus: *mut Fieldbus, mut iface: *mut libc::c_char) {
     let mut context: *mut ecx_contextt = 0 as *mut ecx_contextt;
     /* Let's start by 0-filling `fieldbus` to avoid surprises */
     memset(
@@ -104,7 +101,7 @@ unsafe extern "C" fn fieldbus_initialize(
     (*context).EOEhook = None;
     (*context).manualstatechange = 0i32;
 }
-unsafe extern "C" fn fieldbus_roundtrip(mut fieldbus: *mut Fieldbus) -> libc::c_int {
+unsafe fn fieldbus_roundtrip(mut fieldbus: *mut Fieldbus) -> libc::c_int {
     let mut context: *mut ecx_contextt = 0 as *mut ecx_contextt;
     let mut start: ec_timet = ec_timet { sec: 0, usec: 0 };
     let mut end: ec_timet = ec_timet { sec: 0, usec: 0 };
@@ -120,7 +117,7 @@ unsafe extern "C" fn fieldbus_roundtrip(mut fieldbus: *mut Fieldbus) -> libc::c_
         diff.sec.wrapping_mul(1000000u32).wrapping_add(diff.usec) as libc::c_int;
     return wkc;
 }
-unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
+unsafe fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
     let mut context: *mut ecx_contextt = 0 as *mut ecx_contextt;
     let mut grp: *mut ec_groupt = 0 as *mut ec_groupt;
     let mut slave: *mut ec_slavet = 0 as *mut ec_slavet;
@@ -247,7 +244,7 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
     println!("");
     return 0u8;
 }
-unsafe extern "C" fn fieldbus_stop(mut fieldbus: *mut Fieldbus) {
+unsafe fn fieldbus_stop(mut fieldbus: *mut Fieldbus) {
     let mut context: *mut ecx_contextt = 0 as *mut ecx_contextt;
     let mut slave: *mut ec_slavet = 0 as *mut ec_slavet;
     context = &mut (*fieldbus).context;
@@ -262,7 +259,7 @@ unsafe extern "C" fn fieldbus_stop(mut fieldbus: *mut Fieldbus) {
     ecx_close(context);
     println!("done");
 }
-unsafe extern "C" fn fieldbus_dump(mut fieldbus: *mut Fieldbus) -> boolean {
+unsafe fn fieldbus_dump(mut fieldbus: *mut Fieldbus) -> boolean {
     let mut grp: *mut ec_groupt = 0 as *mut ec_groupt;
     let mut n: uint32 = 0;
     let mut wkc: libc::c_int = 0;
@@ -303,7 +300,7 @@ unsafe extern "C" fn fieldbus_dump(mut fieldbus: *mut Fieldbus) -> boolean {
     print!("  T: {:}\r", (*fieldbus).DCtime as libc::c_longlong);
     return 1u8;
 }
-unsafe extern "C" fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
+unsafe fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
     let mut context: *mut ecx_contextt = 0 as *mut ecx_contextt;
     let mut grp: *mut ec_groupt = 0 as *mut ec_groupt;
     let mut slave: *mut ec_slavet = 0 as *mut ec_slavet;
@@ -426,9 +423,9 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             lastidx: 0,
             redstate: 0,
             redport: 0 as *mut ecx_redportt,
-            getindex_mutex: unsafe { mem::zeroed() },
-            tx_mutex: unsafe { mem::zeroed() },
-            rx_mutex: unsafe { mem::zeroed() },
+            getindex_mutex: mem::zeroed(),
+            tx_mutex: mem::zeroed(),
+            rx_mutex: mem::zeroed(),
         },
         slavelist: [ec_slavet {
             state: 0,

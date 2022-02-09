@@ -109,7 +109,7 @@ pub struct ec_SDOservicet {
  * @param[in]  AbortCode  = Abortcode, see EtherCAT documentation for list
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_SDOerror(
+pub unsafe fn ecx_SDOerror(
     mut context: *mut ecx_contextt,
     mut Slave: uint16,
     mut Index: uint16,
@@ -147,7 +147,7 @@ pub unsafe extern "C" fn ecx_SDOerror(
  * @param[in]  SubIdx     = Subindex that generated error
  * @param[in]  AbortCode  = Abortcode, see EtherCAT documentation for list
  */
-unsafe extern "C" fn ecx_SDOinfoerror(
+unsafe fn ecx_SDOinfoerror(
     mut context: *mut ecx_contextt,
     mut Slave: uint16,
     mut Index: uint16,
@@ -194,7 +194,7 @@ unsafe extern "C" fn ecx_SDOinfoerror(
  * @return Workcounter from last slave response
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_SDOread(
+pub unsafe fn ecx_SDOread(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut index: uint16,
@@ -484,7 +484,7 @@ pub unsafe extern "C" fn ecx_SDOread(
  * @return Workcounter from last slave response
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_SDOwrite(
+pub unsafe fn ecx_SDOwrite(
     mut context: *mut ecx_contextt,
     mut Slave: uint16,
     mut Index: uint16,
@@ -768,7 +768,7 @@ pub unsafe extern "C" fn ecx_SDOwrite(
  * @return Workcounter from last slave response
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_RxPDO(
+pub unsafe fn ecx_RxPDO(
     mut context: *mut ecx_contextt,
     mut Slave: uint16,
     mut RxPDOnumber: uint16,
@@ -833,7 +833,7 @@ pub unsafe extern "C" fn ecx_RxPDO(
  * @return Workcounter from last slave response
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_TxPDO(
+pub unsafe fn ecx_TxPDO(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut TxPDOnumber: uint16,
@@ -931,7 +931,7 @@ pub unsafe extern "C" fn ecx_TxPDO(
  * @return total bitlength of PDO assign
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readPDOassign(
+pub unsafe fn ecx_readPDOassign(
     mut context: *mut ecx_contextt,
     mut Slave: uint16,
     mut PDOassign: uint16,
@@ -1043,7 +1043,7 @@ pub unsafe extern "C" fn ecx_readPDOassign(
  * @return total bitlength of PDO assign
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readPDOassignCA(
+pub unsafe fn ecx_readPDOassignCA(
     mut context: *mut ecx_contextt,
     mut Slave: uint16,
     mut Thread_n: libc::c_int,
@@ -1144,7 +1144,7 @@ pub unsafe extern "C" fn ecx_readPDOassignCA(
  * @return >0 if mapping successful.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readPDOmap(
+pub unsafe fn ecx_readPDOmap(
     mut context: *mut ecx_contextt,
     mut Slave: uint16,
     mut Osize: *mut uint32,
@@ -1263,7 +1263,7 @@ pub unsafe extern "C" fn ecx_readPDOmap(
  * @return >0 if mapping successful.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readPDOmapCA(
+pub unsafe fn ecx_readPDOmapCA(
     mut context: *mut ecx_contextt,
     mut Slave: uint16,
     mut Thread_n: libc::c_int,
@@ -1360,7 +1360,7 @@ pub unsafe extern "C" fn ecx_readPDOmapCA(
  * @return Workcounter of slave response.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readODlist(
+pub unsafe fn ecx_readODlist(
     mut context: *mut ecx_contextt,
     mut Slave: uint16,
     mut pODlist: *mut ec_ODlistt,
@@ -1495,7 +1495,7 @@ pub unsafe extern "C" fn ecx_readODlist(
  * @return Workcounter of slave response.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readODdescription(
+pub unsafe fn ecx_readODdescription(
     mut context: *mut ecx_contextt,
     mut Item: uint16,
     mut pODlist: *mut ec_ODlistt,
@@ -1598,7 +1598,7 @@ pub unsafe extern "C" fn ecx_readODdescription(
  * @return Workcounter of slave response.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readOEsingle(
+pub unsafe fn ecx_readOEsingle(
     mut context: *mut ecx_contextt,
     mut Item: uint16,
     mut SubI: uint8,
@@ -1707,7 +1707,7 @@ pub unsafe extern "C" fn ecx_readOEsingle(
  * @return Workcounter of slave response.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readOE(
+pub unsafe fn ecx_readOE(
     mut context: *mut ecx_contextt,
     mut Item: uint16,
     mut pODlist: *mut ec_ODlistt,
@@ -1737,7 +1737,7 @@ pub unsafe extern "C" fn ecx_readOE(
  * @see ecx_SDOerror
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_SDOerror(
+pub unsafe fn ec_SDOerror(
     mut Slave: uint16,
     mut Index: uint16,
     mut SubIdx: uint8,
@@ -1763,7 +1763,7 @@ pub unsafe extern "C" fn ec_SDOerror(
  * @see ecx_SDOread
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_SDOread(
+pub unsafe fn ec_SDOread(
     mut slave: uint16,
     mut index: uint16,
     mut subindex: uint8,
@@ -1801,7 +1801,7 @@ pub unsafe extern "C" fn ec_SDOread(
  * @see ecx_SDOwrite
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_SDOwrite(
+pub unsafe fn ec_SDOwrite(
     mut Slave: uint16,
     mut Index: uint16,
     mut SubIndex: uint8,
@@ -1833,7 +1833,7 @@ pub unsafe extern "C" fn ec_SDOwrite(
  * @see ecx_RxPDO
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_RxPDO(
+pub unsafe fn ec_RxPDO(
     mut Slave: uint16,
     mut RxPDOnumber: uint16,
     mut psize: libc::c_int,
@@ -1854,7 +1854,7 @@ pub unsafe extern "C" fn ec_RxPDO(
  * @see ecx_TxPDO
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_TxPDO(
+pub unsafe fn ec_TxPDO(
     mut slave: uint16,
     mut TxPDOnumber: uint16,
     mut psize: *mut libc::c_int,
@@ -1869,7 +1869,7 @@ pub unsafe extern "C" fn ec_TxPDO(
  * @return total bitlength of PDO assign
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readPDOassign(mut Slave: uint16, mut PDOassign: uint16) -> uint32 {
+pub unsafe fn ec_readPDOassign(mut Slave: uint16, mut PDOassign: uint16) -> uint32 {
     return ecx_readPDOassign(&mut ecx_context, Slave, PDOassign);
 }
 /* * Read PDO assign structure in Complete Access mode
@@ -1880,7 +1880,7 @@ pub unsafe extern "C" fn ec_readPDOassign(mut Slave: uint16, mut PDOassign: uint
  * @see ecx_readPDOmap
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readPDOassignCA(
+pub unsafe fn ec_readPDOassignCA(
     mut Slave: uint16,
     mut PDOassign: uint16,
     mut Thread_n: libc::c_int,
@@ -1901,7 +1901,7 @@ pub unsafe extern "C" fn ec_readPDOassignCA(
  * @return >0 if mapping succesful.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readPDOmap(
+pub unsafe fn ec_readPDOmap(
     mut Slave: uint16,
     mut Osize: *mut uint32,
     mut Isize: *mut uint32,
@@ -1922,7 +1922,7 @@ pub unsafe extern "C" fn ec_readPDOmap(
  * @see ecx_readPDOmap ec_readPDOmapCA
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readPDOmapCA(
+pub unsafe fn ec_readPDOmapCA(
     mut Slave: uint16,
     mut Thread_n: libc::c_int,
     mut Osize: *mut uint32,
@@ -1938,10 +1938,7 @@ pub unsafe extern "C" fn ec_readPDOmapCA(
  * @see ecx_readODlist
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readODlist(
-    mut Slave: uint16,
-    mut pODlist: *mut ec_ODlistt,
-) -> libc::c_int {
+pub unsafe fn ec_readODlist(mut Slave: uint16, mut pODlist: *mut ec_ODlistt) -> libc::c_int {
     return ecx_readODlist(&mut ecx_context, Slave, pODlist);
 }
 /* * CoE read Object Description. Adds textual description to object indexes.
@@ -1952,14 +1949,11 @@ pub unsafe extern "C" fn ec_readODlist(
  * @see ecx_readODdescription
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readODdescription(
-    mut Item: uint16,
-    mut pODlist: *mut ec_ODlistt,
-) -> libc::c_int {
+pub unsafe fn ec_readODdescription(mut Item: uint16, mut pODlist: *mut ec_ODlistt) -> libc::c_int {
     return ecx_readODdescription(&mut ecx_context, Item, pODlist);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_readOEsingle(
+pub unsafe fn ec_readOEsingle(
     mut Item: uint16,
     mut SubI: uint8,
     mut pODlist: *mut ec_ODlistt,
@@ -1976,7 +1970,7 @@ pub unsafe extern "C" fn ec_readOEsingle(
  * @see ecx_readOE
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readOE(
+pub unsafe fn ec_readOE(
     mut Item: uint16,
     mut pODlist: *mut ec_ODlistt,
     mut pOElist: *mut ec_OElistt,

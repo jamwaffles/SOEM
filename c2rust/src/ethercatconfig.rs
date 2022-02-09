@@ -518,7 +518,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
  * @return index in ec_configlist[] when found, otherwise 0
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_findconfig(mut man: uint32, mut id: uint32) -> libc::c_int {
+pub unsafe fn ec_findconfig(mut man: uint32, mut id: uint32) -> libc::c_int {
     let mut i: libc::c_int = 0i32;
     loop {
         i += 1;
@@ -534,7 +534,7 @@ pub unsafe extern "C" fn ec_findconfig(mut man: uint32, mut id: uint32) -> libc:
     return i;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ecx_init_context(mut context: *mut ecx_contextt) {
+pub unsafe fn ecx_init_context(mut context: *mut ecx_contextt) {
     let mut lp: libc::c_int = 0;
     *(*context).slavecount = 0i32;
     /* clean ec_slave array */
@@ -558,7 +558,7 @@ pub unsafe extern "C" fn ecx_init_context(mut context: *mut ecx_contextt) {
     }
 }
 #[no_mangle]
-pub unsafe extern "C" fn ecx_detect_slaves(mut context: *mut ecx_contextt) -> libc::c_int {
+pub unsafe fn ecx_detect_slaves(mut context: *mut ecx_contextt) -> libc::c_int {
     let mut b: uint8 = 0;
     let mut w: uint16 = 0;
     let mut wkc: libc::c_int = 0;
@@ -610,7 +610,7 @@ pub unsafe extern "C" fn ecx_detect_slaves(mut context: *mut ecx_contextt) -> li
     } /* deact loop manual */
     return wkc; /* set IRQ mask */
 }
-unsafe extern "C" fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
+unsafe fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
     let mut b: uint8 = 0; /* reset CRC counters */
     let mut w: uint16 = 0; /* reset FMMU's */
     let mut zbuf: [uint8; 64] = [0; 64]; /* reset SyncM */
@@ -735,10 +735,7 @@ unsafe extern "C" fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
     );
     /* set Eeprom to master */
 }
-unsafe extern "C" fn ecx_config_from_table(
-    mut context: *mut ecx_contextt,
-    mut slave: uint16,
-) -> libc::c_int {
+unsafe fn ecx_config_from_table(mut context: *mut ecx_contextt, mut slave: uint16) -> libc::c_int {
     let mut cindex: libc::c_int = 0;
     let mut csl: *mut ec_slavet = 0 as *mut ec_slavet;
     csl = &mut *(*context).slavelist.offset(slave as isize) as *mut ec_slavet;
@@ -797,10 +794,7 @@ unsafe extern "C" fn ecx_config_from_table(
 /* If slave has SII and same slave ID done before, use previous data.
  * This is safe because SII is constant for same slave ID.
  */
-unsafe extern "C" fn ecx_lookup_prev_sii(
-    mut context: *mut ecx_contextt,
-    mut slave: uint16,
-) -> libc::c_int {
+unsafe fn ecx_lookup_prev_sii(mut context: *mut ecx_contextt, mut slave: uint16) -> libc::c_int {
     let mut i: libc::c_int = 0;
     let mut nSM: libc::c_int = 0;
     if slave as libc::c_int > 1i32 && *(*context).slavecount > 0i32 {
@@ -872,10 +866,7 @@ unsafe extern "C" fn ecx_lookup_prev_sii(
  * @return Workcounter of slave discover datagram = number of slaves found
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_config_init(
-    mut context: *mut ecx_contextt,
-    mut usetable: uint8,
-) -> libc::c_int {
+pub unsafe fn ecx_config_init(mut context: *mut ecx_contextt, mut usetable: uint8) -> libc::c_int {
     let mut slave: uint16 = 0;
     let mut ADPh: uint16 = 0;
     let mut configadr: uint16 = 0;
@@ -1301,7 +1292,7 @@ pub unsafe extern "C" fn ecx_config_init(
 /* If slave has SII mapping and same slave ID done before, use previous mapping.
  * This is safe because SII mapping is constant for same slave ID.
  */
-unsafe extern "C" fn ecx_lookup_mapping(
+unsafe fn ecx_lookup_mapping(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut Osize: *mut uint32,
@@ -1339,7 +1330,7 @@ unsafe extern "C" fn ecx_lookup_mapping(
     }
     return 0i32;
 }
-unsafe extern "C" fn ecx_map_coe_soe(
+unsafe fn ecx_map_coe_soe(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut thread_n: libc::c_int,
@@ -1410,7 +1401,7 @@ unsafe extern "C" fn ecx_map_coe_soe(
     }
     return 1i32;
 }
-unsafe extern "C" fn ecx_map_sii(mut context: *mut ecx_contextt, mut slave: uint16) -> libc::c_int {
+unsafe fn ecx_map_sii(mut context: *mut ecx_contextt, mut slave: uint16) -> libc::c_int {
     let mut Isize: uint32 = 0;
     let mut Osize: uint32 = 0;
     let mut nSM: libc::c_int = 0;
@@ -1461,7 +1452,7 @@ unsafe extern "C" fn ecx_map_sii(mut context: *mut ecx_contextt, mut slave: uint
     (*(*context).slavelist.offset(slave as isize)).Ibits = Isize as uint16;
     return 1i32;
 }
-unsafe extern "C" fn ecx_map_sm(mut context: *mut ecx_contextt, mut slave: uint16) -> libc::c_int {
+unsafe fn ecx_map_sm(mut context: *mut ecx_contextt, mut slave: uint16) -> libc::c_int {
     let mut configadr: uint16 = 0;
     let mut nSM: libc::c_int = 0;
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
@@ -1541,7 +1532,7 @@ unsafe extern "C" fn ecx_map_sm(mut context: *mut ecx_contextt, mut slave: uint1
     }
     return 1i32;
 }
-unsafe extern "C" fn ecx_get_threadcount() -> libc::c_int {
+unsafe fn ecx_get_threadcount() -> libc::c_int {
     let mut thrc: libc::c_int = 0;
     let mut thrn: libc::c_int = 0;
     thrc = 0i32;
@@ -1552,7 +1543,7 @@ unsafe extern "C" fn ecx_get_threadcount() -> libc::c_int {
     }
     return thrc;
 }
-unsafe extern "C" fn ecx_config_find_mappings(mut context: *mut ecx_contextt, mut group: uint8) {
+unsafe fn ecx_config_find_mappings(mut context: *mut ecx_contextt, mut group: uint8) {
     let mut thrn: libc::c_int = 0;
     let mut thrc: libc::c_int = 0;
     let mut slave: uint16 = 0;
@@ -1597,7 +1588,7 @@ unsafe extern "C" fn ecx_config_find_mappings(mut context: *mut ecx_contextt, mu
         slave = slave.wrapping_add(1)
     }
 }
-unsafe extern "C" fn ecx_config_create_input_mappings(
+unsafe fn ecx_config_create_input_mappings(
     mut context: *mut ecx_contextt,
     mut pIOmap: *mut libc::c_void,
     mut group: uint8,
@@ -1771,7 +1762,7 @@ unsafe extern "C" fn ecx_config_create_input_mappings(
         *fresh7 = (*fresh7).wrapping_add(1)
     };
 }
-unsafe extern "C" fn ecx_config_create_output_mappings(
+unsafe fn ecx_config_create_output_mappings(
     mut context: *mut ecx_contextt,
     mut pIOmap: *mut libc::c_void,
     mut group: uint8,
@@ -1949,7 +1940,7 @@ unsafe extern "C" fn ecx_config_create_output_mappings(
  * @return IOmap size
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_config_map_group(
+pub unsafe fn ecx_config_map_group(
     mut context: *mut ecx_contextt,
     mut pIOmap: *mut libc::c_void,
     mut group: uint8,
@@ -2146,7 +2137,7 @@ pub unsafe extern "C" fn ecx_config_map_group(
  * @return IOmap size
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_config_overlap_map_group(
+pub unsafe fn ecx_config_overlap_map_group(
     mut context: *mut ecx_contextt,
     mut pIOmap: *mut libc::c_void,
     mut group: uint8,
@@ -2310,7 +2301,7 @@ pub unsafe extern "C" fn ecx_config_overlap_map_group(
  * @return >0 if successful
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_recover_slave(
+pub unsafe fn ecx_recover_slave(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut timeout: libc::c_int,
@@ -2425,7 +2416,7 @@ pub unsafe extern "C" fn ecx_recover_slave(
  * @return Slave state
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_reconfig_slave(
+pub unsafe fn ecx_reconfig_slave(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut timeout: libc::c_int,
@@ -2553,7 +2544,7 @@ pub unsafe extern "C" fn ecx_reconfig_slave(
  * @see ecx_config_init
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_config_init(mut usetable: uint8) -> libc::c_int {
+pub unsafe fn ec_config_init(mut usetable: uint8) -> libc::c_int {
     return ecx_config_init(&mut ecx_context, usetable);
 }
 /* * Map all PDOs in one group of slaves to IOmap with Outputs/Inputs
@@ -2565,10 +2556,7 @@ pub unsafe extern "C" fn ec_config_init(mut usetable: uint8) -> libc::c_int {
  * @see ecx_config_map_group
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_config_map_group(
-    mut pIOmap: *mut libc::c_void,
-    mut group: uint8,
-) -> libc::c_int {
+pub unsafe fn ec_config_map_group(mut pIOmap: *mut libc::c_void, mut group: uint8) -> libc::c_int {
     return ecx_config_map_group(&mut ecx_context, pIOmap, group);
 }
 /* * Map all PDOs in one group of slaves to IOmap with Outputs/Inputs
@@ -2580,7 +2568,7 @@ pub unsafe extern "C" fn ec_config_map_group(
 * @see ecx_config_overlap_map_group
 */
 #[no_mangle]
-pub unsafe extern "C" fn ec_config_overlap_map_group(
+pub unsafe fn ec_config_overlap_map_group(
     mut pIOmap: *mut libc::c_void,
     mut group: uint8,
 ) -> libc::c_int {
@@ -2593,7 +2581,7 @@ pub unsafe extern "C" fn ec_config_overlap_map_group(
  * @return IOmap size
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_config_map(mut pIOmap: *mut libc::c_void) -> libc::c_int {
+pub unsafe fn ec_config_map(mut pIOmap: *mut libc::c_void) -> libc::c_int {
     return ec_config_map_group(pIOmap, 0u8);
 }
 /* * Map all PDOs from slaves to IOmap with Outputs/Inputs
@@ -2603,7 +2591,7 @@ pub unsafe extern "C" fn ec_config_map(mut pIOmap: *mut libc::c_void) -> libc::c
 * @return IOmap size
 */
 #[no_mangle]
-pub unsafe extern "C" fn ec_config_overlap_map(mut pIOmap: *mut libc::c_void) -> libc::c_int {
+pub unsafe fn ec_config_overlap_map(mut pIOmap: *mut libc::c_void) -> libc::c_int {
     return ec_config_overlap_map_group(pIOmap, 0u8);
 }
 /* * Enumerate / map and init all slaves.
@@ -2613,10 +2601,7 @@ pub unsafe extern "C" fn ec_config_overlap_map(mut pIOmap: *mut libc::c_void) ->
  * @return Workcounter of slave discover datagram = number of slaves found
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_config(
-    mut usetable: uint8,
-    mut pIOmap: *mut libc::c_void,
-) -> libc::c_int {
+pub unsafe fn ec_config(mut usetable: uint8, mut pIOmap: *mut libc::c_void) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     wkc = ec_config_init(usetable);
     if wkc != 0 {
@@ -2631,10 +2616,7 @@ pub unsafe extern "C" fn ec_config(
 * @return Workcounter of slave discover datagram = number of slaves found
 */
 #[no_mangle]
-pub unsafe extern "C" fn ec_config_overlap(
-    mut usetable: uint8,
-    mut pIOmap: *mut libc::c_void,
-) -> libc::c_int {
+pub unsafe fn ec_config_overlap(mut usetable: uint8, mut pIOmap: *mut libc::c_void) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     wkc = ec_config_init(usetable);
     if wkc != 0 {
@@ -2650,10 +2632,7 @@ pub unsafe extern "C" fn ec_config_overlap(
  * @see ecx_recover_slave
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_recover_slave(
-    mut slave: uint16,
-    mut timeout: libc::c_int,
-) -> libc::c_int {
+pub unsafe fn ec_recover_slave(mut slave: uint16, mut timeout: libc::c_int) -> libc::c_int {
     return ecx_recover_slave(&mut ecx_context, slave, timeout);
 }
 /* * Reconfigure slave.
@@ -2664,9 +2643,6 @@ pub unsafe extern "C" fn ec_recover_slave(
  * @see ecx_reconfig_slave
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_reconfig_slave(
-    mut slave: uint16,
-    mut timeout: libc::c_int,
-) -> libc::c_int {
+pub unsafe fn ec_reconfig_slave(mut slave: uint16, mut timeout: libc::c_int) -> libc::c_int {
     return ecx_reconfig_slave(&mut ecx_context, slave, timeout);
 }

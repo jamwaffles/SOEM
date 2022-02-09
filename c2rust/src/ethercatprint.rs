@@ -1336,7 +1336,7 @@ pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] = unsafe {
  * @return readable string
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_sdoerror2string(mut sdoerrorcode: uint32) -> *const libc::c_char {
+pub unsafe fn ec_sdoerror2string(mut sdoerrorcode: uint32) -> *const libc::c_char {
     let mut i: libc::c_int = 0i32;
     while ec_sdoerrorlist[i as usize].errorcode as libc::c_ulong != 0xffffffffu64
         && ec_sdoerrorlist[i as usize].errorcode != sdoerrorcode
@@ -1351,7 +1351,7 @@ pub unsafe extern "C" fn ec_sdoerror2string(mut sdoerrorcode: uint32) -> *const 
  * @return readable string
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_ALstatuscode2string(mut ALstatuscode: uint16) -> *mut libc::c_char {
+pub unsafe fn ec_ALstatuscode2string(mut ALstatuscode: uint16) -> *mut libc::c_char {
     let mut i: libc::c_int = 0i32;
     while ec_ALstatuscodelist[i as usize].ALstatuscode as libc::c_int != 0xffffi32
         && ec_ALstatuscodelist[i as usize].ALstatuscode as libc::c_int
@@ -1369,7 +1369,7 @@ pub unsafe extern "C" fn ec_ALstatuscode2string(mut ALstatuscode: uint16) -> *mu
  * @return readable string
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_soeerror2string(mut errorcode: uint16) -> *mut libc::c_char {
+pub unsafe fn ec_soeerror2string(mut errorcode: uint16) -> *mut libc::c_char {
     let mut i: libc::c_int = 0i32;
     while ec_soeerrorlist[i as usize].errorcode as libc::c_int != 0xffffi32
         && ec_soeerrorlist[i as usize].errorcode as libc::c_int != errorcode as libc::c_int
@@ -1384,7 +1384,7 @@ pub unsafe extern "C" fn ec_soeerror2string(mut errorcode: uint16) -> *mut libc:
  * @return readable string
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_mbxerror2string(mut errorcode: uint16) -> *mut libc::c_char {
+pub unsafe fn ec_mbxerror2string(mut errorcode: uint16) -> *mut libc::c_char {
     let mut i: libc::c_int = 0i32;
     while ec_mbxerrorlist[i as usize].errorcode as libc::c_int != 0xffffi32
         && ec_mbxerrorlist[i as usize].errorcode as libc::c_int != errorcode as libc::c_int
@@ -1399,7 +1399,7 @@ pub unsafe extern "C" fn ec_mbxerror2string(mut errorcode: uint16) -> *mut libc:
  * @return readable string
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_err2string(Ec: ec_errort) -> *mut libc::c_char {
+pub unsafe fn ecx_err2string(Ec: ec_errort) -> *mut libc::c_char {
     let mut timestr: [libc::c_char; 20] = [0; 20];
     sprintf(
         timestr.as_mut_ptr(),
@@ -1493,7 +1493,7 @@ pub unsafe extern "C" fn ecx_err2string(Ec: ec_errort) -> *mut libc::c_char {
  * @return readable string
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_elist2string(mut context: *mut ecx_contextt) -> *mut libc::c_char {
+pub unsafe fn ecx_elist2string(mut context: *mut ecx_contextt) -> *mut libc::c_char {
     let mut Ec: ec_errort = ec_errort {
         Time: ec_timet { sec: 0, usec: 0 },
         Signal: false,
@@ -1510,6 +1510,6 @@ pub unsafe extern "C" fn ecx_elist2string(mut context: *mut ecx_contextt) -> *mu
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_elist2string() -> *mut libc::c_char {
+pub unsafe fn ec_elist2string() -> *mut libc::c_char {
     return ecx_elist2string(&mut ecx_context);
 }

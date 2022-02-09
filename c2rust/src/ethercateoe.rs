@@ -93,7 +93,7 @@ pub union C2RustUnnamed_2 {
  * @param[in] ip       = ip in uint32
  * @param[out] byte_ip = eoe ip 4th octet, 3ed octet, 2nd octet, 1st octet
  */
-unsafe extern "C" fn EOE_ip_uint32_to_byte(mut ip: *mut eoe_ip4_addr_t, mut byte_ip: *mut uint8_t) {
+unsafe fn EOE_ip_uint32_to_byte(mut ip: *mut eoe_ip4_addr_t, mut byte_ip: *mut uint8_t) {
     *byte_ip.offset(3isize) = *(&mut (*ip).addr as *mut uint32_t as *const uint8_t).offset(0isize); /* 1st octet */
     *byte_ip.offset(2isize) = *(&mut (*ip).addr as *mut uint32_t as *const uint8_t).offset(1isize); /* 2nd octet */
     *byte_ip.offset(1isize) = *(&mut (*ip).addr as *mut uint32_t as *const uint8_t).offset(2isize); /* 3ed octet */
@@ -104,7 +104,7 @@ unsafe extern "C" fn EOE_ip_uint32_to_byte(mut ip: *mut eoe_ip4_addr_t, mut byte
 * @param[in] byte_ip = eoe ip 4th octet, 3ed octet, 2nd octet, 1st octet
 * @param[out] ip     = ip in uint32
 */
-unsafe extern "C" fn EOE_ip_byte_to_uint32(mut byte_ip: *mut uint8_t, mut ip: *mut eoe_ip4_addr_t) {
+unsafe fn EOE_ip_byte_to_uint32(mut byte_ip: *mut uint8_t, mut ip: *mut eoe_ip4_addr_t) {
     (*ip).addr = (((((*byte_ip.offset(3isize) as libc::c_int & 0xffi32) as uint32_t) << 24i32
         | ((*byte_ip.offset(2isize) as libc::c_int & 0xffi32) as uint32_t) << 16i32
         | ((*byte_ip.offset(1isize) as libc::c_int & 0xffi32) as uint32_t) << 8i32
@@ -142,19 +142,13 @@ unsafe extern "C" fn EOE_ip_byte_to_uint32(mut byte_ip: *mut uint8_t, mut ip: *m
 * @return 1
 */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_EOEdefinehook(
+pub unsafe fn ecx_EOEdefinehook(
     mut context: *mut ecx_contextt,
     mut hook: *mut libc::c_void,
 ) -> libc::c_int {
     (*context).EOEhook = ::core::mem::transmute::<
         *mut libc::c_void,
-        Option<
-            unsafe extern "C" fn(
-                _: *mut ecx_contextt,
-                _: uint16,
-                _: *mut libc::c_void,
-            ) -> libc::c_int,
-        >,
+        Option<unsafe fn(_: *mut ecx_contextt, _: uint16, _: *mut libc::c_void) -> libc::c_int>,
     >(hook);
     return 1i32;
 }
@@ -168,7 +162,7 @@ pub unsafe extern "C" fn ecx_EOEdefinehook(
 * @return Workcounter from last slave response or returned result code
 */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_EOEsetIp(
+pub unsafe fn ecx_EOEsetIp(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut port: uint8,
@@ -307,7 +301,7 @@ pub unsafe extern "C" fn ecx_EOEsetIp(
 * @return Workcounter from last slave response or returned result code
 */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_EOEgetIp(
+pub unsafe fn ecx_EOEgetIp(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut port: uint8,
@@ -469,7 +463,7 @@ pub unsafe extern "C" fn ecx_EOEgetIp(
 * @return Workcounter from last slave transmission
 */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_EOEsend(
+pub unsafe fn ecx_EOEsend(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut port: uint8,
@@ -569,7 +563,7 @@ pub unsafe extern "C" fn ecx_EOEsend(
 * @return Workcounter from last slave response or error code
 */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_EOErecv(
+pub unsafe fn ecx_EOErecv(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut port: uint8,
@@ -675,7 +669,7 @@ pub unsafe extern "C" fn ecx_EOErecv(
 * @return 0= if fragment OK, >0 if last fragment, <0 on error
 */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_EOEreadfragment(
+pub unsafe fn ecx_EOEreadfragment(
     mut MbxIn: *mut ec_mbxbuft,
     mut rxfragmentno: *mut uint8,
     mut rxframesize: *mut uint16,

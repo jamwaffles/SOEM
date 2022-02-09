@@ -85,7 +85,7 @@ pub union C2RustUnnamed_3 {
  * @param[in]  Error      = Error code, see EtherCAT documentation for list
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_SoEerror(
+pub unsafe fn ecx_SoEerror(
     mut context: *mut ecx_contextt,
     mut Slave: uint16,
     mut idn: uint16,
@@ -131,7 +131,7 @@ pub unsafe extern "C" fn ecx_SoEerror(
  * @return Workcounter from last slave response
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_SoEread(
+pub unsafe fn ecx_SoEread(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut driveNo: uint8,
@@ -284,7 +284,7 @@ pub unsafe extern "C" fn ecx_SoEread(
  * @return Workcounter from last slave response
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_SoEwrite(
+pub unsafe fn ecx_SoEwrite(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut driveNo: uint8,
@@ -421,7 +421,7 @@ pub unsafe extern "C" fn ecx_SoEwrite(
  * @return >0 if mapping successful.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readIDNmap(
+pub unsafe fn ecx_readIDNmap(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut Osize: *mut uint32,
@@ -545,7 +545,7 @@ pub unsafe extern "C" fn ecx_readIDNmap(
     return retVal;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_SoEread(
+pub unsafe fn ec_SoEread(
     mut slave: uint16,
     mut driveNo: uint8,
     mut elementflags: uint8,
@@ -566,7 +566,7 @@ pub unsafe extern "C" fn ec_SoEread(
     );
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_SoEwrite(
+pub unsafe fn ec_SoEwrite(
     mut slave: uint16,
     mut driveNo: uint8,
     mut elementflags: uint8,
@@ -587,7 +587,7 @@ pub unsafe extern "C" fn ec_SoEwrite(
     );
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_readIDNmap(
+pub unsafe fn ec_readIDNmap(
     mut slave: uint16,
     mut Osize: *mut uint32,
     mut Isize: *mut uint32,

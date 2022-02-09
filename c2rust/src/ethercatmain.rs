@@ -142,11 +142,9 @@ pub struct ecx_context {
     pub PDOdesc: *mut ec_PDOdesct,
     pub eepSM: *mut ec_eepromSMt,
     pub eepFMMU: *mut ec_eepromFMMUt,
-    pub FOEhook:
-        Option<unsafe extern "C" fn(_: uint16, _: libc::c_int, _: libc::c_int) -> libc::c_int>,
-    pub EOEhook: Option<
-        unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16, _: *mut libc::c_void) -> libc::c_int,
-    >,
+    pub FOEhook: Option<unsafe fn(_: uint16, _: libc::c_int, _: libc::c_int) -> libc::c_int>,
+    pub EOEhook:
+        Option<unsafe fn(_: *mut ecx_contextt, _: uint16, _: *mut libc::c_void) -> libc::c_int>,
     pub manualstatechange: libc::c_int,
     pub userdata: *mut libc::c_void,
 }
@@ -320,8 +318,8 @@ pub struct ec_slave {
     pub group: uint8,
     pub FMMUunused: uint8,
     pub islost: boolean,
-    pub PO2SOconfig: Option<unsafe extern "C" fn(_: uint16) -> libc::c_int>,
-    pub PO2SOconfigx: Option<unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16) -> libc::c_int>,
+    pub PO2SOconfig: Option<unsafe fn(_: uint16) -> libc::c_int>,
+    pub PO2SOconfigx: Option<unsafe fn(_: *mut ecx_contextt, _: uint16) -> libc::c_int>,
     pub name: [libc::c_char; 41],
 }
 
@@ -656,7 +654,7 @@ pub static mut ecx_context: ecx_contextt = ecx_contextt {
  * @return First element in list over available network adapters.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_find_adapters() -> *mut ec_adaptert {
+pub unsafe fn ec_find_adapters() -> *mut ec_adaptert {
     let mut ret_adapter: *mut ec_adaptert = 0 as *mut ec_adaptert;
     ret_adapter = oshw_find_adapters();
     return ret_adapter;
@@ -666,7 +664,7 @@ pub unsafe extern "C" fn ec_find_adapters() -> *mut ec_adaptert {
  * @param[in] adapter = Struct holding adapter name, description and pointer to next.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_free_adapters(mut adapter: *mut ec_adaptert) {
+pub unsafe fn ec_free_adapters(mut adapter: *mut ec_adaptert) {
     oshw_free_adapters(adapter);
 }
 /* * Pushes an error on the error list.
@@ -675,7 +673,7 @@ pub unsafe extern "C" fn ec_free_adapters(mut adapter: *mut ec_adaptert) {
  * @param[in] Ec pointer describing the error.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_pusherror(mut context: *mut ecx_contextt, mut Ec: *const ec_errort) {
+pub unsafe fn ecx_pusherror(mut context: *mut ecx_contextt, mut Ec: *const ec_errort) {
     (*(*context).elist).Error[(*(*context).elist).head as usize] = *Ec;
     (*(*context).elist).Error[(*(*context).elist).head as usize].Signal = true;
     (*(*context).elist).head += 1;
@@ -697,10 +695,7 @@ pub unsafe extern "C" fn ecx_pusherror(mut context: *mut ecx_contextt, mut Ec: *
  * @return TRUE if an error was popped.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_poperror(
-    mut context: *mut ecx_contextt,
-    mut Ec: *mut ec_errort,
-) -> boolean {
+pub unsafe fn ecx_poperror(mut context: *mut ecx_contextt, mut Ec: *mut ec_errort) -> boolean {
     let mut notEmpty: boolean = ((*(*context).elist).head as libc::c_int
         != (*(*context).elist).tail as libc::c_int) as boolean;
     *Ec = (*(*context).elist).Error[(*(*context).elist).tail as usize];
@@ -721,7 +716,7 @@ pub unsafe extern "C" fn ecx_poperror(
  * @return TRUE if error list contains entries.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_iserror(mut context: *mut ecx_contextt) -> boolean {
+pub unsafe fn ecx_iserror(mut context: *mut ecx_contextt) -> boolean {
     return ((*(*context).elist).head as libc::c_int != (*(*context).elist).tail as libc::c_int)
         as boolean;
 }
@@ -734,7 +729,7 @@ pub unsafe extern "C" fn ecx_iserror(mut context: *mut ecx_contextt) -> boolean 
  * @param[in]  ErrorCode  = Error code
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_packeterror(
+pub unsafe fn ecx_packeterror(
     mut context: *mut ecx_contextt,
     mut Slave: uint16,
     mut Index: uint16,
@@ -770,11 +765,7 @@ pub unsafe extern "C" fn ecx_packeterror(
  * @param[in]  Slave        = Slave number
  * @param[in]  Detail       = Following EtherCAT specification
  */
-unsafe extern "C" fn ecx_mbxerror(
-    mut context: *mut ecx_contextt,
-    mut Slave: uint16,
-    mut Detail: uint16,
-) {
+unsafe fn ecx_mbxerror(mut context: *mut ecx_contextt, mut Slave: uint16, mut Detail: uint16) {
     let mut Ec: ec_errort = ec_errort {
         Time: ec_timet { sec: 0, usec: 0 },
         Signal: false,
@@ -807,7 +798,7 @@ unsafe extern "C" fn ecx_mbxerror(
  * @param[in]  w1
  * @param[in]  w2
  */
-unsafe extern "C" fn ecx_mbxemergencyerror(
+unsafe fn ecx_mbxemergencyerror(
     mut context: *mut ecx_contextt,
     mut Slave: uint16,
     mut ErrorCode: uint16,
@@ -848,7 +839,7 @@ unsafe extern "C" fn ecx_mbxemergencyerror(
  * @return >0 if OK
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_init(
+pub unsafe fn ecx_init(
     mut context: *mut ecx_contextt,
     mut ifname: *const libc::c_char,
 ) -> libc::c_int {
@@ -862,7 +853,7 @@ pub unsafe extern "C" fn ecx_init(
  * @return >0 if OK
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_init_redundant(
+pub unsafe fn ecx_init_redundant(
     mut context: *mut ecx_contextt,
     mut redport: *mut ecx_redportt,
     mut ifname: *const libc::c_char,
@@ -898,7 +889,7 @@ pub unsafe extern "C" fn ecx_init_redundant(
  * @param[in]  context        = context struct
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_close(mut context: *mut ecx_contextt) {
+pub unsafe fn ecx_close(mut context: *mut ecx_contextt) {
     ecx_closenic((*context).port);
 }
 /* * Read one byte from slave EEPROM via cache.
@@ -910,7 +901,7 @@ pub unsafe extern "C" fn ecx_close(mut context: *mut ecx_contextt) {
  *  @return requested byte, if not available then 0xff
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_siigetbyte(
+pub unsafe fn ecx_siigetbyte(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut address: uint16,
@@ -997,7 +988,7 @@ pub unsafe extern "C" fn ecx_siigetbyte(
  *  @return byte address of section at section length entry, if not available then 0
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_siifind(
+pub unsafe fn ecx_siifind(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut cat: uint16,
@@ -1054,7 +1045,7 @@ pub unsafe extern "C" fn ecx_siifind(
  *  @param[in]  Sn      = string number
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_siistring(
+pub unsafe fn ecx_siistring(
     mut context: *mut ecx_contextt,
     mut str: *mut libc::c_char,
     mut slave: uint16,
@@ -1123,7 +1114,7 @@ pub unsafe extern "C" fn ecx_siistring(
  *  @return number of FMMU's defined in section
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_siiFMMU(
+pub unsafe fn ecx_siiFMMU(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut FMMU: *mut ec_eepromFMMUt,
@@ -1175,7 +1166,7 @@ pub unsafe extern "C" fn ecx_siiFMMU(
  *  @return number of SM's defined in section
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_siiSM(
+pub unsafe fn ecx_siiSM(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut SM: *mut ec_eepromSMt,
@@ -1238,7 +1229,7 @@ pub unsafe extern "C" fn ecx_siiSM(
  *  @return >0 if OK
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_siiSMnext(
+pub unsafe fn ecx_siiSMnext(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut SM: *mut ec_eepromSMt,
@@ -1293,7 +1284,7 @@ pub unsafe extern "C" fn ecx_siiSMnext(
  *  @return mapping size in bits of PDO
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_siiPDO(
+pub unsafe fn ecx_siiPDO(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut PDO: *mut ec_eepromPDOt,
@@ -1401,7 +1392,7 @@ pub unsafe extern "C" fn ecx_siiPDO(
     return Size as uint32;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ecx_FPRD_multi(
+pub unsafe fn ecx_FPRD_multi(
     mut context: *mut ecx_contextt,
     mut n: libc::c_int,
     mut configlst: *mut uint16,
@@ -1482,7 +1473,7 @@ pub unsafe extern "C" fn ecx_FPRD_multi(
  * @return lowest state found
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readstate(mut context: *mut ecx_contextt) -> libc::c_int {
+pub unsafe fn ecx_readstate(mut context: *mut ecx_contextt) -> libc::c_int {
     let mut slave: uint16 = 0;
     let mut fslave: uint16 = 0;
     let mut lslave: uint16 = 0;
@@ -1609,10 +1600,7 @@ pub unsafe extern "C" fn ecx_readstate(mut context: *mut ecx_contextt) -> libc::
  * @return Workcounter or EC_NOFRAME
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_writestate(
-    mut context: *mut ecx_contextt,
-    mut slave: uint16,
-) -> libc::c_int {
+pub unsafe fn ecx_writestate(mut context: *mut ecx_contextt, mut slave: uint16) -> libc::c_int {
     let mut ret: libc::c_int = 0;
     let mut configadr: uint16 = 0;
     let mut slstate: uint16 = 0;
@@ -1648,7 +1636,7 @@ pub unsafe extern "C" fn ecx_writestate(
  * @return Requested state, or found state after timeout.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_statecheck(
+pub unsafe fn ecx_statecheck(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut reqstate: uint16,
@@ -1715,7 +1703,7 @@ pub unsafe extern "C" fn ecx_statecheck(
  * @return next mailbox counter value
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_nextmbxcnt(mut cnt: uint8) -> uint8 {
+pub unsafe fn ec_nextmbxcnt(mut cnt: uint8) -> uint8 {
     cnt = cnt.wrapping_add(1);
     if cnt as libc::c_int > 7i32 {
         cnt = 1u8
@@ -1727,7 +1715,7 @@ pub unsafe extern "C" fn ec_nextmbxcnt(mut cnt: uint8) -> uint8 {
  * @param[out] Mbx     = Mailbox buffer to clear
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_clearmbx(mut Mbx: *mut ec_mbxbuft) {
+pub unsafe fn ec_clearmbx(mut Mbx: *mut ec_mbxbuft) {
     memset(Mbx as *mut libc::c_void, 0i32, 1486usize);
 }
 /* * Check if IN mailbox of slave is empty.
@@ -1737,7 +1725,7 @@ pub unsafe extern "C" fn ec_clearmbx(mut Mbx: *mut ec_mbxbuft) {
  * @return >0 is success
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_mbxempty(
+pub unsafe fn ecx_mbxempty(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut timeout: libc::c_int,
@@ -1783,7 +1771,7 @@ pub unsafe extern "C" fn ecx_mbxempty(
  * @return Work counter (>0 is success)
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_mbxsend(
+pub unsafe fn ecx_mbxsend(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut mbx: *mut ec_mbxbuft,
@@ -1823,7 +1811,7 @@ pub unsafe extern "C" fn ecx_mbxsend(
  * @return Work counter (>0 is success)
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_mbxreceive(
+pub unsafe fn ecx_mbxreceive(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut mbx: *mut ec_mbxbuft,
@@ -2000,7 +1988,7 @@ pub unsafe extern "C" fn ecx_mbxreceive(
  * @param[out] esibuf   = EEPROM data buffer, make sure it is big enough.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_esidump(
+pub unsafe fn ecx_esidump(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut esibuf: *mut uint8,
@@ -2045,7 +2033,7 @@ pub unsafe extern "C" fn ecx_esidump(
  * @return EEPROM data 32bit
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readeeprom(
+pub unsafe fn ecx_readeeprom(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut eeproma: uint16,
@@ -2065,7 +2053,7 @@ pub unsafe extern "C" fn ecx_readeeprom(
  * @return >0 if OK
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_writeeeprom(
+pub unsafe fn ecx_writeeeprom(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut eeproma: uint16,
@@ -2083,10 +2071,7 @@ pub unsafe extern "C" fn ecx_writeeeprom(
  * @return >0 if OK
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_eeprom2master(
-    mut context: *mut ecx_contextt,
-    mut slave: uint16,
-) -> libc::c_int {
+pub unsafe fn ecx_eeprom2master(mut context: *mut ecx_contextt, mut slave: uint16) -> libc::c_int {
     let mut wkc: libc::c_int = 1i32;
     let mut cnt: libc::c_int = 0i32;
     let mut configadr: uint16 = 0;
@@ -2142,10 +2127,7 @@ pub unsafe extern "C" fn ecx_eeprom2master(
  * @return >0 if OK
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_eeprom2pdi(
-    mut context: *mut ecx_contextt,
-    mut slave: uint16,
-) -> libc::c_int {
+pub unsafe fn ecx_eeprom2pdi(mut context: *mut ecx_contextt, mut slave: uint16) -> libc::c_int {
     let mut wkc: libc::c_int = 1i32;
     let mut cnt: libc::c_int = 0i32;
     let mut configadr: uint16 = 0;
@@ -2176,7 +2158,7 @@ pub unsafe extern "C" fn ecx_eeprom2pdi(
     return wkc;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ecx_eeprom_waitnotbusyAP(
+pub unsafe fn ecx_eeprom_waitnotbusyAP(
     mut context: *mut ecx_contextt,
     mut aiadr: uint16,
     mut estat: *mut uint16,
@@ -2224,7 +2206,7 @@ pub unsafe extern "C" fn ecx_eeprom_waitnotbusyAP(
  * @return EEPROM data 64bit or 32bit
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readeepromAP(
+pub unsafe fn ecx_readeepromAP(
     mut context: *mut ecx_contextt,
     mut aiadr: uint16,
     mut eeproma: uint16,
@@ -2346,7 +2328,7 @@ pub unsafe extern "C" fn ecx_readeepromAP(
  * @return >0 if OK
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_writeeepromAP(
+pub unsafe fn ecx_writeeepromAP(
     mut context: *mut ecx_contextt,
     mut aiadr: uint16,
     mut eeproma: uint16,
@@ -2437,7 +2419,7 @@ pub unsafe extern "C" fn ecx_writeeepromAP(
     return rval;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ecx_eeprom_waitnotbusyFP(
+pub unsafe fn ecx_eeprom_waitnotbusyFP(
     mut context: *mut ecx_contextt,
     mut configadr: uint16,
     mut estat: *mut uint16,
@@ -2485,7 +2467,7 @@ pub unsafe extern "C" fn ecx_eeprom_waitnotbusyFP(
  * @return EEPROM data 64bit or 32bit
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readeepromFP(
+pub unsafe fn ecx_readeepromFP(
     mut context: *mut ecx_contextt,
     mut configadr: uint16,
     mut eeproma: uint16,
@@ -2607,7 +2589,7 @@ pub unsafe extern "C" fn ecx_readeepromFP(
  * @return >0 if OK
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_writeeepromFP(
+pub unsafe fn ecx_writeeepromFP(
     mut context: *mut ecx_contextt,
     mut configadr: uint16,
     mut eeproma: uint16,
@@ -2704,7 +2686,7 @@ pub unsafe extern "C" fn ecx_writeeepromFP(
  * @param[in] eeproma     = (WORD) Address in the EEPROM
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readeeprom1(
+pub unsafe fn ecx_readeeprom1(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut eeproma: uint16,
@@ -2763,7 +2745,7 @@ pub unsafe extern "C" fn ecx_readeeprom1(
  * @return EEPROM data 32bit
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readeeprom2(
+pub unsafe fn ecx_readeeprom2(
     mut context: *mut ecx_contextt,
     mut slave: uint16,
     mut timeout: libc::c_int,
@@ -2804,7 +2786,7 @@ pub unsafe extern "C" fn ecx_readeeprom2(
  * @param[in] length      = Length of data segment in bytes.
  * @param[in] DCO         = Offset position of DC frame.
  */
-unsafe extern "C" fn ecx_pushindex(
+unsafe fn ecx_pushindex(
     mut context: *mut ecx_contextt,
     mut idx: uint8,
     mut data: *mut libc::c_void,
@@ -2823,7 +2805,7 @@ unsafe extern "C" fn ecx_pushindex(
  * @param[in]  context        = context struct
  * @return Stack location, -1 if stack is empty.
  */
-unsafe extern "C" fn ecx_pullindex(mut context: *mut ecx_contextt) -> libc::c_int {
+unsafe fn ecx_pullindex(mut context: *mut ecx_contextt) -> libc::c_int {
     let mut rval: libc::c_int = -(1i32);
     if ((*(*context).idxstack).pulled as libc::c_int) < (*(*context).idxstack).pushed as libc::c_int
     {
@@ -2837,7 +2819,7 @@ unsafe extern "C" fn ecx_pullindex(mut context: *mut ecx_contextt) -> libc::c_in
  *
  * @param context           = context struct
  */
-unsafe extern "C" fn ecx_clearindex(mut context: *mut ecx_contextt) {
+unsafe fn ecx_clearindex(mut context: *mut ecx_contextt) {
     (*(*context).idxstack).pushed = 0u8;
     (*(*context).idxstack).pulled = 0u8;
 }
@@ -2854,7 +2836,7 @@ unsafe extern "C" fn ecx_clearindex(mut context: *mut ecx_contextt) {
  * @param[in]  use_overlap_io = flag if overlapped iomap is used
  * @return >0 if processdata is transmitted.
  */
-unsafe extern "C" fn ecx_main_send_processdata(
+unsafe fn ecx_main_send_processdata(
     mut context: *mut ecx_contextt,
     mut group: uint8,
     mut use_overlap_io: boolean,
@@ -3136,7 +3118,7 @@ unsafe extern "C" fn ecx_main_send_processdata(
 * @return >0 if processdata is transmitted.
 */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_send_overlap_processdata_group(
+pub unsafe fn ecx_send_overlap_processdata_group(
     mut context: *mut ecx_contextt,
     mut group: uint8,
 ) -> libc::c_int {
@@ -3155,7 +3137,7 @@ pub unsafe extern "C" fn ecx_send_overlap_processdata_group(
 * @return >0 if processdata is transmitted.
 */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_send_processdata_group(
+pub unsafe fn ecx_send_processdata_group(
     mut context: *mut ecx_contextt,
     mut group: uint8,
 ) -> libc::c_int {
@@ -3171,7 +3153,7 @@ pub unsafe extern "C" fn ecx_send_processdata_group(
  * @return Work counter.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_receive_processdata_group(
+pub unsafe fn ecx_receive_processdata_group(
     mut context: *mut ecx_contextt,
     mut group: uint8,
     mut timeout: libc::c_int,
@@ -3293,36 +3275,34 @@ pub unsafe extern "C" fn ecx_receive_processdata_group(
     return wkc;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ecx_send_processdata(mut context: *mut ecx_contextt) -> libc::c_int {
+pub unsafe fn ecx_send_processdata(mut context: *mut ecx_contextt) -> libc::c_int {
     return ecx_send_processdata_group(context, 0u8);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ecx_send_overlap_processdata(
-    mut context: *mut ecx_contextt,
-) -> libc::c_int {
+pub unsafe fn ecx_send_overlap_processdata(mut context: *mut ecx_contextt) -> libc::c_int {
     return ecx_send_overlap_processdata_group(context, 0u8);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ecx_receive_processdata(
+pub unsafe fn ecx_receive_processdata(
     mut context: *mut ecx_contextt,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
     return ecx_receive_processdata_group(context, 0u8, timeout);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_pusherror(mut Ec: *const ec_errort) {
+pub unsafe fn ec_pusherror(mut Ec: *const ec_errort) {
     ecx_pusherror(&mut ecx_context, Ec);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_poperror(mut Ec: *mut ec_errort) -> boolean {
+pub unsafe fn ec_poperror(mut Ec: *mut ec_errort) -> boolean {
     return ecx_poperror(&mut ecx_context, Ec);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_iserror() -> boolean {
+pub unsafe fn ec_iserror() -> boolean {
     return ecx_iserror(&mut ecx_context);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_packeterror(
+pub unsafe fn ec_packeterror(
     mut Slave: uint16,
     mut Index: uint16,
     mut SubIdx: uint8,
@@ -3336,7 +3316,7 @@ pub unsafe extern "C" fn ec_packeterror(
  * @see ecx_init
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_init(mut ifname: *const libc::c_char) -> libc::c_int {
+pub unsafe fn ec_init(mut ifname: *const libc::c_char) -> libc::c_int {
     return ecx_init(&mut ecx_context, ifname);
 }
 /* * Initialise lib in redundant NIC mode
@@ -3346,7 +3326,7 @@ pub unsafe extern "C" fn ec_init(mut ifname: *const libc::c_char) -> libc::c_int
  * @see ecx_init_redundant
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_init_redundant(
+pub unsafe fn ec_init_redundant(
     mut ifname: *const libc::c_char,
     mut if2name: *mut libc::c_char,
 ) -> libc::c_int {
@@ -3356,7 +3336,7 @@ pub unsafe extern "C" fn ec_init_redundant(
  * @see ecx_close
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_close() {
+pub unsafe fn ec_close() {
     ecx_close(&mut ecx_context);
 }
 /* * Read one byte from slave EEPROM via cache.
@@ -3368,7 +3348,7 @@ pub unsafe extern "C" fn ec_close() {
  * @see ecx_siigetbyte
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_siigetbyte(mut slave: uint16, mut address: uint16) -> uint8 {
+pub unsafe fn ec_siigetbyte(mut slave: uint16, mut address: uint16) -> uint8 {
     return ecx_siigetbyte(&mut ecx_context, slave, address);
 }
 /* * Find SII section header in slave EEPROM.
@@ -3378,7 +3358,7 @@ pub unsafe extern "C" fn ec_siigetbyte(mut slave: uint16, mut address: uint16) -
  *  @see ecx_siifind
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_siifind(mut slave: uint16, mut cat: uint16) -> int16 {
+pub unsafe fn ec_siifind(mut slave: uint16, mut cat: uint16) -> int16 {
     return ecx_siifind(&mut ecx_context, slave, cat);
 }
 /* * Get string from SII string section in slave EEPROM.
@@ -3388,11 +3368,7 @@ pub unsafe extern "C" fn ec_siifind(mut slave: uint16, mut cat: uint16) -> int16
  *  @see ecx_siistring
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_siistring(
-    mut str: *mut libc::c_char,
-    mut slave: uint16,
-    mut Sn: uint16,
-) {
+pub unsafe fn ec_siistring(mut str: *mut libc::c_char, mut slave: uint16, mut Sn: uint16) {
     ecx_siistring(&mut ecx_context, str, slave, Sn);
 }
 /* * Get FMMU data from SII FMMU section in slave EEPROM.
@@ -3402,7 +3378,7 @@ pub unsafe extern "C" fn ec_siistring(
  *  @see ecx_siiFMMU
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_siiFMMU(mut slave: uint16, mut FMMU: *mut ec_eepromFMMUt) -> uint16 {
+pub unsafe fn ec_siiFMMU(mut slave: uint16, mut FMMU: *mut ec_eepromFMMUt) -> uint16 {
     return ecx_siiFMMU(&mut ecx_context, slave, FMMU);
 }
 /* * Get SM data from SII SM section in slave EEPROM.
@@ -3412,7 +3388,7 @@ pub unsafe extern "C" fn ec_siiFMMU(mut slave: uint16, mut FMMU: *mut ec_eepromF
  *  @see ecx_siiSM
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_siiSM(mut slave: uint16, mut SM: *mut ec_eepromSMt) -> uint16 {
+pub unsafe fn ec_siiSM(mut slave: uint16, mut SM: *mut ec_eepromSMt) -> uint16 {
     return ecx_siiSM(&mut ecx_context, slave, SM);
 }
 /* * Get next SM data from SII SM section in slave EEPROM.
@@ -3423,11 +3399,7 @@ pub unsafe extern "C" fn ec_siiSM(mut slave: uint16, mut SM: *mut ec_eepromSMt) 
  *  @see ecx_siiSMnext
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_siiSMnext(
-    mut slave: uint16,
-    mut SM: *mut ec_eepromSMt,
-    mut n: uint16,
-) -> uint16 {
+pub unsafe fn ec_siiSMnext(mut slave: uint16, mut SM: *mut ec_eepromSMt, mut n: uint16) -> uint16 {
     return ecx_siiSMnext(&mut ecx_context, slave, SM, n);
 }
 /* * Get PDO data from SII PDO section in slave EEPROM.
@@ -3438,11 +3410,7 @@ pub unsafe extern "C" fn ec_siiSMnext(
  *  @see ecx_siiPDO
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_siiPDO(
-    mut slave: uint16,
-    mut PDO: *mut ec_eepromPDOt,
-    mut t: uint8,
-) -> uint32 {
+pub unsafe fn ec_siiPDO(mut slave: uint16, mut PDO: *mut ec_eepromPDOt, mut t: uint8) -> uint32 {
     return ecx_siiPDO(&mut ecx_context, slave, PDO, t);
 }
 /* * Read all slave states in ec_slave.
@@ -3450,7 +3418,7 @@ pub unsafe extern "C" fn ec_siiPDO(
  * @see ecx_readstate
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readstate() -> libc::c_int {
+pub unsafe fn ec_readstate() -> libc::c_int {
     return ecx_readstate(&mut ecx_context);
 }
 /* * Write slave state, if slave = 0 then write to all slaves.
@@ -3460,7 +3428,7 @@ pub unsafe extern "C" fn ec_readstate() -> libc::c_int {
  * @see ecx_writestate
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_writestate(mut slave: uint16) -> libc::c_int {
+pub unsafe fn ec_writestate(mut slave: uint16) -> libc::c_int {
     return ecx_writestate(&mut ecx_context, slave);
 }
 /* * Check actual slave state.
@@ -3472,7 +3440,7 @@ pub unsafe extern "C" fn ec_writestate(mut slave: uint16) -> libc::c_int {
  * @see ecx_statecheck
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_statecheck(
+pub unsafe fn ec_statecheck(
     mut slave: uint16,
     mut reqstate: uint16,
     mut timeout: libc::c_int,
@@ -3486,7 +3454,7 @@ pub unsafe extern "C" fn ec_statecheck(
  * @see ecx_mbxempty
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_mbxempty(mut slave: uint16, mut timeout: libc::c_int) -> libc::c_int {
+pub unsafe fn ec_mbxempty(mut slave: uint16, mut timeout: libc::c_int) -> libc::c_int {
     return ecx_mbxempty(&mut ecx_context, slave, timeout);
 }
 /* * Write IN mailbox to slave.
@@ -3497,7 +3465,7 @@ pub unsafe extern "C" fn ec_mbxempty(mut slave: uint16, mut timeout: libc::c_int
  * @see ecx_mbxsend
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_mbxsend(
+pub unsafe fn ec_mbxsend(
     mut slave: uint16,
     mut mbx: *mut ec_mbxbuft,
     mut timeout: libc::c_int,
@@ -3513,7 +3481,7 @@ pub unsafe extern "C" fn ec_mbxsend(
  * @see ecx_mbxreceive
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_mbxreceive(
+pub unsafe fn ec_mbxreceive(
     mut slave: uint16,
     mut mbx: *mut ec_mbxbuft,
     mut timeout: libc::c_int,
@@ -3526,7 +3494,7 @@ pub unsafe extern "C" fn ec_mbxreceive(
  * @see ecx_esidump
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_esidump(mut slave: uint16, mut esibuf: *mut uint8) {
+pub unsafe fn ec_esidump(mut slave: uint16, mut esibuf: *mut uint8) {
     ecx_esidump(&mut ecx_context, slave, esibuf);
 }
 /* * Read EEPROM from slave bypassing cache.
@@ -3537,7 +3505,7 @@ pub unsafe extern "C" fn ec_esidump(mut slave: uint16, mut esibuf: *mut uint8) {
  * @see ecx_readeeprom
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readeeprom(
+pub unsafe fn ec_readeeprom(
     mut slave: uint16,
     mut eeproma: uint16,
     mut timeout: libc::c_int,
@@ -3553,7 +3521,7 @@ pub unsafe extern "C" fn ec_readeeprom(
  * @see ecx_writeeeprom
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_writeeeprom(
+pub unsafe fn ec_writeeeprom(
     mut slave: uint16,
     mut eeproma: uint16,
     mut data: uint16,
@@ -3567,15 +3535,15 @@ pub unsafe extern "C" fn ec_writeeeprom(
  * @see ecx_eeprom2master
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_eeprom2master(mut slave: uint16) -> libc::c_int {
+pub unsafe fn ec_eeprom2master(mut slave: uint16) -> libc::c_int {
     return ecx_eeprom2master(&mut ecx_context, slave);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_eeprom2pdi(mut slave: uint16) -> libc::c_int {
+pub unsafe fn ec_eeprom2pdi(mut slave: uint16) -> libc::c_int {
     return ecx_eeprom2pdi(&mut ecx_context, slave);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_eeprom_waitnotbusyAP(
+pub unsafe fn ec_eeprom_waitnotbusyAP(
     mut aiadr: uint16,
     mut estat: *mut uint16,
     mut timeout: libc::c_int,
@@ -3589,7 +3557,7 @@ pub unsafe extern "C" fn ec_eeprom_waitnotbusyAP(
  * @return EEPROM data 64bit or 32bit
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readeepromAP(
+pub unsafe fn ec_readeepromAP(
     mut aiadr: uint16,
     mut eeproma: uint16,
     mut timeout: libc::c_int,
@@ -3605,7 +3573,7 @@ pub unsafe extern "C" fn ec_readeepromAP(
  * @see ecx_writeeepromAP
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_writeeepromAP(
+pub unsafe fn ec_writeeepromAP(
     mut aiadr: uint16,
     mut eeproma: uint16,
     mut data: uint16,
@@ -3614,7 +3582,7 @@ pub unsafe extern "C" fn ec_writeeepromAP(
     return ecx_writeeepromAP(&mut ecx_context, aiadr, eeproma, data, timeout);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_eeprom_waitnotbusyFP(
+pub unsafe fn ec_eeprom_waitnotbusyFP(
     mut configadr: uint16,
     mut estat: *mut uint16,
     mut timeout: libc::c_int,
@@ -3629,7 +3597,7 @@ pub unsafe extern "C" fn ec_eeprom_waitnotbusyFP(
  * @see ecx_readeepromFP
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readeepromFP(
+pub unsafe fn ec_readeepromFP(
     mut configadr: uint16,
     mut eeproma: uint16,
     mut timeout: libc::c_int,
@@ -3645,7 +3613,7 @@ pub unsafe extern "C" fn ec_readeepromFP(
  * @see ecx_writeeepromFP
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_writeeepromFP(
+pub unsafe fn ec_writeeepromFP(
     mut configadr: uint16,
     mut eeproma: uint16,
     mut data: uint16,
@@ -3660,7 +3628,7 @@ pub unsafe extern "C" fn ec_writeeepromFP(
  * @see ecx_readeeprom1
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readeeprom1(mut slave: uint16, mut eeproma: uint16) {
+pub unsafe fn ec_readeeprom1(mut slave: uint16, mut eeproma: uint16) {
     ecx_readeeprom1(&mut ecx_context, slave, eeproma);
 }
 /* * Read EEPROM from slave bypassing cache.
@@ -3671,7 +3639,7 @@ pub unsafe extern "C" fn ec_readeeprom1(mut slave: uint16, mut eeproma: uint16) 
  * @see ecx_readeeprom2
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readeeprom2(mut slave: uint16, mut timeout: libc::c_int) -> uint32 {
+pub unsafe fn ec_readeeprom2(mut slave: uint16, mut timeout: libc::c_int) -> uint32 {
     return ecx_readeeprom2(&mut ecx_context, slave, timeout);
 }
 /* * Transmit processdata to slaves.
@@ -3687,7 +3655,7 @@ pub unsafe extern "C" fn ec_readeeprom2(mut slave: uint16, mut timeout: libc::c_
  * @see ecx_send_processdata_group
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_send_processdata_group(mut group: uint8) -> libc::c_int {
+pub unsafe fn ec_send_processdata_group(mut group: uint8) -> libc::c_int {
     return ecx_send_processdata_group(&mut ecx_context, group);
 }
 /* * Transmit processdata to slaves.
@@ -3703,7 +3671,7 @@ pub unsafe extern "C" fn ec_send_processdata_group(mut group: uint8) -> libc::c_
 * @see ecx_send_overlap_processdata_group
 */
 #[no_mangle]
-pub unsafe extern "C" fn ec_send_overlap_processdata_group(mut group: uint8) -> libc::c_int {
+pub unsafe fn ec_send_overlap_processdata_group(mut group: uint8) -> libc::c_int {
     return ecx_send_overlap_processdata_group(&mut ecx_context, group);
 }
 /* * Receive processdata from slaves.
@@ -3716,25 +3684,25 @@ pub unsafe extern "C" fn ec_send_overlap_processdata_group(mut group: uint8) -> 
  * @see ecx_receive_processdata_group
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_receive_processdata_group(
+pub unsafe fn ec_receive_processdata_group(
     mut group: uint8,
     mut timeout: libc::c_int,
 ) -> libc::c_int {
     return ecx_receive_processdata_group(&mut ecx_context, group, timeout);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_send_processdata() -> libc::c_int {
+pub unsafe fn ec_send_processdata() -> libc::c_int {
     return ec_send_processdata_group(0u8);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_send_overlap_processdata() -> libc::c_int {
+pub unsafe fn ec_send_overlap_processdata() -> libc::c_int {
     return ec_send_overlap_processdata_group(0u8);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_receive_processdata(mut timeout: libc::c_int) -> libc::c_int {
+pub unsafe fn ec_receive_processdata(mut timeout: libc::c_int) -> libc::c_int {
     return ec_receive_processdata_group(0u8, timeout);
 }
-unsafe extern "C" fn run_static_initializers() {
+unsafe fn run_static_initializers() {
     ecx_context = {
         let mut init = ecx_context {
             port: &mut ecx_port,
@@ -3767,4 +3735,4 @@ unsafe extern "C" fn run_static_initializers() {
 #[cfg_attr(target_os = "linux", link_section = ".init_array")]
 #[cfg_attr(target_os = "windows", link_section = ".CRT$XIB")]
 #[cfg_attr(target_os = "macos", link_section = "__DATA,__mod_init_func")]
-static INIT_ARRAY: [unsafe extern "C" fn(); 1] = [run_static_initializers];
+static INIT_ARRAY: [unsafe fn(); 1] = [run_static_initializers];

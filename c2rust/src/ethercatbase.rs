@@ -44,7 +44,7 @@ pub type uint64 = uint64_t;
  * @param[in]  length         = length of databuffer
  * @param[in]  data           = databuffer to be copied into datagram
  */
-unsafe extern "C" fn ecx_writedatagramdata(
+unsafe fn ecx_writedatagramdata(
     mut datagramdata: *mut libc::c_void,
     mut com: ec_cmdtype,
     mut length: uint16,
@@ -79,7 +79,7 @@ unsafe extern "C" fn ecx_writedatagramdata(
  * @return always 0
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_setupdatagram(
+pub unsafe fn ecx_setupdatagram(
     mut port: *mut ecx_portt,
     mut frame: *mut libc::c_void,
     mut com: ec_cmdtype,
@@ -146,7 +146,7 @@ pub unsafe extern "C" fn ecx_setupdatagram(
  * @return Offset to data in rx frame, usefull to retrieve data after RX.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_adddatagram(
+pub unsafe fn ecx_adddatagram(
     mut port: *mut ecx_portt,
     mut frame: *mut libc::c_void,
     mut com: ec_cmdtype,
@@ -234,7 +234,7 @@ pub unsafe extern "C" fn ecx_adddatagram(
  * @return Workcounter or EC_NOFRAME
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_BWR(
+pub unsafe fn ecx_BWR(
     mut port: *mut ecx_portt,
     mut ADP: uint16,
     mut ADO: uint16,
@@ -274,7 +274,7 @@ pub unsafe extern "C" fn ecx_BWR(
  * @return Workcounter or EC_NOFRAME
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_BRD(
+pub unsafe fn ecx_BRD(
     mut port: *mut ecx_portt,
     mut ADP: uint16,
     mut ADO: uint16,
@@ -325,7 +325,7 @@ pub unsafe extern "C" fn ecx_BRD(
  * @return Workcounter or EC_NOFRAME
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_APRD(
+pub unsafe fn ecx_APRD(
     mut port: *mut ecx_portt,
     mut ADP: uint16,
     mut ADO: uint16,
@@ -372,7 +372,7 @@ pub unsafe extern "C" fn ecx_APRD(
  * @return Workcounter or EC_NOFRAME
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_ARMW(
+pub unsafe fn ecx_ARMW(
     mut port: *mut ecx_portt,
     mut ADP: uint16,
     mut ADO: uint16,
@@ -419,7 +419,7 @@ pub unsafe extern "C" fn ecx_ARMW(
  * @return Workcounter or EC_NOFRAME
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_FRMW(
+pub unsafe fn ecx_FRMW(
     mut port: *mut ecx_portt,
     mut ADP: uint16,
     mut ADO: uint16,
@@ -463,7 +463,7 @@ pub unsafe extern "C" fn ecx_FRMW(
  * @return word data from slave
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_APRDw(
+pub unsafe fn ecx_APRDw(
     mut port: *mut ecx_portt,
     mut ADP: uint16,
     mut ADO: uint16,
@@ -492,7 +492,7 @@ pub unsafe extern "C" fn ecx_APRDw(
  * @return Workcounter or EC_NOFRAME
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_FPRD(
+pub unsafe fn ecx_FPRD(
     mut port: *mut ecx_portt,
     mut ADP: uint16,
     mut ADO: uint16,
@@ -536,7 +536,7 @@ pub unsafe extern "C" fn ecx_FPRD(
  * @return word data from slave
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_FPRDw(
+pub unsafe fn ecx_FPRDw(
     mut port: *mut ecx_portt,
     mut ADP: uint16,
     mut ADO: uint16,
@@ -565,7 +565,7 @@ pub unsafe extern "C" fn ecx_FPRDw(
  * @return Workcounter or EC_NOFRAME
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_APWR(
+pub unsafe fn ecx_APWR(
     mut port: *mut ecx_portt,
     mut ADP: uint16,
     mut ADO: uint16,
@@ -600,7 +600,7 @@ pub unsafe extern "C" fn ecx_APWR(
  * @return Workcounter or EC_NOFRAME
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_APWRw(
+pub unsafe fn ecx_APWRw(
     mut port: *mut ecx_portt,
     mut ADP: uint16,
     mut ADO: uint16,
@@ -627,7 +627,7 @@ pub unsafe extern "C" fn ecx_APWRw(
  * @return Workcounter or EC_NOFRAME
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_FPWR(
+pub unsafe fn ecx_FPWR(
     mut port: *mut ecx_portt,
     mut ADP: uint16,
     mut ADO: uint16,
@@ -662,7 +662,7 @@ pub unsafe extern "C" fn ecx_FPWR(
  * @return Workcounter or EC_NOFRAME
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_FPWRw(
+pub unsafe fn ecx_FPWRw(
     mut port: *mut ecx_portt,
     mut ADP: uint16,
     mut ADO: uint16,
@@ -688,7 +688,7 @@ pub unsafe extern "C" fn ecx_FPWRw(
  * @return Workcounter or EC_NOFRAME
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_LRW(
+pub unsafe fn ecx_LRW(
     mut port: *mut ecx_portt,
     mut LogAdr: uint32,
     mut length: uint16,
@@ -735,7 +735,7 @@ pub unsafe extern "C" fn ecx_LRW(
  * @return Workcounter or EC_NOFRAME
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_LRD(
+pub unsafe fn ecx_LRD(
     mut port: *mut ecx_portt,
     mut LogAdr: uint32,
     mut length: uint16,
@@ -782,7 +782,7 @@ pub unsafe extern "C" fn ecx_LRD(
  * @return Workcounter or EC_NOFRAME
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_LWR(
+pub unsafe fn ecx_LWR(
     mut port: *mut ecx_portt,
     mut LogAdr: uint32,
     mut length: uint16,
@@ -819,7 +819,7 @@ pub unsafe extern "C" fn ecx_LWR(
  * @return Workcounter or EC_NOFRAME
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_LRWDC(
+pub unsafe fn ecx_LRWDC(
     mut port: *mut ecx_portt,
     mut LogAdr: uint32,
     mut length: uint16,
@@ -891,7 +891,7 @@ pub unsafe extern "C" fn ecx_LRWDC(
     return wkc;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_setupdatagram(
+pub unsafe fn ec_setupdatagram(
     mut frame: *mut libc::c_void,
     mut com: ec_cmdtype,
     mut idx: uint8,
@@ -903,7 +903,7 @@ pub unsafe extern "C" fn ec_setupdatagram(
     return ecx_setupdatagram(&mut ecx_port, frame, com, idx, ADP, ADO, length, data);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_adddatagram(
+pub unsafe fn ec_adddatagram(
     mut frame: *mut libc::c_void,
     mut com: ec_cmdtype,
     mut idx: uint8,
@@ -916,7 +916,7 @@ pub unsafe extern "C" fn ec_adddatagram(
     return ecx_adddatagram(&mut ecx_port, frame, com, idx, more, ADP, ADO, length, data);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_BWR(
+pub unsafe fn ec_BWR(
     mut ADP: uint16,
     mut ADO: uint16,
     mut length: uint16,
@@ -926,7 +926,7 @@ pub unsafe extern "C" fn ec_BWR(
     return ecx_BWR(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_BRD(
+pub unsafe fn ec_BRD(
     mut ADP: uint16,
     mut ADO: uint16,
     mut length: uint16,
@@ -936,7 +936,7 @@ pub unsafe extern "C" fn ec_BRD(
     return ecx_BRD(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_APRD(
+pub unsafe fn ec_APRD(
     mut ADP: uint16,
     mut ADO: uint16,
     mut length: uint16,
@@ -946,7 +946,7 @@ pub unsafe extern "C" fn ec_APRD(
     return ecx_APRD(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_ARMW(
+pub unsafe fn ec_ARMW(
     mut ADP: uint16,
     mut ADO: uint16,
     mut length: uint16,
@@ -956,7 +956,7 @@ pub unsafe extern "C" fn ec_ARMW(
     return ecx_ARMW(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_FRMW(
+pub unsafe fn ec_FRMW(
     mut ADP: uint16,
     mut ADO: uint16,
     mut length: uint16,
@@ -966,11 +966,7 @@ pub unsafe extern "C" fn ec_FRMW(
     return ecx_FRMW(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_APRDw(
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut timeout: libc::c_int,
-) -> uint16 {
+pub unsafe fn ec_APRDw(mut ADP: uint16, mut ADO: uint16, mut timeout: libc::c_int) -> uint16 {
     let mut w: uint16 = 0;
     w = 0u16;
     ec_APRD(
@@ -983,7 +979,7 @@ pub unsafe extern "C" fn ec_APRDw(
     return w;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_FPRD(
+pub unsafe fn ec_FPRD(
     mut ADP: uint16,
     mut ADO: uint16,
     mut length: uint16,
@@ -993,11 +989,7 @@ pub unsafe extern "C" fn ec_FPRD(
     return ecx_FPRD(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_FPRDw(
-    mut ADP: uint16,
-    mut ADO: uint16,
-    mut timeout: libc::c_int,
-) -> uint16 {
+pub unsafe fn ec_FPRDw(mut ADP: uint16, mut ADO: uint16, mut timeout: libc::c_int) -> uint16 {
     let mut w: uint16 = 0;
     w = 0u16;
     ec_FPRD(
@@ -1010,7 +1002,7 @@ pub unsafe extern "C" fn ec_FPRDw(
     return w;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_APWR(
+pub unsafe fn ec_APWR(
     mut ADP: uint16,
     mut ADO: uint16,
     mut length: uint16,
@@ -1020,7 +1012,7 @@ pub unsafe extern "C" fn ec_APWR(
     return ecx_APWR(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_APWRw(
+pub unsafe fn ec_APWRw(
     mut ADP: uint16,
     mut ADO: uint16,
     mut data: uint16,
@@ -1035,7 +1027,7 @@ pub unsafe extern "C" fn ec_APWRw(
     );
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_FPWR(
+pub unsafe fn ec_FPWR(
     mut ADP: uint16,
     mut ADO: uint16,
     mut length: uint16,
@@ -1045,7 +1037,7 @@ pub unsafe extern "C" fn ec_FPWR(
     return ecx_FPWR(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_FPWRw(
+pub unsafe fn ec_FPWRw(
     mut ADP: uint16,
     mut ADO: uint16,
     mut data: uint16,
@@ -1060,7 +1052,7 @@ pub unsafe extern "C" fn ec_FPWRw(
     );
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_LRW(
+pub unsafe fn ec_LRW(
     mut LogAdr: uint32,
     mut length: uint16,
     mut data: *mut libc::c_void,
@@ -1069,7 +1061,7 @@ pub unsafe extern "C" fn ec_LRW(
     return ecx_LRW(&mut ecx_port, LogAdr, length, data, timeout);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_LRD(
+pub unsafe fn ec_LRD(
     mut LogAdr: uint32,
     mut length: uint16,
     mut data: *mut libc::c_void,
@@ -1078,7 +1070,7 @@ pub unsafe extern "C" fn ec_LRD(
     return ecx_LRD(&mut ecx_port, LogAdr, length, data, timeout);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_LWR(
+pub unsafe fn ec_LWR(
     mut LogAdr: uint32,
     mut length: uint16,
     mut data: *mut libc::c_void,
@@ -1087,7 +1079,7 @@ pub unsafe extern "C" fn ec_LWR(
     return ecx_LWR(&mut ecx_port, LogAdr, length, data, timeout);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_LRWDC(
+pub unsafe fn ec_LRWDC(
     mut LogAdr: uint32,
     mut length: uint16,
     mut data: *mut libc::c_void,

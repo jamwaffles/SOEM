@@ -34,7 +34,7 @@ pub struct osal_timer {
 pub type osal_timert = osal_timer;
 
 #[no_mangle]
-pub unsafe extern "C" fn osal_usleep(mut usec: uint32) -> libc::c_int {
+pub unsafe fn osal_usleep(mut usec: uint32) -> libc::c_int {
     let mut ts: timespec = timespec {
         tv_sec: 0,
         tv_nsec: 0,
@@ -45,7 +45,7 @@ pub unsafe extern "C" fn osal_usleep(mut usec: uint32) -> libc::c_int {
     return nanosleep(&mut ts, 0 as *mut timespec);
 }
 #[no_mangle]
-pub unsafe extern "C" fn osal_current_time() -> ec_timet {
+pub unsafe fn osal_current_time() -> ec_timet {
     let mut current_time: timespec = timespec {
         tv_sec: 0,
         tv_nsec: 0,
@@ -57,7 +57,7 @@ pub unsafe extern "C" fn osal_current_time() -> ec_timet {
     return return_value;
 }
 #[no_mangle]
-pub unsafe extern "C" fn osal_time_diff(
+pub unsafe fn osal_time_diff(
     mut start: *mut ec_timet,
     mut end: *mut ec_timet,
     mut diff: *mut ec_timet,
@@ -75,7 +75,7 @@ pub unsafe extern "C" fn osal_time_diff(
 }
 /* Returns time from some unspecified moment in past,
  * strictly increasing, used for time intervals measurement. */
-unsafe extern "C" fn osal_getrelativetime(mut tv: *mut timeval) {
+unsafe fn osal_getrelativetime(mut tv: *mut timeval) {
     let mut ts: timespec = timespec {
         tv_sec: 0,
         tv_nsec: 0,
@@ -89,7 +89,7 @@ unsafe extern "C" fn osal_getrelativetime(mut tv: *mut timeval) {
     (*tv).tv_usec = ts.tv_nsec / 1000i64;
 }
 #[no_mangle]
-pub unsafe extern "C" fn osal_timer_start(mut self_0: *mut osal_timert, mut timeout_usec: uint32) {
+pub unsafe fn osal_timer_start(mut self_0: *mut osal_timert, mut timeout_usec: uint32) {
     let mut start_time: timeval = timeval {
         tv_sec: 0,
         tv_usec: 0,
@@ -115,7 +115,7 @@ pub unsafe extern "C" fn osal_timer_start(mut self_0: *mut osal_timert, mut time
     (*self_0).stop_time.usec = stop_time.tv_usec as uint32;
 }
 #[no_mangle]
-pub unsafe extern "C" fn osal_timer_is_expired(mut self_0: *mut osal_timert) -> boolean {
+pub unsafe fn osal_timer_is_expired(mut self_0: *mut osal_timert) -> boolean {
     let mut current_time: timeval = timeval {
         tv_sec: 0,
         tv_usec: 0,
@@ -136,15 +136,15 @@ pub unsafe extern "C" fn osal_timer_is_expired(mut self_0: *mut osal_timert) -> 
     return (is_not_yet_expired == 0i32) as boolean;
 }
 #[no_mangle]
-pub unsafe extern "C" fn osal_malloc(mut size: size_t) -> *mut libc::c_void {
+pub unsafe fn osal_malloc(mut size: size_t) -> *mut libc::c_void {
     return malloc(size);
 }
 #[no_mangle]
-pub unsafe extern "C" fn osal_free(mut ptr: *mut libc::c_void) {
+pub unsafe fn osal_free(mut ptr: *mut libc::c_void) {
     free(ptr);
 }
 #[no_mangle]
-pub unsafe extern "C" fn osal_thread_create(
+pub unsafe fn osal_thread_create(
     mut thandle: *mut libc::c_void,
     mut stacksize: libc::c_int,
     mut func: *mut libc::c_void,
@@ -171,7 +171,7 @@ pub unsafe extern "C" fn osal_thread_create(
     return 1i32;
 }
 #[no_mangle]
-pub unsafe extern "C" fn osal_thread_create_rt(
+pub unsafe fn osal_thread_create_rt(
     mut thandle: *mut libc::c_void,
     mut stacksize: libc::c_int,
     mut func: *mut libc::c_void,
