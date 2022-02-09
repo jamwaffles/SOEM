@@ -1,13 +1,16 @@
 use crate::{
-    ethercatmain::{ec_mbxheadert, ecx_contextt, ecx_pusherror},
-    ethercattype::{ec_err_type, ec_errort, C2RustUnnamed_0},
-    osal::linux::osal::{ec_timet, osal_current_time, osal_timer_is_expired, osal_timer_start},
+    ethercatmain::{
+        ec_PDOassignt, ec_PDOdesct, ec_SMcommtypet, ec_clearmbx, ec_mbxbuft, ec_mbxheadert,
+        ec_nextmbxcnt, ecx_context, ecx_contextt, ecx_mbxreceive, ecx_mbxsend, ecx_packeterror,
+        ecx_pusherror,
+    },
+    ethercattype::{
+        ec_err_type, ec_errort, C2RustUnnamed_0, CoEMailboxType, CoEObjectDescription,
+        CoESDOCommand, MailboxType,
+    },
+    osal::linux::osal::{ec_timet, osal_current_time},
 };
-use libc::{
-    bind, ioctl, memcpy, memset, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
-    pthread_mutex_unlock, pthread_mutexattr_init, pthread_mutexattr_t, recv, send, setsockopt,
-    sockaddr, socket, strcpy, timeval,
-};
+use libc::{memcpy, memset, strncpy};
 
 pub type __uint8_t = libc::c_uchar;
 pub type __int16_t = libc::c_short;
@@ -108,7 +111,7 @@ pub unsafe extern "C" fn ecx_SDOerror(
 ) {
     let mut Ec: ec_errort = ec_errort {
         Time: ec_timet { sec: 0, usec: 0 },
-        Signal: 0,
+        Signal: false,
         Slave: 0,
         Index: 0,
         SubIdx: 0,
@@ -146,7 +149,7 @@ unsafe extern "C" fn ecx_SDOinfoerror(
 ) {
     let mut Ec: ec_errort = ec_errort {
         Time: ec_timet { sec: 0, usec: 0 },
-        Signal: 0,
+        Signal: false,
         Slave: 0,
         Index: 0,
         SubIdx: 0,
@@ -162,7 +165,7 @@ unsafe extern "C" fn ecx_SDOinfoerror(
     Ec.Index = Index;
     Ec.SubIdx = SubIdx;
     *(*context).ecaterror = 1u8;
-    Ec.Etype = ec_err_type::EC_CMD_SDOINFO_ERROR;
+    Ec.Etype = ec_err_type::EC_ERR_TYPE_SDOINFO_ERROR;
     Ec.c2rust_unnamed.AbortCode = AbortCode;
     ecx_pusherror(context, &mut Ec);
 }
@@ -219,15 +222,16 @@ pub unsafe extern "C" fn ecx_SDOread(
     /* get new mailbox count value, used as session handle */
     cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* CoE */
     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt; /* number 9bits service upper 4 bits (SDO request) */
-    (*SDOp).MbxHeader.mbxtype = (ECT_MBXT_COE as libc::c_int
+    (*SDOp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_COE as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
         as uint8;
-    (*SDOp).CANOpen = (0i32 + ((ECT_COES_SDOREQ as libc::c_int) << 12i32)) as uint16;
+    (*SDOp).CANOpen =
+        (0i32 + ((CoEMailboxType::ECT_COES_SDOREQ as libc::c_int) << 12i32)) as uint16;
     if CA != 0 {
-        (*SDOp).Command = ECT_SDO_UP_REQ_CA as uint8
+        (*SDOp).Command = CoESDOCommand::ECT_SDO_UP_REQ_CA as uint8
     /* upload request complete access */
     } else {
-        (*SDOp).Command = ECT_SDO_UP_REQ as uint8
+        (*SDOp).Command = CoESDOCommand::ECT_SDO_UP_REQ as uint8
         /* upload request normal */
     }
     (*SDOp).Index = index;
@@ -247,8 +251,10 @@ pub unsafe extern "C" fn ecx_SDOread(
             /* read slave response */
             /* succeeded to read slave response ? */
             /* slave response should be CoE, SDO response and the correct index */
-            if (*aSDOp).MbxHeader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_COE as libc::c_int
-                && (*aSDOp).CANOpen as libc::c_int >> 12i32 == ECT_COES_SDORES as libc::c_int
+            if (*aSDOp).MbxHeader.mbxtype as libc::c_int & 0xfi32
+                == MailboxType::ECT_MBXT_COE as libc::c_int
+                && (*aSDOp).CANOpen as libc::c_int >> 12i32
+                    == CoEMailboxType::ECT_COES_SDORES as libc::c_int
                 && (*aSDOp).Index as libc::c_int == (*SDOp).Index as libc::c_int
             {
                 if (*aSDOp).Command as libc::c_int & 0x2i32 > 0i32 {
@@ -262,7 +268,7 @@ pub unsafe extern "C" fn ecx_SDOread(
                             p,
                             &mut *(*aSDOp).c2rust_unnamed.ldata.as_mut_ptr().offset(0isize)
                                 as *mut uint32 as *const libc::c_void,
-                            bytesize as libc::c_ulong,
+                            bytesize as usize,
                         );
                         *psize = bytesize as libc::c_int
                     } else {
@@ -289,7 +295,7 @@ pub unsafe extern "C" fn ecx_SDOread(
                                 &mut *(*aSDOp).c2rust_unnamed.ldata.as_mut_ptr().offset(1isize)
                                     as *mut uint32
                                     as *const libc::c_void,
-                                Framedatasize as libc::c_ulong,
+                                Framedatasize as usize,
                             );
                             hp = hp.offset(Framedatasize as libc::c_int as isize);
                             *psize = Framedatasize as libc::c_int;
@@ -307,12 +313,14 @@ pub unsafe extern "C" fn ecx_SDOread(
                                 );
                                 (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
                                 /* toggle bit for segment request */
-                                (*SDOp).MbxHeader.mbxtype = (ECT_MBXT_COE as libc::c_int
+                                (*SDOp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_COE
+                                    as libc::c_int
                                     + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
                                     as uint8; /* CoE */
-                                (*SDOp).CANOpen =
-                                    (0i32 + ((ECT_COES_SDOREQ as libc::c_int) << 12i32)) as uint16; /* number 9bits service upper 4 bits (SDO request) */
-                                (*SDOp).Command = (ECT_SDO_SEG_UP_REQ as libc::c_int
+                                (*SDOp).CANOpen = (0i32
+                                    + ((CoEMailboxType::ECT_COES_SDOREQ as libc::c_int) << 12i32))
+                                    as uint16; /* number 9bits service upper 4 bits (SDO request) */
+                                (*SDOp).Command = (CoESDOCommand::ECT_SDO_SEG_UP_REQ as libc::c_int
                                     + toggle as libc::c_int)
                                     as uint8; /* segment upload request */
                                 (*SDOp).Index = index;
@@ -339,9 +347,9 @@ pub unsafe extern "C" fn ecx_SDOread(
                                     if wkc > 0i32 {
                                         /* slave response should be CoE, SDO response */
                                         if (*aSDOp).MbxHeader.mbxtype as libc::c_int & 0xfi32
-                                            == ECT_MBXT_COE as libc::c_int
+                                            == MailboxType::ECT_MBXT_COE as libc::c_int
                                             && (*aSDOp).CANOpen as libc::c_int >> 12i32
-                                                == ECT_COES_SDORES as libc::c_int
+                                                == CoEMailboxType::ECT_COES_SDORES as libc::c_int
                                             && (*aSDOp).Command as libc::c_int & 0xe0i32 == 0i32
                                         {
                                             /* calculate mailbox transfer size */
@@ -364,7 +372,7 @@ pub unsafe extern "C" fn ecx_SDOread(
                                                     hp as *mut libc::c_void,
                                                     &mut (*aSDOp).Index as *mut uint16
                                                         as *const libc::c_void,
-                                                    Framedatasize as libc::c_ulong,
+                                                    Framedatasize as usize,
                                                 );
                                             } else {
                                                 /* segments follow */
@@ -373,7 +381,7 @@ pub unsafe extern "C" fn ecx_SDOread(
                                                     hp as *mut libc::c_void,
                                                     &mut (*aSDOp).Index as *mut uint16
                                                         as *const libc::c_void,
-                                                    Framedatasize as libc::c_ulong,
+                                                    Framedatasize as usize,
                                                 );
                                                 hp =
                                                     hp.offset(Framedatasize as libc::c_int as isize)
@@ -385,7 +393,7 @@ pub unsafe extern "C" fn ecx_SDOread(
                                             /* unexpected frame returned from slave */
                                             NotLast = 0u8; /* Unexpected frame returned */
                                             if (*aSDOp).Command as libc::c_int
-                                                == ECT_SDO_ABORT as libc::c_int
+                                                == CoESDOCommand::ECT_SDO_ABORT as libc::c_int
                                             {
                                                 /* SDO abort frame received */
                                                 ecx_SDOerror(
@@ -414,7 +422,7 @@ pub unsafe extern "C" fn ecx_SDOread(
                                 &mut *(*aSDOp).c2rust_unnamed.ldata.as_mut_ptr().offset(1isize)
                                     as *mut uint32
                                     as *const libc::c_void,
-                                SDOlen as libc::c_ulong,
+                                SDOlen as usize,
                             );
                             *psize = SDOlen
                         }
@@ -427,7 +435,7 @@ pub unsafe extern "C" fn ecx_SDOread(
                 }
             } else {
                 /* other slave response */
-                if (*aSDOp).Command as libc::c_int == ECT_SDO_ABORT as libc::c_int {
+                if (*aSDOp).Command as libc::c_int == CoESDOCommand::ECT_SDO_ABORT as libc::c_int {
                     /* SDO abort frame received */
                     ecx_SDOerror(
                         context,
@@ -500,12 +508,13 @@ pub unsafe extern "C" fn ecx_SDOwrite(
         /* get new mailbox counter, used for session handle */
         cnt = ec_nextmbxcnt((*(*context).slavelist.offset(Slave as isize)).mbx_cnt); /* CoE */
         (*(*context).slavelist.offset(Slave as isize)).mbx_cnt = cnt; /* number 9bits service upper 4 bits */
-        (*SDOp).MbxHeader.mbxtype = (ECT_MBXT_COE as libc::c_int
+        (*SDOp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_COE as libc::c_int
             + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
             as uint8; /* expedited SDO download transfer */
-        (*SDOp).CANOpen = (0i32 + ((ECT_COES_SDOREQ as libc::c_int) << 12i32)) as uint16;
-        (*SDOp).Command =
-            (ECT_SDO_DOWN_EXP as libc::c_int | 4i32 - psize << 2i32 & 0xci32) as uint8;
+        (*SDOp).CANOpen =
+            (0i32 + ((CoEMailboxType::ECT_COES_SDOREQ as libc::c_int) << 12i32)) as uint16;
+        (*SDOp).Command = (CoESDOCommand::ECT_SDO_DOWN_EXP as libc::c_int
+            | 4i32 - psize << 2i32 & 0xci32) as uint8;
         (*SDOp).Index = Index;
         (*SDOp).SubIndex = SubIndex;
         hp = p as *mut uint8;
@@ -514,7 +523,7 @@ pub unsafe extern "C" fn ecx_SDOwrite(
             &mut *(*SDOp).c2rust_unnamed.ldata.as_mut_ptr().offset(0isize) as *mut uint32
                 as *mut libc::c_void,
             hp as *const libc::c_void,
-            psize as libc::c_ulong,
+            psize as usize,
         );
         /* send mailbox SDO download request to slave */
         wkc = ecx_mbxsend(context, Slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
@@ -525,13 +534,16 @@ pub unsafe extern "C" fn ecx_SDOwrite(
             if wkc > 0i32 {
                 /* response should be CoE, SDO response, correct index and subindex */
                 if !((*aSDOp).MbxHeader.mbxtype as libc::c_int & 0xfi32
-                    == ECT_MBXT_COE as libc::c_int
-                    && (*aSDOp).CANOpen as libc::c_int >> 12i32 == ECT_COES_SDORES as libc::c_int
+                    == MailboxType::ECT_MBXT_COE as libc::c_int
+                    && (*aSDOp).CANOpen as libc::c_int >> 12i32
+                        == CoEMailboxType::ECT_COES_SDORES as libc::c_int
                     && (*aSDOp).Index as libc::c_int == (*SDOp).Index as libc::c_int
                     && (*aSDOp).SubIndex as libc::c_int == (*SDOp).SubIndex as libc::c_int)
                 {
                     /* unexpected response from slave */
-                    if (*aSDOp).Command as libc::c_int == ECT_SDO_ABORT as libc::c_int {
+                    if (*aSDOp).Command as libc::c_int
+                        == CoESDOCommand::ECT_SDO_ABORT as libc::c_int
+                    {
                         /* SDO abort frame received */
                         ecx_SDOerror(
                             context,
@@ -561,15 +573,16 @@ pub unsafe extern "C" fn ecx_SDOwrite(
         /* get new mailbox counter, used for session handle */
         cnt = ec_nextmbxcnt((*(*context).slavelist.offset(Slave as isize)).mbx_cnt); /* CoE */
         (*(*context).slavelist.offset(Slave as isize)).mbx_cnt = cnt; /* number 9bits service upper 4 bits */
-        (*SDOp).MbxHeader.mbxtype = (ECT_MBXT_COE as libc::c_int
+        (*SDOp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_COE as libc::c_int
             + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
             as uint8;
-        (*SDOp).CANOpen = (0i32 + ((ECT_COES_SDOREQ as libc::c_int) << 12i32)) as uint16;
+        (*SDOp).CANOpen =
+            (0i32 + ((CoEMailboxType::ECT_COES_SDOREQ as libc::c_int) << 12i32)) as uint16;
         if CA != 0 {
-            (*SDOp).Command = ECT_SDO_DOWN_INIT_CA as uint8
+            (*SDOp).Command = CoESDOCommand::ECT_SDO_DOWN_INIT_CA as uint8
         /* Complete Access, normal SDO init download transfer */
         } else {
-            (*SDOp).Command = ECT_SDO_DOWN_INIT as uint8
+            (*SDOp).Command = CoESDOCommand::ECT_SDO_DOWN_INIT as uint8
             /* normal SDO init download transfer */
         }
         (*SDOp).Index = Index;
@@ -584,7 +597,7 @@ pub unsafe extern "C" fn ecx_SDOwrite(
             &mut *(*SDOp).c2rust_unnamed.ldata.as_mut_ptr().offset(1isize) as *mut uint32
                 as *mut libc::c_void,
             hp as *const libc::c_void,
-            framedatasize as libc::c_ulong,
+            framedatasize as usize,
         );
         hp = hp.offset(framedatasize as isize);
         psize -= framedatasize;
@@ -596,8 +609,10 @@ pub unsafe extern "C" fn ecx_SDOwrite(
             wkc = ecx_mbxreceive(context, Slave, &mut MbxIn as *mut ec_mbxbuft, Timeout);
             if wkc > 0i32 {
                 /* response should be CoE, SDO response, correct index and subindex */
-                if (*aSDOp).MbxHeader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_COE as libc::c_int
-                    && (*aSDOp).CANOpen as libc::c_int >> 12i32 == ECT_COES_SDORES as libc::c_int
+                if (*aSDOp).MbxHeader.mbxtype as libc::c_int & 0xfi32
+                    == MailboxType::ECT_MBXT_COE as libc::c_int
+                    && (*aSDOp).CANOpen as libc::c_int >> 12i32
+                        == CoEMailboxType::ECT_COES_SDORES as libc::c_int
                     && (*aSDOp).Index as libc::c_int == (*SDOp).Index as libc::c_int
                     && (*aSDOp).SubIndex as libc::c_int == (*SDOp).SubIndex as libc::c_int
                 {
@@ -629,17 +644,18 @@ pub unsafe extern "C" fn ecx_SDOwrite(
                         (*SDOp).MbxHeader.priority = 0u8;
                         cnt = ec_nextmbxcnt((*(*context).slavelist.offset(Slave as isize)).mbx_cnt);
                         (*(*context).slavelist.offset(Slave as isize)).mbx_cnt = cnt;
-                        (*SDOp).MbxHeader.mbxtype = (ECT_MBXT_COE as libc::c_int
+                        (*SDOp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_COE as libc::c_int
                             + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
                             as uint8;
-                        (*SDOp).CANOpen =
-                            (0i32 + ((ECT_COES_SDOREQ as libc::c_int) << 12i32)) as uint16;
+                        (*SDOp).CANOpen = (0i32
+                            + ((CoEMailboxType::ECT_COES_SDOREQ as libc::c_int) << 12i32))
+                            as uint16;
                         (*SDOp).Command =
                             ((*SDOp).Command as libc::c_int + toggle as libc::c_int) as uint8;
                         memcpy(
                             &mut (*SDOp).Index as *mut uint16 as *mut libc::c_void,
                             hp as *const libc::c_void,
-                            framedatasize as libc::c_ulong,
+                            framedatasize as usize,
                         );
                         hp = hp.offset(framedatasize as isize);
                         psize -= framedatasize;
@@ -662,13 +678,13 @@ pub unsafe extern "C" fn ecx_SDOwrite(
                             );
                             if wkc > 0i32 {
                                 if !((*aSDOp).MbxHeader.mbxtype as libc::c_int & 0xfi32
-                                    == ECT_MBXT_COE as libc::c_int
+                                    == MailboxType::ECT_MBXT_COE as libc::c_int
                                     && (*aSDOp).CANOpen as libc::c_int >> 12i32
-                                        == ECT_COES_SDORES as libc::c_int
+                                        == CoEMailboxType::ECT_COES_SDORES as libc::c_int
                                     && (*aSDOp).Command as libc::c_int & 0xe0i32 == 0x20i32)
                                 {
                                     if (*aSDOp).Command as libc::c_int
-                                        == ECT_SDO_ABORT as libc::c_int
+                                        == CoESDOCommand::ECT_SDO_ABORT as libc::c_int
                                     {
                                         /* SDO abort frame received */
                                         ecx_SDOerror(
@@ -691,7 +707,9 @@ pub unsafe extern "C" fn ecx_SDOwrite(
                     }
                 } else {
                     /* unexpected response from slave */
-                    if (*aSDOp).Command as libc::c_int == ECT_SDO_ABORT as libc::c_int {
+                    if (*aSDOp).Command as libc::c_int
+                        == CoESDOCommand::ECT_SDO_ABORT as libc::c_int
+                    {
                         /* SDO abort frame received */
                         ecx_SDOerror(
                             context,
@@ -754,16 +772,17 @@ pub unsafe extern "C" fn ecx_RxPDO(
     /* get new mailbox counter, used for session handle */
     cnt = ec_nextmbxcnt((*(*context).slavelist.offset(Slave as isize)).mbx_cnt); /* CoE */
     (*(*context).slavelist.offset(Slave as isize)).mbx_cnt = cnt; /* number 9bits service upper 4 bits */
-    (*SDOp).MbxHeader.mbxtype = (ECT_MBXT_COE as libc::c_int
+    (*SDOp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_COE as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
         as uint8;
     (*SDOp).CANOpen = ((RxPDOnumber as libc::c_int & 0x1ffi32)
-        + ((ECT_COES_RXPDO as libc::c_int) << 12i32)) as uint16;
+        + ((CoEMailboxType::ECT_COES_RXPDO as libc::c_int) << 12i32))
+        as uint16;
     /* copy PDO data to mailbox */
     memcpy(
         &mut (*SDOp).Command as *mut uint8 as *mut libc::c_void,
         p,
-        framedatasize as libc::c_ulong,
+        framedatasize as usize,
     );
     /* send mailbox RxPDO request to slave */
     wkc = ecx_mbxsend(context, Slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
@@ -809,11 +828,12 @@ pub unsafe extern "C" fn ecx_TxPDO(
     /* get new mailbox counter, used for session handle */
     cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* CoE */
     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt; /* number 9bits service upper 4 bits */
-    (*SDOp).MbxHeader.mbxtype = (ECT_MBXT_COE as libc::c_int
+    (*SDOp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_COE as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
         as uint8;
     (*SDOp).CANOpen = ((TxPDOnumber as libc::c_int & 0x1ffi32)
-        + ((ECT_COES_TXPDO_RR as libc::c_int) << 12i32)) as uint16;
+        + ((CoEMailboxType::ECT_COES_TXPDO_RR as libc::c_int) << 12i32))
+        as uint16;
     wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
     if wkc > 0i32 {
         /* clean mailboxbuffer */
@@ -823,8 +843,10 @@ pub unsafe extern "C" fn ecx_TxPDO(
         if wkc > 0i32 {
             /* succeeded to read slave response ? */
             /* slave response should be CoE, TxPDO */
-            if (*aSDOp).MbxHeader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_COE as libc::c_int
-                && (*aSDOp).CANOpen as libc::c_int >> 12i32 == ECT_COES_TXPDO as libc::c_int
+            if (*aSDOp).MbxHeader.mbxtype as libc::c_int & 0xfi32
+                == MailboxType::ECT_MBXT_COE as libc::c_int
+                && (*aSDOp).CANOpen as libc::c_int >> 12i32
+                    == CoEMailboxType::ECT_COES_TXPDO as libc::c_int
             {
                 /* TxPDO response */
                 framedatasize = ((*aSDOp).MbxHeader.length as libc::c_int - 2i32) as uint16;
@@ -834,7 +856,7 @@ pub unsafe extern "C" fn ecx_TxPDO(
                     memcpy(
                         p,
                         &mut (*aSDOp).Command as *mut uint8 as *const libc::c_void,
-                        framedatasize as libc::c_ulong,
+                        framedatasize as usize,
                     );
                     *psize = framedatasize as libc::c_int
                 } else {
@@ -846,7 +868,7 @@ pub unsafe extern "C" fn ecx_TxPDO(
                 }
             } else {
                 /* other slave response */
-                if (*aSDOp).Command as libc::c_int == ECT_SDO_ABORT as libc::c_int {
+                if (*aSDOp).Command as libc::c_int == CoESDOCommand::ECT_SDO_ABORT as libc::c_int {
                     /* SDO abort frame received */
                     ecx_SDOerror(
                         context,
@@ -1341,11 +1363,12 @@ pub unsafe extern "C" fn ecx_readODlist(
     /* Get new mailbox counter value */
     cnt = ec_nextmbxcnt((*(*context).slavelist.offset(Slave as isize)).mbx_cnt); /* CoE */
     (*(*context).slavelist.offset(Slave as isize)).mbx_cnt = cnt; /* number 9bits service upper 4 bits */
-    (*SDOp).MbxHeader.mbxtype = (ECT_MBXT_COE as libc::c_int
+    (*SDOp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_COE as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
         as uint8; /* get object description list request */
-    (*SDOp).CANOpen = (0i32 + ((ECT_COES_SDOINFO as libc::c_int) << 12i32)) as uint16; /* fragments left */
-    (*SDOp).Opcode = ECT_GET_ODLIST_REQ as uint8; /* all objects */
+    (*SDOp).CANOpen =
+        (0i32 + ((CoEMailboxType::ECT_COES_SDOINFO as libc::c_int) << 12i32)) as uint16; /* fragments left */
+    (*SDOp).Opcode = CoEObjectDescription::ECT_GET_ODLIST_REQ as uint8; /* all objects */
     (*SDOp).Reserved = 0u8;
     (*SDOp).Fragments = 0u16;
     (*SDOp).c2rust_unnamed.wdata[0usize] = 0x1u16;
@@ -1365,8 +1388,10 @@ pub unsafe extern "C" fn ecx_readODlist(
             /* got response ? */
             if wkc > 0i32 {
                 /* response should be CoE and "get object description list response" */
-                if (*aSDOp).MbxHeader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_COE as libc::c_int
-                    && (*aSDOp).Opcode as libc::c_int & 0x7fi32 == ECT_GET_ODLIST_RES as libc::c_int
+                if (*aSDOp).MbxHeader.mbxtype as libc::c_int & 0xfi32
+                    == MailboxType::ECT_MBXT_COE as libc::c_int
+                    && (*aSDOp).Opcode as libc::c_int & 0x7fi32
+                        == CoEObjectDescription::ECT_GET_ODLIST_RES as libc::c_int
                 {
                     if First != 0 {
                         /* extract number of indexes from mailbox data size */
@@ -1405,7 +1430,8 @@ pub unsafe extern "C" fn ecx_readODlist(
                     offset = 0u16
                 } else {
                     /* got unexpected response from slave */
-                    if (*aSDOp).Opcode as libc::c_int & 0x7fi32 == ECT_SDOINFO_ERROR as libc::c_int
+                    if (*aSDOp).Opcode as libc::c_int & 0x7fi32
+                        == CoEObjectDescription::ECT_SDOINFO_ERROR as libc::c_int
                     {
                         /* SDO info error received */
                         ecx_SDOinfoerror(
@@ -1470,11 +1496,12 @@ pub unsafe extern "C" fn ecx_readODdescription(
     /* Get new mailbox counter value */
     cnt = ec_nextmbxcnt((*(*context).slavelist.offset(Slave as isize)).mbx_cnt); /* CoE */
     (*(*context).slavelist.offset(Slave as isize)).mbx_cnt = cnt; /* number 9bits service upper 4 bits */
-    (*SDOp).MbxHeader.mbxtype = (ECT_MBXT_COE as libc::c_int
+    (*SDOp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_COE as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
         as uint8; /* get object description request */
-    (*SDOp).CANOpen = (0i32 + ((ECT_COES_SDOINFO as libc::c_int) << 12i32)) as uint16; /* fragments left */
-    (*SDOp).Opcode = ECT_GET_OD_REQ as uint8; /* Data of Index */
+    (*SDOp).CANOpen =
+        (0i32 + ((CoEMailboxType::ECT_COES_SDOINFO as libc::c_int) << 12i32)) as uint16; /* fragments left */
+    (*SDOp).Opcode = CoEObjectDescription::ECT_GET_OD_REQ as uint8; /* Data of Index */
     (*SDOp).Reserved = 0u8;
     (*SDOp).Fragments = 0u16;
     (*SDOp).c2rust_unnamed.wdata[0usize] = (*pODlist).Index[Item as usize];
@@ -1487,8 +1514,10 @@ pub unsafe extern "C" fn ecx_readODdescription(
         wkc = ecx_mbxreceive(context, Slave, &mut MbxIn, 700000i32);
         /* got response ? */
         if wkc > 0i32 {
-            if (*aSDOp).MbxHeader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_COE as libc::c_int
-                && (*aSDOp).Opcode as libc::c_int & 0x7fi32 == ECT_GET_OD_RES as libc::c_int
+            if (*aSDOp).MbxHeader.mbxtype as libc::c_int & 0xfi32
+                == MailboxType::ECT_MBXT_COE as libc::c_int
+                && (*aSDOp).Opcode as libc::c_int & 0x7fi32
+                    == CoEObjectDescription::ECT_GET_OD_RES as libc::c_int
             {
                 n = ((*aSDOp).MbxHeader.length as libc::c_int - 12i32) as uint16;
                 if n as libc::c_int > 40i32 {
@@ -1503,12 +1532,14 @@ pub unsafe extern "C" fn ecx_readODdescription(
                     (*pODlist).Name[Item as usize].as_mut_ptr(),
                     &mut *(*aSDOp).c2rust_unnamed.bdata.as_mut_ptr().offset(6isize) as *mut uint8
                         as *mut libc::c_char,
-                    n as libc::c_ulong,
+                    n as usize,
                 );
                 (*pODlist).Name[Item as usize][n as usize] = 0i8
             } else {
                 /* got unexpected response from slave */
-                if (*aSDOp).Opcode as libc::c_int & 0x7fi32 == ECT_SDOINFO_ERROR as libc::c_int {
+                if (*aSDOp).Opcode as libc::c_int & 0x7fi32
+                    == CoEObjectDescription::ECT_SDOINFO_ERROR as libc::c_int
+                {
                     /* SDO info error received */
                     ecx_SDOinfoerror(
                         context,
@@ -1569,11 +1600,12 @@ pub unsafe extern "C" fn ecx_readOEsingle(
     /* Get new mailbox counter value */
     cnt = ec_nextmbxcnt((*(*context).slavelist.offset(Slave as isize)).mbx_cnt); /* CoE */
     (*(*context).slavelist.offset(Slave as isize)).mbx_cnt = cnt; /* number 9bits service upper 4 bits */
-    (*SDOp).MbxHeader.mbxtype = (ECT_MBXT_COE as libc::c_int
+    (*SDOp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_COE as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
         as uint8; /* get object entry description request */
-    (*SDOp).CANOpen = (0i32 + ((ECT_COES_SDOINFO as libc::c_int) << 12i32)) as uint16; /* fragments left */
-    (*SDOp).Opcode = ECT_GET_OE_REQ as uint8; /* Index */
+    (*SDOp).CANOpen =
+        (0i32 + ((CoEMailboxType::ECT_COES_SDOINFO as libc::c_int) << 12i32)) as uint16; /* fragments left */
+    (*SDOp).Opcode = CoEObjectDescription::ECT_GET_OE_REQ as uint8; /* Index */
     (*SDOp).Reserved = 0u8; /* SubIndex */
     (*SDOp).Fragments = 0u16; /* get access rights, object category, PDO */
     (*SDOp).c2rust_unnamed.wdata[0usize] = Index;
@@ -1588,8 +1620,10 @@ pub unsafe extern "C" fn ecx_readOEsingle(
         wkc = ecx_mbxreceive(context, Slave, &mut MbxIn, 700000i32);
         /* got response ? */
         if wkc > 0i32 {
-            if (*aSDOp).MbxHeader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_COE as libc::c_int
-                && (*aSDOp).Opcode as libc::c_int & 0x7fi32 == ECT_GET_OE_RES as libc::c_int
+            if (*aSDOp).MbxHeader.mbxtype as libc::c_int & 0xfi32
+                == MailboxType::ECT_MBXT_COE as libc::c_int
+                && (*aSDOp).Opcode as libc::c_int & 0x7fi32
+                    == CoEObjectDescription::ECT_GET_OE_RES as libc::c_int
             {
                 (*pOElist).Entries = (*pOElist).Entries.wrapping_add(1);
                 /* string terminator */
@@ -1609,12 +1643,14 @@ pub unsafe extern "C" fn ecx_readOEsingle(
                     (*pOElist).Name[SubI as usize].as_mut_ptr(),
                     &mut *(*aSDOp).c2rust_unnamed.wdata.as_mut_ptr().offset(5isize) as *mut uint16
                         as *mut libc::c_char,
-                    n as libc::c_ulong,
+                    n as usize,
                 );
                 (*pOElist).Name[SubI as usize][n as usize] = 0i8
             } else {
                 /* got unexpected response from slave */
-                if (*aSDOp).Opcode as libc::c_int & 0x7fi32 == ECT_SDOINFO_ERROR as libc::c_int {
+                if (*aSDOp).Opcode as libc::c_int & 0x7fi32
+                    == CoEObjectDescription::ECT_SDOINFO_ERROR as libc::c_int
+                {
                     /* SDO info error received */
                     ecx_SDOinfoerror(
                         context,

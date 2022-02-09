@@ -150,7 +150,7 @@ pub enum ec_state {
 }
 
 /// ACK is the same value as ERROR so we'll kludge a new enum "variant" here
-pub const EC_STATE_ACK: isize = ec_state::EC_STATE_ERROR;
+pub const EC_STATE_ACK: isize = ec_state::EC_STATE_ERROR as isize;
 
 /** Possible buffer states */
 pub enum ec_bufstate {

@@ -761,7 +761,7 @@ pub unsafe extern "C" fn ecx_packeterror(
     Ec.Index = Index;
     Ec.SubIdx = SubIdx;
     *(*context).ecaterror = 1u8;
-    Ec.Etype = ec_err_type::EC_CMD_PACKET_ERROR;
+    Ec.Etype = ec_err_type::EC_ERR_TYPE_PACKET_ERROR;
     Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode = ErrorCode;
     ecx_pusherror(context, &mut Ec);
 }
@@ -794,7 +794,7 @@ unsafe extern "C" fn ecx_mbxerror(
     Ec.Slave = Slave;
     Ec.Index = 0u16;
     Ec.SubIdx = 0u8;
-    Ec.Etype = ec_err_type::EC_CMD_MBX_ERROR;
+    Ec.Etype = ec_err_type::EC_ERR_TYPE_MBX_ERROR;
     Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode = Detail;
     ecx_pusherror(context, &mut Ec);
 }
@@ -835,7 +835,7 @@ unsafe extern "C" fn ecx_mbxemergencyerror(
     Ec.Slave = Slave;
     Ec.Index = 0u16;
     Ec.SubIdx = 0u8;
-    Ec.Etype = ec_err_type::EC_CMD_EMERGENCY;
+    Ec.Etype = ec_err_type::EC_ERR_TYPE_EMERGENCY;
     Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode = ErrorCode;
     Ec.c2rust_unnamed.c2rust_unnamed.ErrorReg = ErrorReg as uint8;
     Ec.c2rust_unnamed.c2rust_unnamed.b1 = b1;
