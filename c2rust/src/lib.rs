@@ -21,30 +21,15 @@ pub mod oshw {
         pub mod oshw;
     } // mod linux
 } // mod oshw
-pub mod soem {
-    pub mod ethercatbase;
-    pub mod ethercatcoe;
-    pub mod ethercatconfig;
-    pub mod ethercatdc;
-    pub mod ethercateoe;
-    pub mod ethercatfoe;
-    pub mod ethercatmain;
-    pub mod ethercatprint;
-    pub mod ethercatsoe;
-} // mod soem
-pub mod test {
-    pub mod linux {
-        // pub mod eepromtool {
-        //     pub mod eepromtool;
-        // } // mod eepromtool
-        pub mod simple_test {
-            pub mod simple_test;
-        } // mod simple_test
-        pub mod slaveinfo {
-            pub mod slaveinfo;
-        } // mod slaveinfo
-    } // mod linux
-    pub mod simple_ng {
-        pub mod simple_ng;
-    } // mod simple_ng
-} // mod test
+
+pub mod ethercatbase;
+pub mod ethercatcoe;
+pub mod ethercatconfig;
+pub mod ethercatdc;
+pub mod ethercateoe;
+pub mod ethercatfoe;
+pub mod ethercatmain;
+pub mod ethercatprint;
+pub mod ethercatsoe;
+
+pub mod test;
