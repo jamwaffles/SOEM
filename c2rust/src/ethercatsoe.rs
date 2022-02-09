@@ -26,7 +26,6 @@ pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type int64 = int64_t;
 
-pub type ec_bufT = [uint8; 1518];
 pub type C2RustUnnamed = libc::c_uint;
 pub const ECT_MBXT_VOE: C2RustUnnamed = 15;
 pub const ECT_MBXT_SOE: C2RustUnnamed = 5;

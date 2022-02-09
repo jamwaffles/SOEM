@@ -26,7 +26,6 @@ pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type int64 = int64_t;
 
-pub type ec_bufT = [uint8; 1518];
 pub type ec_err_type = libc::c_uint;
 pub const EC_ERR_TYPE_EOE_INVALID_RX_DATA: ec_err_type = 11;
 pub const EC_ERR_TYPE_FOE_FILE_NOTFOUND: ec_err_type = 10;

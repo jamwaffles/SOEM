@@ -32,7 +32,6 @@ pub type uint32 = uint32_t;
 pub type int64 = int64_t;
 pub type uint64 = uint64_t;
 
-pub type ec_bufT = [uint8; 1518];
 pub type C2RustUnnamed = libc::c_uint;
 pub const EC_STATE_ERROR: C2RustUnnamed = 16;
 pub const EC_STATE_ACK: C2RustUnnamed = 16;

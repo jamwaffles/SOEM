@@ -111,31 +111,6 @@ pub type uint8 = uint8_t;
 pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 
-pub type ec_bufT = [uint8; 1518];
-
-#[repr(C, packed)]
-#[derive(Copy, Clone)]
-pub struct ec_etherheadert {
-    pub da0: uint16,
-    pub da1: uint16,
-    pub da2: uint16,
-    pub sa0: uint16,
-    pub sa1: uint16,
-    pub sa2: uint16,
-    pub etype: uint16,
-}
-
-#[repr(C, packed)]
-#[derive(Copy, Clone)]
-pub struct ec_comt {
-    pub elength: uint16,
-    pub command: uint8,
-    pub index: uint8,
-    pub ADP: uint16,
-    pub ADO: uint16,
-    pub dlength: uint16,
-    pub irpt: uint16,
-}
 pub type C2RustUnnamed_3 = libc::c_uint;
 pub const EC_BUF_COMPLETE: C2RustUnnamed_3 = 4;
 pub const EC_BUF_RCVD: C2RustUnnamed_3 = 3;

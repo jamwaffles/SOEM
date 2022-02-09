@@ -27,7 +27,6 @@ pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type int64 = int64_t;
 
-pub type ec_bufT = [uint8; 1518];
 pub type C2RustUnnamed = libc::c_uint;
 pub const ECT_MBXT_VOE: C2RustUnnamed = 15;
 pub const ECT_MBXT_SOE: C2RustUnnamed = 5;
@@ -48,36 +47,6 @@ pub const EC_ERR_TYPE_SDOINFO_ERROR: ec_err_type = 4;
 pub const EC_ERR_TYPE_PACKET_ERROR: ec_err_type = 3;
 pub const EC_ERR_TYPE_EMERGENCY: ec_err_type = 1;
 pub const EC_ERR_TYPE_SDO_ERROR: ec_err_type = 0;
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ec_errort {
-    pub Time: ec_timet,
-    pub Signal: boolean,
-    pub Slave: uint16,
-    pub Index: uint16,
-    pub SubIdx: uint8,
-    pub Etype: ec_err_type,
-    pub c2rust_unnamed: C2RustUnnamed_0,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union C2RustUnnamed_0 {
-    pub AbortCode: int32,
-    pub c2rust_unnamed: C2RustUnnamed_1,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct C2RustUnnamed_1 {
-    pub ErrorCode: uint16,
-    pub ErrorReg: uint8,
-    pub b1: uint8,
-    pub w1: uint16,
-    pub w2: uint16,
-}
-
 
 #[repr(C)]
 #[derive(Copy, Clone)]

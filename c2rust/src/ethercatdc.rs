@@ -32,7 +32,6 @@ pub type uint32 = uint32_t;
 pub type int64 = int64_t;
 pub type uint64 = uint64_t;
 
-pub type ec_bufT = [uint8; 1518];
 pub type C2RustUnnamed = libc::c_uint;
 pub const ECT_REG_DCCYCLE1: C2RustUnnamed = 2468;
 pub const ECT_REG_DCCYCLE0: C2RustUnnamed = 2464;
