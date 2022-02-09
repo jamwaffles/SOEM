@@ -26,14 +26,14 @@ pub const EC_SLAVECOUNTEXCEEDED: i32 = -4;
 /** return value request timeout */
 pub const EC_TIMEOUT: i32 = -5;
 /** maximum EtherCAT frame length in bytes */
-pub const EC_MAXECATFRAME: i32 = 1518;
+pub const EC_MAXECATFRAME: usize = 1518;
 /** maximum EtherCAT LRW frame length in bytes */
 /* MTU - Ethernet header - length - datagram header - WCK - FCS */
-pub const EC_MAXLRWDATA: i32 = EC_MAXECATFRAME - 14 - 2 - 10 - 2 - 4;
+pub const EC_MAXLRWDATA: usize = EC_MAXECATFRAME - 14 - 2 - 10 - 2 - 4;
 /** size of DC datagram used in first LRW frame */
 pub const EC_FIRSTDCDATAGRAM: i32 = 20;
 /** standard frame buffer size in bytes */
-pub const EC_BUFSIZE: i32 = EC_MAXECATFRAME;
+pub const EC_BUFSIZE: usize = EC_MAXECATFRAME;
 /** datagram type EtherCAT */
 pub const EC_ECATTYPE: i32 = 0x1000;
 /** number of frame buffers per channel (tx, rx1 rx2) */

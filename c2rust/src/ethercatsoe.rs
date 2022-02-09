@@ -3,6 +3,7 @@ use crate::{
         ec_clearmbx, ec_mbxbuft, ec_mbxheadert, ec_nextmbxcnt, ecx_context, ecx_contextt,
         ecx_mbxempty, ecx_mbxreceive, ecx_mbxsend, ecx_packeterror, ecx_pusherror,
     },
+    ethercattype::{ec_err_type, ec_errort, C2RustUnnamed_0, MailboxType, SoEOpCode},
     osal::linux::osal::{ec_timet, osal_current_time},
 };
 use libc::{memcpy, memset};
@@ -94,7 +95,7 @@ pub unsafe extern "C" fn ecx_SoEerror(
         Index: 0,
         SubIdx: 0,
         Etype: ec_err_type::EC_CMD_SDO_ERROR,
-        c2rust_unnamed: C2RustUnnamed_1 { AbortCode: 0 },
+        c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
     };
     memset(
         &mut Ec as *mut ec_errort as *mut libc::c_void,
@@ -163,10 +164,10 @@ pub unsafe extern "C" fn ecx_SoEread(
     /* get new mailbox count value, used as session handle */
     cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* SoE */
     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-    (*SoEp).MbxHeader.mbxtype = (ECT_MBXT_SOE as libc::c_int
+    (*SoEp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_SOE as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
         as uint8;
-    (*SoEp).set_opCode(ECT_SOE_READREQ as uint8);
+    (*SoEp).set_opCode(SoEOpCode::ECT_SOE_READREQ as uint8);
     (*SoEp).set_incomplete(0u8);
     (*SoEp).set_error(0u8);
     (*SoEp).set_driveNo(driveNo);
@@ -189,8 +190,9 @@ pub unsafe extern "C" fn ecx_SoEread(
             if wkc > 0i32 {
                 /* succeeded to read slave response ? */
                 /* slave response should be SoE, ReadRes */
-                if (*aSoEp).MbxHeader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_SOE as libc::c_int
-                    && (*aSoEp).opCode() as libc::c_int == ECT_SOE_READRES as libc::c_int
+                if (*aSoEp).MbxHeader.mbxtype as libc::c_int & 0xfi32
+                    == MailboxType::ECT_MBXT_SOE as libc::c_int
+                    && (*aSoEp).opCode() as libc::c_int == SoEOpCode::ECT_SOE_READRES as libc::c_int
                     && (*aSoEp).error() as libc::c_int == 0i32
                     && (*aSoEp).driveNo() as libc::c_int == driveNo as libc::c_int
                     && (*aSoEp).elementflags as libc::c_int == elementflags as libc::c_int
@@ -230,8 +232,9 @@ pub unsafe extern "C" fn ecx_SoEread(
                     /* other slave response */
                     NotLast = 0u8;
                     if (*aSoEp).MbxHeader.mbxtype as libc::c_int & 0xfi32
-                        == ECT_MBXT_SOE as libc::c_int
-                        && (*aSoEp).opCode() as libc::c_int == ECT_SOE_READRES as libc::c_int
+                        == MailboxType::ECT_MBXT_SOE as libc::c_int
+                        && (*aSoEp).opCode() as libc::c_int
+                            == SoEOpCode::ECT_SOE_READRES as libc::c_int
                         && (*aSoEp).error() as libc::c_int == 1i32
                     {
                         mp = (&mut MbxIn as *mut ec_mbxbuft as *mut uint8).offset(
@@ -303,7 +306,7 @@ pub unsafe extern "C" fn ecx_SoEwrite(
     SoEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_SoEt;
     (*SoEp).MbxHeader.address = 0u16;
     (*SoEp).MbxHeader.priority = 0u8;
-    (*SoEp).set_opCode(ECT_SOE_WRITEREQ as uint8);
+    (*SoEp).set_opCode(SoEOpCode::ECT_SOE_WRITEREQ as uint8);
     (*SoEp).set_error(0u8);
     (*SoEp).set_driveNo(driveNo);
     (*SoEp).elementflags = elementflags;
@@ -330,7 +333,7 @@ pub unsafe extern "C" fn ecx_SoEwrite(
         /* get new mailbox counter, used for session handle */
         cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* SoE */
         (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-        (*SoEp).MbxHeader.mbxtype = (ECT_MBXT_SOE as libc::c_int
+        (*SoEp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_SOE as libc::c_int
             + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
             as uint8;
         /* copy parameter data to mailbox */
@@ -355,16 +358,18 @@ pub unsafe extern "C" fn ecx_SoEwrite(
                     NotLast = 0u8;
                     /* slave response should be SoE, WriteRes */
                     if !((*aSoEp).MbxHeader.mbxtype as libc::c_int & 0xfi32
-                        == ECT_MBXT_SOE as libc::c_int
-                        && (*aSoEp).opCode() as libc::c_int == ECT_SOE_WRITERES as libc::c_int
+                        == MailboxType::ECT_MBXT_SOE as libc::c_int
+                        && (*aSoEp).opCode() as libc::c_int
+                            == SoEOpCode::ECT_SOE_WRITERES as libc::c_int
                         && (*aSoEp).error() as libc::c_int == 0i32
                         && (*aSoEp).driveNo() as libc::c_int == driveNo as libc::c_int
                         && (*aSoEp).elementflags as libc::c_int == elementflags as libc::c_int)
                     {
                         /* other slave response */
                         if (*aSoEp).MbxHeader.mbxtype as libc::c_int & 0xfi32
-                            == ECT_MBXT_SOE as libc::c_int
-                            && (*aSoEp).opCode() as libc::c_int == ECT_SOE_READRES as libc::c_int
+                            == MailboxType::ECT_MBXT_SOE as libc::c_int
+                            && (*aSoEp).opCode() as libc::c_int
+                                == SoEOpCode::ECT_SOE_READRES as libc::c_int
                             && (*aSoEp).error() as libc::c_int == 1i32
                         {
                             mp = (&mut MbxIn as *mut ec_mbxbuft as *mut uint8).offset(

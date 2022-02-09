@@ -1,8 +1,12 @@
-use crate::osal::linux::osal::{ec_timet, osal_timer_is_expired, osal_timer_start};
+use crate::{
+    ethercatmain::{ecx_context, ecx_contextt, ecx_poperror},
+    ethercattype::{ec_err_type, ec_errort, C2RustUnnamed_0},
+    osal::linux::osal::{ec_timet, osal_timer_is_expired, osal_timer_start},
+};
 use libc::{
     bind, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
     pthread_mutex_unlock, pthread_mutexattr_init, pthread_mutexattr_t, recv, send, setsockopt,
-    sockaddr, socket, strcpy, timeval,
+    sockaddr, socket, sprintf, strcpy, timeval,
 };
 
 pub type __uint8_t = libc::c_uchar;
@@ -1501,7 +1505,7 @@ pub unsafe extern "C" fn ecx_elist2string(mut context: *mut ecx_contextt) -> *mu
         Index: 0,
         SubIdx: 0,
         Etype: ec_err_type::EC_CMD_SDO_ERROR,
-        c2rust_unnamed: C2RustUnnamed { AbortCode: 0 },
+        c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
     };
     if ecx_poperror(context, &mut Ec) != 0 {
         return ecx_err2string(Ec);
