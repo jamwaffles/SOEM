@@ -363,7 +363,7 @@ char* ecx_elist2string(ecx_contextt *context)
    }
    else
    {
-      return "";
+      return (char *)"";
    }
 }
 
