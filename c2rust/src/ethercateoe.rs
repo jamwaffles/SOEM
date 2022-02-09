@@ -452,7 +452,7 @@ pub unsafe fn ecx_EOEsend(
     let mut frameinfo2: u16 = 0;
     let mut cnt: u8 = 0;
     let mut txfragmentno: u8 = 0;
-    let mut NotLast: bool = 0;
+    let mut NotLast: bool = false;
     let mut wkc: libc::c_int = 0;
     let mut maxdata: libc::c_int = 0;
     let mut txframesize: libc::c_int = 0;
@@ -468,7 +468,7 @@ pub unsafe fn ecx_EOEsend(
     txframesize = psize;
     txfragmentno = 0u8;
     txframeoffset = 0i32;
-    NotLast = 1u8;
+    NotLast = true;
     loop {
         txframesize = psize - txframeoffset;
         if txframesize > maxdata {
@@ -479,7 +479,7 @@ pub unsafe fn ecx_EOEsend(
             frameinfo1 = ((1i32 & 0x1i32) << 8i32
                 | ((port as libc::c_int & 0xfi32) << 4i32) as u16 as libc::c_int)
                 as u16;
-            NotLast = 0u8
+            NotLast = false
         } else {
             frameinfo1 = ((port as libc::c_int & 0xfi32) << 4i32) as u16
         }
@@ -552,7 +552,7 @@ pub unsafe fn ecx_EOErecv(
     let mut frameinfo2: u16 = 0;
     let mut rxfragmentno: u8 = 0;
     let mut rxframeno: u8 = 0;
-    let mut NotLast: bool = 0;
+    let mut NotLast: bool = false;
     let mut wkc: libc::c_int = 0;
     let mut buffersize: libc::c_int = 0;
     let mut rxframesize: libc::c_int = 0;
@@ -561,7 +561,7 @@ pub unsafe fn ecx_EOErecv(
     let mut buf: *mut u8 = p as *mut u8;
     ec_clearmbx(&mut MbxIn);
     aEOEp = &mut MbxIn as *mut ec_mbxbuft as *mut ec_EOEt;
-    NotLast = 1u8;
+    NotLast = true;
     buffersize = *psize;
     rxfragmentno = 0u8;
     /* Hang for a while if nothing is in */
@@ -616,7 +616,7 @@ pub unsafe fn ecx_EOErecv(
                 if frameinfo1 as libc::c_int >> 9i32 & 0x1i32 != 0 {
                     rxframeoffset -= 4i32
                 }
-                NotLast = 0u8;
+                NotLast = false;
                 *psize = rxframeoffset
             } else {
                 /* Hang for a while if nothing is in */

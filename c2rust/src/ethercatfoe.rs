@@ -83,7 +83,7 @@ pub unsafe fn ecx_FOEread(
     let mut MbxIn: ec_mbxbuft = [0; 1487];
     let mut MbxOut: ec_mbxbuft = [0; 1487];
     let mut cnt: u8 = 0;
-    let mut worktodo: bool = 0;
+    let mut worktodo: bool = false;
     buffersize = *psize;
     ec_clearmbx(&mut MbxIn);
     /* Empty slave out mailbox if something is in. Timeout set to 0 */
@@ -246,8 +246,8 @@ pub unsafe fn ecx_FOEwrite(
     let mut MbxIn: ec_mbxbuft = [0; 1487];
     let mut MbxOut: ec_mbxbuft = [0; 1487];
     let mut cnt: u8 = 0;
-    let mut worktodo: bool = 0;
-    let mut dofinalzero: bool = 0;
+    let mut worktodo: bool = false;
+    let mut dofinalzero: bool = false;
     let mut tsize: libc::c_int = 0;
     ec_clearmbx(&mut MbxIn);
     /* Empty slave out mailbox if something is in. Timeout set to 0 */

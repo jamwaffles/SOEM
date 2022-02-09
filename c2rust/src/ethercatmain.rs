@@ -551,7 +551,7 @@ static mut ec_FMMU: ec_eepromFMMUt = ec_eepromFMMUt {
 };
 /* * Global variable TRUE if error available in error stack */
 #[no_mangle]
-pub static mut EcatError: bool = 0u8;
+pub static mut EcatError: bool = false;
 #[no_mangle]
 pub static mut ec_DCtime: i64 = 0;
 #[no_mangle]
@@ -1458,9 +1458,9 @@ pub unsafe fn ecx_readstate(mut context: *mut ecx_contextt) -> libc::c_int {
         alstatuscode: 0,
     }; 64];
     let mut slca: [u16; 64] = [0; 64];
-    let mut noerrorflag: bool = 0;
-    let mut allslavessamestate: bool = 0;
-    let mut allslavespresent: bool = 0u8;
+    let mut noerrorflag: bool = false;
+    let mut allslavessamestate: bool = false;
+    let mut allslavespresent: bool = false;
     let mut wkc: libc::c_int = 0;
     /* Try to establish the state of all slaves sending only one broadcast datagram.
      * This way a number of datagrams equal to the number of slaves will be sent only if needed.*/
@@ -2811,7 +2811,7 @@ unsafe fn ecx_main_send_processdata(
     let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
     let mut data: *mut u8 = 0 as *mut u8;
-    let mut first: bool = 0u8;
+    let mut first: bool = false;
     let mut currentsegment: u16 = 0u16;
     let mut iomapinputoffset: u32 = 0;
     let mut DCO: u16 = 0;

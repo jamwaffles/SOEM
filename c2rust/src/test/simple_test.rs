@@ -18,11 +18,11 @@ pub static mut thread1: *mut pthread_t = 0 as *mut pthread_t;
 #[no_mangle]
 pub static mut expectedWKC: libc::c_int = 0;
 #[no_mangle]
-pub static mut needlf: bool = 0;
+pub static mut needlf: bool = false;
 
 static mut wkc: libc::c_int = 0;
 #[no_mangle]
-pub static mut inOP: bool = 0;
+pub static mut inOP: bool = false;
 #[no_mangle]
 pub static mut currentgroup: u8 = 0u8;
 #[no_mangle]

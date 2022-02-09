@@ -51,9 +51,9 @@ pub static mut OElist: ec_OElistt = ec_OElistt {
     Name: [[0; 41]; EC_MAXOELIST],
 };
 #[no_mangle]
-pub static mut printSDO: bool = 0u8;
+pub static mut printSDO: bool = false;
 #[no_mangle]
-pub static mut printMAP: bool = 0u8;
+pub static mut printMAP: bool = false;
 #[no_mangle]
 pub static mut usdo: [libc::c_char; 128] = [0; 128];
 #[no_mangle]

@@ -195,7 +195,7 @@ pub unsafe fn ecx_SDOread(
     let mut MbxOut: ec_mbxbuft = [0; 1487];
     let mut cnt: u8 = 0;
     let mut toggle: u8 = 0;
-    let mut NotLast: bool = 0;
+    let mut NotLast: bool = false;
     ec_clearmbx(&mut MbxIn);
     /* Empty slave out mailbox if something is in. Timeout set to 0 */
     wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0i32);
@@ -287,7 +287,7 @@ pub unsafe fn ecx_SDOread(
                             );
                             hp = hp.offset(Framedatasize as libc::c_int as isize);
                             *psize = Framedatasize as libc::c_int;
-                            NotLast = 1u8;
+                            NotLast = true;
                             toggle = 0u8;
                             while NotLast != 0 {
                                 /* increment buffer pointer */
@@ -346,7 +346,7 @@ pub unsafe fn ecx_SDOread(
                                                     as u16;
                                             if (*aSDOp).Command as libc::c_int & 0x1i32 > 0i32 {
                                                 /* last segment */
-                                                NotLast = 0u8;
+                                                NotLast = false;
                                                 if Framedatasize as libc::c_int == 7i32 {
                                                     /* subtract unused bytes from frame */
                                                     Framedatasize = (Framedatasize as libc::c_int
@@ -379,7 +379,7 @@ pub unsafe fn ecx_SDOread(
                                             *psize += Framedatasize as libc::c_int
                                         } else {
                                             /* unexpected frame returned from slave */
-                                            NotLast = 0u8; /* Unexpected frame returned */
+                                            NotLast = false; /* Unexpected frame returned */
                                             if (*aSDOp).Command as libc::c_int
                                                 == CoESDOCommand::ECT_SDO_ABORT as libc::c_int
                                             {
@@ -479,7 +479,7 @@ pub unsafe fn ecx_SDOwrite(
     let mut MbxOut: ec_mbxbuft = [0; 1487];
     let mut cnt: u8 = 0;
     let mut toggle: u8 = 0;
-    let mut NotLast: bool = 0;
+    let mut NotLast: bool = false;
     let mut hp: *mut u8 = 0 as *mut u8;
     ec_clearmbx(&mut MbxIn);
     /* Empty slave out mailbox if something is in. Timeout set to 0 */
@@ -555,10 +555,10 @@ pub unsafe fn ecx_SDOwrite(
         }
     } else {
         framedatasize = psize;
-        NotLast = 0u8;
+        NotLast = false;
         if framedatasize > maxdata {
             framedatasize = maxdata;
-            NotLast = 1u8
+            NotLast = true
         }
         (*SDOp).MbxHeader.length = (0xai32 + framedatasize) as u16;
         (*SDOp).MbxHeader.address = 0u16;
@@ -621,12 +621,12 @@ pub unsafe fn ecx_SDOwrite(
                     while NotLast != 0 {
                         SDOp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_SDOt;
                         framedatasize = psize;
-                        NotLast = 0u8;
+                        NotLast = false;
                         /* toggle bit for segment request */
                         (*SDOp).Command = 0x1u8; /* last segment */
                         if framedatasize > maxdata {
                             framedatasize = maxdata;
-                            NotLast = 1u8;
+                            NotLast = true;
                             (*SDOp).Command = 0u8 /*  more segments needed  */
                             /* segments follow */
                         } /* minimum size */
@@ -702,7 +702,7 @@ pub unsafe fn ecx_SDOwrite(
                                         /* Unexpected frame returned */
                                     }
                                     wkc = 0i32;
-                                    NotLast = 0u8
+                                    NotLast = false
                                 }
                             }
                         }
@@ -1350,9 +1350,9 @@ pub unsafe fn ecx_readODlist(
     let mut i: u16 = 0;
     let mut sp: u16 = 0;
     let mut offset: u16 = 0;
-    let mut stop: bool = 0;
+    let mut stop: bool = false;
     let mut cnt: u8 = 0;
-    let mut First: bool = 0;
+    let mut First: bool = false;
     (*pODlist).Slave = Slave;
     (*pODlist).Entries = 0u16;
     ec_clearmbx(&mut MbxIn);

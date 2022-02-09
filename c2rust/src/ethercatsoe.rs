@@ -88,7 +88,7 @@ pub unsafe fn ecx_SoEerror(
     Ec.Slave = Slave;
     Ec.Index = idn;
     Ec.SubIdx = 0u8;
-    *(*context).ecaterror = 1u8;
+    *(*context).ecaterror = true;
     Ec.Etype = ec_err_type::EC_ERR_TYPE_SOE_ERROR;
     Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode = Error;
     ecx_pusherror(context, &mut Ec);
@@ -131,7 +131,7 @@ pub unsafe fn ecx_SoEread(
     let mut MbxIn: ec_mbxbuft = [0; 1487];
     let mut MbxOut: ec_mbxbuft = [0; 1487];
     let mut cnt: u8 = 0;
-    let mut NotLast: bool = 0;
+    let mut NotLast: bool = false;
     ec_clearmbx(&mut MbxIn);
     /* Empty slave out mailbox if something is in. Timeout set to 0 */
     wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0i32);
@@ -158,7 +158,7 @@ pub unsafe fn ecx_SoEread(
     bp = p as *mut u8;
     mp = (&mut MbxIn as *mut ec_mbxbuft as *mut u8)
         .offset(::core::mem::size_of::<ec_SoEt>() as isize);
-    NotLast = 1u8;
+    NotLast = true;
     /* send SoE request to slave */
     wkc = ecx_mbxsend(
         context,
@@ -211,12 +211,12 @@ pub unsafe fn ecx_SoEread(
                         }
                     }
                     if (*aSoEp).incomplete() == 0 {
-                        NotLast = 0u8;
+                        NotLast = false;
                         *psize = totalsize
                     }
                 } else {
                     /* other slave response */
-                    NotLast = 0u8;
+                    NotLast = false;
                     if (*aSoEp).MbxHeader.mbxtype as libc::c_int & 0xfi32
                         == MailboxType::ECT_MBXT_SOE as libc::c_int
                         && (*aSoEp).opCode() as libc::c_int
@@ -238,7 +238,7 @@ pub unsafe fn ecx_SoEread(
                     wkc = 0i32
                 }
             } else {
-                NotLast = 0u8;
+                NotLast = false;
                 ecx_packeterror(context, slave, idn, 0u8, 4u16);
                 /* no response */
             }
@@ -283,7 +283,7 @@ pub unsafe fn ecx_SoEwrite(
     let mut MbxIn: ec_mbxbuft = [0; 1487];
     let mut MbxOut: ec_mbxbuft = [0; 1487];
     let mut cnt: u8 = 0;
-    let mut NotLast: bool = 0;
+    let mut NotLast: bool = false;
     ec_clearmbx(&mut MbxIn);
     /* Empty slave out mailbox if something is in. Timeout set to 0 */
     wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0i32); /*  segmented transfer needed  */
@@ -301,15 +301,15 @@ pub unsafe fn ecx_SoEwrite(
         .offset(::core::mem::size_of::<ec_SoEt>() as isize);
     maxdata = ((*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_ulong)
         .wrapping_sub(core::mem::size_of::<ec_SoEt>() as u64) as libc::c_int;
-    NotLast = 1u8;
+    NotLast = true;
     while NotLast != 0 {
         framedatasize = psize;
-        NotLast = 0u8;
+        NotLast = false;
         (*SoEp).c2rust_unnamed.idn = idn;
         (*SoEp).set_incomplete(0u8);
         if framedatasize > maxdata {
             framedatasize = maxdata;
-            NotLast = 1u8;
+            NotLast = true;
             (*SoEp).set_incomplete(1u8);
             (*SoEp).c2rust_unnamed.fragmentsleft = (psize / maxdata) as u16
         }
@@ -346,7 +346,7 @@ pub unsafe fn ecx_SoEwrite(
                 wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, timeout);
                 if wkc > 0i32 {
                     /* succeeded to read slave response ? */
-                    NotLast = 0u8;
+                    NotLast = false;
                     /* slave response should be SoE, WriteRes */
                     if !((*aSoEp).MbxHeader.mbxtype as libc::c_int & 0xfi32
                         == MailboxType::ECT_MBXT_SOE as libc::c_int
