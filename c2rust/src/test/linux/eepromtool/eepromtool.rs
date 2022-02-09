@@ -315,7 +315,7 @@ pub unsafe extern "C" fn input_intelhex(
         if c != -(1i32) && (sc < 11i32 || sline[0usize] as libc::c_int != ':' as i32) {
             c = -(1i32);
             retval = 0i32;
-            printf(b"Invalid Intel Hex format.\n\x00" as *const u8 as *const libc::c_char);
+            println!("Invalid Intel Hex format.");
         }
         if c != -(1i32) {
             sn = sscanf(
@@ -355,7 +355,7 @@ pub unsafe extern "C" fn input_intelhex(
                 if sn == 0 || sum - lval != 0i32 {
                     c = -(1i32);
                     retval = 0i32;
-                    printf(b"Invalid checksum.\n\x00" as *const u8 as *const libc::c_char);
+                    println!("Invalid checksum.");
                 }
             }
         }
@@ -550,7 +550,7 @@ pub unsafe extern "C" fn eeprom_write(
             dc += 1;
             if dc >= 100i32 {
                 dc = 0i32;
-                printf(b".\x00" as *const u8 as *const libc::c_char);
+                print!(".");
                 fflush(stdout);
             }
             i += 2i32
@@ -608,10 +608,11 @@ pub unsafe extern "C" fn eepromtool(
     let mut wbuf: *mut uint16 = 0 as *mut uint16;
     /* initialise SOEM, bind socket to ifname */
     if ec_init(ifname) != 0 {
-        printf(
-            b"ec_init on %s succeeded.\n\x00" as *const u8 as *const libc::c_char,
-            ifname,
-        ); /* detect number of slaves */
+        println!("ec_init on {:} succeeded.", unsafe {
+            std::ffi::CStr::from_ptr(ifname as *const libc::c_char)
+                .to_str()
+                .unwrap()
+        }); /* detect number of slaves */
         w = 0i32; // read first 128 bytes
         wkc = ec_BRD(
             0u16,
@@ -622,72 +623,68 @@ pub unsafe extern "C" fn eepromtool(
         ); // read reminder
         if wkc > 0i32 {
             ec_slavecount = wkc;
-            printf(
-                b"%d slaves found.\n\x00" as *const u8 as *const libc::c_char,
-                ec_slavecount,
-            );
+            println!("{:} slaves found.", ec_slavecount as libc::c_int);
             if ec_slavecount >= slave_0 && slave_0 > 0i32 {
                 if mode_0 == 6i32 || mode_0 == 1i32 || mode_0 == 2i32 {
                     tstart = osal_current_time();
                     eeprom_read(slave_0, 0i32, 128i32);
                     wbuf = &mut *ebuf.as_mut_ptr().offset(0isize) as *mut uint8 as *mut uint16;
-                    printf(
-                        b"Slave %d data\n\x00" as *const u8 as *const libc::c_char,
-                        slave_0,
+
+                    println!("Slave {:} data", slave_0 as libc::c_int);
+                    println!(
+                        " PDI Control      : {:4.4X}",
+                        *wbuf.offset(0isize) as libc::c_int as libc::c_uint
                     );
-                    printf(
-                        b" PDI Control      : %4.4X\n\x00" as *const u8 as *const libc::c_char,
-                        *wbuf.offset(0isize) as libc::c_int,
+                    println!(
+                        " PDI Config       : {:4.4X}",
+                        *wbuf.offset(0x1isize) as libc::c_int as libc::c_uint
                     );
-                    printf(
-                        b" PDI Config       : %4.4X\n\x00" as *const u8 as *const libc::c_char,
-                        *wbuf.offset(0x1isize) as libc::c_int,
+                    println!(
+                        " Config Alias     : {:4.4X}",
+                        *wbuf.offset(0x4isize) as libc::c_int as libc::c_uint
                     );
-                    printf(
-                        b" Config Alias     : %4.4X\n\x00" as *const u8 as *const libc::c_char,
-                        *wbuf.offset(0x4isize) as libc::c_int,
+                    println!(
+                        " Checksum         : {:4.4X}",
+                        *wbuf.offset(0x7isize) as libc::c_int as libc::c_uint
                     );
-                    printf(
-                        b" Checksum         : %4.4X\n\x00" as *const u8 as *const libc::c_char,
-                        *wbuf.offset(0x7isize) as libc::c_int,
+                    println!(
+                        "   calculated     : {:4.4X}",
+                        SIIcrc(&mut *ebuf.as_mut_ptr().offset(0isize)) as libc::c_int
+                            as libc::c_uint
                     );
-                    printf(
-                        b"   calculated     : %4.4X\n\x00" as *const u8 as *const libc::c_char,
-                        SIIcrc(&mut *ebuf.as_mut_ptr().offset(0isize)) as libc::c_int,
+                    println!(
+                        " Vendor ID        : {:8.8X}",
+                        *(wbuf.offset(0x8isize) as *mut uint32) as libc::c_uint
                     );
-                    printf(
-                        b" Vendor ID        : %8.8X\n\x00" as *const u8 as *const libc::c_char,
-                        *(wbuf.offset(0x8isize) as *mut uint32),
+                    println!(
+                        " Product Code     : {:8.8X}",
+                        *(wbuf.offset(0xaisize) as *mut uint32) as libc::c_uint
                     );
-                    printf(
-                        b" Product Code     : %8.8X\n\x00" as *const u8 as *const libc::c_char,
-                        *(wbuf.offset(0xaisize) as *mut uint32),
+                    println!(
+                        " Revision Number  : {:8.8X}",
+                        *(wbuf.offset(0xcisize) as *mut uint32) as libc::c_uint
                     );
-                    printf(
-                        b" Revision Number  : %8.8X\n\x00" as *const u8 as *const libc::c_char,
-                        *(wbuf.offset(0xcisize) as *mut uint32),
+                    println!(
+                        " Serial Number    : {:8.8X}",
+                        *(wbuf.offset(0xeisize) as *mut uint32) as libc::c_uint
                     );
-                    printf(
-                        b" Serial Number    : %8.8X\n\x00" as *const u8 as *const libc::c_char,
-                        *(wbuf.offset(0xeisize) as *mut uint32),
-                    );
-                    printf(
-                        b" Mailbox Protocol : %4.4X\n\x00" as *const u8 as *const libc::c_char,
-                        *wbuf.offset(0x1cisize) as libc::c_int,
+                    println!(
+                        " Mailbox Protocol : {:4.4X}",
+                        *wbuf.offset(0x1cisize) as libc::c_int as libc::c_uint
                     );
                     esize = (*wbuf.offset(0x3eisize) as libc::c_int + 1i32) * 128i32;
                     if esize > 524288i32 {
                         esize = 524288i32
                     }
-                    printf(
-                        b" Size             : %4.4X = %d bytes\n\x00" as *const u8
-                            as *const libc::c_char,
-                        *wbuf.offset(0x3eisize) as libc::c_int,
-                        esize,
+
+                    println!(
+                        " Size             : {:4.4X} = {:} bytes",
+                        *wbuf.offset(0x3eisize) as libc::c_int as libc::c_uint,
+                        esize as libc::c_int
                     );
-                    printf(
-                        b" Version          : %4.4X\n\x00" as *const u8 as *const libc::c_char,
-                        *wbuf.offset(0x3fisize) as libc::c_int,
+                    println!(
+                        " Version          : {:4.4X}",
+                        *wbuf.offset(0x3fisize) as libc::c_int as libc::c_uint
                     );
                 }
                 if mode_0 == 1i32 || mode_0 == 2i32 {
@@ -702,11 +699,10 @@ pub unsafe extern "C" fn eepromtool(
                     if mode_0 == 1i32 {
                         output_bin(fname, esize);
                     }
-                    printf(
-                        b"\nTotal EEPROM read time :%ldms\n\x00" as *const u8
-                            as *const libc::c_char,
-                        (tdif.usec as libc::c_long + tdif.sec as libc::c_long * 1000000i64)
-                            / 1000i64,
+                    println!(
+                        "\nTotal EEPROM read time :{:}ms",
+                        ((tdif.usec as libc::c_long + tdif.sec as libc::c_long * 1000000i64)
+                            / 1000i64) as libc::c_long
                     );
                 }
                 if mode_0 == 3i32 || mode_0 == 4i32 {
@@ -719,42 +715,37 @@ pub unsafe extern "C" fn eepromtool(
                     }
                     if rc > 0i32 {
                         wbuf = &mut *ebuf.as_mut_ptr().offset(0isize) as *mut uint8 as *mut uint16;
-                        printf(
-                            b"Slave %d\n\x00" as *const u8 as *const libc::c_char,
-                            slave_0,
+
+                        println!("Slave {:}", slave_0 as libc::c_int);
+                        println!(
+                            " Vendor ID        : {:8.8X}",
+                            *(wbuf.offset(0x8isize) as *mut uint32) as libc::c_uint
                         );
-                        printf(
-                            b" Vendor ID        : %8.8X\n\x00" as *const u8 as *const libc::c_char,
-                            *(wbuf.offset(0x8isize) as *mut uint32),
+                        println!(
+                            " Product Code     : {:8.8X}",
+                            *(wbuf.offset(0xaisize) as *mut uint32) as libc::c_uint
                         );
-                        printf(
-                            b" Product Code     : %8.8X\n\x00" as *const u8 as *const libc::c_char,
-                            *(wbuf.offset(0xaisize) as *mut uint32),
+                        println!(
+                            " Revision Number  : {:8.8X}",
+                            *(wbuf.offset(0xcisize) as *mut uint32) as libc::c_uint
                         );
-                        printf(
-                            b" Revision Number  : %8.8X\n\x00" as *const u8 as *const libc::c_char,
-                            *(wbuf.offset(0xcisize) as *mut uint32),
+                        println!(
+                            " Serial Number    : {:8.8X}",
+                            *(wbuf.offset(0xeisize) as *mut uint32) as libc::c_uint
                         );
-                        printf(
-                            b" Serial Number    : %8.8X\n\x00" as *const u8 as *const libc::c_char,
-                            *(wbuf.offset(0xeisize) as *mut uint32),
-                        );
-                        printf(b"Busy\x00" as *const u8 as *const libc::c_char);
+                        print!("Busy");
                         fflush(stdout);
                         tstart = osal_current_time();
                         eeprom_write(slave_0, estart, esize);
                         tend = osal_current_time();
                         osal_time_diff(&mut tstart, &mut tend, &mut tdif);
-                        printf(
-                            b"\nTotal EEPROM write time :%ldms\n\x00" as *const u8
-                                as *const libc::c_char,
-                            (tdif.usec as libc::c_long + tdif.sec as libc::c_long * 1000000i64)
-                                / 1000i64,
+                        println!(
+                            "\nTotal EEPROM write time :{:}ms",
+                            ((tdif.usec as libc::c_long + tdif.sec as libc::c_long * 1000000i64)
+                                / 1000i64) as libc::c_long
                         );
                     } else {
-                        printf(
-                            b"Error reading file, abort.\n\x00" as *const u8 as *const libc::c_char,
-                        );
+                        println!("Error reading file, abort.");
                     }
                 }
                 if mode_0 == 5i32 {
@@ -768,43 +759,36 @@ pub unsafe extern "C" fn eepromtool(
                             SIIcrc(&mut *ebuf.as_mut_ptr().offset(0isize)),
                         ) != 0
                         {
-                            printf(
-                                b"Alias %4.4X written successfully to slave %d\n\x00" as *const u8
-                                    as *const libc::c_char,
-                                alias,
-                                slave_0,
+                            println!(
+                                "Alias {:4.4X} written successfully to slave {:}",
+                                alias as libc::c_uint, slave_0 as libc::c_int
                             );
                         } else {
-                            printf(b"Alias not written\n\x00" as *const u8 as *const libc::c_char);
+                            println!("Alias not written");
                         }
                     } else {
-                        printf(
-                            b"Could not read slave EEPROM\x00" as *const u8 as *const libc::c_char,
-                        );
+                        print!("Could not read slave EEPROM");
                     }
                 }
             } else {
-                printf(b"Slave number outside range.\n\x00" as *const u8 as *const libc::c_char);
+                println!("Slave number outside range.");
             }
         } else {
-            printf(b"No slaves found!\n\x00" as *const u8 as *const libc::c_char);
+            println!("No slaves found!");
         }
-        printf(b"End, close socket\n\x00" as *const u8 as *const libc::c_char);
+        println!("End, close socket");
         /* stop SOEM, close socket */
         ec_close();
     } else {
-        printf(
-            b"No socket connection on %s\nExcecute as root\n\x00" as *const u8
-                as *const libc::c_char,
-            ifname,
-        );
+        println!("No socket connection on {:}\nExcecute as root", unsafe {
+            std::ffi::CStr::from_ptr(ifname as *const libc::c_char)
+                .to_str()
+                .unwrap()
+        });
     };
 }
 unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> libc::c_int {
-    printf(
-        b"SOEM (Simple Open EtherCAT Master)\nEEPROM tool\n\x00" as *const u8
-            as *const libc::c_char,
-    );
+    println!("SOEM (Simple Open EtherCAT Master)\nEEPROM tool");
     mode = 0i32;
     if argc > 3i32 {
         slave = atoi(*argv.offset(2isize));
@@ -863,46 +847,37 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
         eepromtool(*argv.offset(1isize), slave, mode, *argv.offset(4isize));
     } else {
         let mut adapter: *mut ec_adaptert = 0 as *mut ec_adaptert;
-        printf(
-            b"Usage: eepromtool ifname slave OPTION fname|alias\n\x00" as *const u8
-                as *const libc::c_char,
-        );
-        printf(b"ifname = eth0 for example\n\x00" as *const u8 as *const libc::c_char);
-        printf(
-            b"slave = slave number in EtherCAT order 1..n\n\x00" as *const u8
-                as *const libc::c_char,
-        );
-        printf(b"    -i      display EEPROM information\n\x00" as *const u8 as *const libc::c_char);
-        printf(b"    -walias write slave alias\n\x00" as *const u8 as *const libc::c_char);
-        printf(
-            b"    -r      read EEPROM, output binary format\n\x00" as *const u8
-                as *const libc::c_char,
-        );
-        printf(
-            b"    -ri     read EEPROM, output Intel Hex format\n\x00" as *const u8
-                as *const libc::c_char,
-        );
-        printf(
-            b"    -w      write EEPROM, input binary format\n\x00" as *const u8
-                as *const libc::c_char,
-        );
-        printf(
-            b"    -wi     write EEPROM, input Intel Hex format\n\x00" as *const u8
-                as *const libc::c_char,
-        );
-        printf(b"\nAvailable adapters:\n\x00" as *const u8 as *const libc::c_char);
+
+        println!("Usage: eepromtool ifname slave OPTION fname|alias");
+        println!("ifname = eth0 for example");
+        println!("slave = slave number in EtherCAT order 1..n");
+        println!("    -i      display EEPROM information");
+        println!("    -walias write slave alias");
+        println!("    -r      read EEPROM, output binary format");
+        println!("    -ri     read EEPROM, output Intel Hex format");
+        println!("    -w      write EEPROM, input binary format");
+        println!("    -wi     write EEPROM, input Intel Hex format");
+        println!("\nAvailable adapters:");
         adapter = ec_find_adapters();
         while !adapter.is_null() {
-            printf(
-                b"    - %s  (%s)\n\x00" as *const u8 as *const libc::c_char,
-                (*adapter).name.as_mut_ptr(),
-                (*adapter).desc.as_mut_ptr(),
+            println!(
+                "    - {:}  ({:})",
+                unsafe {
+                    std::ffi::CStr::from_ptr((*adapter).name.as_mut_ptr() as *const libc::c_char)
+                        .to_str()
+                        .unwrap()
+                },
+                unsafe {
+                    std::ffi::CStr::from_ptr((*adapter).desc.as_mut_ptr() as *const libc::c_char)
+                        .to_str()
+                        .unwrap()
+                }
             );
             adapter = (*adapter).next
         }
         ec_free_adapters(adapter);
     }
-    printf(b"End program\n\x00" as *const u8 as *const libc::c_char);
+    println!("End program");
     return 0i32;
 }
 fn main() {

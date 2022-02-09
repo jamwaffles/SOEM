@@ -530,69 +530,72 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
         .grouplist
         .as_mut_ptr()
         .offset((*fieldbus).group as libc::c_int as isize);
-    printf(
-        b"Initializing SOEM on \'%s\'... \x00" as *const u8 as *const libc::c_char,
-        (*fieldbus).iface,
-    );
+    print!("Initializing SOEM on \'{:}\'... ", unsafe {
+        std::ffi::CStr::from_ptr((*fieldbus).iface as *const libc::c_char)
+            .to_str()
+            .unwrap()
+    });
     if ecx_init(context, (*fieldbus).iface) == 0 {
-        printf(b"no socket connection\n\x00" as *const u8 as *const libc::c_char);
+        println!("no socket connection");
         return 0u8;
     }
-    printf(b"done\n\x00" as *const u8 as *const libc::c_char);
-    printf(b"Finding autoconfig slaves... \x00" as *const u8 as *const libc::c_char);
+
+    println!("done");
+    print!("Finding autoconfig slaves... ");
     if ecx_config_init(context, 0u8) <= 0i32 {
-        printf(b"no slaves found\n\x00" as *const u8 as *const libc::c_char);
+        println!("no slaves found");
         return 0u8;
     }
-    printf(
-        b"%d slaves found\n\x00" as *const u8 as *const libc::c_char,
-        (*fieldbus).slavecount,
-    );
-    printf(b"Sequential mapping of I/O... \x00" as *const u8 as *const libc::c_char);
+
+    println!("{:} slaves found", (*fieldbus).slavecount as libc::c_int);
+    print!("Sequential mapping of I/O... ");
     ecx_config_map_group(
         context,
         (*fieldbus).map.as_mut_ptr() as *mut libc::c_void,
         (*fieldbus).group,
     );
-    printf(
-        b"mapped %dO+%dI bytes from %d segments\x00" as *const u8 as *const libc::c_char,
-        (*grp).Obytes,
-        (*grp).Ibytes,
-        (*grp).nsegments as libc::c_int,
+    print!(
+        "mapped {:}O+{:}I bytes from {:} segments",
+        (*grp).Obytes as libc::c_int,
+        (*grp).Ibytes as libc::c_int,
+        (*grp).nsegments as libc::c_int as libc::c_int
     );
     if (*grp).nsegments as libc::c_int > 1i32 {
         /* Show how slaves are distrubuted */
         i = 0i32;
         while i < (*grp).nsegments as libc::c_int {
-            printf(
-                b"%s%d\x00" as *const u8 as *const libc::c_char,
-                if i == 0i32 {
-                    b" (\x00" as *const u8 as *const libc::c_char
-                } else {
-                    b"+\x00" as *const u8 as *const libc::c_char
+            print!(
+                "{:}{:}",
+                unsafe {
+                    std::ffi::CStr::from_ptr(if i == 0i32 {
+                        b" (\x00" as *const u8 as *const libc::c_char
+                    } else {
+                        b"+\x00" as *const u8 as *const libc::c_char
+                    } as *const libc::c_char)
+                    .to_str()
+                    .unwrap()
                 },
-                (*grp).IOsegment[i as usize],
+                (*grp).IOsegment[i as usize] as libc::c_int
             );
             i += 1
         }
-        printf(b" slaves)\x00" as *const u8 as *const libc::c_char);
+        print!(" slaves)");
     }
-    printf(b"\n\x00" as *const u8 as *const libc::c_char);
-    printf(b"Configuring distributed clock... \x00" as *const u8 as *const libc::c_char);
+
+    println!("");
+    print!("Configuring distributed clock... ");
     ecx_configdc(context);
-    printf(b"done\n\x00" as *const u8 as *const libc::c_char);
-    printf(
-        b"Waiting for all slaves in safe operational... \x00" as *const u8 as *const libc::c_char,
-    );
+
+    println!("done");
+    print!("Waiting for all slaves in safe operational... ");
     ecx_statecheck(context, 0u16, EC_STATE_SAFE_OP as uint16, 2000000i32 * 4i32);
-    printf(b"done\n\x00" as *const u8 as *const libc::c_char);
-    printf(
-        b"Send a roundtrip to make outputs in slaves happy... \x00" as *const u8
-            as *const libc::c_char,
-    );
+
+    println!("done");
+    print!("Send a roundtrip to make outputs in slaves happy... ");
     fieldbus_roundtrip(fieldbus);
-    printf(b"done\n\x00" as *const u8 as *const libc::c_char);
-    printf(b"Setting operational state..\x00" as *const u8 as *const libc::c_char);
+
+    println!("done");
+    print!("Setting operational state..");
     /* Act on slave 0 (a virtual slave used for broadcasting) */
     slave = (*fieldbus).slavelist.as_mut_ptr();
     (*slave).state = EC_STATE_OPERATIONAL as uint16;
@@ -600,7 +603,7 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
     /* Poll the result ten times before giving up */
     i = 0i32;
     while i < 10i32 {
-        printf(b".\x00" as *const u8 as *const libc::c_char);
+        print!(".");
         fieldbus_roundtrip(fieldbus);
         ecx_statecheck(
             context,
@@ -609,28 +612,34 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
             2000000i32 / 10i32,
         );
         if (*slave).state as libc::c_int == EC_STATE_OPERATIONAL as libc::c_int {
-            printf(b" all slaves are now operational\n\x00" as *const u8 as *const libc::c_char);
+            println!(" all slaves are now operational");
             return 1u8;
         }
         i += 1
     }
-    printf(b" failed,\x00" as *const u8 as *const libc::c_char);
+    print!(" failed,");
     ecx_readstate(context);
     i = 1i32;
     while i <= (*fieldbus).slavecount {
         slave = (*fieldbus).slavelist.as_mut_ptr().offset(i as isize);
         if (*slave).state as libc::c_int != EC_STATE_OPERATIONAL as libc::c_int {
-            printf(
-                b" slave %d is 0x%4X (AL-status=0x%4X %s)\x00" as *const u8 as *const libc::c_char,
-                i,
-                (*slave).state as libc::c_int,
-                (*slave).ALstatuscode as libc::c_int,
-                ec_ALstatuscode2string((*slave).ALstatuscode),
+            print!(
+                " slave {:} is 0x{:4X} (AL-status=0x{:4X} {:})",
+                i as libc::c_int,
+                (*slave).state as libc::c_int as libc::c_uint,
+                (*slave).ALstatuscode as libc::c_int as libc::c_uint,
+                unsafe {
+                    std::ffi::CStr::from_ptr(
+                        ec_ALstatuscode2string((*slave).ALstatuscode) as *const libc::c_char
+                    )
+                    .to_str()
+                    .unwrap()
+                }
             );
         }
         i += 1
     }
-    printf(b"\n\x00" as *const u8 as *const libc::c_char);
+    println!("");
     return 0u8;
 }
 unsafe extern "C" fn fieldbus_stop(mut fieldbus: *mut Fieldbus) {
@@ -639,13 +648,14 @@ unsafe extern "C" fn fieldbus_stop(mut fieldbus: *mut Fieldbus) {
     context = &mut (*fieldbus).context;
     /* Act on slave 0 (a virtual slave used for broadcasting) */
     slave = (*fieldbus).slavelist.as_mut_ptr();
-    printf(b"Requesting init state on all slaves... \x00" as *const u8 as *const libc::c_char);
+    print!("Requesting init state on all slaves... ");
     (*slave).state = EC_STATE_INIT as uint16;
     ecx_writestate(context, 0u16);
-    printf(b"done\n\x00" as *const u8 as *const libc::c_char);
-    printf(b"Close socket... \x00" as *const u8 as *const libc::c_char);
+
+    println!("done");
+    print!("Close socket... ");
     ecx_close(context);
-    printf(b"done\n\x00" as *const u8 as *const libc::c_char);
+    println!("done");
 }
 unsafe extern "C" fn fieldbus_dump(mut fieldbus: *mut Fieldbus) -> boolean {
     let mut grp: *mut ec_groupt = 0 as *mut ec_groupt;
@@ -658,40 +668,34 @@ unsafe extern "C" fn fieldbus_dump(mut fieldbus: *mut Fieldbus) -> boolean {
         .offset((*fieldbus).group as libc::c_int as isize);
     wkc = fieldbus_roundtrip(fieldbus);
     expected_wkc = (*grp).outputsWKC as libc::c_int * 2i32 + (*grp).inputsWKC as libc::c_int;
-    printf(
-        b"%6d usec  WKC %d\x00" as *const u8 as *const libc::c_char,
-        (*fieldbus).roundtrip_time,
-        wkc,
+    print!(
+        "{:6} usec  WKC {:}",
+        (*fieldbus).roundtrip_time as libc::c_int,
+        wkc as libc::c_int
     );
     if wkc < expected_wkc {
-        printf(
-            b" wrong (expected %d)\n\x00" as *const u8 as *const libc::c_char,
-            expected_wkc,
-        );
+        println!(" wrong (expected {:})", expected_wkc as libc::c_int);
         return 0u8;
     }
-    printf(b"  O:\x00" as *const u8 as *const libc::c_char);
+    print!("  O:");
     n = 0u32;
     while n < (*grp).Obytes {
-        printf(
-            b" %2X\x00" as *const u8 as *const libc::c_char,
-            *(*grp).outputs.offset(n as isize) as libc::c_int,
+        print!(
+            " {:2X}",
+            *(*grp).outputs.offset(n as isize) as libc::c_int as libc::c_uint
         );
         n = n.wrapping_add(1)
     }
-    printf(b"  I:\x00" as *const u8 as *const libc::c_char);
+    print!("  I:");
     n = 0u32;
     while n < (*grp).Ibytes {
-        printf(
-            b" %2X\x00" as *const u8 as *const libc::c_char,
-            *(*grp).inputs.offset(n as isize) as libc::c_int,
+        print!(
+            " {:2X}",
+            *(*grp).inputs.offset(n as isize) as libc::c_int as libc::c_uint
         );
         n = n.wrapping_add(1)
     }
-    printf(
-        b"  T: %lld\r\x00" as *const u8 as *const libc::c_char,
-        (*fieldbus).DCtime,
-    );
+    print!("  T: {:}\r", (*fieldbus).DCtime as libc::c_longlong);
     return 1u8;
 }
 unsafe extern "C" fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
@@ -714,29 +718,24 @@ unsafe extern "C" fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
                 if (*slave).state as libc::c_int
                     == EC_STATE_SAFE_OP as libc::c_int + EC_STATE_ERROR as libc::c_int
                 {
-                    printf(
-                        b"* Slave %d is in SAFE_OP+ERROR, attempting ACK\n\x00" as *const u8
-                            as *const libc::c_char,
-                        i,
+                    println!(
+                        "* Slave {:} is in SAFE_OP+ERROR, attempting ACK",
+                        i as libc::c_int
                     );
                     (*slave).state =
                         (EC_STATE_SAFE_OP as libc::c_int + EC_STATE_ACK as libc::c_int) as uint16;
                     ecx_writestate(context, i as uint16);
                 } else if (*slave).state as libc::c_int == EC_STATE_SAFE_OP as libc::c_int {
-                    printf(
-                        b"* Slave %d is in SAFE_OP, change to OPERATIONAL\n\x00" as *const u8
-                            as *const libc::c_char,
-                        i,
+                    println!(
+                        "* Slave {:} is in SAFE_OP, change to OPERATIONAL",
+                        i as libc::c_int
                     );
                     (*slave).state = EC_STATE_OPERATIONAL as uint16;
                     ecx_writestate(context, i as uint16);
                 } else if (*slave).state as libc::c_int > EC_STATE_NONE as libc::c_int {
                     if ecx_reconfig_slave(context, i as uint16, 2000i32) != 0 {
                         (*slave).islost = 0u8;
-                        printf(
-                            b"* Slave %d reconfigured\n\x00" as *const u8 as *const libc::c_char,
-                            i,
-                        );
+                        println!("* Slave {:} reconfigured", i as libc::c_int);
                     }
                 } else if (*slave).islost == 0 {
                     ecx_statecheck(
@@ -747,32 +746,23 @@ unsafe extern "C" fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
                     );
                     if (*slave).state as libc::c_int == EC_STATE_NONE as libc::c_int {
                         (*slave).islost = 1u8;
-                        printf(
-                            b"* Slave %d lost\n\x00" as *const u8 as *const libc::c_char,
-                            i,
-                        );
+                        println!("* Slave {:} lost", i as libc::c_int);
                     }
                 }
             } else if (*slave).islost != 0 {
                 if (*slave).state as libc::c_int != EC_STATE_NONE as libc::c_int {
                     (*slave).islost = 0u8;
-                    printf(
-                        b"* Slave %d found\n\x00" as *const u8 as *const libc::c_char,
-                        i,
-                    );
+                    println!("* Slave {:} found", i as libc::c_int);
                 } else if ecx_recover_slave(context, i as uint16, 2000i32) != 0 {
                     (*slave).islost = 0u8;
-                    printf(
-                        b"* Slave %d recovered\n\x00" as *const u8 as *const libc::c_char,
-                        i,
-                    );
+                    println!("* Slave {:} recovered", i as libc::c_int);
                 }
             }
         }
         i += 1
     }
     if (*grp).docheckstate == 0 {
-        printf(b"All slaves resumed OPERATIONAL\n\x00" as *const u8 as *const libc::c_char);
+        println!("All slaves resumed OPERATIONAL");
     };
 }
 unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> libc::c_int {
@@ -1035,17 +1025,23 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
     };
     if argc != 2i32 {
         let mut adapter: *mut ec_adaptert = 0 as *mut ec_adaptert;
-        printf(
-            b"Usage: simple_ng IFNAME1\nIFNAME1 is the NIC interface name, e.g. \'eth0\'\n\x00"
-                as *const u8 as *const libc::c_char,
-        );
-        printf(b"\nAvailable adapters:\n\x00" as *const u8 as *const libc::c_char);
+
+        println!("Usage: simple_ng IFNAME1\nIFNAME1 is the NIC interface name, e.g. \'eth0\'");
+        println!("\nAvailable adapters:");
         adapter = ec_find_adapters();
         while !adapter.is_null() {
-            printf(
-                b"    - %s  (%s)\n\x00" as *const u8 as *const libc::c_char,
-                (*adapter).name.as_mut_ptr(),
-                (*adapter).desc.as_mut_ptr(),
+            println!(
+                "    - {:}  ({:})",
+                unsafe {
+                    std::ffi::CStr::from_ptr((*adapter).name.as_mut_ptr() as *const libc::c_char)
+                        .to_str()
+                        .unwrap()
+                },
+                unsafe {
+                    std::ffi::CStr::from_ptr((*adapter).desc.as_mut_ptr() as *const libc::c_char)
+                        .to_str()
+                        .unwrap()
+                }
             );
             adapter = (*adapter).next
         }
@@ -1061,7 +1057,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
         min_time = max_time;
         i = 1i32;
         while i <= 10000i32 {
-            printf(b"Iteration %4d:\x00" as *const u8 as *const libc::c_char, i);
+            print!("Iteration {:4}:", i as libc::c_int);
             if fieldbus_dump(&mut fieldbus) == 0 {
                 fieldbus_check_state(&mut fieldbus);
             } else if i == 1i32 {
@@ -1075,10 +1071,9 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             osal_usleep(5000u32);
             i += 1
         }
-        printf(
-            b"\nRoundtrip time (usec): min %d max %d\n\x00" as *const u8 as *const libc::c_char,
-            min_time,
-            max_time,
+        println!(
+            "\nRoundtrip time (usec): min {:} max {:}",
+            min_time as libc::c_int, max_time as libc::c_int
         );
         fieldbus_stop(&mut fieldbus);
     }
