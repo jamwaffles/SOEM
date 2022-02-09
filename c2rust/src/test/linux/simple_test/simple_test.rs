@@ -1,55 +1,55 @@
 use libc;
 extern "C" {
-    #[no_mangle]
+    
     fn printf(_: *const libc::c_char, _: ...) -> libc::c_int;
-    #[no_mangle]
+    
     fn ctime(__timer: *const time_t) -> *mut libc::c_char;
-    #[no_mangle]
+    
     fn osal_usleep(usec: uint32) -> libc::c_int;
-    #[no_mangle]
+    
     fn osal_thread_create(
         thandle: *mut libc::c_void,
         stacksize: libc::c_int,
         func: *mut libc::c_void,
         param: *mut libc::c_void,
     ) -> libc::c_int;
-    #[no_mangle]
+    
     static mut ec_slave: [ec_slavet; 200];
-    #[no_mangle]
+    
     static mut ec_slavecount: libc::c_int;
-    #[no_mangle]
+    
     static mut ec_group: [ec_groupt; 2];
-    #[no_mangle]
+    
     static mut ec_DCtime: int64;
-    #[no_mangle]
+    
     fn ec_init(ifname: *const libc::c_char) -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_close();
-    #[no_mangle]
+    
     fn ec_readstate() -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_writestate(slave: uint16) -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_statecheck(slave: uint16, reqstate: uint16, timeout: libc::c_int) -> uint16;
-    #[no_mangle]
+    
     fn ec_send_processdata() -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_receive_processdata(timeout: libc::c_int) -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_find_adapters() -> *mut ec_adaptert;
-    #[no_mangle]
+    
     fn ec_free_adapters(adapter: *mut ec_adaptert);
-    #[no_mangle]
+    
     fn ec_configdc() -> boolean;
-    #[no_mangle]
+    
     fn ec_config_init(usetable: uint8) -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_config_map(pIOmap: *mut libc::c_void) -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_recover_slave(slave: uint16, timeout: libc::c_int) -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_reconfig_slave(slave: uint16, timeout: libc::c_int) -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_ALstatuscode2string(ALstatuscode: uint16) -> *mut libc::c_char;
 }
 pub type __uint8_t = libc::c_uchar;
@@ -614,7 +614,7 @@ pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn ecatcheck(mut ptr: *mut libc::c_void) {
+pub unsafe extern "C" fn ecatcheck(mut _ptr: *mut libc::c_void) {
     let mut slave: libc::c_int = 0;
     /* Not used */
     loop {

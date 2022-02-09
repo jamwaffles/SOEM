@@ -1,59 +1,59 @@
 use libc;
 extern "C" {
-    #[no_mangle]
+    
     fn printf(_: *const libc::c_char, _: ...) -> libc::c_int;
-    #[no_mangle]
+    
     fn sprintf(_: *mut libc::c_char, _: *const libc::c_char, _: ...) -> libc::c_int;
-    #[no_mangle]
+    
     fn snprintf(
         _: *mut libc::c_char,
         _: libc::c_ulong,
         _: *const libc::c_char,
         _: ...
     ) -> libc::c_int;
-    #[no_mangle]
+    
     fn memset(_: *mut libc::c_void, _: libc::c_int, _: libc::c_ulong) -> *mut libc::c_void;
-    #[no_mangle]
+    
     fn strcpy(_: *mut libc::c_char, _: *const libc::c_char) -> *mut libc::c_char;
-    #[no_mangle]
+    
     fn strcat(_: *mut libc::c_char, _: *const libc::c_char) -> *mut libc::c_char;
-    #[no_mangle]
+    
     fn strncmp(_: *const libc::c_char, _: *const libc::c_char, _: libc::c_ulong) -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_elist2string() -> *mut libc::c_char;
-    #[no_mangle]
+    
     fn ec_ALstatuscode2string(ALstatuscode: uint16) -> *mut libc::c_char;
-    #[no_mangle]
+    
     static mut ec_slave: [ec_slavet; 200];
-    #[no_mangle]
+    
     static mut ec_slavecount: libc::c_int;
-    #[no_mangle]
+    
     static mut ec_group: [ec_groupt; 2];
-    #[no_mangle]
+    
     static mut EcatError: boolean;
-    #[no_mangle]
+    
     fn ec_init(ifname: *const libc::c_char) -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_close();
-    #[no_mangle]
+    
     fn ec_siigetbyte(slave: uint16, address: uint16) -> uint8;
-    #[no_mangle]
+    
     fn ec_siifind(slave: uint16, cat: uint16) -> int16;
-    #[no_mangle]
+    
     fn ec_siistring(str: *mut libc::c_char, slave: uint16, Sn: uint16);
-    #[no_mangle]
+    
     fn ec_readstate() -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_statecheck(slave: uint16, reqstate: uint16, timeout: libc::c_int) -> uint16;
-    #[no_mangle]
+    
     fn ec_eeprom2pdi(slave: uint16) -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_find_adapters() -> *mut ec_adaptert;
-    #[no_mangle]
+    
     fn ec_free_adapters(adapter: *mut ec_adaptert);
-    #[no_mangle]
+    
     fn ec_configdc() -> boolean;
-    #[no_mangle]
+    
     fn ec_SDOread(
         slave: uint16,
         index: uint16,
@@ -63,20 +63,20 @@ extern "C" {
         p: *mut libc::c_void,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_readODlist(Slave: uint16, pODlist: *mut ec_ODlistt) -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_readODdescription(Item: uint16, pODlist: *mut ec_ODlistt) -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_readOEsingle(
         Item: uint16,
         SubI: uint8,
         pODlist: *mut ec_ODlistt,
         pOElist: *mut ec_OElistt,
     ) -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_readOE(Item: uint16, pODlist: *mut ec_ODlistt, pOElist: *mut ec_OElistt) -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_config(usetable: uint8, pIOmap: *mut libc::c_void) -> libc::c_int;
 }
 pub type __int8_t = libc::c_schar;

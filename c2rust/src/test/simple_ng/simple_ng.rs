@@ -1,61 +1,61 @@
 use libc;
 extern "C" {
-    #[no_mangle]
+    
     fn ec_find_adapters() -> *mut ec_adaptert;
-    #[no_mangle]
+    
     fn ec_free_adapters(adapter: *mut ec_adaptert);
-    #[no_mangle]
+    
     fn ecx_init(context: *mut ecx_contextt, ifname: *const libc::c_char) -> libc::c_int;
-    #[no_mangle]
+    
     fn ecx_close(context: *mut ecx_contextt);
-    #[no_mangle]
+    
     fn ecx_readstate(context: *mut ecx_contextt) -> libc::c_int;
-    #[no_mangle]
+    
     fn ecx_writestate(context: *mut ecx_contextt, slave: uint16) -> libc::c_int;
-    #[no_mangle]
+    
     fn ecx_statecheck(
         context: *mut ecx_contextt,
         slave: uint16,
         reqstate: uint16,
         timeout: libc::c_int,
     ) -> uint16;
-    #[no_mangle]
+    
     fn ecx_send_processdata(context: *mut ecx_contextt) -> libc::c_int;
-    #[no_mangle]
+    
     fn ecx_receive_processdata(context: *mut ecx_contextt, timeout: libc::c_int) -> libc::c_int;
-    #[no_mangle]
+    
     fn ecx_configdc(context: *mut ecx_contextt) -> boolean;
-    #[no_mangle]
+    
     fn ecx_config_init(context: *mut ecx_contextt, usetable: uint8) -> libc::c_int;
-    #[no_mangle]
+    
     fn ecx_config_map_group(
         context: *mut ecx_contextt,
         pIOmap: *mut libc::c_void,
         group: uint8,
     ) -> libc::c_int;
-    #[no_mangle]
+    
     fn ecx_recover_slave(
         context: *mut ecx_contextt,
         slave: uint16,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    #[no_mangle]
+    
     fn ecx_reconfig_slave(
         context: *mut ecx_contextt,
         slave: uint16,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    #[no_mangle]
+    
     fn ec_ALstatuscode2string(ALstatuscode: uint16) -> *mut libc::c_char;
-    #[no_mangle]
+    
     fn osal_usleep(usec: uint32) -> libc::c_int;
-    #[no_mangle]
+    
     fn osal_current_time() -> ec_timet;
-    #[no_mangle]
+    
     fn osal_time_diff(start: *mut ec_timet, end: *mut ec_timet, diff: *mut ec_timet);
-    #[no_mangle]
+    
     fn printf(_: *const libc::c_char, _: ...) -> libc::c_int;
-    #[no_mangle]
+    
     fn memset(_: *mut libc::c_void, _: libc::c_int, _: libc::c_ulong) -> *mut libc::c_void;
 }
 pub type __uint8_t = libc::c_uchar;

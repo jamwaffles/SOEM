@@ -1,16 +1,16 @@
 use ::libc;
 extern "C" {
-    #[no_mangle]
+    
     fn memcpy(_: *mut libc::c_void, _: *const libc::c_void, _: libc::c_ulong) -> *mut libc::c_void;
-    #[no_mangle]
+    
     fn memset(_: *mut libc::c_void, _: libc::c_int, _: libc::c_ulong) -> *mut libc::c_void;
-    #[no_mangle]
+    
     static mut ecx_port: ecx_portt;
-    #[no_mangle]
+    
     fn ecx_setbufstat(port: *mut ecx_portt, idx: uint8, bufstat: libc::c_int);
-    #[no_mangle]
+    
     fn ecx_getindex(port: *mut ecx_portt) -> uint8;
-    #[no_mangle]
+    
     fn ecx_srconfirm(port: *mut ecx_portt, idx: uint8, timeout: libc::c_int) -> libc::c_int;
 }
 pub type __uint8_t = libc::c_uchar;

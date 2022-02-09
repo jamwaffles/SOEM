@@ -1,26 +1,26 @@
 use ::libc;
 extern "C" {
-    #[no_mangle]
+    
     fn ioctl(__fd: libc::c_int, __request: libc::c_ulong, _: ...) -> libc::c_int;
-    #[no_mangle]
+    
     fn socket(__domain: libc::c_int, __type: libc::c_int, __protocol: libc::c_int) -> libc::c_int;
-    #[no_mangle]
+    
     fn bind(__fd: libc::c_int, __addr: *const sockaddr, __len: socklen_t) -> libc::c_int;
-    #[no_mangle]
+    
     fn send(
         __fd: libc::c_int,
         __buf: *const libc::c_void,
         __n: size_t,
         __flags: libc::c_int,
     ) -> ssize_t;
-    #[no_mangle]
+    
     fn recv(
         __fd: libc::c_int,
         __buf: *mut libc::c_void,
         __n: size_t,
         __flags: libc::c_int,
     ) -> ssize_t;
-    #[no_mangle]
+    
     fn setsockopt(
         __fd: libc::c_int,
         __level: libc::c_int,
@@ -28,37 +28,37 @@ extern "C" {
         __optval: *const libc::c_void,
         __optlen: socklen_t,
     ) -> libc::c_int;
-    #[no_mangle]
+    
     fn close(__fd: libc::c_int) -> libc::c_int;
-    #[no_mangle]
+    
     fn ntohs(__netshort: uint16_t) -> uint16_t;
-    #[no_mangle]
+    
     fn htons(__hostshort: uint16_t) -> uint16_t;
-    #[no_mangle]
+    
     fn memcpy(_: *mut libc::c_void, _: *const libc::c_void, _: libc::c_ulong) -> *mut libc::c_void;
-    #[no_mangle]
+    
     fn strcpy(_: *mut libc::c_char, _: *const libc::c_char) -> *mut libc::c_char;
-    #[no_mangle]
+    
     fn pthread_mutex_init(
         __mutex: *mut pthread_mutex_t,
         __mutexattr: *const pthread_mutexattr_t,
     ) -> libc::c_int;
-    #[no_mangle]
+    
     fn pthread_mutex_lock(__mutex: *mut pthread_mutex_t) -> libc::c_int;
-    #[no_mangle]
+    
     fn pthread_mutex_unlock(__mutex: *mut pthread_mutex_t) -> libc::c_int;
-    #[no_mangle]
+    
     fn pthread_mutexattr_init(__attr: *mut pthread_mutexattr_t) -> libc::c_int;
-    #[no_mangle]
+    
     fn pthread_mutexattr_setprotocol(
         __attr: *mut pthread_mutexattr_t,
         __protocol: libc::c_int,
     ) -> libc::c_int;
-    #[no_mangle]
+    
     static mut ecx_port: ecx_portt;
-    #[no_mangle]
+    
     fn osal_timer_is_expired(self_0: *mut osal_timert) -> boolean;
-    #[no_mangle]
+    
     fn osal_timer_start(self_0: *mut osal_timert, timeout_us: uint32);
 }
 pub type __uint8_t = libc::c_uchar;

@@ -1,10 +1,10 @@
 use ::libc;
 extern "C" {
-    #[no_mangle]
+    
     fn sprintf(_: *mut libc::c_char, _: *const libc::c_char, _: ...) -> libc::c_int;
-    #[no_mangle]
+    
     static mut ecx_context: ecx_contextt;
-    #[no_mangle]
+    
     fn ecx_poperror(context: *mut ecx_contextt, Ec: *mut ec_errort) -> boolean;
 }
 pub type __uint8_t = libc::c_uchar;
