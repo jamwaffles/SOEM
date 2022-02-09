@@ -149,7 +149,7 @@ pub unsafe extern "C" fn osal_thread_create(
     mut param: *mut libc::c_void,
 ) -> libc::c_int {
     let mut ret: libc::c_int = 0;
-    let mut attr: pthread_attr_t = pthread_attr_t { __size: [0; 56] };
+    let mut attr: pthread_attr_t = pthread_attr_t { __size: [0; 7] };
     let mut threadp: *mut pthread_t = 0 as *mut pthread_t;
     threadp = thandle as *mut pthread_t;
     pthread_attr_init(&mut attr);
@@ -159,7 +159,7 @@ pub unsafe extern "C" fn osal_thread_create(
         &mut attr,
         ::core::mem::transmute::<
             *mut libc::c_void,
-            Option<unsafe extern "C" fn(_: *mut libc::c_void) -> *mut libc::c_void>,
+            extern "C" fn(_: *mut libc::c_void) -> *mut libc::c_void,
         >(func),
         param,
     );
@@ -176,7 +176,7 @@ pub unsafe extern "C" fn osal_thread_create_rt(
     mut param: *mut libc::c_void,
 ) -> libc::c_int {
     let mut ret: libc::c_int = 0;
-    let mut attr: pthread_attr_t = pthread_attr_t { __size: [0; 56] };
+    let mut attr: pthread_attr_t = pthread_attr_t { __size: [0; 7] };
     let mut schparam: sched_param = sched_param { sched_priority: 0 };
     let mut threadp: *mut pthread_t = 0 as *mut pthread_t;
     threadp = thandle as *mut pthread_t;
@@ -187,7 +187,7 @@ pub unsafe extern "C" fn osal_thread_create_rt(
         &mut attr,
         ::core::mem::transmute::<
             *mut libc::c_void,
-            Option<unsafe extern "C" fn(_: *mut libc::c_void) -> *mut libc::c_void>,
+            extern "C" fn(_: *mut libc::c_void) -> *mut libc::c_void,
         >(func),
         param,
     );
