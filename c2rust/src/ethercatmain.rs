@@ -1094,11 +1094,11 @@ pub unsafe fn ecx_siistring(
                 }
                 i = i.wrapping_add(1)
             }
-            *ptr = 0i8
+            *ptr = 0u8
         /* add zero terminator */
         } else {
             ptr = str;
-            *ptr = 0i8
+            *ptr = 0u8
             /* empty string */
         }
     }

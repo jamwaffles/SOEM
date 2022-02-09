@@ -170,7 +170,7 @@ pub enum ec_bufstate {
 }
 
 /** Ethercat data types */
-#[derive(Copy, Clone, Debug)]
+#[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum ec_datatype {
     ECT_BOOLEAN = 0x0001,
     ECT_INTEGER8 = 0x0002,
@@ -202,7 +202,7 @@ pub enum ec_datatype {
 }
 
 /** Ethercat command types */
-#[derive(Copy, Clone, Debug)]
+#[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum ec_cmdtype {
     /** No operation */
     EC_CMD_NOP = 0x00,

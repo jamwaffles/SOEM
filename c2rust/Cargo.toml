@@ -19,3 +19,6 @@ autobins = false
 [dependencies]
 c2rust-bitfields = "0.3"
 libc = "0.2"
+strum = { version = "0.23.0", features = ["derive"] }
+
+[features]

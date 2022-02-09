@@ -1512,7 +1512,7 @@ pub unsafe fn ecx_readODdescription(
     (*pODlist).DataType[Item as usize] = 0u16;
     (*pODlist).ObjectCode[Item as usize] = 0u8;
     (*pODlist).MaxSub[Item as usize] = 0u8;
-    (*pODlist).Name[Item as usize][0usize] = 0i8;
+    (*pODlist).Name[Item as usize][0usize] = 0u8;
     ec_clearmbx(&mut MbxIn);
     /* clear pending out mailbox in slave if available. Timeout is set to 0 */
     wkc = ecx_mbxreceive(context, Slave, &mut MbxIn, 0i32);
@@ -1563,7 +1563,7 @@ pub unsafe fn ecx_readODdescription(
                         as *mut libc::c_char,
                     n as usize,
                 );
-                (*pODlist).Name[Item as usize][n as usize] = 0i8
+                (*pODlist).Name[Item as usize][n as usize] = 0u8
             } else {
                 /* got unexpected response from slave */
                 if (*aSDOp).Opcode as libc::c_int & 0x7fi32
@@ -1674,7 +1674,7 @@ pub unsafe fn ecx_readOEsingle(
                         as *mut libc::c_char,
                     n as usize,
                 );
-                (*pOElist).Name[SubI as usize][n as usize] = 0i8
+                (*pOElist).Name[SubI as usize][n as usize] = 0u8
             } else {
                 /* got unexpected response from slave */
                 if (*aSDOp).Opcode as libc::c_int & 0x7fi32

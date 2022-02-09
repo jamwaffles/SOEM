@@ -11,7 +11,9 @@ use crate::{
         ec_slavecount, ec_statecheck, EcatError,
     },
     ethercatprint::{ec_ALstatuscode2string, ec_elist2string},
-    ethercattype::{ec_state, SIICategory, ECT_SDO_PDOASSIGN, EC_TIMEOUTRXM, EC_TIMEOUTSTATE},
+    ethercattype::{
+        ec_datatype, ec_state, SIICategory, ECT_SDO_PDOASSIGN, EC_TIMEOUTRXM, EC_TIMEOUTSTATE,
+    },
 };
 use libc::{memset, snprintf, sprintf, strcat, strcpy, strncmp};
 
@@ -83,145 +85,144 @@ pub static mut printMAP: boolean = 0u8;
 pub static mut usdo: [libc::c_char; 128] = [0; 128];
 #[no_mangle]
 pub unsafe fn dtype2string(mut dtype: uint16, mut bitlen: uint16) -> *mut libc::c_char {
-    static mut str: [libc::c_char; 32] = [
-        0i8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0,
-    ];
-    match dtype as libc::c_int {
-        1 => {
+    let dtype = ec_datatype::from_repr(dtype as usize).expect("Unknown data type");
+
+    static mut str: [libc::c_char; 32] = [0u8; 32];
+    match dtype {
+        ec_datatype::ECT_BOOLEAN => {
             sprintf(
                 str.as_mut_ptr(),
                 b"BOOLEAN\x00" as *const u8 as *const libc::c_char,
             );
         }
-        2 => {
+        ec_datatype::ECT_INTEGER8 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"INTEGER8\x00" as *const u8 as *const libc::c_char,
             );
         }
-        3 => {
+        ec_datatype::ECT_INTEGER16 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"INTEGER16\x00" as *const u8 as *const libc::c_char,
             );
         }
-        4 => {
+        ec_datatype::ECT_INTEGER32 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"INTEGER32\x00" as *const u8 as *const libc::c_char,
             );
         }
-        16 => {
+        ec_datatype::ECT_INTEGER24 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"INTEGER24\x00" as *const u8 as *const libc::c_char,
             );
         }
-        21 => {
+        ec_datatype::ECT_INTEGER64 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"INTEGER64\x00" as *const u8 as *const libc::c_char,
             );
         }
-        5 => {
+        ec_datatype::ECT_UNSIGNED8 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"UNSIGNED8\x00" as *const u8 as *const libc::c_char,
             );
         }
-        6 => {
+        ec_datatype::ECT_UNSIGNED16 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"UNSIGNED16\x00" as *const u8 as *const libc::c_char,
             );
         }
-        7 => {
+        ec_datatype::ECT_UNSIGNED32 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"UNSIGNED32\x00" as *const u8 as *const libc::c_char,
             );
         }
-        22 => {
+        ec_datatype::ECT_UNSIGNED24 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"UNSIGNED24\x00" as *const u8 as *const libc::c_char,
             );
         }
-        27 => {
+        ec_datatype::ECT_UNSIGNED64 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"UNSIGNED64\x00" as *const u8 as *const libc::c_char,
             );
         }
-        8 => {
+        ec_datatype::ECT_REAL32 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"REAL32\x00" as *const u8 as *const libc::c_char,
             );
         }
-        17 => {
+        ec_datatype::ECT_REAL64 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"REAL64\x00" as *const u8 as *const libc::c_char,
             );
         }
-        48 => {
+        ec_datatype::ECT_BIT1 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"BIT1\x00" as *const u8 as *const libc::c_char,
             );
         }
-        49 => {
+        ec_datatype::ECT_BIT2 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"BIT2\x00" as *const u8 as *const libc::c_char,
             );
         }
-        50 => {
+        ec_datatype::ECT_BIT3 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"BIT3\x00" as *const u8 as *const libc::c_char,
             );
         }
-        51 => {
+        ec_datatype::ECT_BIT4 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"BIT4\x00" as *const u8 as *const libc::c_char,
             );
         }
-        52 => {
+        ec_datatype::ECT_BIT5 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"BIT5\x00" as *const u8 as *const libc::c_char,
             );
         }
-        53 => {
+        ec_datatype::ECT_BIT6 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"BIT6\x00" as *const u8 as *const libc::c_char,
             );
         }
-        54 => {
+        ec_datatype::ECT_BIT7 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"BIT7\x00" as *const u8 as *const libc::c_char,
             );
         }
-        55 => {
+        ec_datatype::ECT_BIT8 => {
             sprintf(
                 str.as_mut_ptr(),
                 b"BIT8\x00" as *const u8 as *const libc::c_char,
             );
         }
-        9 => {
+        ec_datatype::ECT_VISIBLE_STRING => {
             sprintf(
                 str.as_mut_ptr(),
                 b"VISIBLE_STR(%d)\x00" as *const u8 as *const libc::c_char,
                 bitlen as libc::c_int,
             );
         }
-        10 => {
+        ec_datatype::ECT_OCTET_STRING => {
             sprintf(
                 str.as_mut_ptr(),
                 b"OCTET_STR(%d)\x00" as *const u8 as *const libc::c_char,
@@ -241,10 +242,7 @@ pub unsafe fn dtype2string(mut dtype: uint16, mut bitlen: uint16) -> *mut libc::
 }
 #[no_mangle]
 pub unsafe fn otype2string(mut otype: uint16) -> *mut libc::c_char {
-    static mut str: [libc::c_char; 32] = [
-        0i8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0,
-    ];
+    static mut str: [libc::c_char; 32] = [0u8; 32];
     match otype as libc::c_int {
         7 => {
             sprintf(
@@ -276,10 +274,7 @@ pub unsafe fn otype2string(mut otype: uint16) -> *mut libc::c_char {
 }
 #[no_mangle]
 pub unsafe fn access2string(mut access: uint16) -> *mut libc::c_char {
-    static mut str: [libc::c_char; 32] = [
-        0i8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0,
-    ];
+    static mut str: [libc::c_char; 32] = [0u8; 32];
     sprintf(
         str.as_mut_ptr(),
         b"%s%s%s%s%s%s\x00" as *const u8 as *const libc::c_char,
@@ -323,6 +318,8 @@ pub unsafe fn SDO2string(
     mut subidx: uint8,
     mut dtype: uint16,
 ) -> *mut libc::c_char {
+    let dtype = ec_datatype::from_repr(dtype as usize).expect("Unknown data type");
+
     let mut l: libc::c_int =
         core::mem::size_of::<[libc::c_char; 128]>().wrapping_sub(1usize) as libc::c_int;
     let mut i: libc::c_int = 0;
@@ -354,13 +351,9 @@ pub unsafe fn SDO2string(
     if EcatError != 0 {
         return ec_elist2string();
     } else {
-        static mut str: [libc::c_char; 64] = [
-            0i8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0,
-        ];
-        match dtype as libc::c_int {
-            1 => {
+        static mut str: [libc::c_char; 64] = [0u8; 64];
+        match dtype {
+            ec_datatype::ECT_BOOLEAN => {
                 u8 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut uint8;
                 if *u8 != 0 {
                     sprintf(
@@ -374,8 +367,8 @@ pub unsafe fn SDO2string(
                     );
                 }
             }
-            2 => {
-                i8 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char;
+            ec_datatype::ECT_INTEGER8 => {
+                i8 = *usdo.as_mut_ptr().offset(0isize) as *mut i8;
                 sprintf(
                     str.as_mut_ptr(),
                     b"0x%2.2x / %d\x00" as *const u8 as *const libc::c_char,
@@ -383,7 +376,7 @@ pub unsafe fn SDO2string(
                     *i8 as libc::c_int,
                 );
             }
-            3 => {
+            ec_datatype::ECT_INTEGER16 => {
                 i16 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut int16;
                 sprintf(
                     str.as_mut_ptr(),
@@ -392,7 +385,7 @@ pub unsafe fn SDO2string(
                     *i16 as libc::c_int,
                 );
             }
-            4 | 16 => {
+            ec_datatype::ECT_INTEGER32 | ec_datatype::ECT_INTEGER24 => {
                 i32 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut int32;
                 sprintf(
                     str.as_mut_ptr(),
@@ -401,7 +394,7 @@ pub unsafe fn SDO2string(
                     *i32,
                 );
             }
-            21 => {
+            ec_datatype::ECT_INTEGER64 => {
                 i64 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut int64;
                 sprintf(
                     str.as_mut_ptr(),
@@ -410,7 +403,7 @@ pub unsafe fn SDO2string(
                     *i64,
                 );
             }
-            5 => {
+            ec_datatype::ECT_UNSIGNED8 => {
                 u8 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut uint8;
                 sprintf(
                     str.as_mut_ptr(),
@@ -419,7 +412,7 @@ pub unsafe fn SDO2string(
                     *u8 as libc::c_int,
                 );
             }
-            6 => {
+            ec_datatype::ECT_UNSIGNED16 => {
                 u16 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut uint16;
                 sprintf(
                     str.as_mut_ptr(),
@@ -428,7 +421,7 @@ pub unsafe fn SDO2string(
                     *u16 as libc::c_int,
                 );
             }
-            7 | 22 => {
+            ec_datatype::ECT_UNSIGNED32 | ec_datatype::ECT_UNSIGNED24 => {
                 u32 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut uint32;
                 sprintf(
                     str.as_mut_ptr(),
@@ -437,7 +430,7 @@ pub unsafe fn SDO2string(
                     *u32,
                 );
             }
-            27 => {
+            ec_datatype::ECT_UNSIGNED64 => {
                 u64 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut uint64;
                 sprintf(
                     str.as_mut_ptr(),
@@ -446,7 +439,7 @@ pub unsafe fn SDO2string(
                     *u64,
                 );
             }
-            8 => {
+            ec_datatype::ECT_REAL32 => {
                 sr = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char
                     as *mut libc::c_float;
                 sprintf(
@@ -455,7 +448,7 @@ pub unsafe fn SDO2string(
                     *sr as libc::c_double,
                 );
             }
-            17 => {
+            ec_datatype::ECT_REAL64 => {
                 dr = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char
                     as *mut libc::c_double;
                 sprintf(
@@ -464,7 +457,14 @@ pub unsafe fn SDO2string(
                     *dr,
                 );
             }
-            48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 => {
+            ec_datatype::ECT_BIT1
+            | ec_datatype::ECT_BIT2
+            | ec_datatype::ECT_BIT3
+            | ec_datatype::ECT_BIT4
+            | ec_datatype::ECT_BIT5
+            | ec_datatype::ECT_BIT6
+            | ec_datatype::ECT_BIT7
+            | ec_datatype::ECT_BIT8 => {
                 u8 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut uint8;
                 sprintf(
                     str.as_mut_ptr(),
@@ -473,7 +473,7 @@ pub unsafe fn SDO2string(
                     *u8 as libc::c_int,
                 );
             }
-            9 => {
+            ec_datatype::ECT_VISIBLE_STRING => {
                 strcpy(
                     str.as_mut_ptr(),
                     b"\"\x00" as *const u8 as *const libc::c_char,
@@ -484,8 +484,8 @@ pub unsafe fn SDO2string(
                     b"\"\x00" as *const u8 as *const libc::c_char,
                 );
             }
-            10 => {
-                str[0usize] = 0i8;
+            ec_datatype::ECT_OCTET_STRING => {
+                str[0usize] = 0u8;
                 i = 0i32;
                 while i < l {
                     sprintf(
@@ -854,7 +854,7 @@ pub unsafe fn si_siiPDO(
             if ((*PDO).SyncM[(*PDO).nPDO as usize] as libc::c_int) < 8i32 {
                 /* number of entries in PDO */
                 /* active and in range SM? */
-                str_name[0usize] = 0i8;
+                str_name[0usize] = 0u8;
                 if obj_name != 0 {
                     ec_siistring(str_name.as_mut_ptr(), slave, obj_name as uint16);
                 }
@@ -914,7 +914,7 @@ pub unsafe fn si_siiPDO(
                     a = (a as libc::c_int + 2i32) as uint16;
                     /* skip entry if filler (0x0000:0x00) */
                     if obj_idx as libc::c_int != 0 || obj_subidx as libc::c_int != 0 {
-                        str_name[0usize] = 0i8;
+                        str_name[0usize] = 0u8;
                         if obj_name != 0 {
                             ec_siistring(str_name.as_mut_ptr(), slave, obj_name as uint16);
                         }
@@ -1032,13 +1032,7 @@ pub unsafe fn si_sdo(mut cnt: libc::c_int) {
         i = 0i32;
         while i < ODlist.Entries as libc::c_int {
             let mut max_sub: uint8_t = 0;
-            let mut name: [libc::c_char; 128] = [
-                0i8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            ];
+            let mut name: [libc::c_char; 128] = [0u8; 128];
             ec_readODdescription(i as uint16, &mut ODlist);
             while EcatError != 0 {
                 println!(" - {:}", {
