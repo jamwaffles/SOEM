@@ -5,7 +5,6 @@ use libc::{
     sockaddr, socket, strcpy, timeval,
 };
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct _IO_FILE {
     pub _flags: libc::c_int,

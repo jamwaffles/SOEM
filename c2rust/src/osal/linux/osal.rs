@@ -6,14 +6,12 @@ use libc::{
     sched_param, suseconds_t, time_t, timespec, timeval,
 };
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_timet {
     pub sec: u32,
     pub usec: u32,
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct osal_timer {
     pub stop_time: ec_timet,

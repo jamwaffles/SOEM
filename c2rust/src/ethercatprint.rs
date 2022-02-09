@@ -5,28 +5,24 @@ use crate::{
 };
 use libc::sprintf;
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_sdoerrorlist_t {
     pub errorcode: u32,
     pub errordescription: [libc::c_char; 128],
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_ALstatuscodelist_t {
     pub ALstatuscode: u16,
     pub ALstatuscodedescription: [libc::c_char; 128],
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_soeerrorlist_t {
     pub errorcode: u16,
     pub errordescription: [libc::c_char; 128],
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_mbxerrorlist_t {
     pub errorcode: u16,

@@ -8,7 +8,6 @@ use crate::{
 use c2rust_bitfields;
 use libc::memcpy;
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct eoe_ip4_addr {
     pub addr: u32,
@@ -22,7 +21,6 @@ pub struct eoe_ethaddr {
 }
 pub type eoe_ethaddr_t = eoe_ethaddr;
 
-#[repr(C)]
 #[derive(Copy, Clone, BitfieldStruct)]
 pub struct eoe_param {
     #[bitfield(name = "mac_set", ty = "u8", bits = "0..=0")]
@@ -50,7 +48,6 @@ pub struct ec_EOEt {
     pub data: [u8; 1476],
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub union C2RustUnnamed_2 {
     pub frameinfo2: u16,

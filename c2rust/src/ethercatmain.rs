@@ -63,7 +63,6 @@ pub const ECT_COEDET_SDOCA: i32 = 0x20;
 
 pub const EC_SMENABLEMASK: u32 = 0xfffeffff;
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_adapter {
     pub name: [libc::c_char; 128],
@@ -97,7 +96,6 @@ pub struct ec_sm {
 }
 pub type ec_smt = ec_sm;
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ecx_context {
     pub port: *mut ecx_portt,
@@ -127,7 +125,6 @@ pub struct ecx_context {
 pub type ecx_contextt = ecx_context;
 pub type ec_eepromFMMUt = ec_eepromFMMU;
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_eepromFMMU {
     pub Startpos: u16,
@@ -139,7 +136,6 @@ pub struct ec_eepromFMMU {
 }
 pub type ec_eepromSMt = ec_eepromSM;
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_eepromSM {
     pub Startpos: u16,
@@ -184,7 +180,6 @@ pub struct ec_SMcommtype {
 
 pub type ec_idxstackT = ec_idxstack;
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_idxstack {
     pub pushed: u8,
@@ -197,7 +192,6 @@ pub struct ec_idxstack {
 
 pub type ec_eringt = ec_ering;
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_ering {
     pub head: i16,
@@ -207,7 +201,6 @@ pub struct ec_ering {
 
 pub type ec_groupt = ec_group;
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_group {
     pub logstartaddr: u32,
@@ -230,7 +223,6 @@ pub struct ec_group {
 
 pub type ec_slavet = ec_slave;
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_slave {
     pub state: u16,
@@ -299,7 +291,6 @@ pub struct ec_slave {
     pub name: [libc::c_char; 41],
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_eepromPDO {
     pub Startpos: u16,
@@ -349,7 +340,6 @@ pub struct ec_EOEt {
     pub data: [u8; 1476],
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub union C2RustUnnamed_8 {
     pub frameinfo2: u16,

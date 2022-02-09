@@ -50,7 +50,6 @@ pub struct ec_SoEt {
     pub c2rust_unnamed: C2RustUnnamed_3,
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub union C2RustUnnamed_3 {
     pub idn: u16,

@@ -17,7 +17,6 @@ pub struct ec_FOEt {
     pub c2rust_unnamed_0: C2RustUnnamed_3,
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub union C2RustUnnamed_3 {
     pub FileName: [libc::c_char; 512],
@@ -25,7 +24,6 @@ pub union C2RustUnnamed_3 {
     pub ErrorText: [libc::c_char; 512],
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub union C2RustUnnamed_4 {
     pub Password: u32,

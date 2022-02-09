@@ -20,7 +20,6 @@ use crate::{
 };
 use libc::memset;
 
-#[repr(C)]
 #[derive(Clone)]
 pub struct Fieldbus {
     pub context: ecx_contextt,

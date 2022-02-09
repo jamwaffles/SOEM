@@ -12,7 +12,6 @@ use libc::{
     SOCK_RAW,
 };
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ifmap {
     pub mem_start: libc::c_ulong,
@@ -23,14 +22,12 @@ pub struct ifmap {
     pub port: libc::c_uchar,
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ifreq {
     pub ifr_ifrn: C2RustUnnamed_1,
     pub ifr_ifru: C2RustUnnamed_0,
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub union C2RustUnnamed_0 {
     pub ifru_addr: sockaddr,
@@ -47,13 +44,11 @@ pub union C2RustUnnamed_0 {
     pub ifru_data: caddr_t,
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub union C2RustUnnamed_1 {
     pub ifrn_name: [libc::c_char; 16],
 }
 
-#[repr(C)]
 #[derive(Clone)]
 pub struct ec_stackT {
     pub sock: *mut libc::c_int,
@@ -65,7 +60,6 @@ pub struct ec_stackT {
     pub rxsa: *mut [libc::c_int; 16],
 }
 
-#[repr(C)]
 #[derive(Clone)]
 pub struct ecx_redportt {
     pub stack: ec_stackT,
@@ -76,7 +70,6 @@ pub struct ecx_redportt {
     pub tempinbuf: ec_bufT,
 }
 
-#[repr(C)]
 #[derive(Clone)]
 pub struct ecx_portt {
     pub stack: ec_stackT,

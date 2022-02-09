@@ -19,7 +19,6 @@ pub const EC_MAXODLIST: usize = 1024;
 /** max entries in Object Entry list */
 pub const EC_MAXOELIST: usize = 256;
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_ODlistt {
     pub Slave: u16,
@@ -31,7 +30,6 @@ pub struct ec_ODlistt {
     pub Name: [[libc::c_char; EC_MAXNAME + 1]; EC_MAXODLIST],
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_OElistt {
     pub Entries: u16,
@@ -42,7 +40,6 @@ pub struct ec_OElistt {
     pub Name: [[libc::c_char; 41]; EC_MAXOELIST],
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub union C2RustUnnamed_5 {
     pub bdata: [u8; 512],
@@ -61,7 +58,6 @@ pub struct ec_SDOt {
     pub c2rust_unnamed: C2RustUnnamed_5,
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub union C2RustUnnamed_6 {
     pub bdata: [u8; 512],

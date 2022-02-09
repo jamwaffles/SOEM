@@ -18,7 +18,6 @@ use crate::{
 };
 use libc::{memcpy, memset, sprintf, strcpy};
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_configlist_t {
     pub man: u32,
@@ -35,7 +34,6 @@ pub struct ec_configlist_t {
     pub FM1ac: u8,
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ecx_mapt_t {
     pub thread_n: libc::c_int,

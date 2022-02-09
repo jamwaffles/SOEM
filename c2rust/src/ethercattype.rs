@@ -444,7 +444,6 @@ pub const ECT_SDO_TXPDOASSIGN: u16 = 0x1c13;
 pub const ETH_P_ECAT: i32 = 0x88A4;
 
 /** Error types */
-#[repr(C)]
 #[derive(Copy, Clone, Debug)]
 pub enum ec_err_type {
     EC_ERR_TYPE_SDO_ERROR = 0,
@@ -460,7 +459,6 @@ pub enum ec_err_type {
     EC_ERR_TYPE_EOE_INVALID_RX_DATA = 11,
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ec_errort {
     pub Time: ec_timet,
@@ -472,14 +470,12 @@ pub struct ec_errort {
     pub c2rust_unnamed: C2RustUnnamed_0,
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub union C2RustUnnamed_0 {
     pub AbortCode: i32,
     pub c2rust_unnamed: C2RustUnnamed_1,
 }
 
-#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct C2RustUnnamed_1 {
     pub ErrorCode: u16,
