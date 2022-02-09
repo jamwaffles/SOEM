@@ -77,7 +77,7 @@ pub struct ec_etherheadert {
     pub sa1: u16,
     pub sa2: u16,
     /** ethernet type */
-    etype: u16,
+    pub etype: u16,
 }
 
 /** ethernet header size */

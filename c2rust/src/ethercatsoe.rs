@@ -90,7 +90,7 @@ pub unsafe extern "C" fn ecx_SoEerror(
 ) {
     let mut Ec: ec_errort = ec_errort {
         Time: ec_timet { sec: 0, usec: 0 },
-        Signal: 0,
+        Signal: false,
         Slave: 0,
         Index: 0,
         SubIdx: 0,
@@ -198,8 +198,8 @@ pub unsafe extern "C" fn ecx_SoEread(
                     && (*aSoEp).elementflags as libc::c_int == elementflags as libc::c_int
                 {
                     framedatasize = ((*aSoEp).MbxHeader.length as usize)
-                        .wrapping_sub(core::mem::size_of::<ec_SoEt>() as u64)
-                        .wrapping_add(core::mem::size_of::<ec_mbxheadert>() as u64)
+                        .wrapping_sub(core::mem::size_of::<ec_SoEt>() as usize)
+                        .wrapping_add(core::mem::size_of::<ec_mbxheadert>() as usize)
                         as libc::c_int;
                     totalsize += framedatasize;
                     /* Does parameter fit in parameter buffer ? */
@@ -239,8 +239,8 @@ pub unsafe extern "C" fn ecx_SoEread(
                     {
                         mp = (&mut MbxIn as *mut ec_mbxbuft as *mut uint8).offset(
                             ((*aSoEp).MbxHeader.length as usize)
-                                .wrapping_add(core::mem::size_of::<ec_mbxheadert>() as u64)
-                                .wrapping_sub(core::mem::size_of::<uint16>() as u64)
+                                .wrapping_add(core::mem::size_of::<ec_mbxheadert>() as usize)
+                                .wrapping_sub(core::mem::size_of::<uint16>() as usize)
                                 as isize,
                         );
                         errorcode = mp as *mut uint16;
@@ -374,8 +374,8 @@ pub unsafe extern "C" fn ecx_SoEwrite(
                         {
                             mp = (&mut MbxIn as *mut ec_mbxbuft as *mut uint8).offset(
                                 ((*aSoEp).MbxHeader.length as usize)
-                                    .wrapping_add(core::mem::size_of::<ec_mbxheadert>() as u64)
-                                    .wrapping_sub(core::mem::size_of::<uint16>() as u64)
+                                    .wrapping_add(core::mem::size_of::<ec_mbxheadert>() as usize)
+                                    .wrapping_sub(core::mem::size_of::<uint16>() as usize)
                                     as isize,
                             );
                             errorcode = mp as *mut uint16;

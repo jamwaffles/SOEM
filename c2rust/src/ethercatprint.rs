@@ -1411,7 +1411,7 @@ pub unsafe extern "C" fn ecx_err2string(Ec: ec_errort) -> *mut libc::c_char {
         Ec.Time.sec as libc::c_double + Ec.Time.usec as libc::c_double / 1000000.0f64,
     );
     match Ec.Etype {
-        0 => {
+        ec_err_type::EC_ERR_TYPE_SDO_ERROR => {
             sprintf(
                 estring.as_mut_ptr(),
                 b"%s SDO slave:%d index:%4.4x.%2.2x error:%8.8x %s\n\x00" as *const u8
@@ -1424,7 +1424,7 @@ pub unsafe extern "C" fn ecx_err2string(Ec: ec_errort) -> *mut libc::c_char {
                 ec_sdoerror2string(Ec.c2rust_unnamed.AbortCode as uint32),
             );
         }
-        1 => {
+        ec_err_type::EC_ERR_TYPE_EMERGENCY => {
             sprintf(
                 estring.as_mut_ptr(),
                 b"%s EMERGENCY slave:%d error:%4.4x\n\x00" as *const u8 as *const libc::c_char,
@@ -1433,7 +1433,7 @@ pub unsafe extern "C" fn ecx_err2string(Ec: ec_errort) -> *mut libc::c_char {
                 Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode as libc::c_int,
             );
         }
-        3 => {
+        ec_err_type::EC_ERR_TYPE_PACKET_ERROR => {
             sprintf(
                 estring.as_mut_ptr(),
                 b"%s PACKET slave:%d index:%4.4x.%2.2x error:%d\n\x00" as *const u8
@@ -1445,7 +1445,7 @@ pub unsafe extern "C" fn ecx_err2string(Ec: ec_errort) -> *mut libc::c_char {
                 Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode as libc::c_int,
             );
         }
-        4 => {
+        ec_err_type::EC_ERR_TYPE_SDOINFO_ERROR => {
             sprintf(
                 estring.as_mut_ptr(),
                 b"%s SDO slave:%d index:%4.4x.%2.2x error:%8.8x %s\n\x00" as *const u8
@@ -1458,7 +1458,7 @@ pub unsafe extern "C" fn ecx_err2string(Ec: ec_errort) -> *mut libc::c_char {
                 ec_sdoerror2string(Ec.c2rust_unnamed.AbortCode as uint32),
             );
         }
-        8 => {
+        ec_err_type::EC_ERR_TYPE_SOE_ERROR => {
             sprintf(
                 estring.as_mut_ptr(),
                 b"%s SoE slave:%d IDN:%4.4x error:%4.4x %s\n\x00" as *const u8
@@ -1470,7 +1470,7 @@ pub unsafe extern "C" fn ecx_err2string(Ec: ec_errort) -> *mut libc::c_char {
                 ec_soeerror2string(Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode),
             );
         }
-        9 => {
+        ec_err_type::EC_ERR_TYPE_MBX_ERROR => {
             sprintf(
                 estring.as_mut_ptr(),
                 b"%s MBX slave:%d error:%4.4x %s\n\x00" as *const u8 as *const libc::c_char,
@@ -1500,7 +1500,7 @@ pub unsafe extern "C" fn ecx_err2string(Ec: ec_errort) -> *mut libc::c_char {
 pub unsafe extern "C" fn ecx_elist2string(mut context: *mut ecx_contextt) -> *mut libc::c_char {
     let mut Ec: ec_errort = ec_errort {
         Time: ec_timet { sec: 0, usec: 0 },
-        Signal: 0,
+        Signal: false,
         Slave: 0,
         Index: 0,
         SubIdx: 0,

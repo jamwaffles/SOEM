@@ -2,16 +2,10 @@ use crate::{
     ethercatmain::ec_adaptert,
     ethercattype::{htons, ntohs},
 };
-use libc::{if_freenameindex, malloc, strncpy};
+use libc::{free, if_freenameindex, if_nameindex, malloc, strncpy};
 
 pub type __uint16_t = libc::c_ushort;
 
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct if_nameindex {
-    pub if_index: libc::c_uint,
-    pub if_name: *mut libc::c_char,
-}
 pub type uint16_t = __uint16_t;
 pub type uint16 = uint16_t;
 
@@ -73,13 +67,13 @@ pub unsafe extern "C" fn oshw_find_adapters() -> *mut ec_adaptert {
             strncpy(
                 (*adapter).name.as_mut_ptr(),
                 (*ids.offset(i as isize)).if_name,
-                128u64,
+                128usize,
             );
             (*adapter).name[(128i32 - 1i32) as usize] = '\u{0}' as libc::c_char;
             strncpy(
                 (*adapter).desc.as_mut_ptr(),
                 (*ids.offset(i as isize)).if_name,
-                128u64,
+                128usize,
             );
             (*adapter).desc[(128i32 - 1i32) as usize] = '\u{0}' as libc::c_char
         } else {

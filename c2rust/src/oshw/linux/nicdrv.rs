@@ -466,7 +466,7 @@ pub unsafe extern "C" fn ecx_outframe_red(mut port: *mut ecx_portt, mut idx: uin
             &mut (*port).txbuf2 as *mut ec_bufT as *const libc::c_void,
             (*port).txbuflength2 as size_t,
             0i32,
-        ) == -1i64
+        ) == -1isize
         {
             (*(*port).redport).rxbufstat[idx as usize] = ec_bufstate::EC_BUF_EMPTY as libc::c_int
         }
@@ -572,8 +572,8 @@ pub unsafe extern "C" fn ecx_inframe(
                             .as_mut_ptr()
                             .offset(::core::mem::size_of::<ec_etherheadert>() as isize)
                             as *mut uint8 as *const libc::c_void,
-                        ((*(*stack).txbuflength)[idx as usize] as libc::c_ulong)
-                            .wrapping_sub(core::mem::size_of::<ec_etherheadert>),
+                        ((*(*stack).txbuflength)[idx as usize] as usize)
+                            .wrapping_sub(core::mem::size_of::<ec_etherheadert>()),
                     );
                     /* return WKC */
                     rval = (*rxbuf)[l as usize] as libc::c_int
@@ -596,8 +596,8 @@ pub unsafe extern "C" fn ecx_inframe(
                             .as_mut_ptr()
                             .offset(::core::mem::size_of::<ec_etherheadert>() as isize)
                             as *mut uint8 as *const libc::c_void,
-                        ((*(*stack).txbuflength)[idxf as usize] as libc::c_ulong)
-                            .wrapping_sub(core::mem::size_of::<ec_etherheadert>),
+                        ((*(*stack).txbuflength)[idxf as usize] as usize)
+                            .wrapping_sub(core::mem::size_of::<ec_etherheadert>()),
                     );
                     /* mark as received */
                     (*(*stack).rxbufstat)[idxf as usize] = ec_bufstate::EC_BUF_RCVD as libc::c_int;
@@ -676,7 +676,7 @@ unsafe extern "C" fn ecx_waitinframe_red(
                     as *mut libc::c_void,
                 &mut *(*(*port).redport).rxbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                     as *const libc::c_void,
-                ((*port).txbuflength[idx as usize] as libc::c_ulong)
+                ((*port).txbuflength[idx as usize] as usize)
                     .wrapping_sub(core::mem::size_of::<ec_etherheadert>()),
             );
             wkc = wkc2
@@ -698,7 +698,7 @@ unsafe extern "C" fn ecx_waitinframe_red(
                         as *mut uint8 as *mut libc::c_void,
                     &mut *(*port).rxbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                         as *const libc::c_void,
-                    ((*port).txbuflength[idx as usize] as libc::c_ulong)
+                    ((*port).txbuflength[idx as usize] as usize)
                         .wrapping_sub(core::mem::size_of::<ec_etherheadert>()),
                 );
             }
@@ -719,7 +719,7 @@ unsafe extern "C" fn ecx_waitinframe_red(
                         as *mut libc::c_void,
                     &mut *(*(*port).redport).rxbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                         as *const libc::c_void,
-                    ((*port).txbuflength[idx as usize] as libc::c_ulong)
+                    ((*port).txbuflength[idx as usize] as usize)
                         .wrapping_sub(core::mem::size_of::<ec_etherheadert>()),
                 );
                 wkc = wkc2

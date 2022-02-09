@@ -210,7 +210,7 @@ pub unsafe extern "C" fn ecx_EOEsetIp(
             &mut *(*EOEp).data.as_mut_ptr().offset(data_offset as isize) as *mut uint8
                 as *mut libc::c_void,
             (*ipparam).mac.addr.as_mut_ptr() as *const libc::c_void,
-            6u64,
+            6usize,
         );
         data_offset = (data_offset as libc::c_int + 6i32) as uint8
     }
@@ -221,7 +221,7 @@ pub unsafe extern "C" fn ecx_EOEsetIp(
             &mut *(*EOEp).data.as_mut_ptr().offset(data_offset as isize),
         );
         data_offset =
-            (data_offset as libc::c_ulong).wrapping_add(core::mem::size_of::<uint32_t>()) as uint8
+            (data_offset as usize).wrapping_add(core::mem::size_of::<uint32_t>() as usize) as uint8
     }
     if (*ipparam).subnet_set() != 0 {
         flags = (flags as libc::c_int | (0x1i32) << 2i32) as uint8;
@@ -230,7 +230,7 @@ pub unsafe extern "C" fn ecx_EOEsetIp(
             &mut *(*EOEp).data.as_mut_ptr().offset(data_offset as isize),
         );
         data_offset =
-            (data_offset as libc::c_ulong).wrapping_add(core::mem::size_of::<uint32_t>()) as uint8
+            (data_offset as usize).wrapping_add(core::mem::size_of::<uint32_t>() as usize) as uint8
     }
     if (*ipparam).default_gateway_set() != 0 {
         flags = (flags as libc::c_int | (0x1i32) << 3i32) as uint8;
@@ -239,7 +239,7 @@ pub unsafe extern "C" fn ecx_EOEsetIp(
             &mut *(*EOEp).data.as_mut_ptr().offset(data_offset as isize),
         );
         data_offset =
-            (data_offset as libc::c_ulong).wrapping_add(core::mem::size_of::<uint32_t>()) as uint8
+            (data_offset as usize).wrapping_add(core::mem::size_of::<uint32_t>() as usize) as uint8
     }
     if (*ipparam).dns_ip_set() != 0 {
         flags = (flags as libc::c_int | (0x1i32) << 4i32) as uint8;
@@ -248,7 +248,7 @@ pub unsafe extern "C" fn ecx_EOEsetIp(
             &mut *(*EOEp).data.as_mut_ptr().offset(data_offset as isize),
         );
         data_offset =
-            (data_offset as libc::c_ulong).wrapping_add(core::mem::size_of::<uint32_t>()) as uint8
+            (data_offset as usize).wrapping_add(core::mem::size_of::<uint32_t>() as usize) as uint8
     }
     if (*ipparam).dns_name_set() != 0 {
         /* TwinCAT include EOE_DNS_NAME_LENGTH chars even if name is shorter */
@@ -257,7 +257,7 @@ pub unsafe extern "C" fn ecx_EOEsetIp(
             &mut *(*EOEp).data.as_mut_ptr().offset(data_offset as isize) as *mut uint8
                 as *mut libc::c_void,
             (*ipparam).dns_name.as_mut_ptr() as *mut libc::c_void,
-            32u64,
+            32usize,
         );
         data_offset = (data_offset as libc::c_int + 32i32) as uint8
     }
@@ -286,7 +286,7 @@ pub unsafe extern "C" fn ecx_EOEsetIp(
                 }
             } else {
                 /* unexpected mailbox received */
-                wkc = -(ec_err_type::ec_err_type::EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
+                wkc = -(ec_err_type::EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
             }
         }
     }
@@ -364,7 +364,7 @@ pub unsafe extern "C" fn ecx_EOEgetIp(
                             (*ipparam).mac.addr.as_mut_ptr() as *mut libc::c_void,
                             &mut *(*aEOEp).data.as_mut_ptr().offset(data_offset as isize)
                                 as *mut uint8 as *const libc::c_void,
-                            6u64,
+                            6usize,
                         );
                         (*ipparam).set_mac_set(1u8);
                         data_offset = (data_offset as libc::c_int + 6i32) as uint8
@@ -375,9 +375,10 @@ pub unsafe extern "C" fn ecx_EOEgetIp(
                             &mut (*ipparam).ip,
                         );
                         (*ipparam).set_ip_set(1u8);
-                        data_offset = (data_offset as libc::c_ulong)
-                            .wrapping_add(core::mem::size_of::<uint32_t>())
-                            as uint8
+                        data_offset =
+                            (data_offset as usize)
+                                .wrapping_add(core::mem::size_of::<uint32_t>() as usize)
+                                as uint8
                     }
                     if flags as libc::c_int & (0x1i32) << 2i32 != 0 {
                         EOE_ip_byte_to_uint32(
@@ -385,9 +386,10 @@ pub unsafe extern "C" fn ecx_EOEgetIp(
                             &mut (*ipparam).subnet,
                         );
                         (*ipparam).set_subnet_set(1u8);
-                        data_offset = (data_offset as libc::c_ulong)
-                            .wrapping_add(core::mem::size_of::<uint32_t>())
-                            as uint8
+                        data_offset =
+                            (data_offset as usize)
+                                .wrapping_add(core::mem::size_of::<uint32_t>() as usize)
+                                as uint8
                     }
                     if flags as libc::c_int & (0x1i32) << 3i32 != 0 {
                         EOE_ip_byte_to_uint32(
@@ -395,9 +397,10 @@ pub unsafe extern "C" fn ecx_EOEgetIp(
                             &mut (*ipparam).default_gateway,
                         );
                         (*ipparam).set_default_gateway_set(1u8);
-                        data_offset = (data_offset as libc::c_ulong)
-                            .wrapping_add(core::mem::size_of::<uint32_t>())
-                            as uint8
+                        data_offset =
+                            (data_offset as usize)
+                                .wrapping_add(core::mem::size_of::<uint32_t>() as usize)
+                                as uint8
                     }
                     if flags as libc::c_int & (0x1i32) << 4i32 != 0 {
                         EOE_ip_byte_to_uint32(
@@ -405,9 +408,10 @@ pub unsafe extern "C" fn ecx_EOEgetIp(
                             &mut (*ipparam).dns_ip,
                         );
                         (*ipparam).set_dns_ip_set(1u8);
-                        data_offset = (data_offset as libc::c_ulong)
-                            .wrapping_add(core::mem::size_of::<uint32_t>())
-                            as uint8
+                        data_offset =
+                            (data_offset as usize)
+                                .wrapping_add(core::mem::size_of::<uint32_t>() as usize)
+                                as uint8
                     }
                     if flags as libc::c_int & (0x1i32) << 5i32 != 0 {
                         let mut dns_len: uint16_t = 0;
@@ -422,7 +426,7 @@ pub unsafe extern "C" fn ecx_EOEgetIp(
                             (*ipparam).dns_name.as_mut_ptr() as *mut libc::c_void,
                             &mut *(*aEOEp).data.as_mut_ptr().offset(data_offset as isize)
                                 as *mut uint8 as *const libc::c_void,
-                            dns_len as libc::c_ulong,
+                            dns_len as usize,
                         );
                         (*ipparam).set_dns_name_set(1u8);
                         data_offset = (data_offset as libc::c_int + 32i32) as uint8
@@ -526,7 +530,7 @@ pub unsafe extern "C" fn ecx_EOEsend(
         memcpy(
             (*EOEp).data.as_mut_ptr() as *mut libc::c_void,
             &*buf.offset(txframeoffset as isize) as *const uint8 as *const libc::c_void,
-            txframesize as libc::c_ulong,
+            txframesize as usize,
         );
         /* send EoE request to slave */
         wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, timeout);
@@ -623,7 +627,7 @@ pub unsafe extern "C" fn ecx_EOErecv(
                 memcpy(
                     &mut *buf.offset(rxframeoffset as isize) as *mut uint8 as *mut libc::c_void,
                     (*aEOEp).data.as_mut_ptr() as *const libc::c_void,
-                    eoedatasize as libc::c_ulong,
+                    eoedatasize as usize,
                 );
                 rxframeoffset += eoedatasize;
                 rxfragmentno = rxfragmentno.wrapping_add(1)
@@ -733,7 +737,7 @@ pub unsafe extern "C" fn ecx_EOEreadfragment(
             memcpy(
                 &mut *buf.offset(*rxframeoffset as isize) as *mut uint8 as *mut libc::c_void,
                 (*aEOEp).data.as_mut_ptr() as *const libc::c_void,
-                eoedatasize as libc::c_ulong,
+                eoedatasize as usize,
             );
             *rxframeoffset = (*rxframeoffset as libc::c_int + eoedatasize as libc::c_int) as uint16;
             *rxfragmentno = (*rxfragmentno as libc::c_int + 1i32) as uint8
