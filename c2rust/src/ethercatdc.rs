@@ -2,12 +2,7 @@ use crate::{
     ethercatbase::{ecx_BWR, ecx_FPRD, ecx_FPWR},
     ethercatmain::{ecx_context, ecx_contextt},
     ethercattype::EthercatRegister,
-    osal::linux::osal::{ec_timet, osal_current_time, osal_timer_is_expired, osal_timer_start},
-};
-use libc::{
-    bind, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
-    pthread_mutex_unlock, pthread_mutexattr_init, pthread_mutexattr_t, recv, send, setsockopt,
-    sockaddr, socket, strcpy, timeval,
+    osal::linux::osal::{ec_timet, osal_current_time},
 };
 
 pub type __int8_t = libc::c_schar;

@@ -1,10 +1,12 @@
-use crate::osal::linux::osal::{ec_timet, osal_timer_is_expired, osal_timer_start};
-use ::c2rust_bitfields;
-use libc::{
-    bind, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
-    pthread_mutex_unlock, pthread_mutexattr_init, pthread_mutexattr_t, recv, send, setsockopt,
-    sockaddr, socket, strcpy, timeval,
+use crate::{
+    ethercatmain::{
+        ec_clearmbx, ec_mbxbuft, ec_mbxheadert, ec_nextmbxcnt, ecx_contextt, ecx_mbxreceive,
+        ecx_mbxsend,
+    },
+    ethercattype::{ec_err_type, MailboxType},
 };
+use ::c2rust_bitfields;
+use libc::memcpy;
 
 pub type __uint8_t = libc::c_uchar;
 pub type __int16_t = libc::c_short;
@@ -195,7 +197,7 @@ pub unsafe extern "C" fn ecx_EOEsetIp(
     /* get new mailbox count value, used as session handle */
     cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* EoE */
     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-    (*EOEp).mbxheader.mbxtype = (ECT_MBXT_EOE as libc::c_int
+    (*EOEp).mbxheader.mbxtype = (MailboxType::ECT_MBXT_EOE as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
         as uint8;
     (*EOEp).frameinfo1 = ((2i32 & 0xfi32) << 0i32
@@ -272,7 +274,9 @@ pub unsafe extern "C" fn ecx_EOEsetIp(
             /* read slave response */
             /* succeeded to read slave response ? */
             /* slave response should be FoE */
-            if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_EOE as libc::c_int {
+            if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32
+                == MailboxType::ECT_MBXT_EOE as libc::c_int
+            {
                 frameinfo1 = (*aEOEp).frameinfo1;
                 result = (*aEOEp).c2rust_unnamed.result;
                 if frameinfo1 as libc::c_int >> 0i32 & 0xfi32 != 3i32
@@ -282,7 +286,7 @@ pub unsafe extern "C" fn ecx_EOEsetIp(
                 }
             } else {
                 /* unexpected mailbox received */
-                wkc = -(EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
+                wkc = -(ec_err_type::ec_err_type::EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
             }
         }
     }
@@ -326,7 +330,7 @@ pub unsafe extern "C" fn ecx_EOEgetIp(
     /* get new mailbox count value, used as session handle */
     cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* EoE */
     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-    (*EOEp).mbxheader.mbxtype = (ECT_MBXT_EOE as libc::c_int
+    (*EOEp).mbxheader.mbxtype = (MailboxType::ECT_MBXT_EOE as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
         as uint8;
     (*EOEp).frameinfo1 = ((6i32 & 0xfi32) << 0i32
@@ -346,7 +350,9 @@ pub unsafe extern "C" fn ecx_EOEgetIp(
             /* read slave response */
             /* succeeded to read slave response ? */
             /* slave response should be FoE */
-            if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_EOE as libc::c_int {
+            if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32
+                == MailboxType::ECT_MBXT_EOE as libc::c_int
+            {
                 frameinfo1 = (*aEOEp).frameinfo1;
                 eoedatasize = ((*aEOEp).mbxheader.length as libc::c_int - 0x4i32) as uint16;
                 if frameinfo1 as libc::c_int >> 0i32 & 0xfi32 != 7i32 {
@@ -423,12 +429,12 @@ pub unsafe extern "C" fn ecx_EOEgetIp(
                     }
                     /* Something os not correct, flag the error */
                     if data_offset as libc::c_int > eoedatasize as libc::c_int {
-                        wkc = -(EC_ERR_TYPE_MBX_ERROR as libc::c_int)
+                        wkc = -(ec_err_type::EC_ERR_TYPE_MBX_ERROR as libc::c_int)
                     }
                 }
             } else {
                 /* unexpected mailbox received */
-                wkc = -(EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
+                wkc = -(ec_err_type::EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
             }
         }
     }
@@ -512,7 +518,7 @@ pub unsafe extern "C" fn ecx_EOEsend(
         cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* no timestamp */
         (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt; /* EoE */
         (*EOEp).mbxheader.length = (4i32 + txframesize) as uint16;
-        (*EOEp).mbxheader.mbxtype = (ECT_MBXT_EOE as libc::c_int
+        (*EOEp).mbxheader.mbxtype = (MailboxType::ECT_MBXT_EOE as libc::c_int
             + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
             as uint8;
         (*EOEp).frameinfo1 = frameinfo1;
@@ -579,13 +585,15 @@ pub unsafe extern "C" fn ecx_EOErecv(
     wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, timeout);
     while wkc > 0i32 && NotLast as libc::c_int == 1i32 {
         /* slave response should be FoE */
-        if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_EOE as libc::c_int {
+        if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32
+            == MailboxType::ECT_MBXT_EOE as libc::c_int
+        {
             eoedatasize = (*aEOEp).mbxheader.length as libc::c_int - 0x4i32;
             frameinfo1 = (*aEOEp).frameinfo1;
             frameinfo2 = (*aEOEp).c2rust_unnamed.frameinfo2;
             if rxfragmentno as libc::c_int != frameinfo2 as libc::c_int >> 0i32 & 0x3fi32 {
                 if frameinfo2 as libc::c_int >> 0i32 & 0x3fi32 > 0i32 {
-                    wkc = -(EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
+                    wkc = -(ec_err_type::EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
                     /* Exit here*/
                     break;
                 }
@@ -595,20 +603,20 @@ pub unsafe extern "C" fn ecx_EOErecv(
                 rxframeno = (frameinfo2 as libc::c_int >> 12i32 & 0xfi32) as uint8;
                 rxframesize = (frameinfo2 as libc::c_int >> 6i32 & 0x3fi32) << 5i32;
                 if rxframesize > buffersize {
-                    wkc = -(EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
+                    wkc = -(ec_err_type::EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
                     /* Exit here*/
                     break;
                 } else if port as libc::c_int != frameinfo1 as libc::c_int >> 4i32 & 0xfi32 {
-                    wkc = -(EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
+                    wkc = -(ec_err_type::EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
                     /* Exit here*/
                     break;
                 }
             } else if rxframeno as libc::c_int != frameinfo2 as libc::c_int >> 12i32 & 0xfi32 {
-                wkc = -(EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
+                wkc = -(ec_err_type::EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
                 /* Exit here*/
                 break;
             } else if rxframeoffset != (frameinfo2 as libc::c_int >> 6i32 & 0x3fi32) << 5i32 {
-                wkc = -(EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
+                wkc = -(ec_err_type::EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
                 break;
             }
             if rxframeoffset + eoedatasize <= buffersize {
@@ -633,7 +641,7 @@ pub unsafe extern "C" fn ecx_EOErecv(
             }
         } else {
             /* unexpected mailbox received */
-            wkc = -(EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
+            wkc = -(ec_err_type::EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
         }
     }
     return wkc;
@@ -672,7 +680,9 @@ pub unsafe extern "C" fn ecx_EOEreadfragment(
     buf = p as *mut uint8;
     wkc = 0i32;
     /* slave response should be EoE */
-    if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_EOE as libc::c_int {
+    if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32
+        == MailboxType::ECT_MBXT_EOE as libc::c_int
+    {
         eoedatasize = ((*aEOEp).mbxheader.length as libc::c_int - 0x4i32) as uint16;
         frameinfo1 = (*aEOEp).frameinfo1;
         frameinfo2 = (*aEOEp).c2rust_unnamed.frameinfo2;
@@ -687,7 +697,7 @@ pub unsafe extern "C" fn ecx_EOEreadfragment(
             }
             /* If incoming fragment number is not 0 we can't recover, exit */
             if frameinfo2 as libc::c_int >> 0i32 & 0x3fi32 > 0i32 {
-                wkc = -(EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
+                wkc = -(ec_err_type::EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
                 return wkc;
             }
         }
@@ -701,7 +711,7 @@ pub unsafe extern "C" fn ecx_EOEreadfragment(
             *rxframesize = 0u16;
             *rxframeoffset = 0u16;
             *rxframeno = 0u16;
-            wkc = -(EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
+            wkc = -(ec_err_type::EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
             return wkc;
         } else {
             if *rxframeoffset as libc::c_int
@@ -711,7 +721,7 @@ pub unsafe extern "C" fn ecx_EOEreadfragment(
                 *rxframesize = 0u16;
                 *rxframeoffset = 0u16;
                 *rxframeno = 0u16;
-                wkc = -(EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
+                wkc = -(ec_err_type::EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
                 return wkc;
             }
         }
@@ -743,7 +753,7 @@ pub unsafe extern "C" fn ecx_EOEreadfragment(
         }
     } else {
         /* unexpected mailbox received */
-        wkc = -(EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
+        wkc = -(ec_err_type::EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
     }
     return wkc;
 }
