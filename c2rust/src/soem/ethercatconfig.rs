@@ -1,64 +1,64 @@
 use ::libc;
 extern "C" {
-    
+
     fn sprintf(_: *mut libc::c_char, _: *const libc::c_char, _: ...) -> libc::c_int;
-    
+
     fn memcpy(_: *mut libc::c_void, _: *const libc::c_void, _: libc::c_ulong) -> *mut libc::c_void;
-    
+
     fn memset(_: *mut libc::c_void, _: libc::c_int, _: libc::c_ulong) -> *mut libc::c_void;
-    
+
     fn strcpy(_: *mut libc::c_char, _: *const libc::c_char) -> *mut libc::c_char;
-    
+
     fn osal_usleep(usec: uint32) -> libc::c_int;
-    
+
     static mut ecx_context: ecx_contextt;
-    
+
     fn ecx_siigetbyte(context: *mut ecx_contextt, slave: uint16, address: uint16) -> uint8;
-    
+
     fn ecx_siifind(context: *mut ecx_contextt, slave: uint16, cat: uint16) -> int16;
-    
+
     fn ecx_siistring(context: *mut ecx_contextt, str: *mut libc::c_char, slave: uint16, Sn: uint16);
-    
+
     fn ecx_siiFMMU(context: *mut ecx_contextt, slave: uint16, FMMU: *mut ec_eepromFMMUt) -> uint16;
-    
+
     fn ecx_siiSM(context: *mut ecx_contextt, slave: uint16, SM: *mut ec_eepromSMt) -> uint16;
-    
+
     fn ecx_siiSMnext(
         context: *mut ecx_contextt,
         slave: uint16,
         SM: *mut ec_eepromSMt,
         n: uint16,
     ) -> uint16;
-    
+
     fn ecx_siiPDO(
         context: *mut ecx_contextt,
         slave: uint16,
         PDO: *mut ec_eepromPDOt,
         t: uint8,
     ) -> uint32;
-    
+
     fn ecx_statecheck(
         context: *mut ecx_contextt,
         slave: uint16,
         reqstate: uint16,
         timeout: libc::c_int,
     ) -> uint16;
-    
+
     fn ecx_readeeprom(
         context: *mut ecx_contextt,
         slave: uint16,
         eeproma: uint16,
         timeout: libc::c_int,
     ) -> uint32;
-    
+
     fn ecx_eeprom2master(context: *mut ecx_contextt, slave: uint16) -> libc::c_int;
-    
+
     fn ecx_eeprom2pdi(context: *mut ecx_contextt, slave: uint16) -> libc::c_int;
-    
+
     fn ecx_readeeprom1(context: *mut ecx_contextt, slave: uint16, eeproma: uint16);
-    
+
     fn ecx_readeeprom2(context: *mut ecx_contextt, slave: uint16, timeout: libc::c_int) -> uint32;
-    
+
     fn ecx_BWR(
         port: *mut ecx_portt,
         ADP: uint16,
@@ -67,7 +67,7 @@ extern "C" {
         data: *mut libc::c_void,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_BRD(
         port: *mut ecx_portt,
         ADP: uint16,
@@ -76,7 +76,7 @@ extern "C" {
         data: *mut libc::c_void,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_APRD(
         port: *mut ecx_portt,
         ADP: uint16,
@@ -85,9 +85,9 @@ extern "C" {
         data: *mut libc::c_void,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_APRDw(port: *mut ecx_portt, ADP: uint16, ADO: uint16, timeout: libc::c_int) -> uint16;
-    
+
     fn ecx_FPRD(
         port: *mut ecx_portt,
         ADP: uint16,
@@ -96,9 +96,9 @@ extern "C" {
         data: *mut libc::c_void,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_FPRDw(port: *mut ecx_portt, ADP: uint16, ADO: uint16, timeout: libc::c_int) -> uint16;
-    
+
     fn ecx_APWRw(
         port: *mut ecx_portt,
         ADP: uint16,
@@ -106,7 +106,7 @@ extern "C" {
         data: uint16,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_FPWRw(
         port: *mut ecx_portt,
         ADP: uint16,
@@ -114,7 +114,7 @@ extern "C" {
         data: uint16,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_FPWR(
         port: *mut ecx_portt,
         ADP: uint16,
@@ -123,14 +123,14 @@ extern "C" {
         data: *mut libc::c_void,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_readPDOmap(
         context: *mut ecx_contextt,
         Slave: uint16,
         Osize: *mut uint32,
         Isize: *mut uint32,
     ) -> libc::c_int;
-    
+
     fn ecx_readPDOmapCA(
         context: *mut ecx_contextt,
         Slave: uint16,
@@ -138,7 +138,7 @@ extern "C" {
         Osize: *mut uint32,
         Isize: *mut uint32,
     ) -> libc::c_int;
-    
+
     fn ecx_readIDNmap(
         context: *mut ecx_contextt,
         slave: uint16,

@@ -1,20 +1,20 @@
 use ::c2rust_bitfields;
 use ::libc;
 extern "C" {
-    
+
     fn memcpy(_: *mut libc::c_void, _: *const libc::c_void, _: libc::c_ulong) -> *mut libc::c_void;
-    
+
     fn ec_nextmbxcnt(cnt: uint8) -> uint8;
-    
+
     fn ec_clearmbx(Mbx: *mut ec_mbxbuft);
-    
+
     fn ecx_mbxsend(
         context: *mut ecx_contextt,
         slave: uint16,
         mbx: *mut ec_mbxbuft,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_mbxreceive(
         context: *mut ecx_contextt,
         slave: uint16,

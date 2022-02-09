@@ -1,55 +1,55 @@
 use libc;
 extern "C" {
-    
+
     fn printf(_: *const libc::c_char, _: ...) -> libc::c_int;
-    
+
     fn ctime(__timer: *const time_t) -> *mut libc::c_char;
-    
+
     fn osal_usleep(usec: uint32) -> libc::c_int;
-    
+
     fn osal_thread_create(
         thandle: *mut libc::c_void,
         stacksize: libc::c_int,
         func: *mut libc::c_void,
         param: *mut libc::c_void,
     ) -> libc::c_int;
-    
+
     static mut ec_slave: [ec_slavet; 200];
-    
+
     static mut ec_slavecount: libc::c_int;
-    
+
     static mut ec_group: [ec_groupt; 2];
-    
+
     static mut ec_DCtime: int64;
-    
+
     fn ec_init(ifname: *const libc::c_char) -> libc::c_int;
-    
+
     fn ec_close();
-    
+
     fn ec_readstate() -> libc::c_int;
-    
+
     fn ec_writestate(slave: uint16) -> libc::c_int;
-    
+
     fn ec_statecheck(slave: uint16, reqstate: uint16, timeout: libc::c_int) -> uint16;
-    
+
     fn ec_send_processdata() -> libc::c_int;
-    
+
     fn ec_receive_processdata(timeout: libc::c_int) -> libc::c_int;
-    
+
     fn ec_find_adapters() -> *mut ec_adaptert;
-    
+
     fn ec_free_adapters(adapter: *mut ec_adaptert);
-    
+
     fn ec_configdc() -> boolean;
-    
+
     fn ec_config_init(usetable: uint8) -> libc::c_int;
-    
+
     fn ec_config_map(pIOmap: *mut libc::c_void) -> libc::c_int;
-    
+
     fn ec_recover_slave(slave: uint16, timeout: libc::c_int) -> libc::c_int;
-    
+
     fn ec_reconfig_slave(slave: uint16, timeout: libc::c_int) -> libc::c_int;
-    
+
     fn ec_ALstatuscode2string(ALstatuscode: uint16) -> *mut libc::c_char;
 }
 pub type __uint8_t = libc::c_uchar;
@@ -463,7 +463,7 @@ pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
     println!("Starting simple test");
     /* initialise SOEM, bind socket to ifname */
     if ec_init(ifname) != 0 {
-        println!("ec_init on {:} succeeded.", unsafe {
+        println!("ec_init on {:} succeeded.", {
             std::ffi::CStr::from_ptr(ifname as *const libc::c_char)
                 .to_str()
                 .unwrap()
@@ -582,7 +582,7 @@ pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
                             i as libc::c_int,
                             ec_slave[i as usize].state as libc::c_int as libc::c_uint,
                             ec_slave[i as usize].ALstatuscode as libc::c_int as libc::c_uint,
-                            unsafe {
+                            {
                                 std::ffi::CStr::from_ptr(ec_ALstatuscode2string(
                                     ec_slave[i as usize].ALstatuscode,
                                 )
@@ -606,7 +606,7 @@ pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
         /* stop SOEM, close socket */
         ec_close();
     } else {
-        println!("No socket connection on {:}\nExecute as root", unsafe {
+        println!("No socket connection on {:}\nExecute as root", {
             std::ffi::CStr::from_ptr(ifname as *const libc::c_char)
                 .to_str()
                 .unwrap()
@@ -727,12 +727,12 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
         while !adapter.is_null() {
             println!(
                 "    - {:}  ({:})",
-                unsafe {
+                {
                     std::ffi::CStr::from_ptr((*adapter).name.as_mut_ptr() as *const libc::c_char)
                         .to_str()
                         .unwrap()
                 },
-                unsafe {
+                {
                     std::ffi::CStr::from_ptr((*adapter).desc.as_mut_ptr() as *const libc::c_char)
                         .to_str()
                         .unwrap()

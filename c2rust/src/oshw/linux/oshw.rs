@@ -1,18 +1,18 @@
 use ::libc;
 extern "C" {
-    
+
     fn if_nameindex() -> *mut if_nameindex;
-    
+
     fn if_freenameindex(__ptr: *mut if_nameindex);
-    
+
     fn ntohs(__netshort: uint16_t) -> uint16_t;
-    
+
     fn htons(__hostshort: uint16_t) -> uint16_t;
-    
+
     fn malloc(_: libc::c_ulong) -> *mut libc::c_void;
-    
+
     fn free(__ptr: *mut libc::c_void);
-    
+
     fn strncpy(_: *mut libc::c_char, _: *const libc::c_char, _: libc::c_ulong)
         -> *mut libc::c_char;
 }

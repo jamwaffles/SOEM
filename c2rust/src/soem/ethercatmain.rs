@@ -1,44 +1,44 @@
 use ::libc;
 extern "C" {
-    
+
     fn memset(_: *mut libc::c_void, _: libc::c_int, _: libc::c_ulong) -> *mut libc::c_void;
-    
+
     fn memcpy(_: *mut libc::c_void, _: *const libc::c_void, _: libc::c_ulong) -> *mut libc::c_void;
-    
+
     fn osal_timer_start(self_0: *mut osal_timert, timeout_us: uint32);
-    
+
     fn osal_timer_is_expired(self_0: *mut osal_timert) -> boolean;
-    
+
     fn osal_usleep(usec: uint32) -> libc::c_int;
-    
+
     fn osal_current_time() -> ec_timet;
-    
+
     fn ecx_setupnic(
         port: *mut ecx_portt,
         ifname: *const libc::c_char,
         secondary: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_closenic(port: *mut ecx_portt) -> libc::c_int;
-    
+
     fn ecx_setbufstat(port: *mut ecx_portt, idx: uint8, bufstat: libc::c_int);
-    
+
     fn ecx_getindex(port: *mut ecx_portt) -> uint8;
-    
+
     fn ecx_outframe_red(port: *mut ecx_portt, idx: uint8) -> libc::c_int;
-    
+
     fn ecx_waitinframe(port: *mut ecx_portt, idx: uint8, timeout: libc::c_int) -> libc::c_int;
-    
+
     fn ecx_srconfirm(port: *mut ecx_portt, idx: uint8, timeout: libc::c_int) -> libc::c_int;
-    
+
     fn oshw_free_adapters(adapter: *mut ec_adaptert);
-    
+
     fn oshw_htons(hostshort: uint16) -> uint16;
-    
+
     fn oshw_find_adapters() -> *mut ec_adaptert;
-    
+
     static secMAC: [uint16; 3];
-    
+
     fn ecx_adddatagram(
         port: *mut ecx_portt,
         frame: *mut libc::c_void,
@@ -50,7 +50,7 @@ extern "C" {
         length: uint16,
         data: *mut libc::c_void,
     ) -> uint16;
-    
+
     fn ecx_BRD(
         port: *mut ecx_portt,
         ADP: uint16,
@@ -59,7 +59,7 @@ extern "C" {
         data: *mut libc::c_void,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_FPWRw(
         port: *mut ecx_portt,
         ADP: uint16,
@@ -67,7 +67,7 @@ extern "C" {
         data: uint16,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_BWR(
         port: *mut ecx_portt,
         ADP: uint16,
@@ -76,7 +76,7 @@ extern "C" {
         data: *mut libc::c_void,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_FPWR(
         port: *mut ecx_portt,
         ADP: uint16,
@@ -85,7 +85,7 @@ extern "C" {
         data: *mut libc::c_void,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_setupdatagram(
         port: *mut ecx_portt,
         frame: *mut libc::c_void,
@@ -96,7 +96,7 @@ extern "C" {
         length: uint16,
         data: *mut libc::c_void,
     ) -> libc::c_int;
-    
+
     fn ecx_FPRD(
         port: *mut ecx_portt,
         ADP: uint16,
@@ -105,7 +105,7 @@ extern "C" {
         data: *mut libc::c_void,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_APWR(
         port: *mut ecx_portt,
         ADP: uint16,
@@ -114,7 +114,7 @@ extern "C" {
         data: *mut libc::c_void,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_APRD(
         port: *mut ecx_portt,
         ADP: uint16,

@@ -1,59 +1,59 @@
 use libc;
 extern "C" {
-    
+
     fn printf(_: *const libc::c_char, _: ...) -> libc::c_int;
-    
+
     fn sprintf(_: *mut libc::c_char, _: *const libc::c_char, _: ...) -> libc::c_int;
-    
+
     fn snprintf(
         _: *mut libc::c_char,
         _: libc::c_ulong,
         _: *const libc::c_char,
         _: ...
     ) -> libc::c_int;
-    
+
     fn memset(_: *mut libc::c_void, _: libc::c_int, _: libc::c_ulong) -> *mut libc::c_void;
-    
+
     fn strcpy(_: *mut libc::c_char, _: *const libc::c_char) -> *mut libc::c_char;
-    
+
     fn strcat(_: *mut libc::c_char, _: *const libc::c_char) -> *mut libc::c_char;
-    
+
     fn strncmp(_: *const libc::c_char, _: *const libc::c_char, _: libc::c_ulong) -> libc::c_int;
-    
+
     fn ec_elist2string() -> *mut libc::c_char;
-    
+
     fn ec_ALstatuscode2string(ALstatuscode: uint16) -> *mut libc::c_char;
-    
+
     static mut ec_slave: [ec_slavet; 200];
-    
+
     static mut ec_slavecount: libc::c_int;
-    
+
     static mut ec_group: [ec_groupt; 2];
-    
+
     static mut EcatError: boolean;
-    
+
     fn ec_init(ifname: *const libc::c_char) -> libc::c_int;
-    
+
     fn ec_close();
-    
+
     fn ec_siigetbyte(slave: uint16, address: uint16) -> uint8;
-    
+
     fn ec_siifind(slave: uint16, cat: uint16) -> int16;
-    
+
     fn ec_siistring(str: *mut libc::c_char, slave: uint16, Sn: uint16);
-    
+
     fn ec_readstate() -> libc::c_int;
-    
+
     fn ec_statecheck(slave: uint16, reqstate: uint16, timeout: libc::c_int) -> uint16;
-    
+
     fn ec_eeprom2pdi(slave: uint16) -> libc::c_int;
-    
+
     fn ec_find_adapters() -> *mut ec_adaptert;
-    
+
     fn ec_free_adapters(adapter: *mut ec_adaptert);
-    
+
     fn ec_configdc() -> boolean;
-    
+
     fn ec_SDOread(
         slave: uint16,
         index: uint16,
@@ -63,20 +63,20 @@ extern "C" {
         p: *mut libc::c_void,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ec_readODlist(Slave: uint16, pODlist: *mut ec_ODlistt) -> libc::c_int;
-    
+
     fn ec_readODdescription(Item: uint16, pODlist: *mut ec_ODlistt) -> libc::c_int;
-    
+
     fn ec_readOEsingle(
         Item: uint16,
         SubI: uint8,
         pODlist: *mut ec_ODlistt,
         pOElist: *mut ec_OElistt,
     ) -> libc::c_int;
-    
+
     fn ec_readOE(Item: uint16, pODlist: *mut ec_ODlistt, pOElist: *mut ec_OElistt) -> libc::c_int;
-    
+
     fn ec_config(usetable: uint8, pIOmap: *mut libc::c_void) -> libc::c_int;
 }
 pub type __int8_t = libc::c_schar;
@@ -1117,7 +1117,7 @@ pub unsafe extern "C" fn si_PDOassign(
                     if wkc > 0i32 && OElist.Entries as libc::c_int != 0 {
                         println!(
                             " {:12} {:}",
-                            unsafe {
+                            {
                                 std::ffi::CStr::from_ptr(dtype2string(
                                     OElist.DataType[obj_subidx as usize],
                                     bitlen as uint16,
@@ -1126,7 +1126,7 @@ pub unsafe extern "C" fn si_PDOassign(
                                 .to_str()
                                 .unwrap()
                             },
-                            unsafe {
+                            {
                                 std::ffi::CStr::from_ptr(
                                     OElist.Name[obj_subidx as usize].as_mut_ptr()
                                         as *const libc::c_char,
@@ -1358,7 +1358,7 @@ pub unsafe extern "C" fn si_siiPDO(
                         "  SM{:1} RXPDO 0x{:4.4X} {:}",
                         (*PDO).SyncM[(*PDO).nPDO as usize] as libc::c_int as libc::c_int,
                         (*PDO).Index[(*PDO).nPDO as usize] as libc::c_int as libc::c_uint,
-                        unsafe {
+                        {
                             std::ffi::CStr::from_ptr(str_name.as_mut_ptr() as *const libc::c_char)
                                 .to_str()
                                 .unwrap()
@@ -1369,7 +1369,7 @@ pub unsafe extern "C" fn si_siiPDO(
                         "  SM{:1} TXPDO 0x{:4.4X} {:}",
                         (*PDO).SyncM[(*PDO).nPDO as usize] as libc::c_int as libc::c_int,
                         (*PDO).Index[(*PDO).nPDO as usize] as libc::c_int as libc::c_uint,
-                        unsafe {
+                        {
                             std::ffi::CStr::from_ptr(str_name.as_mut_ptr() as *const libc::c_char)
                                 .to_str()
                                 .unwrap()
@@ -1424,7 +1424,7 @@ pub unsafe extern "C" fn si_siiPDO(
                         );
                         println!(
                             " {:12} {:}",
-                            unsafe {
+                            {
                                 std::ffi::CStr::from_ptr(dtype2string(
                                     obj_datatype as uint16,
                                     bitlen as uint16,
@@ -1433,7 +1433,7 @@ pub unsafe extern "C" fn si_siiPDO(
                                 .to_str()
                                 .unwrap()
                             },
-                            unsafe {
+                            {
                                 std::ffi::CStr::from_ptr(
                                     str_name.as_mut_ptr() as *const libc::c_char
                                 )
@@ -1536,7 +1536,7 @@ pub unsafe extern "C" fn si_sdo(mut cnt: libc::c_int) {
             ];
             ec_readODdescription(i as uint16, &mut ODlist);
             while EcatError != 0 {
-                println!(" - {:}", unsafe {
+                println!(" - {:}", {
                     std::ffi::CStr::from_ptr(ec_elist2string() as *const libc::c_char)
                         .to_str()
                         .unwrap()
@@ -1552,12 +1552,12 @@ pub unsafe extern "C" fn si_sdo(mut cnt: libc::c_int) {
                 println!(
                     "0x{:4x}      {:40}      [{:}]",
                     ODlist.Index[i as usize] as libc::c_int as libc::c_uint,
-                    unsafe {
+                    {
                         std::ffi::CStr::from_ptr(name.as_mut_ptr() as *const libc::c_char)
                             .to_str()
                             .unwrap()
                     },
-                    unsafe {
+                    {
                         std::ffi::CStr::from_ptr(otype2string(
                             ODlist.ObjectCode[i as usize] as uint16,
                         ) as *const libc::c_char)
@@ -1569,12 +1569,12 @@ pub unsafe extern "C" fn si_sdo(mut cnt: libc::c_int) {
                 println!(
                     "0x{:4x}      {:40}      [{:}  maxsub(0x{:2x} / {:})]",
                     ODlist.Index[i as usize] as libc::c_int as libc::c_uint,
-                    unsafe {
+                    {
                         std::ffi::CStr::from_ptr(name.as_mut_ptr() as *const libc::c_char)
                             .to_str()
                             .unwrap()
                     },
-                    unsafe {
+                    {
                         std::ffi::CStr::from_ptr(otype2string(
                             ODlist.ObjectCode[i as usize] as uint16,
                         ) as *const libc::c_char)
@@ -1592,7 +1592,7 @@ pub unsafe extern "C" fn si_sdo(mut cnt: libc::c_int) {
             );
             ec_readOE(i as uint16, &mut ODlist, &mut OElist);
             while EcatError != 0 {
-                println!("- {:}", unsafe {
+                println!("- {:}", {
                     std::ffi::CStr::from_ptr(ec_elist2string() as *const libc::c_char)
                         .to_str()
                         .unwrap()
@@ -1627,12 +1627,12 @@ pub unsafe extern "C" fn si_sdo(mut cnt: libc::c_int) {
                     print!(
                         "    0x{:2x}      {:40}      [{:16} {:6}]      ",
                         j as libc::c_uint,
-                        unsafe {
+                        {
                             std::ffi::CStr::from_ptr(name.as_mut_ptr() as *const libc::c_char)
                                 .to_str()
                                 .unwrap()
                         },
-                        unsafe {
+                        {
                             std::ffi::CStr::from_ptr(dtype2string(
                                 OElist.DataType[j as usize],
                                 OElist.BitLength[j as usize],
@@ -1641,7 +1641,7 @@ pub unsafe extern "C" fn si_sdo(mut cnt: libc::c_int) {
                             .to_str()
                             .unwrap()
                         },
-                        unsafe {
+                        {
                             std::ffi::CStr::from_ptr(
                                 access2string(OElist.ObjAccess[j as usize]) as *const libc::c_char
                             )
@@ -1650,7 +1650,7 @@ pub unsafe extern "C" fn si_sdo(mut cnt: libc::c_int) {
                         }
                     );
                     if OElist.ObjAccess[j as usize] as libc::c_int & 0x7i32 != 0 {
-                        print!("{:}", unsafe {
+                        print!("{:}", {
                             std::ffi::CStr::from_ptr(SDO2string(
                                 cnt as uint16,
                                 ODlist.Index[i as usize],
@@ -1670,7 +1670,7 @@ pub unsafe extern "C" fn si_sdo(mut cnt: libc::c_int) {
         }
     } else {
         while EcatError != 0 {
-            print!("{:}", unsafe {
+            print!("{:}", {
                 std::ffi::CStr::from_ptr(ec_elist2string() as *const libc::c_char)
                     .to_str()
                     .unwrap()
@@ -1689,7 +1689,7 @@ pub unsafe extern "C" fn slaveinfo(mut ifname: *mut libc::c_char) {
     println!("Starting slaveinfo");
     /* initialise SOEM, bind socket to ifname */
     if ec_init(ifname) != 0 {
-        println!("ec_init on {:} succeeded.", unsafe {
+        println!("ec_init on {:} succeeded.", {
             std::ffi::CStr::from_ptr(ifname as *const libc::c_char)
                 .to_str()
                 .unwrap()
@@ -1702,7 +1702,7 @@ pub unsafe extern "C" fn slaveinfo(mut ifname: *mut libc::c_char) {
         {
             ec_configdc();
             while EcatError != 0 {
-                print!("{:}", unsafe {
+                print!("{:}", {
                     std::ffi::CStr::from_ptr(ec_elist2string() as *const libc::c_char)
                         .to_str()
                         .unwrap()
@@ -1729,7 +1729,7 @@ pub unsafe extern "C" fn slaveinfo(mut ifname: *mut libc::c_char) {
                             i as libc::c_int,
                             ec_slave[i as usize].state as libc::c_int as libc::c_uint,
                             ec_slave[i as usize].ALstatuscode as libc::c_int as libc::c_uint,
-                            unsafe {
+                            {
                                 std::ffi::CStr::from_ptr(ec_ALstatuscode2string(
                                     ec_slave[i as usize].ALstatuscode,
                                 )
@@ -1747,7 +1747,7 @@ pub unsafe extern "C" fn slaveinfo(mut ifname: *mut libc::c_char) {
             while cnt <= ec_slavecount {
                 println!("\nSlave:{:}\n Name:{:}\n Output size: {:}bits\n Input size: {:}bits\n State: {:}\n Delay: {:}[ns]\n Has DC: {:}",
          cnt as libc::c_int,
-         unsafe {
+          {
     std::ffi::CStr::from_ptr(ec_slave[cnt as usize].name.as_mut_ptr() as
                                  *const libc::c_char).to_str().unwrap()
 },
@@ -1900,7 +1900,7 @@ pub unsafe extern "C" fn slaveinfo(mut ifname: *mut libc::c_char) {
         /* stop SOEM, close socket */
         ec_close();
     } else {
-        println!("No socket connection on {:}\nExcecute as root", unsafe {
+        println!("No socket connection on {:}\nExcecute as root", {
             std::ffi::CStr::from_ptr(ifname as *const libc::c_char)
                 .to_str()
                 .unwrap()
@@ -1941,12 +1941,12 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
         while !adapter.is_null() {
             println!(
                 "Description : {:}, Device to use for wpcap: {:}",
-                unsafe {
+                {
                     std::ffi::CStr::from_ptr((*adapter).desc.as_mut_ptr() as *const libc::c_char)
                         .to_str()
                         .unwrap()
                 },
-                unsafe {
+                {
                     std::ffi::CStr::from_ptr((*adapter).name.as_mut_ptr() as *const libc::c_char)
                         .to_str()
                         .unwrap()

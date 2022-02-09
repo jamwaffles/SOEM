@@ -1,23 +1,23 @@
 use ::libc;
 extern "C" {
-    
+
     fn memcpy(_: *mut libc::c_void, _: *const libc::c_void, _: libc::c_ulong) -> *mut libc::c_void;
-    
+
     fn memset(_: *mut libc::c_void, _: libc::c_int, _: libc::c_ulong) -> *mut libc::c_void;
-    
+
     fn strncpy(_: *mut libc::c_char, _: *const libc::c_char, _: libc::c_ulong)
         -> *mut libc::c_char;
-    
+
     fn osal_current_time() -> ec_timet;
-    
+
     static mut ecx_context: ecx_contextt;
-    
+
     fn ec_nextmbxcnt(cnt: uint8) -> uint8;
-    
+
     fn ec_clearmbx(Mbx: *mut ec_mbxbuft);
-    
+
     fn ecx_pusherror(context: *mut ecx_contextt, Ec: *const ec_errort);
-    
+
     fn ecx_packeterror(
         context: *mut ecx_contextt,
         Slave: uint16,
@@ -25,14 +25,14 @@ extern "C" {
         SubIdx: uint8,
         ErrorCode: uint16,
     );
-    
+
     fn ecx_mbxreceive(
         context: *mut ecx_contextt,
         slave: uint16,
         mbx: *mut ec_mbxbuft,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_mbxsend(
         context: *mut ecx_contextt,
         slave: uint16,

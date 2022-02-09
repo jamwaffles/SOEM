@@ -1,10 +1,10 @@
 use ::libc;
 extern "C" {
-    
+
     fn osal_current_time() -> ec_timet;
-    
+
     static mut ecx_context: ecx_contextt;
-    
+
     fn ecx_BWR(
         port: *mut ecx_portt,
         ADP: uint16,
@@ -13,7 +13,7 @@ extern "C" {
         data: *mut libc::c_void,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_FPRD(
         port: *mut ecx_portt,
         ADP: uint16,
@@ -22,7 +22,7 @@ extern "C" {
         data: *mut libc::c_void,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_FPWR(
         port: *mut ecx_portt,
         ADP: uint16,

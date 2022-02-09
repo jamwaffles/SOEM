@@ -1,61 +1,61 @@
 use libc;
 extern "C" {
-    
+
     fn ec_find_adapters() -> *mut ec_adaptert;
-    
+
     fn ec_free_adapters(adapter: *mut ec_adaptert);
-    
+
     fn ecx_init(context: *mut ecx_contextt, ifname: *const libc::c_char) -> libc::c_int;
-    
+
     fn ecx_close(context: *mut ecx_contextt);
-    
+
     fn ecx_readstate(context: *mut ecx_contextt) -> libc::c_int;
-    
+
     fn ecx_writestate(context: *mut ecx_contextt, slave: uint16) -> libc::c_int;
-    
+
     fn ecx_statecheck(
         context: *mut ecx_contextt,
         slave: uint16,
         reqstate: uint16,
         timeout: libc::c_int,
     ) -> uint16;
-    
+
     fn ecx_send_processdata(context: *mut ecx_contextt) -> libc::c_int;
-    
+
     fn ecx_receive_processdata(context: *mut ecx_contextt, timeout: libc::c_int) -> libc::c_int;
-    
+
     fn ecx_configdc(context: *mut ecx_contextt) -> boolean;
-    
+
     fn ecx_config_init(context: *mut ecx_contextt, usetable: uint8) -> libc::c_int;
-    
+
     fn ecx_config_map_group(
         context: *mut ecx_contextt,
         pIOmap: *mut libc::c_void,
         group: uint8,
     ) -> libc::c_int;
-    
+
     fn ecx_recover_slave(
         context: *mut ecx_contextt,
         slave: uint16,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ecx_reconfig_slave(
         context: *mut ecx_contextt,
         slave: uint16,
         timeout: libc::c_int,
     ) -> libc::c_int;
-    
+
     fn ec_ALstatuscode2string(ALstatuscode: uint16) -> *mut libc::c_char;
-    
+
     fn osal_usleep(usec: uint32) -> libc::c_int;
-    
+
     fn osal_current_time() -> ec_timet;
-    
+
     fn osal_time_diff(start: *mut ec_timet, end: *mut ec_timet, diff: *mut ec_timet);
-    
+
     fn printf(_: *const libc::c_char, _: ...) -> libc::c_int;
-    
+
     fn memset(_: *mut libc::c_void, _: libc::c_int, _: libc::c_ulong) -> *mut libc::c_void;
 }
 pub type __uint8_t = libc::c_uchar;
@@ -530,7 +530,7 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
         .grouplist
         .as_mut_ptr()
         .offset((*fieldbus).group as libc::c_int as isize);
-    print!("Initializing SOEM on \'{:}\'... ", unsafe {
+    print!("Initializing SOEM on \'{:}\'... ", {
         std::ffi::CStr::from_ptr((*fieldbus).iface as *const libc::c_char)
             .to_str()
             .unwrap()
@@ -566,7 +566,7 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
         while i < (*grp).nsegments as libc::c_int {
             print!(
                 "{:}{:}",
-                unsafe {
+                {
                     std::ffi::CStr::from_ptr(if i == 0i32 {
                         b" (\x00" as *const u8 as *const libc::c_char
                     } else {
@@ -628,7 +628,7 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
                 i as libc::c_int,
                 (*slave).state as libc::c_int as libc::c_uint,
                 (*slave).ALstatuscode as libc::c_int as libc::c_uint,
-                unsafe {
+                {
                     std::ffi::CStr::from_ptr(
                         ec_ALstatuscode2string((*slave).ALstatuscode) as *const libc::c_char
                     )
@@ -1032,12 +1032,12 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
         while !adapter.is_null() {
             println!(
                 "    - {:}  ({:})",
-                unsafe {
+                {
                     std::ffi::CStr::from_ptr((*adapter).name.as_mut_ptr() as *const libc::c_char)
                         .to_str()
                         .unwrap()
                 },
-                unsafe {
+                {
                     std::ffi::CStr::from_ptr((*adapter).desc.as_mut_ptr() as *const libc::c_char)
                         .to_str()
                         .unwrap()
