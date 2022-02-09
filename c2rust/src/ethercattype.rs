@@ -69,13 +69,13 @@ pub type ec_bufT = [u8; EC_BUFSIZE];
 #[repr(C, packed)]
 pub struct ec_etherheadert {
     /** destination MAC */
-    da0: u16,
-    da1: u16,
-    da2: u16,
+    pub da0: u16,
+    pub da1: u16,
+    pub da2: u16,
     /** source MAC */
-    sa0: u16,
-    sa1: u16,
-    sa2: u16,
+    pub sa0: u16,
+    pub sa1: u16,
+    pub sa2: u16,
     /** ethernet type */
     etype: u16,
 }
@@ -88,19 +88,19 @@ pub const ETH_HEADERSIZE: usize = size_of::<ec_etherheadert>();
 #[repr(C, packed)]
 pub struct ec_comt {
     /** length of EtherCAT datagram */
-    elength: u16,
+    pub elength: u16,
     /** EtherCAT command, see ec_cmdtype */
-    command: u8,
+    pub command: u8,
     /** index, used in SOEM for Tx to Rx recombination */
-    index: u8,
+    pub index: u8,
     /** ADP */
-    ADP: u16,
+    pub ADP: u16,
     /** ADO */
-    ADO: u16,
+    pub ADO: u16,
     /** length of data portion in datagram */
-    dlength: u16,
+    pub dlength: u16,
     /** interrupt, currently unused */
-    irpt: u16,
+    pub irpt: u16,
 }
 
 /** EtherCAT header size */

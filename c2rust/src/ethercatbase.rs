@@ -52,51 +52,21 @@ unsafe extern "C" fn ecx_writedatagramdata(
 ) {
     if length as libc::c_int > 0i32 {
         let mut current_block_1: u64;
+
         match com {
-            1 => {
-                /* Fall-through */
-                current_block_1 = 8063946749766749674;
-            }
-            4 => {
-                current_block_1 = 8063946749766749674;
-            }
-            7 => {
-                current_block_1 = 6210267665146797259;
-            }
-            0 | 10 => {
-                current_block_1 = 17425202042353836156;
+            ec_cmdtype::EC_CMD_NOP
+            | ec_cmdtype::EC_CMD_APRD
+            | ec_cmdtype::EC_CMD_FPRD
+            | ec_cmdtype::EC_CMD_BRD
+            | ec_cmdtype::EC_CMD_LRD => {
+                /* no data to write. initialise data so frame is in a known state */
+                memset(datagramdata, 0i32, length as usize);
             }
             _ => {
-                memcpy(datagramdata, data, length as libc::c_ulong);
-                current_block_1 = 2473556513754201174;
+                memcpy(datagramdata, data, length as usize);
             }
         }
-        match current_block_1 {
-            8063946749766749674 =>
-            /* Fall-through */
-            {
-                current_block_1 = 6210267665146797259;
-            }
-            _ => {}
-        }
-        match current_block_1 {
-            6210267665146797259 =>
-            /* Fall-through */
-            {
-                current_block_1 = 17425202042353836156;
-            }
-            _ => {}
-        }
-        match current_block_1 {
-            17425202042353836156 =>
-            /* Fall-through */
-            /* no data to write. initialise data so frame is in a known state */
-            {
-                memset(datagramdata, 0i32, length as libc::c_ulong);
-            }
-            _ => {}
-        }
-    };
+    }
 }
 /* * Generate and set EtherCAT datagram in a standard ethernet frame.
  *
@@ -114,7 +84,7 @@ unsafe extern "C" fn ecx_writedatagramdata(
 pub unsafe extern "C" fn ecx_setupdatagram(
     mut port: *mut ecx_portt,
     mut frame: *mut libc::c_void,
-    mut com: uint8,
+    mut com: ec_cmdtype,
     mut idx: uint8,
     mut ADP: uint16,
     mut ADO: uint16,
@@ -129,9 +99,9 @@ pub unsafe extern "C" fn ecx_setupdatagram(
     datagramP = &mut *frameP.offset(::core::mem::size_of::<ec_etherheadert>() as isize)
         as *mut uint8 as *mut ec_comt;
     (*datagramP).elength = (0x1000u64)
-        .wrapping_add(core::mem::size_of::<ec_comt>())
-        .wrapping_add(length as libc::c_ulong) as uint16;
-    (*datagramP).command = com;
+        .wrapping_add(core::mem::size_of::<ec_comt>() as u64)
+        .wrapping_add(length as u64) as uint16;
+    (*datagramP).command = com as u8;
     (*datagramP).index = idx;
     (*datagramP).ADP = ADP;
     (*datagramP).ADO = ADO;
@@ -141,7 +111,7 @@ pub unsafe extern "C" fn ecx_setupdatagram(
             core::mem::size_of::<ec_etherheadert>().wrapping_add(core::mem::size_of::<ec_comt>())
                 as isize,
         ) as *mut uint8 as *mut libc::c_void,
-        com as ec_cmdtype,
+        com,
         length,
         data,
     );
@@ -149,20 +119,19 @@ pub unsafe extern "C" fn ecx_setupdatagram(
     *frameP.offset(
         core::mem::size_of::<ec_etherheadert>()
             .wrapping_add(core::mem::size_of::<ec_comt>())
-            .wrapping_add(length as libc::c_ulong) as isize,
+            .wrapping_add(length as usize) as isize,
     ) = 0u8;
     *frameP.offset(
         core::mem::size_of::<ec_etherheadert>()
             .wrapping_add(core::mem::size_of::<ec_comt>())
-            .wrapping_add(length as libc::c_ulong)
+            .wrapping_add(length as usize)
             .wrapping_add(1usize) as isize,
     ) = 0u8;
     /* set size of frame in buffer array */
     (*port).txbuflength[idx as usize] = core::mem::size_of::<ec_etherheadert>()
         .wrapping_add(core::mem::size_of::<ec_comt>())
         .wrapping_add(core::mem::size_of::<uint16>())
-        .wrapping_add(length as libc::c_ulong)
-        as libc::c_int;
+        .wrapping_add(length as usize) as libc::c_int;
     return 0i32;
 }
 /* * Add EtherCAT datagram to a standard ethernet frame with existing datagram(s).
@@ -182,7 +151,7 @@ pub unsafe extern "C" fn ecx_setupdatagram(
 pub unsafe extern "C" fn ecx_adddatagram(
     mut port: *mut ecx_portt,
     mut frame: *mut libc::c_void,
-    mut com: uint8,
+    mut com: ec_cmdtype,
     mut idx: uint8,
     mut more: boolean,
     mut ADP: uint16,
@@ -199,16 +168,16 @@ pub unsafe extern "C" fn ecx_adddatagram(
     datagramP = &mut *frameP.offset(::core::mem::size_of::<ec_etherheadert>() as isize)
         as *mut uint8 as *mut ec_comt;
     /* add new datagram to ethernet frame size */
-    (*datagramP).elength = ((*datagramP).elength as libc::c_ulong)
+    (*datagramP).elength = ((*datagramP).elength as usize)
         .wrapping_add(core::mem::size_of::<ec_comt>())
-        .wrapping_add(length as libc::c_ulong) as uint16;
+        .wrapping_add(length as usize) as uint16;
     /* add "datagram follows" flag to previous subframe dlength */
     (*datagramP).dlength = ((*datagramP).dlength as libc::c_int | (1i32) << 15i32) as uint16;
     /* set new EtherCAT header position */
     datagramP = &mut *frameP
-        .offset((prevlength as libc::c_ulong).wrapping_sub(core::mem::size_of::<uint16>()) as isize)
+        .offset((prevlength as usize).wrapping_sub(core::mem::size_of::<uint16>()) as isize)
         as *mut uint8 as *mut ec_comt;
-    (*datagramP).command = com;
+    (*datagramP).command = com as u8;
     (*datagramP).index = idx;
     (*datagramP).ADP = ADP;
     (*datagramP).ADO = ADO;
@@ -221,38 +190,37 @@ pub unsafe extern "C" fn ecx_adddatagram(
     }
     ecx_writedatagramdata(
         &mut *frameP.offset(
-            (prevlength as libc::c_ulong)
+            (prevlength as usize)
                 .wrapping_add(core::mem::size_of::<ec_comt>())
                 .wrapping_sub(core::mem::size_of::<uint16>()) as isize,
         ) as *mut uint8 as *mut libc::c_void,
-        com as ec_cmdtype,
+        com,
         length,
         data,
     );
     /* set WKC to zero */
     *frameP.offset(
-        (prevlength as libc::c_ulong)
+        (prevlength as usize)
             .wrapping_add(core::mem::size_of::<ec_comt>())
             .wrapping_sub(core::mem::size_of::<uint16>())
-            .wrapping_add(length as libc::c_ulong) as isize,
+            .wrapping_add(length as usize) as isize,
     ) = 0u8;
     *frameP.offset(
-        (prevlength as libc::c_ulong)
+        (prevlength as usize)
             .wrapping_add(core::mem::size_of::<ec_comt>())
             .wrapping_sub(core::mem::size_of::<uint16>())
-            .wrapping_add(length as libc::c_ulong)
+            .wrapping_add(length as usize)
             .wrapping_add(1usize) as isize,
     ) = 0u8;
     /* set size of frame in buffer array */
-    (*port).txbuflength[idx as usize] = (prevlength as libc::c_ulong)
+    (*port).txbuflength[idx as usize] = (prevlength as usize)
         .wrapping_add(core::mem::size_of::<ec_comt>())
         .wrapping_sub(core::mem::size_of::<uint16>())
         .wrapping_add(core::mem::size_of::<uint16>())
-        .wrapping_add(length as libc::c_ulong)
-        as libc::c_int;
+        .wrapping_add(length as usize) as libc::c_int;
     /* return offset to data in rx frame
     14 bytes smaller than tx frame due to stripping of ethernet header */
-    return (prevlength as libc::c_ulong)
+    return (prevlength as usize)
         .wrapping_add(core::mem::size_of::<ec_comt>())
         .wrapping_sub(core::mem::size_of::<uint16>())
         .wrapping_sub(core::mem::size_of::<ec_etherheadert>()) as uint16;
@@ -284,7 +252,7 @@ pub unsafe extern "C" fn ecx_BWR(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_BWR as uint8,
+        ec_cmdtype::EC_CMD_BWR,
         idx,
         ADP,
         ADO,
@@ -324,7 +292,7 @@ pub unsafe extern "C" fn ecx_BRD(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_BRD as uint8,
+        ec_cmdtype::EC_CMD_BRD,
         idx,
         ADP,
         ADO,
@@ -341,7 +309,7 @@ pub unsafe extern "C" fn ecx_BRD(
                 .as_mut_ptr()
                 .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut uint8
                 as *const libc::c_void,
-            length as libc::c_ulong,
+            length as usize,
         );
     }
     /* clear buffer status */
@@ -373,7 +341,7 @@ pub unsafe extern "C" fn ecx_APRD(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_APRD as uint8,
+        ec_cmdtype::EC_CMD_APRD,
         idx,
         ADP,
         ADO,
@@ -388,7 +356,7 @@ pub unsafe extern "C" fn ecx_APRD(
                 .as_mut_ptr()
                 .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut uint8
                 as *const libc::c_void,
-            length as libc::c_ulong,
+            length as usize,
         );
     }
     ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
@@ -420,7 +388,7 @@ pub unsafe extern "C" fn ecx_ARMW(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_ARMW as uint8,
+        ec_cmdtype::EC_CMD_ARMW,
         idx,
         ADP,
         ADO,
@@ -435,7 +403,7 @@ pub unsafe extern "C" fn ecx_ARMW(
                 .as_mut_ptr()
                 .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut uint8
                 as *const libc::c_void,
-            length as libc::c_ulong,
+            length as usize,
         );
     }
     ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
@@ -467,7 +435,7 @@ pub unsafe extern "C" fn ecx_FRMW(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_FRMW as uint8,
+        ec_cmdtype::EC_CMD_FRMW,
         idx,
         ADP,
         ADO,
@@ -482,7 +450,7 @@ pub unsafe extern "C" fn ecx_FRMW(
                 .as_mut_ptr()
                 .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut uint8
                 as *const libc::c_void,
-            length as libc::c_ulong,
+            length as usize,
         );
     }
     ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
@@ -540,7 +508,7 @@ pub unsafe extern "C" fn ecx_FPRD(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_FPRD as uint8,
+        ec_cmdtype::EC_CMD_FPRD,
         idx,
         ADP,
         ADO,
@@ -555,7 +523,7 @@ pub unsafe extern "C" fn ecx_FPRD(
                 .as_mut_ptr()
                 .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut uint8
                 as *const libc::c_void,
-            length as libc::c_ulong,
+            length as usize,
         );
     }
     ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
@@ -613,7 +581,7 @@ pub unsafe extern "C" fn ecx_APWR(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_APWR as uint8,
+        ec_cmdtype::EC_CMD_APWR,
         idx,
         ADP,
         ADO,
@@ -675,7 +643,7 @@ pub unsafe extern "C" fn ecx_FPWR(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_FPWR as uint8,
+        ec_cmdtype::EC_CMD_FPWR,
         idx,
         ADP,
         ADO,
@@ -735,7 +703,7 @@ pub unsafe extern "C" fn ecx_LRW(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_LRW as uint8,
+        ec_cmdtype::EC_CMD_LRW,
         idx,
         (LogAdr & 0xffffu32) as uint16,
         (LogAdr >> 16i32) as uint16,
@@ -753,7 +721,7 @@ pub unsafe extern "C" fn ecx_LRW(
                 .as_mut_ptr()
                 .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut uint8
                 as *const libc::c_void,
-            length as libc::c_ulong,
+            length as usize,
         );
     }
     ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
@@ -782,7 +750,7 @@ pub unsafe extern "C" fn ecx_LRD(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_LRD as uint8,
+        ec_cmdtype::EC_CMD_LRD,
         idx,
         (LogAdr & 0xffffu32) as uint16,
         (LogAdr >> 16i32) as uint16,
@@ -800,7 +768,7 @@ pub unsafe extern "C" fn ecx_LRD(
                 .as_mut_ptr()
                 .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut uint8
                 as *const libc::c_void,
-            length as libc::c_ulong,
+            length as usize,
         );
     }
     ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
@@ -829,7 +797,7 @@ pub unsafe extern "C" fn ecx_LWR(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_LWR as uint8,
+        ec_cmdtype::EC_CMD_LWR,
         idx,
         (LogAdr & 0xffffu32) as uint16,
         (LogAdr >> 16i32) as uint16,
@@ -871,7 +839,7 @@ pub unsafe extern "C" fn ecx_LRWDC(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_LRW as uint8,
+        ec_cmdtype::EC_CMD_LRW,
         idx,
         (LogAdr & 0xffffu32) as uint16,
         (LogAdr >> 16i32) as uint16,
@@ -883,7 +851,7 @@ pub unsafe extern "C" fn ecx_LRWDC(
     DCtO = ecx_adddatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_FRMW as uint8,
+        ec_cmdtype::EC_CMD_FRMW,
         idx,
         0u8,
         DCrs,
@@ -902,15 +870,14 @@ pub unsafe extern "C" fn ecx_LRWDC(
                 .as_mut_ptr()
                 .offset(::core::mem::size_of::<ec_comt>() as isize) as *mut uint8
                 as *const libc::c_void,
-            length as libc::c_ulong,
+            length as usize,
         );
         memcpy(
             &mut wkc as *mut libc::c_int as *mut libc::c_void,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(
-                    core::mem::size_of::<ec_comt>().wrapping_add(length as libc::c_ulong) as isize,
-                ) as *mut uint8 as *const libc::c_void,
+                .offset(core::mem::size_of::<ec_comt>().wrapping_add(length as usize) as isize)
+                as *mut uint8 as *const libc::c_void,
             core::mem::size_of::<uint16>(),
         );
         memcpy(
@@ -928,7 +895,7 @@ pub unsafe extern "C" fn ecx_LRWDC(
 #[no_mangle]
 pub unsafe extern "C" fn ec_setupdatagram(
     mut frame: *mut libc::c_void,
-    mut com: uint8,
+    mut com: ec_cmdtype,
     mut idx: uint8,
     mut ADP: uint16,
     mut ADO: uint16,
@@ -940,7 +907,7 @@ pub unsafe extern "C" fn ec_setupdatagram(
 #[no_mangle]
 pub unsafe extern "C" fn ec_adddatagram(
     mut frame: *mut libc::c_void,
-    mut com: uint8,
+    mut com: ec_cmdtype,
     mut idx: uint8,
     mut more: boolean,
     mut ADP: uint16,

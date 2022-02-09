@@ -197,7 +197,7 @@ pub unsafe extern "C" fn ecx_SoEread(
                     && (*aSoEp).driveNo() as libc::c_int == driveNo as libc::c_int
                     && (*aSoEp).elementflags as libc::c_int == elementflags as libc::c_int
                 {
-                    framedatasize = ((*aSoEp).MbxHeader.length as libc::c_ulong)
+                    framedatasize = ((*aSoEp).MbxHeader.length as usize)
                         .wrapping_sub(core::mem::size_of::<ec_SoEt>() as u64)
                         .wrapping_add(core::mem::size_of::<ec_mbxheadert>() as u64)
                         as libc::c_int;
@@ -238,7 +238,7 @@ pub unsafe extern "C" fn ecx_SoEread(
                         && (*aSoEp).error() as libc::c_int == 1i32
                     {
                         mp = (&mut MbxIn as *mut ec_mbxbuft as *mut uint8).offset(
-                            ((*aSoEp).MbxHeader.length as libc::c_ulong)
+                            ((*aSoEp).MbxHeader.length as usize)
                                 .wrapping_add(core::mem::size_of::<ec_mbxheadert>() as u64)
                                 .wrapping_sub(core::mem::size_of::<uint16>() as u64)
                                 as isize,
@@ -373,7 +373,7 @@ pub unsafe extern "C" fn ecx_SoEwrite(
                             && (*aSoEp).error() as libc::c_int == 1i32
                         {
                             mp = (&mut MbxIn as *mut ec_mbxbuft as *mut uint8).offset(
-                                ((*aSoEp).MbxHeader.length as libc::c_ulong)
+                                ((*aSoEp).MbxHeader.length as usize)
                                     .wrapping_add(core::mem::size_of::<ec_mbxheadert>() as u64)
                                     .wrapping_sub(core::mem::size_of::<uint16>() as u64)
                                     as isize,
