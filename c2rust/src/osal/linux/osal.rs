@@ -1,35 +1,3 @@
-use ::libc;
-extern "C" {
-
-    fn nanosleep(__requested_time: *const timespec, __remaining: *mut timespec) -> libc::c_int;
-
-    fn clock_gettime(__clock_id: clockid_t, __tp: *mut timespec) -> libc::c_int;
-
-    fn malloc(_: libc::c_ulong) -> *mut libc::c_void;
-
-    fn free(__ptr: *mut libc::c_void);
-
-    fn memset(_: *mut libc::c_void, _: libc::c_int, _: libc::c_ulong) -> *mut libc::c_void;
-
-    fn pthread_create(
-        __newthread: *mut pthread_t,
-        __attr: *const pthread_attr_t,
-        __start_routine: Option<unsafe extern "C" fn(_: *mut libc::c_void) -> *mut libc::c_void>,
-        __arg: *mut libc::c_void,
-    ) -> libc::c_int;
-
-    fn pthread_attr_init(__attr: *mut pthread_attr_t) -> libc::c_int;
-
-    fn pthread_attr_destroy(__attr: *mut pthread_attr_t) -> libc::c_int;
-
-    fn pthread_attr_setstacksize(__attr: *mut pthread_attr_t, __stacksize: size_t) -> libc::c_int;
-
-    fn pthread_setschedparam(
-        __target_thread: pthread_t,
-        __policy: libc::c_int,
-        __param: *const sched_param,
-    ) -> libc::c_int;
-}
 pub type size_t = libc::c_ulong;
 pub type __uint8_t = libc::c_uchar;
 pub type __uint32_t = libc::c_uint;

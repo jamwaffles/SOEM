@@ -1,18 +1,3 @@
-use ::libc;
-extern "C" {
-
-    fn memcpy(_: *mut libc::c_void, _: *const libc::c_void, _: libc::c_ulong) -> *mut libc::c_void;
-
-    fn memset(_: *mut libc::c_void, _: libc::c_int, _: libc::c_ulong) -> *mut libc::c_void;
-
-    static mut ecx_port: ecx_portt;
-
-    fn ecx_setbufstat(port: *mut ecx_portt, idx: uint8, bufstat: libc::c_int);
-
-    fn ecx_getindex(port: *mut ecx_portt) -> uint8;
-
-    fn ecx_srconfirm(port: *mut ecx_portt, idx: uint8, timeout: libc::c_int) -> libc::c_int;
-}
 pub type __uint8_t = libc::c_uchar;
 pub type __uint16_t = libc::c_ushort;
 pub type __uint32_t = libc::c_uint;

@@ -1,30 +1,3 @@
-use ::libc;
-extern "C" {
-
-    fn memcpy(_: *mut libc::c_void, _: *const libc::c_void, _: libc::c_ulong) -> *mut libc::c_void;
-
-    fn strlen(_: *const libc::c_char) -> libc::c_ulong;
-
-    static mut ecx_context: ecx_contextt;
-
-    fn ec_nextmbxcnt(cnt: uint8) -> uint8;
-
-    fn ec_clearmbx(Mbx: *mut ec_mbxbuft);
-
-    fn ecx_mbxsend(
-        context: *mut ecx_contextt,
-        slave: uint16,
-        mbx: *mut ec_mbxbuft,
-        timeout: libc::c_int,
-    ) -> libc::c_int;
-
-    fn ecx_mbxreceive(
-        context: *mut ecx_contextt,
-        slave: uint16,
-        mbx: *mut ec_mbxbuft,
-        timeout: libc::c_int,
-    ) -> libc::c_int;
-}
 pub type __uint8_t = libc::c_uchar;
 pub type __int16_t = libc::c_short;
 pub type __uint16_t = libc::c_ushort;

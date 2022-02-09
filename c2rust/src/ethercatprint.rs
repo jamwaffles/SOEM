@@ -1,12 +1,3 @@
-use ::libc;
-extern "C" {
-
-    fn sprintf(_: *mut libc::c_char, _: *const libc::c_char, _: ...) -> libc::c_int;
-
-    static mut ecx_context: ecx_contextt;
-
-    fn ecx_poperror(context: *mut ecx_contextt, Ec: *mut ec_errort) -> boolean;
-}
 pub type __uint8_t = libc::c_uchar;
 pub type __int16_t = libc::c_short;
 pub type __uint16_t = libc::c_ushort;
