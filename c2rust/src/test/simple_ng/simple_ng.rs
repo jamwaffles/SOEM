@@ -621,8 +621,7 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
         slave = (*fieldbus).slavelist.as_mut_ptr().offset(i as isize);
         if (*slave).state as libc::c_int != EC_STATE_OPERATIONAL as libc::c_int {
             printf(
-                b" slave %d is 0x%04X (AL-status=0x%04X %s)\x00" as *const u8
-                    as *const libc::c_char,
+                b" slave %d is 0x%4X (AL-status=0x%4X %s)\x00" as *const u8 as *const libc::c_char,
                 i,
                 (*slave).state as libc::c_int,
                 (*slave).ALstatuscode as libc::c_int,
@@ -675,7 +674,7 @@ unsafe extern "C" fn fieldbus_dump(mut fieldbus: *mut Fieldbus) -> boolean {
     n = 0u32;
     while n < (*grp).Obytes {
         printf(
-            b" %02X\x00" as *const u8 as *const libc::c_char,
+            b" %2X\x00" as *const u8 as *const libc::c_char,
             *(*grp).outputs.offset(n as isize) as libc::c_int,
         );
         n = n.wrapping_add(1)
@@ -684,7 +683,7 @@ unsafe extern "C" fn fieldbus_dump(mut fieldbus: *mut Fieldbus) -> boolean {
     n = 0u32;
     while n < (*grp).Ibytes {
         printf(
-            b" %02X\x00" as *const u8 as *const libc::c_char,
+            b" %2X\x00" as *const u8 as *const libc::c_char,
             *(*grp).inputs.offset(n as isize) as libc::c_int,
         );
         n = n.wrapping_add(1)

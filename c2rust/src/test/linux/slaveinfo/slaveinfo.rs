@@ -1117,7 +1117,7 @@ pub unsafe extern "C" fn si_PDOassign(
                     );
                     if wkc > 0i32 && OElist.Entries as libc::c_int != 0 {
                         printf(
-                            b" %-12s %s\n\x00" as *const u8 as *const libc::c_char,
+                            b" %12s %s\n\x00" as *const u8 as *const libc::c_char,
                             dtype2string(OElist.DataType[obj_subidx as usize], bitlen as uint16),
                             OElist.Name[obj_subidx as usize].as_mut_ptr(),
                         );
@@ -1408,7 +1408,7 @@ pub unsafe extern "C" fn si_siiPDO(
                             bitlen as libc::c_int,
                         );
                         printf(
-                            b" %-12s %s\n\x00" as *const u8 as *const libc::c_char,
+                            b" %12s %s\n\x00" as *const u8 as *const libc::c_char,
                             dtype2string(obj_datatype as uint16, bitlen as uint16),
                             str_name.as_mut_ptr(),
                         );
@@ -1520,14 +1520,14 @@ pub unsafe extern "C" fn si_sdo(mut cnt: libc::c_int) {
             );
             if ODlist.ObjectCode[i as usize] as libc::c_int == 0x7i32 {
                 printf(
-                    b"0x%04x      %-40s      [%s]\n\x00" as *const u8 as *const libc::c_char,
+                    b"0x%4x      %40s      [%s]\n\x00" as *const u8 as *const libc::c_char,
                     ODlist.Index[i as usize] as libc::c_int,
                     name.as_mut_ptr(),
                     otype2string(ODlist.ObjectCode[i as usize] as uint16),
                 );
             } else {
                 printf(
-                    b"0x%04x      %-40s      [%s  maxsub(0x%02x / %d)]\n\x00" as *const u8
+                    b"0x%4x      %40s      [%s  maxsub(0x%2x / %d)]\n\x00" as *const u8
                         as *const libc::c_char,
                     ODlist.Index[i as usize] as libc::c_int,
                     name.as_mut_ptr(),
@@ -1575,7 +1575,7 @@ pub unsafe extern "C" fn si_sdo(mut cnt: libc::c_int) {
                         OElist.Name[j as usize].as_mut_ptr(),
                     );
                     printf(
-                        b"    0x%02x      %-40s      [%-16s %6s]      \x00" as *const u8
+                        b"    0x%2x      %40s      [%16s %6s]      \x00" as *const u8
                             as *const libc::c_char,
                         j,
                         name.as_mut_ptr(),
