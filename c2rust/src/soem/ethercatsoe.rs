@@ -1,26 +1,31 @@
-use ::libc;
 use ::c2rust_bitfields;
+use ::libc;
 extern "C" {
     #[no_mangle]
-    fn memcpy(_: *mut libc::c_void, _: *const libc::c_void, _: libc::c_ulong)
-     -> *mut libc::c_void;
+    fn memcpy(_: *mut libc::c_void, _: *const libc::c_void, _: libc::c_ulong) -> *mut libc::c_void;
     #[no_mangle]
-    fn memset(_: *mut libc::c_void, _: libc::c_int, _: libc::c_ulong)
-     -> *mut libc::c_void;
+    fn memset(_: *mut libc::c_void, _: libc::c_int, _: libc::c_ulong) -> *mut libc::c_void;
     #[no_mangle]
     fn osal_current_time() -> ec_timet;
     #[no_mangle]
     static mut ecx_context: ecx_contextt;
     #[no_mangle]
-    fn ecx_mbxempty(context: *mut ecx_contextt, slave: uint16,
-                    timeout: libc::c_int) -> libc::c_int;
+    fn ecx_mbxempty(context: *mut ecx_contextt, slave: uint16, timeout: libc::c_int)
+        -> libc::c_int;
     #[no_mangle]
-    fn ecx_mbxsend(context: *mut ecx_contextt, slave: uint16,
-                   mbx: *mut ec_mbxbuft, timeout: libc::c_int) -> libc::c_int;
+    fn ecx_mbxsend(
+        context: *mut ecx_contextt,
+        slave: uint16,
+        mbx: *mut ec_mbxbuft,
+        timeout: libc::c_int,
+    ) -> libc::c_int;
     #[no_mangle]
-    fn ecx_mbxreceive(context: *mut ecx_contextt, slave: uint16,
-                      mbx: *mut ec_mbxbuft, timeout: libc::c_int)
-     -> libc::c_int;
+    fn ecx_mbxreceive(
+        context: *mut ecx_contextt,
+        slave: uint16,
+        mbx: *mut ec_mbxbuft,
+        timeout: libc::c_int,
+    ) -> libc::c_int;
     #[no_mangle]
     fn ec_nextmbxcnt(cnt: uint8) -> uint8;
     #[no_mangle]
@@ -28,8 +33,13 @@ extern "C" {
     #[no_mangle]
     fn ec_clearmbx(Mbx: *mut ec_mbxbuft);
     #[no_mangle]
-    fn ecx_packeterror(context: *mut ecx_contextt, Slave: uint16,
-                       Index: uint16, SubIdx: uint8, ErrorCode: uint16);
+    fn ecx_packeterror(
+        context: *mut ecx_contextt,
+        Slave: uint16,
+        Index: uint16,
+        SubIdx: uint8,
+        ErrorCode: uint16,
+    );
 }
 pub type __uint8_t = libc::c_uchar;
 pub type __int16_t = libc::c_short;
@@ -37,15 +47,17 @@ pub type __uint16_t = libc::c_ushort;
 pub type __int32_t = libc::c_int;
 pub type __uint32_t = libc::c_uint;
 pub type __int64_t = libc::c_long;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct __pthread_internal_list {
     pub __prev: *mut __pthread_internal_list,
     pub __next: *mut __pthread_internal_list,
 }
 pub type __pthread_list_t = __pthread_internal_list;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct __pthread_mutex_s {
     pub __lock: libc::c_int,
     pub __count: libc::c_uint,
@@ -56,8 +68,9 @@ pub struct __pthread_mutex_s {
     pub __elision: libc::c_short,
     pub __list: __pthread_list_t,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union pthread_mutex_t {
     pub __data: __pthread_mutex_s,
     pub __size: [libc::c_char; 40],
@@ -76,8 +89,9 @@ pub type uint8 = uint8_t;
 pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type int64 = int64_t;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_timet {
     pub sec: uint32,
     pub usec: uint32,
@@ -110,8 +124,9 @@ pub const EC_ERR_TYPE_SDOINFO_ERROR: ec_err_type = 4;
 pub const EC_ERR_TYPE_PACKET_ERROR: ec_err_type = 3;
 pub const EC_ERR_TYPE_EMERGENCY: ec_err_type = 1;
 pub const EC_ERR_TYPE_SDO_ERROR: ec_err_type = 0;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_errort {
     pub Time: ec_timet,
     pub Signal: boolean,
@@ -121,14 +136,16 @@ pub struct ec_errort {
     pub Etype: ec_err_type,
     pub c2rust_unnamed: C2RustUnnamed_1,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union C2RustUnnamed_1 {
     pub AbortCode: int32,
     pub c2rust_unnamed: C2RustUnnamed_2,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct C2RustUnnamed_2 {
     pub ErrorCode: uint16,
     pub ErrorReg: uint8,
@@ -136,8 +153,9 @@ pub struct C2RustUnnamed_2 {
     pub w1: uint16,
     pub w2: uint16,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_stackT {
     pub sock: *mut libc::c_int,
     pub txbuf: *mut [ec_bufT; 16],
@@ -147,8 +165,9 @@ pub struct ec_stackT {
     pub rxbufstat: *mut [libc::c_int; 16],
     pub rxsa: *mut [libc::c_int; 16],
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_redportt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
@@ -157,8 +176,9 @@ pub struct ecx_redportt {
     pub rxsa: [libc::c_int; 16],
     pub tempinbuf: ec_bufT,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_portt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
@@ -178,8 +198,9 @@ pub struct ecx_portt {
     pub tx_mutex: pthread_mutex_t,
     pub rx_mutex: pthread_mutex_t,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_fmmu {
     pub LogStart: uint32,
     pub LogLength: uint16,
@@ -193,16 +214,18 @@ pub struct ec_fmmu {
     pub unused2: uint16,
 }
 pub type ec_fmmut = ec_fmmu;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_sm {
     pub StartAddr: uint16,
     pub SMlength: uint16,
     pub SMflags: uint32,
 }
 pub type ec_smt = ec_sm;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_context {
     pub port: *mut ecx_portt,
     pub slavelist: *mut ec_slavet,
@@ -222,18 +245,19 @@ pub struct ecx_context {
     pub PDOdesc: *mut ec_PDOdesct,
     pub eepSM: *mut ec_eepromSMt,
     pub eepFMMU: *mut ec_eepromFMMUt,
-    pub FOEhook: Option<unsafe extern "C" fn(_: uint16, _: libc::c_int,
-                                             _: libc::c_int) -> libc::c_int>,
-    pub EOEhook: Option<unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16,
-                                             _: *mut libc::c_void)
-                            -> libc::c_int>,
+    pub FOEhook:
+        Option<unsafe extern "C" fn(_: uint16, _: libc::c_int, _: libc::c_int) -> libc::c_int>,
+    pub EOEhook: Option<
+        unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16, _: *mut libc::c_void) -> libc::c_int,
+    >,
     pub manualstatechange: libc::c_int,
     pub userdata: *mut libc::c_void,
 }
 pub type ecx_contextt = ecx_context;
 pub type ec_eepromFMMUt = ec_eepromFMMU;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_eepromFMMU {
     pub Startpos: uint16,
     pub nFMMU: uint8,
@@ -243,8 +267,9 @@ pub struct ec_eepromFMMU {
     pub FMMU3: uint8,
 }
 pub type ec_eepromSMt = ec_eepromSM;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_eepromSM {
     pub Startpos: uint16,
     pub nSM: uint8,
@@ -256,32 +281,36 @@ pub struct ec_eepromSM {
     pub PDIctrl: uint8,
 }
 pub type ec_PDOdesct = ec_PDOdesc;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_PDOdesc {
     pub n: uint8,
     pub nu1: uint8,
     pub PDO: [uint32; 256],
 }
 pub type ec_PDOassignt = ec_PDOassign;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_PDOassign {
     pub n: uint8,
     pub nu1: uint8,
     pub index: [uint16; 256],
 }
 pub type ec_SMcommtypet = ec_SMcommtype;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_SMcommtype {
     pub n: uint8,
     pub nu1: uint8,
     pub SMtype: [uint8; 8],
 }
 pub type ec_idxstackT = ec_idxstack;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_idxstack {
     pub pushed: uint8,
     pub pulled: uint8,
@@ -291,16 +320,18 @@ pub struct ec_idxstack {
     pub dcoffset: [uint16; 16],
 }
 pub type ec_eringt = ec_ering;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_ering {
     pub head: int16,
     pub tail: int16,
     pub Error: [ec_errort; 65],
 }
 pub type ec_groupt = ec_group;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_group {
     pub logstartaddr: uint32,
     pub Obytes: uint32,
@@ -320,8 +351,9 @@ pub struct ec_group {
     pub IOsegment: [uint32; 64],
 }
 pub type ec_slavet = ec_slave;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_slave {
     pub state: uint16,
     pub ALstatuscode: uint16,
@@ -385,13 +417,13 @@ pub struct ec_slave {
     pub FMMUunused: uint8,
     pub islost: boolean,
     pub PO2SOconfig: Option<unsafe extern "C" fn(_: uint16) -> libc::c_int>,
-    pub PO2SOconfigx: Option<unsafe extern "C" fn(_: *mut ecx_contextt,
-                                                  _: uint16) -> libc::c_int>,
+    pub PO2SOconfigx: Option<unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16) -> libc::c_int>,
     pub name: [libc::c_char; 41],
 }
 pub type ec_mbxbuft = [uint8; 1487];
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_mbxheader {
     pub length: uint16,
     pub address: uint16,
@@ -399,15 +431,17 @@ pub struct ec_mbxheader {
     pub mbxtype: uint8,
 }
 pub type ec_mbxheadert = ec_mbxheader;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_SoEmappingt {
     pub currentlength: uint16,
     pub maxlength: uint16,
     pub idn: [uint16; 64],
 }
-#[derive(Copy, Clone, BitfieldStruct)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone, BitfieldStruct)]
 pub struct ec_SoEattributet {
     #[bitfield(name = "evafactor", ty = "uint32", bits = "0..=15")]
     #[bitfield(name = "length", ty = "uint32", bits = "16..=17")]
@@ -420,10 +454,12 @@ pub struct ec_SoEattributet {
     #[bitfield(name = "wpsafeop", ty = "uint32", bits = "29..=29")]
     #[bitfield(name = "wpop", ty = "uint32", bits = "30..=30")]
     #[bitfield(name = "reserved2", ty = "uint32", bits = "31..=31")]
-    pub evafactor_length_list_command_datatype_reserved1_decimals_wppreop_wpsafeop_wpop_reserved2: [u8; 4],
+    pub evafactor_length_list_command_datatype_reserved1_decimals_wppreop_wpsafeop_wpop_reserved2:
+        [u8; 4],
 }
-#[derive(Copy, Clone, BitfieldStruct)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone, BitfieldStruct)]
 pub struct ec_SoEt {
     pub MbxHeader: ec_mbxheadert,
     #[bitfield(name = "opCode", ty = "uint8", bits = "0..=2")]
@@ -434,8 +470,9 @@ pub struct ec_SoEt {
     pub elementflags: uint8,
     pub c2rust_unnamed: C2RustUnnamed_3,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union C2RustUnnamed_3 {
     pub idn: uint16,
     pub fragmentsleft: uint16,
@@ -448,24 +485,31 @@ pub union C2RustUnnamed_3 {
  * @param[in]  Error      = Error code, see EtherCAT documentation for list
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_SoEerror(mut context: *mut ecx_contextt,
-                                      mut Slave: uint16, mut idn: uint16,
-                                      mut Error: uint16) {
-    let mut Ec: ec_errort =
-        ec_errort{Time: ec_timet{sec: 0, usec: 0,},
-                  Signal: 0,
-                  Slave: 0,
-                  Index: 0,
-                  SubIdx: 0,
-                  Etype: EC_ERR_TYPE_SDO_ERROR,
-                  c2rust_unnamed: C2RustUnnamed_1{AbortCode: 0,},};
-    memset(&mut Ec as *mut ec_errort as *mut libc::c_void, 0 as libc::c_int,
-           ::core::mem::size_of::<ec_errort>() as libc::c_ulong);
+pub unsafe extern "C" fn ecx_SoEerror(
+    mut context: *mut ecx_contextt,
+    mut Slave: uint16,
+    mut idn: uint16,
+    mut Error: uint16,
+) {
+    let mut Ec: ec_errort = ec_errort {
+        Time: ec_timet { sec: 0, usec: 0 },
+        Signal: 0,
+        Slave: 0,
+        Index: 0,
+        SubIdx: 0,
+        Etype: EC_ERR_TYPE_SDO_ERROR,
+        c2rust_unnamed: C2RustUnnamed_1 { AbortCode: 0 },
+    };
+    memset(
+        &mut Ec as *mut ec_errort as *mut libc::c_void,
+        0i32,
+        ::core::mem::size_of::<ec_errort>() as libc::c_ulong,
+    );
     Ec.Time = osal_current_time();
     Ec.Slave = Slave;
     Ec.Index = idn;
-    Ec.SubIdx = 0 as libc::c_int as uint8;
-    *(*context).ecaterror = 1 as libc::c_int as boolean;
+    Ec.SubIdx = 0u8;
+    *(*context).ecaterror = 1u8;
     Ec.Etype = EC_ERR_TYPE_SOE_ERROR;
     Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode = Error;
     ecx_pusherror(context, &mut Ec);
@@ -487,13 +531,16 @@ pub unsafe extern "C" fn ecx_SoEerror(mut context: *mut ecx_contextt,
  * @return Workcounter from last slave response
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_SoEread(mut context: *mut ecx_contextt,
-                                     mut slave: uint16, mut driveNo: uint8,
-                                     mut elementflags: uint8, mut idn: uint16,
-                                     mut psize: *mut libc::c_int,
-                                     mut p: *mut libc::c_void,
-                                     mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_SoEread(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut driveNo: uint8,
+    mut elementflags: uint8,
+    mut idn: uint16,
+    mut psize: *mut libc::c_int,
+    mut p: *mut libc::c_void,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     let mut SoEp: *mut ec_SoEt = 0 as *mut ec_SoEt;
     let mut aSoEp: *mut ec_SoEt = 0 as *mut ec_SoEt;
     let mut totalsize: libc::c_int = 0;
@@ -508,131 +555,108 @@ pub unsafe extern "C" fn ecx_SoEread(mut context: *mut ecx_contextt,
     let mut NotLast: boolean = 0;
     ec_clearmbx(&mut MbxIn);
     /* Empty slave out mailbox if something is in. Timeout set to 0 */
-    wkc =
-        ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft,
-                       0 as libc::c_int);
+    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0i32);
     ec_clearmbx(&mut MbxOut);
     aSoEp = &mut MbxIn as *mut ec_mbxbuft as *mut ec_SoEt;
     SoEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_SoEt;
-    (*SoEp).MbxHeader.length =
-        (::core::mem::size_of::<ec_SoEt>() as
-             libc::c_ulong).wrapping_sub(::core::mem::size_of::<ec_mbxheadert>()
-                                             as libc::c_ulong) as uint16;
-    (*SoEp).MbxHeader.address = 0 as libc::c_int as uint16;
-    (*SoEp).MbxHeader.priority = 0 as libc::c_int as uint8;
+    (*SoEp).MbxHeader.length = (::core::mem::size_of::<ec_SoEt>() as libc::c_ulong)
+        .wrapping_sub(::core::mem::size_of::<ec_mbxheadert>() as libc::c_ulong)
+        as uint16;
+    (*SoEp).MbxHeader.address = 0u16;
+    (*SoEp).MbxHeader.priority = 0u8;
     /* get new mailbox count value, used as session handle */
-    cnt =
-        ec_nextmbxcnt((*(*context).slavelist.offset(slave as
-                                                        isize)).mbx_cnt); /* SoE */
+    cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* SoE */
     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-    (*SoEp).MbxHeader.mbxtype =
-        (ECT_MBXT_SOE as libc::c_int +
-             ((cnt as libc::c_int) << 4 as libc::c_int) as uint8 as
-                 libc::c_int) as uint8;
-    (*SoEp).set_opCode(ECT_SOE_READREQ as libc::c_int as uint8);
-    (*SoEp).set_incomplete(0 as libc::c_int as uint8);
-    (*SoEp).set_error(0 as libc::c_int as uint8);
+    (*SoEp).MbxHeader.mbxtype = (ECT_MBXT_SOE as libc::c_int
+        + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
+        as uint8;
+    (*SoEp).set_opCode(ECT_SOE_READREQ as uint8);
+    (*SoEp).set_incomplete(0u8);
+    (*SoEp).set_error(0u8);
     (*SoEp).set_driveNo(driveNo);
     (*SoEp).elementflags = elementflags;
     (*SoEp).c2rust_unnamed.idn = idn;
-    totalsize = 0 as libc::c_int;
+    totalsize = 0i32;
     bp = p as *mut uint8;
-    mp =
-        (&mut MbxIn as *mut ec_mbxbuft as
-             *mut uint8).offset(::core::mem::size_of::<ec_SoEt>() as
-                                    libc::c_ulong as isize);
-    NotLast = 1 as libc::c_int as boolean;
+    mp = (&mut MbxIn as *mut ec_mbxbuft as *mut uint8)
+        .offset(::core::mem::size_of::<ec_SoEt>() as isize);
+    NotLast = 1u8;
     /* send SoE request to slave */
-    wkc =
-        ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft,
-                    20000 as libc::c_int);
-    if wkc > 0 as libc::c_int {
+    wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+    if wkc > 0i32 {
         /* succeeded to place mailbox in slave ? */
         while NotLast != 0 {
             /* clean mailboxbuffer */
             ec_clearmbx(&mut MbxIn);
             /* read slave response */
-            wkc =
-                ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft,
-                               timeout);
-            if wkc > 0 as libc::c_int {
+            wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, timeout);
+            if wkc > 0i32 {
                 /* succeeded to read slave response ? */
                 /* slave response should be SoE, ReadRes */
-                if (*aSoEp).MbxHeader.mbxtype as libc::c_int &
-                       0xf as libc::c_int == ECT_MBXT_SOE as libc::c_int &&
-                       (*aSoEp).opCode() as libc::c_int ==
-                           ECT_SOE_READRES as libc::c_int &&
-                       (*aSoEp).error() as libc::c_int == 0 as libc::c_int &&
-                       (*aSoEp).driveNo() as libc::c_int ==
-                           driveNo as libc::c_int &&
-                       (*aSoEp).elementflags as libc::c_int ==
-                           elementflags as libc::c_int {
-                    framedatasize =
-                        ((*aSoEp).MbxHeader.length as
-                             libc::c_ulong).wrapping_sub(::core::mem::size_of::<ec_SoEt>()
-                                                             as
-                                                             libc::c_ulong).wrapping_add(::core::mem::size_of::<ec_mbxheadert>()
-                                                                                             as
-                                                                                             libc::c_ulong)
-                            as libc::c_int;
+                if (*aSoEp).MbxHeader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_SOE as libc::c_int
+                    && (*aSoEp).opCode() as libc::c_int == ECT_SOE_READRES as libc::c_int
+                    && (*aSoEp).error() as libc::c_int == 0i32
+                    && (*aSoEp).driveNo() as libc::c_int == driveNo as libc::c_int
+                    && (*aSoEp).elementflags as libc::c_int == elementflags as libc::c_int
+                {
+                    framedatasize = ((*aSoEp).MbxHeader.length as libc::c_ulong)
+                        .wrapping_sub(::core::mem::size_of::<ec_SoEt>() as libc::c_ulong)
+                        .wrapping_add(::core::mem::size_of::<ec_mbxheadert>() as libc::c_ulong)
+                        as libc::c_int;
                     totalsize += framedatasize;
                     /* Does parameter fit in parameter buffer ? */
                     if totalsize <= *psize {
                         /* copy parameter data in parameter buffer */
-                        memcpy(bp as *mut libc::c_void,
-                               mp as *const libc::c_void,
-                               framedatasize as libc::c_ulong);
+                        memcpy(
+                            bp as *mut libc::c_void,
+                            mp as *const libc::c_void,
+                            framedatasize as libc::c_ulong,
+                        );
                         /* increment buffer pointer */
                         bp = bp.offset(framedatasize as isize)
                     } else {
                         framedatasize -= totalsize - *psize;
                         totalsize = *psize;
                         /* copy parameter data in parameter buffer */
-                        if framedatasize > 0 as libc::c_int {
-                            memcpy(bp as *mut libc::c_void,
-                                   mp as *const libc::c_void,
-                                   framedatasize as libc::c_ulong);
+                        if framedatasize > 0i32 {
+                            memcpy(
+                                bp as *mut libc::c_void,
+                                mp as *const libc::c_void,
+                                framedatasize as libc::c_ulong,
+                            );
                         }
                     }
                     if (*aSoEp).incomplete() == 0 {
-                        NotLast = 0 as libc::c_int as boolean;
+                        NotLast = 0u8;
                         *psize = totalsize
                     }
                 } else {
                     /* other slave response */
-                    NotLast = 0 as libc::c_int as boolean;
-                    if (*aSoEp).MbxHeader.mbxtype as libc::c_int &
-                           0xf as libc::c_int == ECT_MBXT_SOE as libc::c_int
-                           &&
-                           (*aSoEp).opCode() as libc::c_int ==
-                               ECT_SOE_READRES as libc::c_int &&
-                           (*aSoEp).error() as libc::c_int == 1 as libc::c_int
-                       {
-                        mp =
-                            (&mut MbxIn as *mut ec_mbxbuft as
-                                 *mut uint8).offset(((*aSoEp).MbxHeader.length
-                                                         as
-                                                         libc::c_ulong).wrapping_add(::core::mem::size_of::<ec_mbxheadert>()
-                                                                                         as
-                                                                                         libc::c_ulong).wrapping_sub(::core::mem::size_of::<uint16>()
-                                                                                                                         as
-                                                                                                                         libc::c_ulong)
-                                                        as isize);
+                    NotLast = 0u8;
+                    if (*aSoEp).MbxHeader.mbxtype as libc::c_int & 0xfi32
+                        == ECT_MBXT_SOE as libc::c_int
+                        && (*aSoEp).opCode() as libc::c_int == ECT_SOE_READRES as libc::c_int
+                        && (*aSoEp).error() as libc::c_int == 1i32
+                    {
+                        mp = (&mut MbxIn as *mut ec_mbxbuft as *mut uint8).offset(
+                            ((*aSoEp).MbxHeader.length as libc::c_ulong)
+                                .wrapping_add(
+                                    ::core::mem::size_of::<ec_mbxheadert>() as libc::c_ulong
+                                )
+                                .wrapping_sub(::core::mem::size_of::<uint16>() as libc::c_ulong)
+                                as isize,
+                        );
                         errorcode = mp as *mut uint16;
                         ecx_SoEerror(context, slave, idn, *errorcode);
                     } else {
-                        ecx_packeterror(context, slave, idn,
-                                        0 as libc::c_int as uint8,
-                                        1 as libc::c_int as uint16);
+                        ecx_packeterror(context, slave, idn, 0u8, 1u16);
                         /* Unexpected frame returned */
                     }
-                    wkc = 0 as libc::c_int
+                    wkc = 0i32
                 }
             } else {
-                NotLast = 0 as libc::c_int as boolean;
-                ecx_packeterror(context, slave, idn,
-                                0 as libc::c_int as uint8,
-                                4 as libc::c_int as uint16);
+                NotLast = 0u8;
+                ecx_packeterror(context, slave, idn, 0u8, 4u16);
                 /* no response */
             }
         }
@@ -655,13 +679,16 @@ pub unsafe extern "C" fn ecx_SoEread(mut context: *mut ecx_contextt,
  * @return Workcounter from last slave response
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_SoEwrite(mut context: *mut ecx_contextt,
-                                      mut slave: uint16, mut driveNo: uint8,
-                                      mut elementflags: uint8,
-                                      mut idn: uint16, mut psize: libc::c_int,
-                                      mut p: *mut libc::c_void,
-                                      mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_SoEwrite(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut driveNo: uint8,
+    mut elementflags: uint8,
+    mut idn: uint16,
+    mut psize: libc::c_int,
+    mut p: *mut libc::c_void,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     let mut SoEp: *mut ec_SoEt = 0 as *mut ec_SoEt;
     let mut aSoEp: *mut ec_SoEt = 0 as *mut ec_SoEt;
     let mut framedatasize: libc::c_int = 0;
@@ -676,121 +703,96 @@ pub unsafe extern "C" fn ecx_SoEwrite(mut context: *mut ecx_contextt,
     let mut NotLast: boolean = 0;
     ec_clearmbx(&mut MbxIn);
     /* Empty slave out mailbox if something is in. Timeout set to 0 */
-    wkc =
-        ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft,
-                       0 as libc::c_int); /*  segmented transfer needed  */
+    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0i32); /*  segmented transfer needed  */
     ec_clearmbx(&mut MbxOut);
     aSoEp = &mut MbxIn as *mut ec_mbxbuft as *mut ec_SoEt;
     SoEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_SoEt;
-    (*SoEp).MbxHeader.address = 0 as libc::c_int as uint16;
-    (*SoEp).MbxHeader.priority = 0 as libc::c_int as uint8;
-    (*SoEp).set_opCode(ECT_SOE_WRITEREQ as libc::c_int as uint8);
-    (*SoEp).set_error(0 as libc::c_int as uint8);
+    (*SoEp).MbxHeader.address = 0u16;
+    (*SoEp).MbxHeader.priority = 0u8;
+    (*SoEp).set_opCode(ECT_SOE_WRITEREQ as uint8);
+    (*SoEp).set_error(0u8);
     (*SoEp).set_driveNo(driveNo);
     (*SoEp).elementflags = elementflags;
     hp = p as *mut uint8;
-    mp =
-        (&mut MbxOut as *mut ec_mbxbuft as
-             *mut uint8).offset(::core::mem::size_of::<ec_SoEt>() as
-                                    libc::c_ulong as isize);
-    maxdata =
-        ((*(*context).slavelist.offset(slave as isize)).mbx_l as
-             libc::c_ulong).wrapping_sub(::core::mem::size_of::<ec_SoEt>() as
-                                             libc::c_ulong) as libc::c_int;
-    NotLast = 1 as libc::c_int as boolean;
+    mp = (&mut MbxOut as *mut ec_mbxbuft as *mut uint8)
+        .offset(::core::mem::size_of::<ec_SoEt>() as isize);
+    maxdata = ((*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_ulong)
+        .wrapping_sub(::core::mem::size_of::<ec_SoEt>() as libc::c_ulong)
+        as libc::c_int;
+    NotLast = 1u8;
     while NotLast != 0 {
         framedatasize = psize;
-        NotLast = 0 as libc::c_int as boolean;
+        NotLast = 0u8;
         (*SoEp).c2rust_unnamed.idn = idn;
-        (*SoEp).set_incomplete(0 as libc::c_int as uint8);
+        (*SoEp).set_incomplete(0u8);
         if framedatasize > maxdata {
             framedatasize = maxdata;
-            NotLast = 1 as libc::c_int as boolean;
-            (*SoEp).set_incomplete(1 as libc::c_int as uint8);
+            NotLast = 1u8;
+            (*SoEp).set_incomplete(1u8);
             (*SoEp).c2rust_unnamed.fragmentsleft = (psize / maxdata) as uint16
         }
-        (*SoEp).MbxHeader.length =
-            (::core::mem::size_of::<ec_SoEt>() as
-                 libc::c_ulong).wrapping_sub(::core::mem::size_of::<ec_mbxheadert>()
-                                                 as
-                                                 libc::c_ulong).wrapping_add(framedatasize
-                                                                                 as
-                                                                                 libc::c_ulong)
-                as uint16;
+        (*SoEp).MbxHeader.length = (::core::mem::size_of::<ec_SoEt>() as libc::c_ulong)
+            .wrapping_sub(::core::mem::size_of::<ec_mbxheadert>() as libc::c_ulong)
+            .wrapping_add(framedatasize as libc::c_ulong)
+            as uint16;
         /* get new mailbox counter, used for session handle */
-        cnt =
-            ec_nextmbxcnt((*(*context).slavelist.offset(slave as
-                                                            isize)).mbx_cnt); /* SoE */
+        cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* SoE */
         (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-        (*SoEp).MbxHeader.mbxtype =
-            (ECT_MBXT_SOE as libc::c_int +
-                 ((cnt as libc::c_int) << 4 as libc::c_int) as uint8 as
-                     libc::c_int) as uint8;
+        (*SoEp).MbxHeader.mbxtype = (ECT_MBXT_SOE as libc::c_int
+            + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
+            as uint8;
         /* copy parameter data to mailbox */
-        memcpy(mp as *mut libc::c_void, hp as *const libc::c_void,
-               framedatasize as libc::c_ulong);
+        memcpy(
+            mp as *mut libc::c_void,
+            hp as *const libc::c_void,
+            framedatasize as libc::c_ulong,
+        );
         hp = hp.offset(framedatasize as isize);
         psize -= framedatasize;
         /* send SoE request to slave */
-        wkc =
-            ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft,
-                        20000 as libc::c_int);
-        if wkc > 0 as libc::c_int {
+        wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+        if wkc > 0i32 {
             /* succeeded to place mailbox in slave ? */
             if NotLast == 0 || ecx_mbxempty(context, slave, timeout) == 0 {
                 /* clean mailboxbuffer */
                 ec_clearmbx(&mut MbxIn);
                 /* read slave response */
-                wkc =
-                    ecx_mbxreceive(context, slave,
-                                   &mut MbxIn as *mut ec_mbxbuft, timeout);
-                if wkc > 0 as libc::c_int {
+                wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, timeout);
+                if wkc > 0i32 {
                     /* succeeded to read slave response ? */
-                    NotLast = 0 as libc::c_int as boolean;
+                    NotLast = 0u8;
                     /* slave response should be SoE, WriteRes */
-                    if !((*aSoEp).MbxHeader.mbxtype as libc::c_int &
-                             0xf as libc::c_int == ECT_MBXT_SOE as libc::c_int
-                             &&
-                             (*aSoEp).opCode() as libc::c_int ==
-                                 ECT_SOE_WRITERES as libc::c_int &&
-                             (*aSoEp).error() as libc::c_int ==
-                                 0 as libc::c_int &&
-                             (*aSoEp).driveNo() as libc::c_int ==
-                                 driveNo as libc::c_int &&
-                             (*aSoEp).elementflags as libc::c_int ==
-                                 elementflags as libc::c_int) {
+                    if !((*aSoEp).MbxHeader.mbxtype as libc::c_int & 0xfi32
+                        == ECT_MBXT_SOE as libc::c_int
+                        && (*aSoEp).opCode() as libc::c_int == ECT_SOE_WRITERES as libc::c_int
+                        && (*aSoEp).error() as libc::c_int == 0i32
+                        && (*aSoEp).driveNo() as libc::c_int == driveNo as libc::c_int
+                        && (*aSoEp).elementflags as libc::c_int == elementflags as libc::c_int)
+                    {
                         /* other slave response */
-                        if (*aSoEp).MbxHeader.mbxtype as libc::c_int &
-                               0xf as libc::c_int ==
-                               ECT_MBXT_SOE as libc::c_int &&
-                               (*aSoEp).opCode() as libc::c_int ==
-                                   ECT_SOE_READRES as libc::c_int &&
-                               (*aSoEp).error() as libc::c_int ==
-                                   1 as libc::c_int {
-                            mp =
-                                (&mut MbxIn as *mut ec_mbxbuft as
-                                     *mut uint8).offset(((*aSoEp).MbxHeader.length
-                                                             as
-                                                             libc::c_ulong).wrapping_add(::core::mem::size_of::<ec_mbxheadert>()
-                                                                                             as
-                                                                                             libc::c_ulong).wrapping_sub(::core::mem::size_of::<uint16>()
-                                                                                                                             as
-                                                                                                                             libc::c_ulong)
-                                                            as isize);
+                        if (*aSoEp).MbxHeader.mbxtype as libc::c_int & 0xfi32
+                            == ECT_MBXT_SOE as libc::c_int
+                            && (*aSoEp).opCode() as libc::c_int == ECT_SOE_READRES as libc::c_int
+                            && (*aSoEp).error() as libc::c_int == 1i32
+                        {
+                            mp = (&mut MbxIn as *mut ec_mbxbuft as *mut uint8).offset(
+                                ((*aSoEp).MbxHeader.length as libc::c_ulong)
+                                    .wrapping_add(
+                                        ::core::mem::size_of::<ec_mbxheadert>() as libc::c_ulong
+                                    )
+                                    .wrapping_sub(::core::mem::size_of::<uint16>() as libc::c_ulong)
+                                    as isize,
+                            );
                             errorcode = mp as *mut uint16;
                             ecx_SoEerror(context, slave, idn, *errorcode);
                         } else {
-                            ecx_packeterror(context, slave, idn,
-                                            0 as libc::c_int as uint8,
-                                            1 as libc::c_int as uint16);
+                            ecx_packeterror(context, slave, idn, 0u8, 1u16);
                             /* Unexpected frame returned */
                         }
-                        wkc = 0 as libc::c_int
+                        wkc = 0i32
                     }
                 } else {
-                    ecx_packeterror(context, slave, idn,
-                                    0 as libc::c_int as uint8,
-                                    4 as libc::c_int as uint16);
+                    ecx_packeterror(context, slave, idn, 0u8, 4u16);
                     /* no response */
                 }
             }
@@ -811,120 +813,117 @@ pub unsafe extern "C" fn ecx_SoEwrite(mut context: *mut ecx_contextt,
  * @return >0 if mapping successful.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readIDNmap(mut context: *mut ecx_contextt,
-                                        mut slave: uint16,
-                                        mut Osize: *mut uint32,
-                                        mut Isize: *mut uint32)
- -> libc::c_int {
-    let mut retVal: libc::c_int = 0 as libc::c_int;
+pub unsafe extern "C" fn ecx_readIDNmap(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut Osize: *mut uint32,
+    mut Isize: *mut uint32,
+) -> libc::c_int {
+    let mut retVal: libc::c_int = 0i32;
     let mut wkc: libc::c_int = 0;
     let mut psize: libc::c_int = 0;
     let mut driveNr: uint8 = 0;
     let mut entries: uint16 = 0;
     let mut itemcount: uint16 = 0;
-    let mut SoEmapping: ec_SoEmappingt =
-        ec_SoEmappingt{currentlength: 0, maxlength: 0, idn: [0; 64],};
-    let mut SoEattribute: ec_SoEattributet =
-        ec_SoEattributet{evafactor_length_list_command_datatype_reserved1_decimals_wppreop_wpsafeop_wpop_reserved2:
-                             [0; 4],};
-    *Isize = 0 as libc::c_int as uint32;
-    *Osize = 0 as libc::c_int as uint32;
-    driveNr = 0 as libc::c_int as uint8;
-    while (driveNr as libc::c_int) < 8 as libc::c_int {
-        psize =
-            ::core::mem::size_of::<ec_SoEmappingt>() as libc::c_ulong as
-                libc::c_int;
+    let mut SoEmapping: ec_SoEmappingt = ec_SoEmappingt {
+        currentlength: 0,
+        maxlength: 0,
+        idn: [0; 64],
+    };
+    let mut SoEattribute: ec_SoEattributet = ec_SoEattributet {
+        evafactor_length_list_command_datatype_reserved1_decimals_wppreop_wpsafeop_wpop_reserved2:
+            [0; 4],
+    };
+    *Isize = 0u32;
+    *Osize = 0u32;
+    driveNr = 0u8;
+    while (driveNr as libc::c_int) < 8i32 {
+        psize = ::core::mem::size_of::<ec_SoEmappingt>() as libc::c_int;
         /* read output mapping via SoE */
-        wkc =
-            ecx_SoEread(context, slave, driveNr, 0x40 as libc::c_int as uint8,
-                        24 as libc::c_int as uint16, &mut psize,
-                        &mut SoEmapping as *mut ec_SoEmappingt as
-                            *mut libc::c_void, 700000 as libc::c_int);
-        if wkc > 0 as libc::c_int && psize >= 4 as libc::c_int &&
-               {
-                   entries =
-                       (SoEmapping.currentlength as libc::c_int /
-                            2 as libc::c_int) as uint16;
-                   (entries as libc::c_int) > 0 as libc::c_int
-               } && entries as libc::c_int <= 64 as libc::c_int {
+        wkc = ecx_SoEread(
+            context,
+            slave,
+            driveNr,
+            0x40u8,
+            24u16,
+            &mut psize,
+            &mut SoEmapping as *mut ec_SoEmappingt as *mut libc::c_void,
+            700000i32,
+        );
+        if wkc > 0i32
+            && psize >= 4i32
+            && {
+                entries = (SoEmapping.currentlength as libc::c_int / 2i32) as uint16;
+                (entries as libc::c_int) > 0i32
+            }
+            && entries as libc::c_int <= 64i32
+        {
             /* command word (uint16) is always mapped but not in list */
-            *Osize =
-                (*Osize as
-                     libc::c_uint).wrapping_add(16 as libc::c_int as
-                                                    libc::c_uint) as uint32 as
-                    uint32;
-            itemcount = 0 as libc::c_int as uint16;
+            *Osize = (*Osize).wrapping_add(16u32);
+            itemcount = 0u16;
             while (itemcount as libc::c_int) < entries as libc::c_int {
-                psize =
-                    ::core::mem::size_of::<ec_SoEattributet>() as
-                        libc::c_ulong as libc::c_int;
+                psize = ::core::mem::size_of::<ec_SoEattributet>() as libc::c_int;
                 /* read attribute of each IDN in mapping list */
-                wkc =
-                    ecx_SoEread(context, slave, driveNr,
-                                0x4 as libc::c_int as uint8,
-                                SoEmapping.idn[itemcount as usize],
-                                &mut psize,
-                                &mut SoEattribute as *mut ec_SoEattributet as
-                                    *mut libc::c_void, 700000 as libc::c_int);
-                if wkc > 0 as libc::c_int && SoEattribute.list() == 0 {
+                wkc = ecx_SoEread(
+                    context,
+                    slave,
+                    driveNr,
+                    0x4u8,
+                    SoEmapping.idn[itemcount as usize],
+                    &mut psize,
+                    &mut SoEattribute as *mut ec_SoEattributet as *mut libc::c_void,
+                    700000i32,
+                );
+                if wkc > 0i32 && SoEattribute.list() == 0 {
                     /* length : 0 = 8bit, 1 = 16bit .... */
-                    *Osize =
-                        (*Osize as
-                             libc::c_uint).wrapping_add(((8 as libc::c_int) <<
-                                                             SoEattribute.length()
-                                                                 as
-                                                                 libc::c_int)
-                                                            as libc::c_uint)
-                            as uint32 as uint32
+                    *Osize = (*Osize).wrapping_add(
+                        ((8i32) << SoEattribute.length() as libc::c_int) as libc::c_uint,
+                    )
                 }
                 itemcount = itemcount.wrapping_add(1)
             }
         }
-        psize =
-            ::core::mem::size_of::<ec_SoEmappingt>() as libc::c_ulong as
-                libc::c_int;
+        psize = ::core::mem::size_of::<ec_SoEmappingt>() as libc::c_int;
         /* read input mapping via SoE */
-        wkc =
-            ecx_SoEread(context, slave, driveNr, 0x40 as libc::c_int as uint8,
-                        16 as libc::c_int as uint16, &mut psize,
-                        &mut SoEmapping as *mut ec_SoEmappingt as
-                            *mut libc::c_void, 700000 as libc::c_int);
-        if wkc > 0 as libc::c_int && psize >= 4 as libc::c_int &&
-               {
-                   entries =
-                       (SoEmapping.currentlength as libc::c_int /
-                            2 as libc::c_int) as uint16;
-                   (entries as libc::c_int) > 0 as libc::c_int
-               } && entries as libc::c_int <= 64 as libc::c_int {
+        wkc = ecx_SoEread(
+            context,
+            slave,
+            driveNr,
+            0x40u8,
+            16u16,
+            &mut psize,
+            &mut SoEmapping as *mut ec_SoEmappingt as *mut libc::c_void,
+            700000i32,
+        );
+        if wkc > 0i32
+            && psize >= 4i32
+            && {
+                entries = (SoEmapping.currentlength as libc::c_int / 2i32) as uint16;
+                (entries as libc::c_int) > 0i32
+            }
+            && entries as libc::c_int <= 64i32
+        {
             /* status word (uint16) is always mapped but not in list */
-            *Isize =
-                (*Isize as
-                     libc::c_uint).wrapping_add(16 as libc::c_int as
-                                                    libc::c_uint) as uint32 as
-                    uint32;
-            itemcount = 0 as libc::c_int as uint16;
+            *Isize = (*Isize).wrapping_add(16u32);
+            itemcount = 0u16;
             while (itemcount as libc::c_int) < entries as libc::c_int {
-                psize =
-                    ::core::mem::size_of::<ec_SoEattributet>() as
-                        libc::c_ulong as libc::c_int;
+                psize = ::core::mem::size_of::<ec_SoEattributet>() as libc::c_int;
                 /* read attribute of each IDN in mapping list */
-                wkc =
-                    ecx_SoEread(context, slave, driveNr,
-                                0x4 as libc::c_int as uint8,
-                                SoEmapping.idn[itemcount as usize],
-                                &mut psize,
-                                &mut SoEattribute as *mut ec_SoEattributet as
-                                    *mut libc::c_void, 700000 as libc::c_int);
-                if wkc > 0 as libc::c_int && SoEattribute.list() == 0 {
+                wkc = ecx_SoEread(
+                    context,
+                    slave,
+                    driveNr,
+                    0x4u8,
+                    SoEmapping.idn[itemcount as usize],
+                    &mut psize,
+                    &mut SoEattribute as *mut ec_SoEattributet as *mut libc::c_void,
+                    700000i32,
+                );
+                if wkc > 0i32 && SoEattribute.list() == 0 {
                     /* length : 0 = 8bit, 1 = 16bit .... */
-                    *Isize =
-                        (*Isize as
-                             libc::c_uint).wrapping_add(((8 as libc::c_int) <<
-                                                             SoEattribute.length()
-                                                                 as
-                                                                 libc::c_int)
-                                                            as libc::c_uint)
-                            as uint32 as uint32
+                    *Isize = (*Isize).wrapping_add(
+                        ((8i32) << SoEattribute.length() as libc::c_int) as libc::c_uint,
+                    )
                 }
                 itemcount = itemcount.wrapping_add(1)
             }
@@ -932,35 +931,58 @@ pub unsafe extern "C" fn ecx_readIDNmap(mut context: *mut ecx_contextt,
         driveNr = driveNr.wrapping_add(1)
     }
     /* found some I/O bits ? */
-    if *Isize > 0 as libc::c_int as libc::c_uint ||
-           *Osize > 0 as libc::c_int as libc::c_uint {
-        retVal = 1 as libc::c_int
+    if *Isize > 0u32 || *Osize > 0u32 {
+        retVal = 1i32
     }
     return retVal;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_SoEread(mut slave: uint16, mut driveNo: uint8,
-                                    mut elementflags: uint8, mut idn: uint16,
-                                    mut psize: *mut libc::c_int,
-                                    mut p: *mut libc::c_void,
-                                    mut timeout: libc::c_int) -> libc::c_int {
-    return ecx_SoEread(&mut ecx_context, slave, driveNo, elementflags, idn,
-                       psize, p, timeout);
+pub unsafe extern "C" fn ec_SoEread(
+    mut slave: uint16,
+    mut driveNo: uint8,
+    mut elementflags: uint8,
+    mut idn: uint16,
+    mut psize: *mut libc::c_int,
+    mut p: *mut libc::c_void,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
+    return ecx_SoEread(
+        &mut ecx_context,
+        slave,
+        driveNo,
+        elementflags,
+        idn,
+        psize,
+        p,
+        timeout,
+    );
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_SoEwrite(mut slave: uint16, mut driveNo: uint8,
-                                     mut elementflags: uint8, mut idn: uint16,
-                                     mut psize: libc::c_int,
-                                     mut p: *mut libc::c_void,
-                                     mut timeout: libc::c_int)
- -> libc::c_int {
-    return ecx_SoEwrite(&mut ecx_context, slave, driveNo, elementflags, idn,
-                        psize, p, timeout);
+pub unsafe extern "C" fn ec_SoEwrite(
+    mut slave: uint16,
+    mut driveNo: uint8,
+    mut elementflags: uint8,
+    mut idn: uint16,
+    mut psize: libc::c_int,
+    mut p: *mut libc::c_void,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
+    return ecx_SoEwrite(
+        &mut ecx_context,
+        slave,
+        driveNo,
+        elementflags,
+        idn,
+        psize,
+        p,
+        timeout,
+    );
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_readIDNmap(mut slave: uint16,
-                                       mut Osize: *mut uint32,
-                                       mut Isize: *mut uint32)
- -> libc::c_int {
+pub unsafe extern "C" fn ec_readIDNmap(
+    mut slave: uint16,
+    mut Osize: *mut uint32,
+    mut Isize: *mut uint32,
+) -> libc::c_int {
     return ecx_readIDNmap(&mut ecx_context, slave, Osize, Isize);
 }

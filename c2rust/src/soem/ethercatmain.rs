@@ -1,11 +1,9 @@
 use ::libc;
 extern "C" {
     #[no_mangle]
-    fn memset(_: *mut libc::c_void, _: libc::c_int, _: libc::c_ulong)
-     -> *mut libc::c_void;
+    fn memset(_: *mut libc::c_void, _: libc::c_int, _: libc::c_ulong) -> *mut libc::c_void;
     #[no_mangle]
-    fn memcpy(_: *mut libc::c_void, _: *const libc::c_void, _: libc::c_ulong)
-     -> *mut libc::c_void;
+    fn memcpy(_: *mut libc::c_void, _: *const libc::c_void, _: libc::c_ulong) -> *mut libc::c_void;
     #[no_mangle]
     fn osal_timer_start(self_0: *mut osal_timert, timeout_us: uint32);
     #[no_mangle]
@@ -15,8 +13,11 @@ extern "C" {
     #[no_mangle]
     fn osal_current_time() -> ec_timet;
     #[no_mangle]
-    fn ecx_setupnic(port: *mut ecx_portt, ifname: *const libc::c_char,
-                    secondary: libc::c_int) -> libc::c_int;
+    fn ecx_setupnic(
+        port: *mut ecx_portt,
+        ifname: *const libc::c_char,
+        secondary: libc::c_int,
+    ) -> libc::c_int;
     #[no_mangle]
     fn ecx_closenic(port: *mut ecx_portt) -> libc::c_int;
     #[no_mangle]
@@ -26,11 +27,9 @@ extern "C" {
     #[no_mangle]
     fn ecx_outframe_red(port: *mut ecx_portt, idx: uint8) -> libc::c_int;
     #[no_mangle]
-    fn ecx_waitinframe(port: *mut ecx_portt, idx: uint8, timeout: libc::c_int)
-     -> libc::c_int;
+    fn ecx_waitinframe(port: *mut ecx_portt, idx: uint8, timeout: libc::c_int) -> libc::c_int;
     #[no_mangle]
-    fn ecx_srconfirm(port: *mut ecx_portt, idx: uint8, timeout: libc::c_int)
-     -> libc::c_int;
+    fn ecx_srconfirm(port: *mut ecx_portt, idx: uint8, timeout: libc::c_int) -> libc::c_int;
     #[no_mangle]
     fn oshw_free_adapters(adapter: *mut ec_adaptert);
     #[no_mangle]
@@ -40,40 +39,90 @@ extern "C" {
     #[no_mangle]
     static secMAC: [uint16; 3];
     #[no_mangle]
-    fn ecx_adddatagram(port: *mut ecx_portt, frame: *mut libc::c_void,
-                       com: uint8, idx: uint8, more: boolean, ADP: uint16,
-                       ADO: uint16, length: uint16, data: *mut libc::c_void)
-     -> uint16;
+    fn ecx_adddatagram(
+        port: *mut ecx_portt,
+        frame: *mut libc::c_void,
+        com: uint8,
+        idx: uint8,
+        more: boolean,
+        ADP: uint16,
+        ADO: uint16,
+        length: uint16,
+        data: *mut libc::c_void,
+    ) -> uint16;
     #[no_mangle]
-    fn ecx_BRD(port: *mut ecx_portt, ADP: uint16, ADO: uint16, length: uint16,
-               data: *mut libc::c_void, timeout: libc::c_int) -> libc::c_int;
+    fn ecx_BRD(
+        port: *mut ecx_portt,
+        ADP: uint16,
+        ADO: uint16,
+        length: uint16,
+        data: *mut libc::c_void,
+        timeout: libc::c_int,
+    ) -> libc::c_int;
     #[no_mangle]
-    fn ecx_FPWRw(port: *mut ecx_portt, ADP: uint16, ADO: uint16, data: uint16,
-                 timeout: libc::c_int) -> libc::c_int;
+    fn ecx_FPWRw(
+        port: *mut ecx_portt,
+        ADP: uint16,
+        ADO: uint16,
+        data: uint16,
+        timeout: libc::c_int,
+    ) -> libc::c_int;
     #[no_mangle]
-    fn ecx_BWR(port: *mut ecx_portt, ADP: uint16, ADO: uint16, length: uint16,
-               data: *mut libc::c_void, timeout: libc::c_int) -> libc::c_int;
+    fn ecx_BWR(
+        port: *mut ecx_portt,
+        ADP: uint16,
+        ADO: uint16,
+        length: uint16,
+        data: *mut libc::c_void,
+        timeout: libc::c_int,
+    ) -> libc::c_int;
     #[no_mangle]
-    fn ecx_FPWR(port: *mut ecx_portt, ADP: uint16, ADO: uint16,
-                length: uint16, data: *mut libc::c_void, timeout: libc::c_int)
-     -> libc::c_int;
+    fn ecx_FPWR(
+        port: *mut ecx_portt,
+        ADP: uint16,
+        ADO: uint16,
+        length: uint16,
+        data: *mut libc::c_void,
+        timeout: libc::c_int,
+    ) -> libc::c_int;
     #[no_mangle]
-    fn ecx_setupdatagram(port: *mut ecx_portt, frame: *mut libc::c_void,
-                         com: uint8, idx: uint8, ADP: uint16, ADO: uint16,
-                         length: uint16, data: *mut libc::c_void)
-     -> libc::c_int;
+    fn ecx_setupdatagram(
+        port: *mut ecx_portt,
+        frame: *mut libc::c_void,
+        com: uint8,
+        idx: uint8,
+        ADP: uint16,
+        ADO: uint16,
+        length: uint16,
+        data: *mut libc::c_void,
+    ) -> libc::c_int;
     #[no_mangle]
-    fn ecx_FPRD(port: *mut ecx_portt, ADP: uint16, ADO: uint16,
-                length: uint16, data: *mut libc::c_void, timeout: libc::c_int)
-     -> libc::c_int;
+    fn ecx_FPRD(
+        port: *mut ecx_portt,
+        ADP: uint16,
+        ADO: uint16,
+        length: uint16,
+        data: *mut libc::c_void,
+        timeout: libc::c_int,
+    ) -> libc::c_int;
     #[no_mangle]
-    fn ecx_APWR(port: *mut ecx_portt, ADP: uint16, ADO: uint16,
-                length: uint16, data: *mut libc::c_void, timeout: libc::c_int)
-     -> libc::c_int;
+    fn ecx_APWR(
+        port: *mut ecx_portt,
+        ADP: uint16,
+        ADO: uint16,
+        length: uint16,
+        data: *mut libc::c_void,
+        timeout: libc::c_int,
+    ) -> libc::c_int;
     #[no_mangle]
-    fn ecx_APRD(port: *mut ecx_portt, ADP: uint16, ADO: uint16,
-                length: uint16, data: *mut libc::c_void, timeout: libc::c_int)
-     -> libc::c_int;
+    fn ecx_APRD(
+        port: *mut ecx_portt,
+        ADP: uint16,
+        ADO: uint16,
+        length: uint16,
+        data: *mut libc::c_void,
+        timeout: libc::c_int,
+    ) -> libc::c_int;
 }
 pub type __uint8_t = libc::c_uchar;
 pub type __int16_t = libc::c_short;
@@ -82,15 +131,17 @@ pub type __int32_t = libc::c_int;
 pub type __uint32_t = libc::c_uint;
 pub type __int64_t = libc::c_long;
 pub type __uint64_t = libc::c_ulong;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct __pthread_internal_list {
     pub __prev: *mut __pthread_internal_list,
     pub __next: *mut __pthread_internal_list,
 }
 pub type __pthread_list_t = __pthread_internal_list;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct __pthread_mutex_s {
     pub __lock: libc::c_int,
     pub __count: libc::c_uint,
@@ -101,8 +152,9 @@ pub struct __pthread_mutex_s {
     pub __elision: libc::c_short,
     pub __list: __pthread_list_t,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union pthread_mutex_t {
     pub __data: __pthread_mutex_s,
     pub __size: [libc::c_char; 40],
@@ -123,21 +175,24 @@ pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type int64 = int64_t;
 pub type uint64 = uint64_t;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_timet {
     pub sec: uint32,
     pub usec: uint32,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct osal_timer {
     pub stop_time: ec_timet,
 }
 pub type osal_timert = osal_timer;
 pub type ec_bufT = [uint8; 1518];
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_etherheadert {
     pub da0: uint16,
     pub da1: uint16,
@@ -147,8 +202,9 @@ pub struct ec_etherheadert {
     pub sa2: uint16,
     pub etype: uint16,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_comt {
     pub elength: uint16,
     pub command: uint8,
@@ -275,8 +331,9 @@ pub const EC_ERR_TYPE_SDOINFO_ERROR: ec_err_type = 4;
 pub const EC_ERR_TYPE_PACKET_ERROR: ec_err_type = 3;
 pub const EC_ERR_TYPE_EMERGENCY: ec_err_type = 1;
 pub const EC_ERR_TYPE_SDO_ERROR: ec_err_type = 0;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_errort {
     pub Time: ec_timet,
     pub Signal: boolean,
@@ -286,14 +343,16 @@ pub struct ec_errort {
     pub Etype: ec_err_type,
     pub c2rust_unnamed: C2RustUnnamed_6,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union C2RustUnnamed_6 {
     pub AbortCode: int32,
     pub c2rust_unnamed: C2RustUnnamed_7,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct C2RustUnnamed_7 {
     pub ErrorCode: uint16,
     pub ErrorReg: uint8,
@@ -301,8 +360,9 @@ pub struct C2RustUnnamed_7 {
     pub w1: uint16,
     pub w2: uint16,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_stackT {
     pub sock: *mut libc::c_int,
     pub txbuf: *mut [ec_bufT; 16],
@@ -312,8 +372,9 @@ pub struct ec_stackT {
     pub rxbufstat: *mut [libc::c_int; 16],
     pub rxsa: *mut [libc::c_int; 16],
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_redportt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
@@ -322,8 +383,9 @@ pub struct ecx_redportt {
     pub rxsa: [libc::c_int; 16],
     pub tempinbuf: ec_bufT,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_portt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
@@ -343,16 +405,18 @@ pub struct ecx_portt {
     pub tx_mutex: pthread_mutex_t,
     pub rx_mutex: pthread_mutex_t,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_adapter {
     pub name: [libc::c_char; 128],
     pub desc: [libc::c_char; 128],
     pub next: *mut ec_adaptert,
 }
 pub type ec_adaptert = ec_adapter;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_fmmu {
     pub LogStart: uint32,
     pub LogLength: uint16,
@@ -366,16 +430,18 @@ pub struct ec_fmmu {
     pub unused2: uint16,
 }
 pub type ec_fmmut = ec_fmmu;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_sm {
     pub StartAddr: uint16,
     pub SMlength: uint16,
     pub SMflags: uint32,
 }
 pub type ec_smt = ec_sm;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_context {
     pub port: *mut ecx_portt,
     pub slavelist: *mut ec_slavet,
@@ -395,18 +461,19 @@ pub struct ecx_context {
     pub PDOdesc: *mut ec_PDOdesct,
     pub eepSM: *mut ec_eepromSMt,
     pub eepFMMU: *mut ec_eepromFMMUt,
-    pub FOEhook: Option<unsafe extern "C" fn(_: uint16, _: libc::c_int,
-                                             _: libc::c_int) -> libc::c_int>,
-    pub EOEhook: Option<unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16,
-                                             _: *mut libc::c_void)
-                            -> libc::c_int>,
+    pub FOEhook:
+        Option<unsafe extern "C" fn(_: uint16, _: libc::c_int, _: libc::c_int) -> libc::c_int>,
+    pub EOEhook: Option<
+        unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16, _: *mut libc::c_void) -> libc::c_int,
+    >,
     pub manualstatechange: libc::c_int,
     pub userdata: *mut libc::c_void,
 }
 pub type ecx_contextt = ecx_context;
 pub type ec_eepromFMMUt = ec_eepromFMMU;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_eepromFMMU {
     pub Startpos: uint16,
     pub nFMMU: uint8,
@@ -416,8 +483,9 @@ pub struct ec_eepromFMMU {
     pub FMMU3: uint8,
 }
 pub type ec_eepromSMt = ec_eepromSM;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_eepromSM {
     pub Startpos: uint16,
     pub nSM: uint8,
@@ -429,32 +497,36 @@ pub struct ec_eepromSM {
     pub PDIctrl: uint8,
 }
 pub type ec_PDOdesct = ec_PDOdesc;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_PDOdesc {
     pub n: uint8,
     pub nu1: uint8,
     pub PDO: [uint32; 256],
 }
 pub type ec_PDOassignt = ec_PDOassign;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_PDOassign {
     pub n: uint8,
     pub nu1: uint8,
     pub index: [uint16; 256],
 }
 pub type ec_SMcommtypet = ec_SMcommtype;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_SMcommtype {
     pub n: uint8,
     pub nu1: uint8,
     pub SMtype: [uint8; 8],
 }
 pub type ec_idxstackT = ec_idxstack;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_idxstack {
     pub pushed: uint8,
     pub pulled: uint8,
@@ -464,16 +536,18 @@ pub struct ec_idxstack {
     pub dcoffset: [uint16; 16],
 }
 pub type ec_eringt = ec_ering;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_ering {
     pub head: int16,
     pub tail: int16,
     pub Error: [ec_errort; 65],
 }
 pub type ec_groupt = ec_group;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_group {
     pub logstartaddr: uint32,
     pub Obytes: uint32,
@@ -493,8 +567,9 @@ pub struct ec_group {
     pub IOsegment: [uint32; 64],
 }
 pub type ec_slavet = ec_slave;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_slave {
     pub state: uint16,
     pub ALstatuscode: uint16,
@@ -558,12 +633,12 @@ pub struct ec_slave {
     pub FMMUunused: uint8,
     pub islost: boolean,
     pub PO2SOconfig: Option<unsafe extern "C" fn(_: uint16) -> libc::c_int>,
-    pub PO2SOconfigx: Option<unsafe extern "C" fn(_: *mut ecx_contextt,
-                                                  _: uint16) -> libc::c_int>,
+    pub PO2SOconfigx: Option<unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16) -> libc::c_int>,
     pub name: [libc::c_char; 41],
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_eepromPDO {
     pub Startpos: uint16,
     pub Length: uint16,
@@ -575,8 +650,9 @@ pub struct ec_eepromPDO {
 }
 pub type ec_eepromPDOt = ec_eepromPDO;
 pub type ec_mbxbuft = [uint8; 1487];
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_mbxheader {
     pub length: uint16,
     pub address: uint16,
@@ -584,37 +660,42 @@ pub struct ec_mbxheader {
     pub mbxtype: uint8,
 }
 pub type ec_mbxheadert = ec_mbxheader;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_alstatus {
     pub alstatus: uint16,
     pub unused: uint16,
     pub alstatuscode: uint16,
 }
 pub type ec_alstatust = ec_alstatus;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_eepromt {
     pub comm: uint16,
     pub addr: uint16,
     pub d2: uint16,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_EOEt {
     pub mbxheader: ec_mbxheadert,
     pub frameinfo1: uint16_t,
     pub c2rust_unnamed: C2RustUnnamed_8,
     pub data: [uint8; 1476],
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union C2RustUnnamed_8 {
     pub frameinfo2: uint16_t,
     pub result: uint16_t,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_emcyt {
     pub MbxHeader: ec_mbxheadert,
     pub CANOpen: uint16,
@@ -624,8 +705,9 @@ pub struct ec_emcyt {
     pub w1: uint16,
     pub w2: uint16,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_mbxerrort {
     pub MbxHeader: ec_mbxheadert,
     pub Type: uint16,
@@ -637,311 +719,292 @@ pub struct ec_mbxerrort {
  *  in by the configuration function ec_config().
  */
 #[no_mangle]
-pub static mut ec_slave: [ec_slavet; 200] =
-    [ec_slavet{state: 0,
-               ALstatuscode: 0,
-               configadr: 0,
-               aliasadr: 0,
-               eep_man: 0,
-               eep_id: 0,
-               eep_rev: 0,
-               Itype: 0,
-               Dtype: 0,
-               Obits: 0,
-               Obytes: 0,
-               outputs: 0 as *const uint8 as *mut uint8,
-               Ostartbit: 0,
-               Ibits: 0,
-               Ibytes: 0,
-               inputs: 0 as *const uint8 as *mut uint8,
-               Istartbit: 0,
-               SM: [ec_smt{StartAddr: 0, SMlength: 0, SMflags: 0,}; 8],
-               SMtype: [0; 8],
-               FMMU:
-                   [ec_fmmut{LogStart: 0,
-                             LogLength: 0,
-                             LogStartbit: 0,
-                             LogEndbit: 0,
-                             PhysStart: 0,
-                             PhysStartBit: 0,
-                             FMMUtype: 0,
-                             FMMUactive: 0,
-                             unused1: 0,
-                             unused2: 0,}; 4],
-               FMMU0func: 0,
-               FMMU1func: 0,
-               FMMU2func: 0,
-               FMMU3func: 0,
-               mbx_l: 0,
-               mbx_wo: 0,
-               mbx_rl: 0,
-               mbx_ro: 0,
-               mbx_proto: 0,
-               mbx_cnt: 0,
-               hasdc: 0,
-               ptype: 0,
-               topology: 0,
-               activeports: 0,
-               consumedports: 0,
-               parent: 0,
-               parentport: 0,
-               entryport: 0,
-               DCrtA: 0,
-               DCrtB: 0,
-               DCrtC: 0,
-               DCrtD: 0,
-               pdelay: 0,
-               DCnext: 0,
-               DCprevious: 0,
-               DCcycle: 0,
-               DCshift: 0,
-               DCactive: 0,
-               configindex: 0,
-               SIIindex: 0,
-               eep_8byte: 0,
-               eep_pdi: 0,
-               CoEdetails: 0,
-               FoEdetails: 0,
-               EoEdetails: 0,
-               SoEdetails: 0,
-               Ebuscurrent: 0,
-               blockLRW: 0,
-               group: 0,
-               FMMUunused: 0,
-               islost: 0,
-               PO2SOconfig: None,
-               PO2SOconfigx: None,
-               name: [0; 41],}; 200];
+pub static mut ec_slave: [ec_slavet; 200] = [ec_slavet {
+    state: 0,
+    ALstatuscode: 0,
+    configadr: 0,
+    aliasadr: 0,
+    eep_man: 0,
+    eep_id: 0,
+    eep_rev: 0,
+    Itype: 0,
+    Dtype: 0,
+    Obits: 0,
+    Obytes: 0,
+    outputs: 0 as *mut uint8,
+    Ostartbit: 0,
+    Ibits: 0,
+    Ibytes: 0,
+    inputs: 0 as *mut uint8,
+    Istartbit: 0,
+    SM: [ec_smt {
+        StartAddr: 0,
+        SMlength: 0,
+        SMflags: 0,
+    }; 8],
+    SMtype: [0; 8],
+    FMMU: [ec_fmmut {
+        LogStart: 0,
+        LogLength: 0,
+        LogStartbit: 0,
+        LogEndbit: 0,
+        PhysStart: 0,
+        PhysStartBit: 0,
+        FMMUtype: 0,
+        FMMUactive: 0,
+        unused1: 0,
+        unused2: 0,
+    }; 4],
+    FMMU0func: 0,
+    FMMU1func: 0,
+    FMMU2func: 0,
+    FMMU3func: 0,
+    mbx_l: 0,
+    mbx_wo: 0,
+    mbx_rl: 0,
+    mbx_ro: 0,
+    mbx_proto: 0,
+    mbx_cnt: 0,
+    hasdc: 0,
+    ptype: 0,
+    topology: 0,
+    activeports: 0,
+    consumedports: 0,
+    parent: 0,
+    parentport: 0,
+    entryport: 0,
+    DCrtA: 0,
+    DCrtB: 0,
+    DCrtC: 0,
+    DCrtD: 0,
+    pdelay: 0,
+    DCnext: 0,
+    DCprevious: 0,
+    DCcycle: 0,
+    DCshift: 0,
+    DCactive: 0,
+    configindex: 0,
+    SIIindex: 0,
+    eep_8byte: 0,
+    eep_pdi: 0,
+    CoEdetails: 0,
+    FoEdetails: 0,
+    EoEdetails: 0,
+    SoEdetails: 0,
+    Ebuscurrent: 0,
+    blockLRW: 0,
+    group: 0,
+    FMMUunused: 0,
+    islost: 0,
+    PO2SOconfig: None,
+    PO2SOconfigx: None,
+    name: [0; 41],
+}; 200];
 /* * number of slaves found on the network */
 #[no_mangle]
 pub static mut ec_slavecount: libc::c_int = 0;
 /* * slave group structure */
 #[no_mangle]
-pub static mut ec_group: [ec_groupt; 2] =
-    [ec_groupt{logstartaddr: 0,
-               Obytes: 0,
-               outputs: 0 as *const uint8 as *mut uint8,
-               Ibytes: 0,
-               inputs: 0 as *const uint8 as *mut uint8,
-               hasdc: 0,
-               DCnext: 0,
-               Ebuscurrent: 0,
-               blockLRW: 0,
-               nsegments: 0,
-               Isegment: 0,
-               Ioffset: 0,
-               outputsWKC: 0,
-               inputsWKC: 0,
-               docheckstate: 0,
-               IOsegment: [0; 64],}; 2];
+pub static mut ec_group: [ec_groupt; 2] = [ec_groupt {
+    logstartaddr: 0,
+    Obytes: 0,
+    outputs: 0 as *mut uint8,
+    Ibytes: 0,
+    inputs: 0 as *mut uint8,
+    hasdc: 0,
+    DCnext: 0,
+    Ebuscurrent: 0,
+    blockLRW: 0,
+    nsegments: 0,
+    Isegment: 0,
+    Ioffset: 0,
+    outputsWKC: 0,
+    inputsWKC: 0,
+    docheckstate: 0,
+    IOsegment: [0; 64],
+}; 2];
 /* * cache for EEPROM read functions */
 static mut ec_esibuf: [uint8; 4096] = [0; 4096];
 /* * bitmap for filled cache buffer bytes */
 static mut ec_esimap: [uint32; 128] = [0; 128];
 /* * current slave for EEPROM cache buffer */
-static mut ec_elist: ec_eringt =
-    ec_eringt{head: 0,
-              tail: 0,
-              Error:
-                  [ec_errort{Time: ec_timet{sec: 0, usec: 0,},
-                             Signal: 0,
-                             Slave: 0,
-                             Index: 0,
-                             SubIdx: 0,
-                             Etype: EC_ERR_TYPE_SDO_ERROR,
-                             c2rust_unnamed: C2RustUnnamed_6{AbortCode: 0,},};
-                      65],};
-static mut ec_idxstack: ec_idxstackT =
-    ec_idxstackT{pushed: 0,
-                 pulled: 0,
-                 idx: [0; 16],
-                 data: [0 as *const libc::c_void as *mut libc::c_void; 16],
-                 length: [0; 16],
-                 dcoffset: [0; 16],};
+static mut ec_elist: ec_eringt = ec_eringt {
+    head: 0,
+    tail: 0,
+    Error: [ec_errort {
+        Time: ec_timet { sec: 0, usec: 0 },
+        Signal: 0,
+        Slave: 0,
+        Index: 0,
+        SubIdx: 0,
+        Etype: EC_ERR_TYPE_SDO_ERROR,
+        c2rust_unnamed: C2RustUnnamed_6 { AbortCode: 0 },
+    }; 65],
+};
+static mut ec_idxstack: ec_idxstackT = ec_idxstackT {
+    pushed: 0,
+    pulled: 0,
+    idx: [0; 16],
+    data: [0 as *mut libc::c_void; 16],
+    length: [0; 16],
+    dcoffset: [0; 16],
+};
 /* * SyncManager Communication Type struct to store data of one slave */
-static mut ec_SMcommtype: [ec_SMcommtypet; 1] =
-    [ec_SMcommtypet{n: 0, nu1: 0, SMtype: [0; 8],}; 1];
+static mut ec_SMcommtype: [ec_SMcommtypet; 1] = [ec_SMcommtypet {
+    n: 0,
+    nu1: 0,
+    SMtype: [0; 8],
+}; 1];
 /* * PDO assign struct to store data of one slave */
-static mut ec_PDOassign: [ec_PDOassignt; 1] =
-    [ec_PDOassignt{n: 0, nu1: 0, index: [0; 256],}; 1];
+static mut ec_PDOassign: [ec_PDOassignt; 1] = [ec_PDOassignt {
+    n: 0,
+    nu1: 0,
+    index: [0; 256],
+}; 1];
 /* * PDO description struct to store data of one slave */
-static mut ec_PDOdesc: [ec_PDOdesct; 1] =
-    [ec_PDOdesct{n: 0, nu1: 0, PDO: [0; 256],}; 1];
+static mut ec_PDOdesc: [ec_PDOdesct; 1] = [ec_PDOdesct {
+    n: 0,
+    nu1: 0,
+    PDO: [0; 256],
+}; 1];
 /* * buffer for EEPROM SM data */
-static mut ec_SM: ec_eepromSMt =
-    ec_eepromSMt{Startpos: 0,
-                 nSM: 0,
-                 PhStart: 0,
-                 Plength: 0,
-                 Creg: 0,
-                 Sreg: 0,
-                 Activate: 0,
-                 PDIctrl: 0,};
+static mut ec_SM: ec_eepromSMt = ec_eepromSMt {
+    Startpos: 0,
+    nSM: 0,
+    PhStart: 0,
+    Plength: 0,
+    Creg: 0,
+    Sreg: 0,
+    Activate: 0,
+    PDIctrl: 0,
+};
 /* * buffer for EEPROM FMMU data */
-static mut ec_FMMU: ec_eepromFMMUt =
-    ec_eepromFMMUt{Startpos: 0,
-                   nFMMU: 0,
-                   FMMU0: 0,
-                   FMMU1: 0,
-                   FMMU2: 0,
-                   FMMU3: 0,};
+static mut ec_FMMU: ec_eepromFMMUt = ec_eepromFMMUt {
+    Startpos: 0,
+    nFMMU: 0,
+    FMMU0: 0,
+    FMMU1: 0,
+    FMMU2: 0,
+    FMMU3: 0,
+};
 /* * Global variable TRUE if error available in error stack */
 #[no_mangle]
-pub static mut EcatError: boolean = 0 as libc::c_int as boolean;
+pub static mut EcatError: boolean = 0u8;
 #[no_mangle]
 pub static mut ec_DCtime: int64 = 0;
 #[no_mangle]
-pub static mut ecx_port: ecx_portt =
-    ecx_portt{stack:
-                  ec_stackT{sock: 0 as *const libc::c_int as *mut libc::c_int,
-                            txbuf:
-                                0 as *const [ec_bufT; 16] as
-                                    *mut [ec_bufT; 16],
-                            txbuflength:
-                                0 as *const [libc::c_int; 16] as
-                                    *mut [libc::c_int; 16],
-                            tempbuf: 0 as *const ec_bufT as *mut ec_bufT,
-                            rxbuf:
-                                0 as *const [ec_bufT; 16] as
-                                    *mut [ec_bufT; 16],
-                            rxbufstat:
-                                0 as *const [libc::c_int; 16] as
-                                    *mut [libc::c_int; 16],
-                            rxsa:
-                                0 as *const [libc::c_int; 16] as
-                                    *mut [libc::c_int; 16],},
-              sockhandle: 0,
-              rxbuf: [[0; 1518]; 16],
-              rxbufstat: [0; 16],
-              rxsa: [0; 16],
-              tempinbuf: [0; 1518],
-              tempinbufs: 0,
-              txbuf: [[0; 1518]; 16],
-              txbuflength: [0; 16],
-              txbuf2: [0; 1518],
-              txbuflength2: 0,
-              lastidx: 0,
-              redstate: 0,
-              redport: 0 as *const ecx_redportt as *mut ecx_redportt,
-              getindex_mutex:
-                  pthread_mutex_t{__data:
-                                      __pthread_mutex_s{__lock: 0,
-                                                        __count: 0,
-                                                        __owner: 0,
-                                                        __nusers: 0,
-                                                        __kind: 0,
-                                                        __spins: 0,
-                                                        __elision: 0,
-                                                        __list:
-                                                            __pthread_list_t{__prev:
-                                                                                 0
-                                                                                     as
-                                                                                     *const __pthread_internal_list
-                                                                                     as
-                                                                                     *mut __pthread_internal_list,
-                                                                             __next:
-                                                                                 0
-                                                                                     as
-                                                                                     *const __pthread_internal_list
-                                                                                     as
-                                                                                     *mut __pthread_internal_list,},},},
-              tx_mutex:
-                  pthread_mutex_t{__data:
-                                      __pthread_mutex_s{__lock: 0,
-                                                        __count: 0,
-                                                        __owner: 0,
-                                                        __nusers: 0,
-                                                        __kind: 0,
-                                                        __spins: 0,
-                                                        __elision: 0,
-                                                        __list:
-                                                            __pthread_list_t{__prev:
-                                                                                 0
-                                                                                     as
-                                                                                     *const __pthread_internal_list
-                                                                                     as
-                                                                                     *mut __pthread_internal_list,
-                                                                             __next:
-                                                                                 0
-                                                                                     as
-                                                                                     *const __pthread_internal_list
-                                                                                     as
-                                                                                     *mut __pthread_internal_list,},},},
-              rx_mutex:
-                  pthread_mutex_t{__data:
-                                      __pthread_mutex_s{__lock: 0,
-                                                        __count: 0,
-                                                        __owner: 0,
-                                                        __nusers: 0,
-                                                        __kind: 0,
-                                                        __spins: 0,
-                                                        __elision: 0,
-                                                        __list:
-                                                            __pthread_list_t{__prev:
-                                                                                 0
-                                                                                     as
-                                                                                     *const __pthread_internal_list
-                                                                                     as
-                                                                                     *mut __pthread_internal_list,
-                                                                             __next:
-                                                                                 0
-                                                                                     as
-                                                                                     *const __pthread_internal_list
-                                                                                     as
-                                                                                     *mut __pthread_internal_list,},},},};
+pub static mut ecx_port: ecx_portt = ecx_portt {
+    stack: ec_stackT {
+        sock: 0 as *mut libc::c_int,
+        txbuf: 0 as *mut [ec_bufT; 16],
+        txbuflength: 0 as *mut [libc::c_int; 16],
+        tempbuf: 0 as *mut ec_bufT,
+        rxbuf: 0 as *mut [ec_bufT; 16],
+        rxbufstat: 0 as *mut [libc::c_int; 16],
+        rxsa: 0 as *mut [libc::c_int; 16],
+    },
+    sockhandle: 0,
+    rxbuf: [[0; 1518]; 16],
+    rxbufstat: [0; 16],
+    rxsa: [0; 16],
+    tempinbuf: [0; 1518],
+    tempinbufs: 0,
+    txbuf: [[0; 1518]; 16],
+    txbuflength: [0; 16],
+    txbuf2: [0; 1518],
+    txbuflength2: 0,
+    lastidx: 0,
+    redstate: 0,
+    redport: 0 as *mut ecx_redportt,
+    getindex_mutex: pthread_mutex_t {
+        __data: __pthread_mutex_s {
+            __lock: 0,
+            __count: 0,
+            __owner: 0,
+            __nusers: 0,
+            __kind: 0,
+            __spins: 0,
+            __elision: 0,
+            __list: __pthread_list_t {
+                __prev: 0 as *mut __pthread_internal_list,
+                __next: 0 as *mut __pthread_internal_list,
+            },
+        },
+    },
+    tx_mutex: pthread_mutex_t {
+        __data: __pthread_mutex_s {
+            __lock: 0,
+            __count: 0,
+            __owner: 0,
+            __nusers: 0,
+            __kind: 0,
+            __spins: 0,
+            __elision: 0,
+            __list: __pthread_list_t {
+                __prev: 0 as *mut __pthread_internal_list,
+                __next: 0 as *mut __pthread_internal_list,
+            },
+        },
+    },
+    rx_mutex: pthread_mutex_t {
+        __data: __pthread_mutex_s {
+            __lock: 0,
+            __count: 0,
+            __owner: 0,
+            __nusers: 0,
+            __kind: 0,
+            __spins: 0,
+            __elision: 0,
+            __list: __pthread_list_t {
+                __prev: 0 as *mut __pthread_internal_list,
+                __next: 0 as *mut __pthread_internal_list,
+            },
+        },
+    },
+};
 #[no_mangle]
-pub static mut ecx_redport: ecx_redportt =
-    ecx_redportt{stack:
-                     ec_stackT{sock:
-                                   0 as *const libc::c_int as
-                                       *mut libc::c_int,
-                               txbuf:
-                                   0 as *const [ec_bufT; 16] as
-                                       *mut [ec_bufT; 16],
-                               txbuflength:
-                                   0 as *const [libc::c_int; 16] as
-                                       *mut [libc::c_int; 16],
-                               tempbuf: 0 as *const ec_bufT as *mut ec_bufT,
-                               rxbuf:
-                                   0 as *const [ec_bufT; 16] as
-                                       *mut [ec_bufT; 16],
-                               rxbufstat:
-                                   0 as *const [libc::c_int; 16] as
-                                       *mut [libc::c_int; 16],
-                               rxsa:
-                                   0 as *const [libc::c_int; 16] as
-                                       *mut [libc::c_int; 16],},
-                 sockhandle: 0,
-                 rxbuf: [[0; 1518]; 16],
-                 rxbufstat: [0; 16],
-                 rxsa: [0; 16],
-                 tempinbuf: [0; 1518],};
+pub static mut ecx_redport: ecx_redportt = ecx_redportt {
+    stack: ec_stackT {
+        sock: 0 as *mut libc::c_int,
+        txbuf: 0 as *mut [ec_bufT; 16],
+        txbuflength: 0 as *mut [libc::c_int; 16],
+        tempbuf: 0 as *mut ec_bufT,
+        rxbuf: 0 as *mut [ec_bufT; 16],
+        rxbufstat: 0 as *mut [libc::c_int; 16],
+        rxsa: 0 as *mut [libc::c_int; 16],
+    },
+    sockhandle: 0,
+    rxbuf: [[0; 1518]; 16],
+    rxbufstat: [0; 16],
+    rxsa: [0; 16],
+    tempinbuf: [0; 1518],
+};
 // Initialized in run_static_initializers
 #[no_mangle]
-pub static mut ecx_context: ecx_contextt =
-    ecx_contextt{port: 0 as *const ecx_portt as *mut ecx_portt,
-                 slavelist: 0 as *const ec_slavet as *mut ec_slavet,
-                 slavecount: 0 as *const libc::c_int as *mut libc::c_int,
-                 maxslave: 0,
-                 grouplist: 0 as *const ec_groupt as *mut ec_groupt,
-                 maxgroup: 0,
-                 esibuf: 0 as *const uint8 as *mut uint8,
-                 esimap: 0 as *const uint32 as *mut uint32,
-                 esislave: 0,
-                 elist: 0 as *const ec_eringt as *mut ec_eringt,
-                 idxstack: 0 as *const ec_idxstackT as *mut ec_idxstackT,
-                 ecaterror: 0 as *const boolean as *mut boolean,
-                 DCtime: 0 as *const int64 as *mut int64,
-                 SMcommtype:
-                     0 as *const ec_SMcommtypet as *mut ec_SMcommtypet,
-                 PDOassign: 0 as *const ec_PDOassignt as *mut ec_PDOassignt,
-                 PDOdesc: 0 as *const ec_PDOdesct as *mut ec_PDOdesct,
-                 eepSM: 0 as *const ec_eepromSMt as *mut ec_eepromSMt,
-                 eepFMMU: 0 as *const ec_eepromFMMUt as *mut ec_eepromFMMUt,
-                 FOEhook: None,
-                 EOEhook: None,
-                 manualstatechange: 0,
-                 userdata: 0 as *const libc::c_void as *mut libc::c_void,};
+pub static mut ecx_context: ecx_contextt = ecx_contextt {
+    port: 0 as *mut ecx_portt,
+    slavelist: 0 as *mut ec_slavet,
+    slavecount: 0 as *mut libc::c_int,
+    maxslave: 0,
+    grouplist: 0 as *mut ec_groupt,
+    maxgroup: 0,
+    esibuf: 0 as *mut uint8,
+    esimap: 0 as *mut uint32,
+    esislave: 0,
+    elist: 0 as *mut ec_eringt,
+    idxstack: 0 as *mut ec_idxstackT,
+    ecaterror: 0 as *mut boolean,
+    DCtime: 0 as *mut int64,
+    SMcommtype: 0 as *mut ec_SMcommtypet,
+    PDOassign: 0 as *mut ec_PDOassignt,
+    PDOdesc: 0 as *mut ec_PDOdesct,
+    eepSM: 0 as *mut ec_eepromSMt,
+    eepFMMU: 0 as *mut ec_eepromFMMUt,
+    FOEhook: None,
+    EOEhook: None,
+    manualstatechange: 0,
+    userdata: 0 as *mut libc::c_void,
+};
 /* * Create list over available network adapters.
  *
  * @return First element in list over available network adapters.
@@ -966,23 +1029,20 @@ pub unsafe extern "C" fn ec_free_adapters(mut adapter: *mut ec_adaptert) {
  * @param[in] Ec pointer describing the error.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_pusherror(mut context: *mut ecx_contextt,
-                                       mut Ec: *const ec_errort) {
+pub unsafe extern "C" fn ecx_pusherror(mut context: *mut ecx_contextt, mut Ec: *const ec_errort) {
     (*(*context).elist).Error[(*(*context).elist).head as usize] = *Ec;
-    (*(*context).elist).Error[(*(*context).elist).head as usize].Signal =
-        1 as libc::c_int as boolean;
+    (*(*context).elist).Error[(*(*context).elist).head as usize].Signal = 1u8;
     (*(*context).elist).head += 1;
-    if (*(*context).elist).head as libc::c_int > 64 as libc::c_int {
-        (*(*context).elist).head = 0 as libc::c_int as int16
+    if (*(*context).elist).head as libc::c_int > 64i32 {
+        (*(*context).elist).head = 0i16
     }
-    if (*(*context).elist).head as libc::c_int ==
-           (*(*context).elist).tail as libc::c_int {
+    if (*(*context).elist).head as libc::c_int == (*(*context).elist).tail as libc::c_int {
         (*(*context).elist).tail += 1
     }
-    if (*(*context).elist).tail as libc::c_int > 64 as libc::c_int {
-        (*(*context).elist).tail = 0 as libc::c_int as int16
+    if (*(*context).elist).tail as libc::c_int > 64i32 {
+        (*(*context).elist).tail = 0i16
     }
-    *(*context).ecaterror = 1 as libc::c_int as boolean;
+    *(*context).ecaterror = 1u8;
 }
 /* * Pops an error from the list.
  *
@@ -991,21 +1051,22 @@ pub unsafe extern "C" fn ecx_pusherror(mut context: *mut ecx_contextt,
  * @return TRUE if an error was popped.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_poperror(mut context: *mut ecx_contextt,
-                                      mut Ec: *mut ec_errort) -> boolean {
-    let mut notEmpty: boolean =
-        ((*(*context).elist).head as libc::c_int !=
-             (*(*context).elist).tail as libc::c_int) as libc::c_int as
-            boolean;
+pub unsafe extern "C" fn ecx_poperror(
+    mut context: *mut ecx_contextt,
+    mut Ec: *mut ec_errort,
+) -> boolean {
+    let mut notEmpty: boolean = ((*(*context).elist).head as libc::c_int
+        != (*(*context).elist).tail as libc::c_int) as boolean;
     *Ec = (*(*context).elist).Error[(*(*context).elist).tail as usize];
-    (*(*context).elist).Error[(*(*context).elist).tail as usize].Signal =
-        0 as libc::c_int as boolean;
+    (*(*context).elist).Error[(*(*context).elist).tail as usize].Signal = 0u8;
     if notEmpty != 0 {
         (*(*context).elist).tail += 1;
-        if (*(*context).elist).tail as libc::c_int > 64 as libc::c_int {
-            (*(*context).elist).tail = 0 as libc::c_int as int16
+        if (*(*context).elist).tail as libc::c_int > 64i32 {
+            (*(*context).elist).tail = 0i16
         }
-    } else { *(*context).ecaterror = 0 as libc::c_int as boolean }
+    } else {
+        *(*context).ecaterror = 0u8
+    }
     return notEmpty;
 }
 /* * Check if error list has entries.
@@ -1014,11 +1075,9 @@ pub unsafe extern "C" fn ecx_poperror(mut context: *mut ecx_contextt,
  * @return TRUE if error list contains entries.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_iserror(mut context: *mut ecx_contextt)
- -> boolean {
-    return ((*(*context).elist).head as libc::c_int !=
-                (*(*context).elist).tail as libc::c_int) as libc::c_int as
-               boolean;
+pub unsafe extern "C" fn ecx_iserror(mut context: *mut ecx_contextt) -> boolean {
+    return ((*(*context).elist).head as libc::c_int != (*(*context).elist).tail as libc::c_int)
+        as boolean;
 }
 /* * Report packet error
  *
@@ -1029,25 +1088,32 @@ pub unsafe extern "C" fn ecx_iserror(mut context: *mut ecx_contextt)
  * @param[in]  ErrorCode  = Error code
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_packeterror(mut context: *mut ecx_contextt,
-                                         mut Slave: uint16, mut Index: uint16,
-                                         mut SubIdx: uint8,
-                                         mut ErrorCode: uint16) {
-    let mut Ec: ec_errort =
-        ec_errort{Time: ec_timet{sec: 0, usec: 0,},
-                  Signal: 0,
-                  Slave: 0,
-                  Index: 0,
-                  SubIdx: 0,
-                  Etype: EC_ERR_TYPE_SDO_ERROR,
-                  c2rust_unnamed: C2RustUnnamed_6{AbortCode: 0,},};
-    memset(&mut Ec as *mut ec_errort as *mut libc::c_void, 0 as libc::c_int,
-           ::core::mem::size_of::<ec_errort>() as libc::c_ulong);
+pub unsafe extern "C" fn ecx_packeterror(
+    mut context: *mut ecx_contextt,
+    mut Slave: uint16,
+    mut Index: uint16,
+    mut SubIdx: uint8,
+    mut ErrorCode: uint16,
+) {
+    let mut Ec: ec_errort = ec_errort {
+        Time: ec_timet { sec: 0, usec: 0 },
+        Signal: 0,
+        Slave: 0,
+        Index: 0,
+        SubIdx: 0,
+        Etype: EC_ERR_TYPE_SDO_ERROR,
+        c2rust_unnamed: C2RustUnnamed_6 { AbortCode: 0 },
+    };
+    memset(
+        &mut Ec as *mut ec_errort as *mut libc::c_void,
+        0i32,
+        ::core::mem::size_of::<ec_errort>() as libc::c_ulong,
+    );
     Ec.Time = osal_current_time();
     Ec.Slave = Slave;
     Ec.Index = Index;
     Ec.SubIdx = SubIdx;
-    *(*context).ecaterror = 1 as libc::c_int as boolean;
+    *(*context).ecaterror = 1u8;
     Ec.Etype = EC_ERR_TYPE_PACKET_ERROR;
     Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode = ErrorCode;
     ecx_pusherror(context, &mut Ec);
@@ -1058,22 +1124,29 @@ pub unsafe extern "C" fn ecx_packeterror(mut context: *mut ecx_contextt,
  * @param[in]  Slave        = Slave number
  * @param[in]  Detail       = Following EtherCAT specification
  */
-unsafe extern "C" fn ecx_mbxerror(mut context: *mut ecx_contextt,
-                                  mut Slave: uint16, mut Detail: uint16) {
-    let mut Ec: ec_errort =
-        ec_errort{Time: ec_timet{sec: 0, usec: 0,},
-                  Signal: 0,
-                  Slave: 0,
-                  Index: 0,
-                  SubIdx: 0,
-                  Etype: EC_ERR_TYPE_SDO_ERROR,
-                  c2rust_unnamed: C2RustUnnamed_6{AbortCode: 0,},};
-    memset(&mut Ec as *mut ec_errort as *mut libc::c_void, 0 as libc::c_int,
-           ::core::mem::size_of::<ec_errort>() as libc::c_ulong);
+unsafe extern "C" fn ecx_mbxerror(
+    mut context: *mut ecx_contextt,
+    mut Slave: uint16,
+    mut Detail: uint16,
+) {
+    let mut Ec: ec_errort = ec_errort {
+        Time: ec_timet { sec: 0, usec: 0 },
+        Signal: 0,
+        Slave: 0,
+        Index: 0,
+        SubIdx: 0,
+        Etype: EC_ERR_TYPE_SDO_ERROR,
+        c2rust_unnamed: C2RustUnnamed_6 { AbortCode: 0 },
+    };
+    memset(
+        &mut Ec as *mut ec_errort as *mut libc::c_void,
+        0i32,
+        ::core::mem::size_of::<ec_errort>() as libc::c_ulong,
+    );
     Ec.Time = osal_current_time();
     Ec.Slave = Slave;
-    Ec.Index = 0 as libc::c_int as uint16;
-    Ec.SubIdx = 0 as libc::c_int as uint8;
+    Ec.Index = 0u16;
+    Ec.SubIdx = 0u8;
     Ec.Etype = EC_ERR_TYPE_MBX_ERROR;
     Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode = Detail;
     ecx_pusherror(context, &mut Ec);
@@ -1088,26 +1161,33 @@ unsafe extern "C" fn ecx_mbxerror(mut context: *mut ecx_contextt,
  * @param[in]  w1
  * @param[in]  w2
  */
-unsafe extern "C" fn ecx_mbxemergencyerror(mut context: *mut ecx_contextt,
-                                           mut Slave: uint16,
-                                           mut ErrorCode: uint16,
-                                           mut ErrorReg: uint16,
-                                           mut b1: uint8, mut w1: uint16,
-                                           mut w2: uint16) {
-    let mut Ec: ec_errort =
-        ec_errort{Time: ec_timet{sec: 0, usec: 0,},
-                  Signal: 0,
-                  Slave: 0,
-                  Index: 0,
-                  SubIdx: 0,
-                  Etype: EC_ERR_TYPE_SDO_ERROR,
-                  c2rust_unnamed: C2RustUnnamed_6{AbortCode: 0,},};
-    memset(&mut Ec as *mut ec_errort as *mut libc::c_void, 0 as libc::c_int,
-           ::core::mem::size_of::<ec_errort>() as libc::c_ulong);
+unsafe extern "C" fn ecx_mbxemergencyerror(
+    mut context: *mut ecx_contextt,
+    mut Slave: uint16,
+    mut ErrorCode: uint16,
+    mut ErrorReg: uint16,
+    mut b1: uint8,
+    mut w1: uint16,
+    mut w2: uint16,
+) {
+    let mut Ec: ec_errort = ec_errort {
+        Time: ec_timet { sec: 0, usec: 0 },
+        Signal: 0,
+        Slave: 0,
+        Index: 0,
+        SubIdx: 0,
+        Etype: EC_ERR_TYPE_SDO_ERROR,
+        c2rust_unnamed: C2RustUnnamed_6 { AbortCode: 0 },
+    };
+    memset(
+        &mut Ec as *mut ec_errort as *mut libc::c_void,
+        0i32,
+        ::core::mem::size_of::<ec_errort>() as libc::c_ulong,
+    );
     Ec.Time = osal_current_time();
     Ec.Slave = Slave;
-    Ec.Index = 0 as libc::c_int as uint16;
-    Ec.SubIdx = 0 as libc::c_int as uint8;
+    Ec.Index = 0u16;
+    Ec.SubIdx = 0u8;
     Ec.Etype = EC_ERR_TYPE_EMERGENCY;
     Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode = ErrorCode;
     Ec.c2rust_unnamed.c2rust_unnamed.ErrorReg = ErrorReg as uint8;
@@ -1122,10 +1202,11 @@ unsafe extern "C" fn ecx_mbxemergencyerror(mut context: *mut ecx_contextt,
  * @return >0 if OK
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_init(mut context: *mut ecx_contextt,
-                                  mut ifname: *const libc::c_char)
- -> libc::c_int {
-    return ecx_setupnic((*context).port, ifname, 0 as libc::c_int);
+pub unsafe extern "C" fn ecx_init(
+    mut context: *mut ecx_contextt,
+    mut ifname: *const libc::c_char,
+) -> libc::c_int {
+    return ecx_setupnic((*context).port, ifname, 0i32);
 }
 /* * Initialise lib in redundant NIC mode
  * @param[in]  context  = context struct
@@ -1135,41 +1216,36 @@ pub unsafe extern "C" fn ecx_init(mut context: *mut ecx_contextt,
  * @return >0 if OK
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_init_redundant(mut context: *mut ecx_contextt,
-                                            mut redport: *mut ecx_redportt,
-                                            mut ifname: *const libc::c_char,
-                                            mut if2name: *mut libc::c_char)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_init_redundant(
+    mut context: *mut ecx_contextt,
+    mut redport: *mut ecx_redportt,
+    mut ifname: *const libc::c_char,
+    mut if2name: *mut libc::c_char,
+) -> libc::c_int {
     let mut rval: libc::c_int = 0;
     let mut zbuf: libc::c_int = 0;
     let mut ehp: *mut ec_etherheadert = 0 as *mut ec_etherheadert;
     (*(*context).port).redport = redport;
-    ecx_setupnic((*context).port, ifname, 0 as libc::c_int);
-    rval = ecx_setupnic((*context).port, if2name, 1 as libc::c_int);
+    ecx_setupnic((*context).port, ifname, 0i32);
+    rval = ecx_setupnic((*context).port, if2name, 1i32);
     /* prepare "dummy" BRD tx frame for redundant operation */
-    ehp =
-        &mut (*(*context).port).txbuf2 as *mut ec_bufT as
-            *mut ec_etherheadert;
-    (*ehp).sa1 = oshw_htons(secMAC[0 as libc::c_int as usize]);
-    zbuf = 0 as libc::c_int;
-    ecx_setupdatagram((*context).port,
-                      &mut (*(*context).port).txbuf2 as *mut ec_bufT as
-                          *mut libc::c_void,
-                      EC_CMD_BRD as libc::c_int as uint8,
-                      0 as libc::c_int as uint8, 0 as libc::c_int as uint16,
-                      0 as libc::c_int as uint16, 2 as libc::c_int as uint16,
-                      &mut zbuf as *mut libc::c_int as *mut libc::c_void);
-    (*(*context).port).txbuflength2 =
-        (::core::mem::size_of::<ec_etherheadert>() as
-             libc::c_ulong).wrapping_add(::core::mem::size_of::<ec_comt>() as
-                                             libc::c_ulong).wrapping_add(::core::mem::size_of::<uint16>()
-                                                                             as
-                                                                             libc::c_ulong).wrapping_add(2
-                                                                                                             as
-                                                                                                             libc::c_int
-                                                                                                             as
-                                                                                                             libc::c_ulong)
-            as libc::c_int;
+    ehp = &mut (*(*context).port).txbuf2 as *mut ec_bufT as *mut ec_etherheadert;
+    (*ehp).sa1 = oshw_htons(secMAC[0usize]);
+    zbuf = 0i32;
+    ecx_setupdatagram(
+        (*context).port,
+        &mut (*(*context).port).txbuf2 as *mut ec_bufT as *mut libc::c_void,
+        EC_CMD_BRD as uint8,
+        0u8,
+        0u16,
+        0u16,
+        2u16,
+        &mut zbuf as *mut libc::c_int as *mut libc::c_void,
+    );
+    (*(*context).port).txbuflength2 = (::core::mem::size_of::<ec_etherheadert>() as libc::c_ulong)
+        .wrapping_add(::core::mem::size_of::<ec_comt>() as libc::c_ulong)
+        .wrapping_add(::core::mem::size_of::<uint16>() as libc::c_ulong)
+        .wrapping_add(2u64) as libc::c_int;
     return rval;
 }
 /* * Close lib.
@@ -1188,9 +1264,11 @@ pub unsafe extern "C" fn ecx_close(mut context: *mut ecx_contextt) {
  *  @return requested byte, if not available then 0xff
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_siigetbyte(mut context: *mut ecx_contextt,
-                                        mut slave: uint16,
-                                        mut address: uint16) -> uint8 {
+pub unsafe extern "C" fn ecx_siigetbyte(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut address: uint16,
+) -> uint8 {
     let mut configadr: uint16 = 0;
     let mut eadr: uint16 = 0;
     let mut edat64: uint64 = 0;
@@ -1200,70 +1278,63 @@ pub unsafe extern "C" fn ecx_siigetbyte(mut context: *mut ecx_contextt,
     let mut lp: libc::c_int = 0;
     let mut cnt: libc::c_int = 0;
     let mut retval: uint8 = 0;
-    retval = 0xff as libc::c_int as uint8;
+    retval = 0xffu8;
     if slave as libc::c_int != (*context).esislave as libc::c_int {
         /* not the same slave? */
-        memset((*context).esimap as *mut libc::c_void, 0 as libc::c_int,
-               (128 as libc::c_int as
-                    libc::c_ulong).wrapping_mul(::core::mem::size_of::<uint32>()
-                                                    as
-                                                    libc::c_ulong)); /* clear esibuf cache map */
+        memset(
+            (*context).esimap as *mut libc::c_void,
+            0i32,
+            (128u64).wrapping_mul(::core::mem::size_of::<uint32>() as libc::c_ulong),
+        ); /* clear esibuf cache map */
         (*context).esislave = slave
     }
-    if (address as libc::c_int) < (128 as libc::c_int) << 5 as libc::c_int {
-        mapw = (address as libc::c_int >> 5 as libc::c_int) as uint16;
-        mapb =
-            (address as libc::c_int -
-                 ((mapw as libc::c_int) << 5 as libc::c_int)) as uint16;
-        if *(*context).esimap.offset(mapw as isize) &
-               (1 as libc::c_uint) << mapb as libc::c_int != 0 {
+    if (address as libc::c_int) < (128i32) << 5i32 {
+        mapw = (address as libc::c_int >> 5i32) as uint16;
+        mapb = (address as libc::c_int - ((mapw as libc::c_int) << 5i32)) as uint16;
+        if *(*context).esimap.offset(mapw as isize) & (1u32) << mapb as libc::c_int != 0 {
             /* byte is already in buffer */
             retval = *(*context).esibuf.offset(address as isize)
         } else {
             /* byte is not in buffer, put it there */
-            configadr =
-                (*(*context).slavelist.offset(slave as
-                                                  isize)).configadr; /* set eeprom control to master */
+            configadr = (*(*context).slavelist.offset(slave as isize)).configadr; /* set eeprom control to master */
             ecx_eeprom2master(context, slave);
-            eadr = (address as libc::c_int >> 1 as libc::c_int) as uint16;
-            edat64 =
-                ecx_readeepromFP(context, configadr, eadr,
-                                 20000 as libc::c_int);
+            eadr = (address as libc::c_int >> 1i32) as uint16;
+            edat64 = ecx_readeepromFP(context, configadr, eadr, 20000i32);
             /* 8 byte response */
             if (*(*context).slavelist.offset(slave as isize)).eep_8byte != 0 {
-                memcpy(&mut *(*context).esibuf.offset(((eadr as libc::c_int)
-                                                           <<
-                                                           1 as libc::c_int)
-                                                          as isize) as
-                           *mut uint8 as *mut libc::c_void,
-                       &mut edat64 as *mut uint64 as *const libc::c_void,
-                       8 as libc::c_int as libc::c_ulong);
-                cnt = 8 as libc::c_int
+                memcpy(
+                    &mut *(*context)
+                        .esibuf
+                        .offset(((eadr as libc::c_int) << 1i32) as isize)
+                        as *mut uint8 as *mut libc::c_void,
+                    &mut edat64 as *mut uint64 as *const libc::c_void,
+                    8u64,
+                );
+                cnt = 8i32
             } else {
                 /* 4 byte response */
                 edat32 = edat64 as uint32;
-                memcpy(&mut *(*context).esibuf.offset(((eadr as libc::c_int)
-                                                           <<
-                                                           1 as libc::c_int)
-                                                          as isize) as
-                           *mut uint8 as *mut libc::c_void,
-                       &mut edat32 as *mut uint32 as *const libc::c_void,
-                       4 as libc::c_int as libc::c_ulong);
-                cnt = 4 as libc::c_int
+                memcpy(
+                    &mut *(*context)
+                        .esibuf
+                        .offset(((eadr as libc::c_int) << 1i32) as isize)
+                        as *mut uint8 as *mut libc::c_void,
+                    &mut edat32 as *mut uint32 as *const libc::c_void,
+                    4u64,
+                );
+                cnt = 4i32
             }
             /* find bitmap location */
-            mapw = (eadr as libc::c_int >> 4 as libc::c_int) as uint16;
-            mapb =
-                (((eadr as libc::c_int) << 1 as libc::c_int) -
-                     ((mapw as libc::c_int) << 5 as libc::c_int)) as uint16;
-            lp = 0 as libc::c_int;
+            mapw = (eadr as libc::c_int >> 4i32) as uint16;
+            mapb = (((eadr as libc::c_int) << 1i32) - ((mapw as libc::c_int) << 5i32)) as uint16;
+            lp = 0i32;
             while lp < cnt {
                 /* set bitmap for each byte that is read */
                 let ref mut fresh0 = *(*context).esimap.offset(mapw as isize);
-                *fresh0 |= (1 as libc::c_uint) << mapb as libc::c_int;
+                *fresh0 |= (1u32) << mapb as libc::c_int;
                 mapb = mapb.wrapping_add(1);
-                if mapb as libc::c_int > 31 as libc::c_int {
-                    mapb = 0 as libc::c_int as uint16;
+                if mapb as libc::c_int > 31i32 {
+                    mapb = 0u16;
                     mapw = mapw.wrapping_add(1)
                 }
                 lp += 1
@@ -1280,54 +1351,49 @@ pub unsafe extern "C" fn ecx_siigetbyte(mut context: *mut ecx_contextt,
  *  @return byte address of section at section length entry, if not available then 0
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_siifind(mut context: *mut ecx_contextt,
-                                     mut slave: uint16, mut cat: uint16)
- -> int16 {
+pub unsafe extern "C" fn ecx_siifind(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut cat: uint16,
+) -> int16 {
     let mut a: int16 = 0;
     let mut p: uint16 = 0;
-    let mut eectl: uint8 =
-        (*(*context).slavelist.offset(slave as isize)).eep_pdi;
-    a = ((0x40 as libc::c_int) << 1 as libc::c_int) as int16;
+    let mut eectl: uint8 = (*(*context).slavelist.offset(slave as isize)).eep_pdi;
+    a = ((0x40i32) << 1i32) as int16;
     /* read first SII section category */
     let fresh1 = a;
     a = a + 1;
     p = ecx_siigetbyte(context, slave, fresh1 as uint16) as uint16;
     let fresh2 = a;
     a = a + 1;
-    p =
-        (p as libc::c_int +
-             ((ecx_siigetbyte(context, slave, fresh2 as uint16) as
-                   libc::c_int) << 8 as libc::c_int)) as uint16;
+    p = (p as libc::c_int
+        + ((ecx_siigetbyte(context, slave, fresh2 as uint16) as libc::c_int) << 8i32))
+        as uint16;
     /* traverse SII while category is not found and not EOF */
-    while p as libc::c_int != cat as libc::c_int &&
-              p as libc::c_int != 0xffff as libc::c_int {
+    while p as libc::c_int != cat as libc::c_int && p as libc::c_int != 0xffffi32 {
         /* read section length */
         let fresh3 = a;
         a = a + 1;
         p = ecx_siigetbyte(context, slave, fresh3 as uint16) as uint16;
         let fresh4 = a;
         a = a + 1;
-        p =
-            (p as libc::c_int +
-                 ((ecx_siigetbyte(context, slave, fresh4 as uint16) as
-                       libc::c_int) << 8 as libc::c_int)) as uint16;
+        p = (p as libc::c_int
+            + ((ecx_siigetbyte(context, slave, fresh4 as uint16) as libc::c_int) << 8i32))
+            as uint16;
         /* locate next section category */
-        a =
-            (a as libc::c_int + ((p as libc::c_int) << 1 as libc::c_int)) as
-                int16;
+        a = (a as libc::c_int + ((p as libc::c_int) << 1i32)) as int16;
         /* read section category */
         let fresh5 = a;
         a = a + 1;
         p = ecx_siigetbyte(context, slave, fresh5 as uint16) as uint16;
         let fresh6 = a;
         a = a + 1;
-        p =
-            (p as libc::c_int +
-                 ((ecx_siigetbyte(context, slave, fresh6 as uint16) as
-                       libc::c_int) << 8 as libc::c_int)) as uint16
+        p = (p as libc::c_int
+            + ((ecx_siigetbyte(context, slave, fresh6 as uint16) as libc::c_int) << 8i32))
+            as uint16
     }
     if p as libc::c_int != cat as libc::c_int {
-        a = 0 as libc::c_int as int16
+        a = 0i16
     }
     if eectl != 0 {
         ecx_eeprom2pdi(context, slave);
@@ -1342,9 +1408,12 @@ pub unsafe extern "C" fn ecx_siifind(mut context: *mut ecx_contextt,
  *  @param[in]  Sn      = string number
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_siistring(mut context: *mut ecx_contextt,
-                                       mut str: *mut libc::c_char,
-                                       mut slave: uint16, mut Sn: uint16) {
+pub unsafe extern "C" fn ecx_siistring(
+    mut context: *mut ecx_contextt,
+    mut str: *mut libc::c_char,
+    mut slave: uint16,
+    mut Sn: uint16,
+) {
     let mut a: uint16 = 0; /* find string section */
     let mut i: uint16 = 0; /* skip SII section header */
     let mut j: uint16 = 0; /* read number of strings in section */
@@ -1352,20 +1421,17 @@ pub unsafe extern "C" fn ecx_siistring(mut context: *mut ecx_contextt,
     let mut n: uint16 = 0;
     let mut ba: uint16 = 0;
     let mut ptr: *mut libc::c_char = 0 as *mut libc::c_char;
-    let mut eectl: uint8 =
-        (*(*context).slavelist.offset(slave as isize)).eep_pdi;
+    let mut eectl: uint8 = (*(*context).slavelist.offset(slave as isize)).eep_pdi;
     ptr = str;
-    a =
-        ecx_siifind(context, slave, ECT_SII_STRING as libc::c_int as uint16)
-            as uint16;
-    if a as libc::c_int > 0 as libc::c_int {
-        ba = (a as libc::c_int + 2 as libc::c_int) as uint16;
+    a = ecx_siifind(context, slave, ECT_SII_STRING as uint16) as uint16;
+    if a as libc::c_int > 0i32 {
+        ba = (a as libc::c_int + 2i32) as uint16;
         let fresh7 = ba;
         ba = ba.wrapping_add(1);
         n = ecx_siigetbyte(context, slave, fresh7) as uint16;
         if Sn as libc::c_int <= n as libc::c_int {
             /* is req string available? */
-            i = 1 as libc::c_int as uint16;
+            i = 1u16;
             while i as libc::c_int <= Sn as libc::c_int {
                 /* walk through strings */
                 let fresh8 = ba; /* length of this string */
@@ -1375,27 +1441,27 @@ pub unsafe extern "C" fn ecx_siistring(mut context: *mut ecx_contextt,
                     ba = (ba as libc::c_int + l as libc::c_int) as uint16
                 } else {
                     ptr = str;
-                    j = 1 as libc::c_int as uint16;
+                    j = 1u16;
                     while j as libc::c_int <= l as libc::c_int {
                         /* copy one string */
-                        if j as libc::c_int <= 40 as libc::c_int {
+                        if j as libc::c_int <= 40i32 {
                             let fresh9 = ba;
                             ba = ba.wrapping_add(1);
-                            *ptr =
-                                ecx_siigetbyte(context, slave, fresh9) as
-                                    libc::c_char;
+                            *ptr = ecx_siigetbyte(context, slave, fresh9) as libc::c_char;
                             ptr = ptr.offset(1)
-                        } else { ba = ba.wrapping_add(1) }
+                        } else {
+                            ba = ba.wrapping_add(1)
+                        }
                         j = j.wrapping_add(1)
                     }
                 }
                 i = i.wrapping_add(1)
             }
-            *ptr = 0 as libc::c_int as libc::c_char
-            /* add zero terminator */
+            *ptr = 0i8
+        /* add zero terminator */
         } else {
             ptr = str;
-            *ptr = 0 as libc::c_int as libc::c_char
+            *ptr = 0i8
             /* empty string */
         }
     }
@@ -1411,41 +1477,37 @@ pub unsafe extern "C" fn ecx_siistring(mut context: *mut ecx_contextt,
  *  @return number of FMMU's defined in section
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_siiFMMU(mut context: *mut ecx_contextt,
-                                     mut slave: uint16,
-                                     mut FMMU: *mut ec_eepromFMMUt)
- -> uint16 {
+pub unsafe extern "C" fn ecx_siiFMMU(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut FMMU: *mut ec_eepromFMMUt,
+) -> uint16 {
     let mut a: uint16 = 0;
-    let mut eectl: uint8 =
-        (*(*context).slavelist.offset(slave as isize)).eep_pdi;
-    (*FMMU).nFMMU = 0 as libc::c_int as uint8;
-    (*FMMU).FMMU0 = 0 as libc::c_int as uint8;
-    (*FMMU).FMMU1 = 0 as libc::c_int as uint8;
-    (*FMMU).FMMU2 = 0 as libc::c_int as uint8;
-    (*FMMU).FMMU3 = 0 as libc::c_int as uint8;
-    (*FMMU).Startpos =
-        ecx_siifind(context, slave, ECT_SII_FMMU as libc::c_int as uint16) as
-            uint16;
-    if (*FMMU).Startpos as libc::c_int > 0 as libc::c_int {
+    let mut eectl: uint8 = (*(*context).slavelist.offset(slave as isize)).eep_pdi;
+    (*FMMU).nFMMU = 0u8;
+    (*FMMU).FMMU0 = 0u8;
+    (*FMMU).FMMU1 = 0u8;
+    (*FMMU).FMMU2 = 0u8;
+    (*FMMU).FMMU3 = 0u8;
+    (*FMMU).Startpos = ecx_siifind(context, slave, ECT_SII_FMMU as uint16) as uint16;
+    if (*FMMU).Startpos as libc::c_int > 0i32 {
         a = (*FMMU).Startpos;
         let fresh10 = a;
         a = a.wrapping_add(1);
         (*FMMU).nFMMU = ecx_siigetbyte(context, slave, fresh10);
         let fresh11 = a;
         a = a.wrapping_add(1);
-        (*FMMU).nFMMU =
-            ((*FMMU).nFMMU as libc::c_int +
-                 ((ecx_siigetbyte(context, slave, fresh11) as libc::c_int) <<
-                      8 as libc::c_int)) as uint8;
-        (*FMMU).nFMMU =
-            ((*FMMU).nFMMU as libc::c_int * 2 as libc::c_int) as uint8;
+        (*FMMU).nFMMU = ((*FMMU).nFMMU as libc::c_int
+            + ((ecx_siigetbyte(context, slave, fresh11) as libc::c_int) << 8i32))
+            as uint8;
+        (*FMMU).nFMMU = ((*FMMU).nFMMU as libc::c_int * 2i32) as uint8;
         let fresh12 = a;
         a = a.wrapping_add(1);
         (*FMMU).FMMU0 = ecx_siigetbyte(context, slave, fresh12);
         let fresh13 = a;
         a = a.wrapping_add(1);
         (*FMMU).FMMU1 = ecx_siigetbyte(context, slave, fresh13);
-        if (*FMMU).nFMMU as libc::c_int > 2 as libc::c_int {
+        if (*FMMU).nFMMU as libc::c_int > 2i32 {
             let fresh14 = a;
             a = a.wrapping_add(1);
             (*FMMU).FMMU2 = ecx_siigetbyte(context, slave, fresh14);
@@ -1467,47 +1529,42 @@ pub unsafe extern "C" fn ecx_siiFMMU(mut context: *mut ecx_contextt,
  *  @return number of SM's defined in section
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_siiSM(mut context: *mut ecx_contextt,
-                                   mut slave: uint16,
-                                   mut SM: *mut ec_eepromSMt) -> uint16 {
+pub unsafe extern "C" fn ecx_siiSM(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut SM: *mut ec_eepromSMt,
+) -> uint16 {
     let mut a: uint16 = 0;
     let mut w: uint16 = 0;
-    let mut eectl: uint8 =
-        (*(*context).slavelist.offset(slave as isize)).eep_pdi;
-    (*SM).nSM = 0 as libc::c_int as uint8;
-    (*SM).Startpos =
-        ecx_siifind(context, slave, ECT_SII_SM as libc::c_int as uint16) as
-            uint16;
-    if (*SM).Startpos as libc::c_int > 0 as libc::c_int {
+    let mut eectl: uint8 = (*(*context).slavelist.offset(slave as isize)).eep_pdi;
+    (*SM).nSM = 0u8;
+    (*SM).Startpos = ecx_siifind(context, slave, ECT_SII_SM as uint16) as uint16;
+    if (*SM).Startpos as libc::c_int > 0i32 {
         a = (*SM).Startpos;
         let fresh16 = a;
         a = a.wrapping_add(1);
         w = ecx_siigetbyte(context, slave, fresh16) as uint16;
         let fresh17 = a;
         a = a.wrapping_add(1);
-        w =
-            (w as libc::c_int +
-                 ((ecx_siigetbyte(context, slave, fresh17) as libc::c_int) <<
-                      8 as libc::c_int)) as uint16;
-        (*SM).nSM = (w as libc::c_int / 4 as libc::c_int) as uint8;
+        w = (w as libc::c_int + ((ecx_siigetbyte(context, slave, fresh17) as libc::c_int) << 8i32))
+            as uint16;
+        (*SM).nSM = (w as libc::c_int / 4i32) as uint8;
         let fresh18 = a;
         a = a.wrapping_add(1);
         (*SM).PhStart = ecx_siigetbyte(context, slave, fresh18) as uint16;
         let fresh19 = a;
         a = a.wrapping_add(1);
-        (*SM).PhStart =
-            ((*SM).PhStart as libc::c_int +
-                 ((ecx_siigetbyte(context, slave, fresh19) as libc::c_int) <<
-                      8 as libc::c_int)) as uint16;
+        (*SM).PhStart = ((*SM).PhStart as libc::c_int
+            + ((ecx_siigetbyte(context, slave, fresh19) as libc::c_int) << 8i32))
+            as uint16;
         let fresh20 = a;
         a = a.wrapping_add(1);
         (*SM).Plength = ecx_siigetbyte(context, slave, fresh20) as uint16;
         let fresh21 = a;
         a = a.wrapping_add(1);
-        (*SM).Plength =
-            ((*SM).Plength as libc::c_int +
-                 ((ecx_siigetbyte(context, slave, fresh21) as libc::c_int) <<
-                      8 as libc::c_int)) as uint16;
+        (*SM).Plength = ((*SM).Plength as libc::c_int
+            + ((ecx_siigetbyte(context, slave, fresh21) as libc::c_int) << 8i32))
+            as uint16;
         let fresh22 = a;
         a = a.wrapping_add(1);
         (*SM).Creg = ecx_siigetbyte(context, slave, fresh22);
@@ -1535,36 +1592,33 @@ pub unsafe extern "C" fn ecx_siiSM(mut context: *mut ecx_contextt,
  *  @return >0 if OK
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_siiSMnext(mut context: *mut ecx_contextt,
-                                       mut slave: uint16,
-                                       mut SM: *mut ec_eepromSMt,
-                                       mut n: uint16) -> uint16 {
+pub unsafe extern "C" fn ecx_siiSMnext(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut SM: *mut ec_eepromSMt,
+    mut n: uint16,
+) -> uint16 {
     let mut a: uint16 = 0;
-    let mut retVal: uint16 = 0 as libc::c_int as uint16;
-    let mut eectl: uint8 =
-        (*(*context).slavelist.offset(slave as isize)).eep_pdi;
+    let mut retVal: uint16 = 0u16;
+    let mut eectl: uint8 = (*(*context).slavelist.offset(slave as isize)).eep_pdi;
     if (n as libc::c_int) < (*SM).nSM as libc::c_int {
-        a =
-            ((*SM).Startpos as libc::c_int + 2 as libc::c_int +
-                 n as libc::c_int * 8 as libc::c_int) as uint16;
+        a = ((*SM).Startpos as libc::c_int + 2i32 + n as libc::c_int * 8i32) as uint16;
         let fresh26 = a;
         a = a.wrapping_add(1);
         (*SM).PhStart = ecx_siigetbyte(context, slave, fresh26) as uint16;
         let fresh27 = a;
         a = a.wrapping_add(1);
-        (*SM).PhStart =
-            ((*SM).PhStart as libc::c_int +
-                 ((ecx_siigetbyte(context, slave, fresh27) as libc::c_int) <<
-                      8 as libc::c_int)) as uint16;
+        (*SM).PhStart = ((*SM).PhStart as libc::c_int
+            + ((ecx_siigetbyte(context, slave, fresh27) as libc::c_int) << 8i32))
+            as uint16;
         let fresh28 = a;
         a = a.wrapping_add(1);
         (*SM).Plength = ecx_siigetbyte(context, slave, fresh28) as uint16;
         let fresh29 = a;
         a = a.wrapping_add(1);
-        (*SM).Plength =
-            ((*SM).Plength as libc::c_int +
-                 ((ecx_siigetbyte(context, slave, fresh29) as libc::c_int) <<
-                      8 as libc::c_int)) as uint16;
+        (*SM).Plength = ((*SM).Plength as libc::c_int
+            + ((ecx_siigetbyte(context, slave, fresh29) as libc::c_int) << 8i32))
+            as uint16;
         let fresh30 = a;
         a = a.wrapping_add(1);
         (*SM).Creg = ecx_siigetbyte(context, slave, fresh30);
@@ -1577,7 +1631,7 @@ pub unsafe extern "C" fn ecx_siiSMnext(mut context: *mut ecx_contextt,
         let fresh33 = a;
         a = a.wrapping_add(1);
         (*SM).PDIctrl = ecx_siigetbyte(context, slave, fresh33);
-        retVal = 1 as libc::c_int as uint16
+        retVal = 1u16
     }
     if eectl != 0 {
         ecx_eeprom2pdi(context, slave);
@@ -1593,115 +1647,104 @@ pub unsafe extern "C" fn ecx_siiSMnext(mut context: *mut ecx_contextt,
  *  @return mapping size in bits of PDO
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_siiPDO(mut context: *mut ecx_contextt,
-                                    mut slave: uint16,
-                                    mut PDO: *mut ec_eepromPDOt, mut t: uint8)
- -> uint32 {
+pub unsafe extern "C" fn ecx_siiPDO(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut PDO: *mut ec_eepromPDOt,
+    mut t: uint8,
+) -> uint32 {
     let mut a: uint16 = 0;
     let mut w: uint16 = 0;
     let mut c: uint16 = 0;
     let mut e: uint16 = 0;
     let mut er: uint16 = 0;
     let mut Size: uint16 = 0;
-    let mut eectl: uint8 =
-        (*(*context).slavelist.offset(slave as isize)).eep_pdi;
-    Size = 0 as libc::c_int as uint16;
-    (*PDO).nPDO = 0 as libc::c_int as uint16;
-    (*PDO).Length = 0 as libc::c_int as uint16;
-    (*PDO).Index[1 as libc::c_int as usize] = 0 as libc::c_int as uint16;
-    c = 0 as libc::c_int as uint16;
-    while (c as libc::c_int) < 8 as libc::c_int {
-        (*PDO).SMbitsize[c as usize] = 0 as libc::c_int as uint16;
+    let mut eectl: uint8 = (*(*context).slavelist.offset(slave as isize)).eep_pdi;
+    Size = 0u16;
+    (*PDO).nPDO = 0u16;
+    (*PDO).Length = 0u16;
+    (*PDO).Index[1usize] = 0u16;
+    c = 0u16;
+    while (c as libc::c_int) < 8i32 {
+        (*PDO).SMbitsize[c as usize] = 0u16;
         c = c.wrapping_add(1)
     }
-    if t as libc::c_int > 1 as libc::c_int { t = 1 as libc::c_int as uint8 }
-    (*PDO).Startpos =
-        ecx_siifind(context, slave,
-                    (ECT_SII_PDO as libc::c_int + t as libc::c_int) as uint16)
-            as uint16;
-    if (*PDO).Startpos as libc::c_int > 0 as libc::c_int {
+    if t as libc::c_int > 1i32 {
+        t = 1u8
+    }
+    (*PDO).Startpos = ecx_siifind(
+        context,
+        slave,
+        (ECT_SII_PDO as libc::c_int + t as libc::c_int) as uint16,
+    ) as uint16;
+    if (*PDO).Startpos as libc::c_int > 0i32 {
         a = (*PDO).Startpos;
         let fresh34 = a;
         a = a.wrapping_add(1);
         w = ecx_siigetbyte(context, slave, fresh34) as uint16;
         let fresh35 = a;
         a = a.wrapping_add(1);
-        w =
-            (w as libc::c_int +
-                 ((ecx_siigetbyte(context, slave, fresh35) as libc::c_int) <<
-                      8 as libc::c_int)) as uint16;
+        w = (w as libc::c_int + ((ecx_siigetbyte(context, slave, fresh35) as libc::c_int) << 8i32))
+            as uint16;
         (*PDO).Length = w;
-        c = 1 as libc::c_int as uint16;
-        loop 
-             /* traverse through all PDOs */
-             {
+        c = 1u16;
+        loop
+        /* traverse through all PDOs */
+        {
             (*PDO).nPDO = (*PDO).nPDO.wrapping_add(1);
             let fresh36 = a;
             a = a.wrapping_add(1);
-            (*PDO).Index[(*PDO).nPDO as usize] =
-                ecx_siigetbyte(context, slave, fresh36) as uint16;
+            (*PDO).Index[(*PDO).nPDO as usize] = ecx_siigetbyte(context, slave, fresh36) as uint16;
             let fresh37 = a;
             a = a.wrapping_add(1);
-            (*PDO).Index[(*PDO).nPDO as usize] =
-                ((*PDO).Index[(*PDO).nPDO as usize] as libc::c_int +
-                     ((ecx_siigetbyte(context, slave, fresh37) as libc::c_int)
-                          << 8 as libc::c_int)) as uint16;
-            (*PDO).BitSize[(*PDO).nPDO as usize] = 0 as libc::c_int as uint16;
+            (*PDO).Index[(*PDO).nPDO as usize] = ((*PDO).Index[(*PDO).nPDO as usize] as libc::c_int
+                + ((ecx_siigetbyte(context, slave, fresh37) as libc::c_int) << 8i32))
+                as uint16;
+            (*PDO).BitSize[(*PDO).nPDO as usize] = 0u16;
             c = c.wrapping_add(1);
             let fresh38 = a;
             a = a.wrapping_add(1);
             e = ecx_siigetbyte(context, slave, fresh38) as uint16;
             let fresh39 = a;
             a = a.wrapping_add(1);
-            (*PDO).SyncM[(*PDO).nPDO as usize] =
-                ecx_siigetbyte(context, slave, fresh39) as uint16;
-            a = (a as libc::c_int + 4 as libc::c_int) as uint16;
-            c = (c as libc::c_int + 2 as libc::c_int) as uint16;
-            if ((*PDO).SyncM[(*PDO).nPDO as usize] as libc::c_int) <
-                   8 as libc::c_int {
+            (*PDO).SyncM[(*PDO).nPDO as usize] = ecx_siigetbyte(context, slave, fresh39) as uint16;
+            a = (a as libc::c_int + 4i32) as uint16;
+            c = (c as libc::c_int + 2i32) as uint16;
+            if ((*PDO).SyncM[(*PDO).nPDO as usize] as libc::c_int) < 8i32 {
                 /* active and in range SM? */
                 /* read all entries defined in PDO */
-                er = 1 as libc::c_int as uint16;
+                er = 1u16;
                 while er as libc::c_int <= e as libc::c_int {
-                    c = (c as libc::c_int + 4 as libc::c_int) as uint16;
-                    a = (a as libc::c_int + 5 as libc::c_int) as uint16;
+                    c = (c as libc::c_int + 4i32) as uint16;
+                    a = (a as libc::c_int + 5i32) as uint16;
                     let fresh40 = a;
                     a = a.wrapping_add(1);
-                    (*PDO).BitSize[(*PDO).nPDO as usize] =
-                        ((*PDO).BitSize[(*PDO).nPDO as usize] as libc::c_int +
-                             ecx_siigetbyte(context, slave, fresh40) as
-                                 libc::c_int) as uint16;
-                    a = (a as libc::c_int + 2 as libc::c_int) as uint16;
+                    (*PDO).BitSize[(*PDO).nPDO as usize] = ((*PDO).BitSize[(*PDO).nPDO as usize]
+                        as libc::c_int
+                        + ecx_siigetbyte(context, slave, fresh40) as libc::c_int)
+                        as uint16;
+                    a = (a as libc::c_int + 2i32) as uint16;
                     er = er.wrapping_add(1)
                 }
-                (*PDO).SMbitsize[(*PDO).SyncM[(*PDO).nPDO as usize] as usize]
-                    =
-                    ((*PDO).SMbitsize[(*PDO).SyncM[(*PDO).nPDO as usize] as
-                                          usize] as libc::c_int +
-                         (*PDO).BitSize[(*PDO).nPDO as usize] as libc::c_int)
+                (*PDO).SMbitsize[(*PDO).SyncM[(*PDO).nPDO as usize] as usize] =
+                    ((*PDO).SMbitsize[(*PDO).SyncM[(*PDO).nPDO as usize] as usize] as libc::c_int
+                        + (*PDO).BitSize[(*PDO).nPDO as usize] as libc::c_int)
                         as uint16;
-                Size =
-                    (Size as libc::c_int +
-                         (*PDO).BitSize[(*PDO).nPDO as usize] as libc::c_int)
-                        as uint16;
+                Size = (Size as libc::c_int + (*PDO).BitSize[(*PDO).nPDO as usize] as libc::c_int)
+                    as uint16;
                 c = c.wrapping_add(1)
             } else {
                 /* PDO deactivated because SM is 0xff or > EC_MAXSM */
-                c =
-                    (c as libc::c_int + 4 as libc::c_int * e as libc::c_int)
-                        as uint16;
-                a =
-                    (a as libc::c_int + 8 as libc::c_int * e as libc::c_int)
-                        as uint16;
+                c = (c as libc::c_int + 4i32 * e as libc::c_int) as uint16;
+                a = (a as libc::c_int + 8i32 * e as libc::c_int) as uint16;
                 c = c.wrapping_add(1)
             }
-            if (*PDO).nPDO as libc::c_int >=
-                   0x200 as libc::c_int - 1 as libc::c_int {
+            if (*PDO).nPDO as libc::c_int >= 0x200i32 - 1i32 {
                 c = (*PDO).Length
                 /* limit number of PDO entries in buffer */
             }
             if !((c as libc::c_int) < (*PDO).Length as libc::c_int) {
-                break ;
+                break;
             }
         }
     }
@@ -1712,12 +1755,13 @@ pub unsafe extern "C" fn ecx_siiPDO(mut context: *mut ecx_contextt,
     return Size as uint32;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ecx_FPRD_multi(mut context: *mut ecx_contextt,
-                                        mut n: libc::c_int,
-                                        mut configlst: *mut uint16,
-                                        mut slstatlst: *mut ec_alstatust,
-                                        mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_FPRD_multi(
+    mut context: *mut ecx_contextt,
+    mut n: libc::c_int,
+    mut configlst: *mut uint16,
+    mut slstatlst: *mut ec_alstatust,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut idx: uint8 = 0;
     let mut port: *mut ecx_portt = 0 as *mut ecx_portt;
@@ -1725,63 +1769,62 @@ pub unsafe extern "C" fn ecx_FPRD_multi(mut context: *mut ecx_contextt,
     let mut slcnt: libc::c_int = 0;
     port = (*context).port;
     idx = ecx_getindex(port);
-    slcnt = 0 as libc::c_int;
-    ecx_setupdatagram(port,
-                      &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as
-                          *mut ec_bufT as *mut libc::c_void,
-                      EC_CMD_FPRD as libc::c_int as uint8, idx,
-                      *configlst.offset(slcnt as isize),
-                      ECT_REG_ALSTAT as libc::c_int as uint16,
-                      ::core::mem::size_of::<ec_alstatust>() as libc::c_ulong
-                          as uint16,
-                      slstatlst.offset(slcnt as isize) as *mut libc::c_void);
-    sldatapos[slcnt as usize] =
-        ::core::mem::size_of::<ec_comt>() as libc::c_ulong as uint16;
-    loop  {
+    slcnt = 0i32;
+    ecx_setupdatagram(
+        port,
+        &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
+        EC_CMD_FPRD as uint8,
+        idx,
+        *configlst.offset(slcnt as isize),
+        ECT_REG_ALSTAT as uint16,
+        ::core::mem::size_of::<ec_alstatust>() as uint16,
+        slstatlst.offset(slcnt as isize) as *mut libc::c_void,
+    );
+    sldatapos[slcnt as usize] = ::core::mem::size_of::<ec_comt>() as uint16;
+    loop {
         slcnt += 1;
-        if !(slcnt < n - 1 as libc::c_int) { break ; }
-        sldatapos[slcnt as usize] =
-            ecx_adddatagram(port,
-                            &mut *(*port).txbuf.as_mut_ptr().offset(idx as
-                                                                        isize)
-                                as *mut ec_bufT as *mut libc::c_void,
-                            EC_CMD_FPRD as libc::c_int as uint8, idx,
-                            1 as libc::c_int as boolean,
-                            *configlst.offset(slcnt as isize),
-                            ECT_REG_ALSTAT as libc::c_int as uint16,
-                            ::core::mem::size_of::<ec_alstatust>() as
-                                libc::c_ulong as uint16,
-                            slstatlst.offset(slcnt as isize) as
-                                *mut libc::c_void)
+        if !(slcnt < n - 1i32) {
+            break;
+        }
+        sldatapos[slcnt as usize] = ecx_adddatagram(
+            port,
+            &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
+                as *mut libc::c_void,
+            EC_CMD_FPRD as uint8,
+            idx,
+            1u8,
+            *configlst.offset(slcnt as isize),
+            ECT_REG_ALSTAT as uint16,
+            ::core::mem::size_of::<ec_alstatust>() as uint16,
+            slstatlst.offset(slcnt as isize) as *mut libc::c_void,
+        )
     }
     if slcnt < n {
-        sldatapos[slcnt as usize] =
-            ecx_adddatagram(port,
-                            &mut *(*port).txbuf.as_mut_ptr().offset(idx as
-                                                                        isize)
-                                as *mut ec_bufT as *mut libc::c_void,
-                            EC_CMD_FPRD as libc::c_int as uint8, idx,
-                            0 as libc::c_int as boolean,
-                            *configlst.offset(slcnt as isize),
-                            ECT_REG_ALSTAT as libc::c_int as uint16,
-                            ::core::mem::size_of::<ec_alstatust>() as
-                                libc::c_ulong as uint16,
-                            slstatlst.offset(slcnt as isize) as
-                                *mut libc::c_void)
+        sldatapos[slcnt as usize] = ecx_adddatagram(
+            port,
+            &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
+                as *mut libc::c_void,
+            EC_CMD_FPRD as uint8,
+            idx,
+            0u8,
+            *configlst.offset(slcnt as isize),
+            ECT_REG_ALSTAT as uint16,
+            ::core::mem::size_of::<ec_alstatust>() as uint16,
+            slstatlst.offset(slcnt as isize) as *mut libc::c_void,
+        )
     }
     wkc = ecx_srconfirm(port, idx, timeout);
-    if wkc >= 0 as libc::c_int {
-        slcnt = 0 as libc::c_int;
+    if wkc >= 0i32 {
+        slcnt = 0i32;
         while slcnt < n {
-            memcpy(slstatlst.offset(slcnt as isize) as *mut libc::c_void,
-                   &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as
-                                                                 isize)).as_mut_ptr().offset(*sldatapos.as_mut_ptr().offset(slcnt
-                                                                                                                                as
-                                                                                                                                isize)
-                                                                                                 as
-                                                                                                 isize)
-                       as *mut uint8 as *const libc::c_void,
-                   ::core::mem::size_of::<ec_alstatust>() as libc::c_ulong);
+            memcpy(
+                slstatlst.offset(slcnt as isize) as *mut libc::c_void,
+                &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
+                    .as_mut_ptr()
+                    .offset(*sldatapos.as_mut_ptr().offset(slcnt as isize) as isize)
+                    as *mut uint8 as *const libc::c_void,
+                ::core::mem::size_of::<ec_alstatust>() as libc::c_ulong,
+            );
             slcnt += 1
         }
     }
@@ -1793,8 +1836,7 @@ pub unsafe extern "C" fn ecx_FPRD_multi(mut context: *mut ecx_contextt,
  * @return lowest state found
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readstate(mut context: *mut ecx_contextt)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_readstate(mut context: *mut ecx_contextt) -> libc::c_int {
     let mut slave: uint16 = 0;
     let mut fslave: uint16 = 0;
     let mut lslave: uint16 = 0;
@@ -1802,130 +1844,115 @@ pub unsafe extern "C" fn ecx_readstate(mut context: *mut ecx_contextt)
     let mut lowest: uint16 = 0;
     let mut rval: uint16 = 0;
     let mut bitwisestate: uint16 = 0;
-    let mut sl: [ec_alstatust; 64] =
-        [ec_alstatust{alstatus: 0, unused: 0, alstatuscode: 0,}; 64];
+    let mut sl: [ec_alstatust; 64] = [ec_alstatust {
+        alstatus: 0,
+        unused: 0,
+        alstatuscode: 0,
+    }; 64];
     let mut slca: [uint16; 64] = [0; 64];
     let mut noerrorflag: boolean = 0;
     let mut allslavessamestate: boolean = 0;
-    let mut allslavespresent: boolean = 0 as libc::c_int as boolean;
+    let mut allslavespresent: boolean = 0u8;
     let mut wkc: libc::c_int = 0;
     /* Try to establish the state of all slaves sending only one broadcast datagram.
-    * This way a number of datagrams equal to the number of slaves will be sent only if needed.*/
-    rval = 0 as libc::c_int as uint16;
-    wkc =
-        ecx_BRD((*context).port, 0 as libc::c_int as uint16,
-                ECT_REG_ALSTAT as libc::c_int as uint16,
-                ::core::mem::size_of::<uint16>() as libc::c_ulong as uint16,
-                &mut rval as *mut uint16 as *mut libc::c_void,
-                2000 as libc::c_int);
+     * This way a number of datagrams equal to the number of slaves will be sent only if needed.*/
+    rval = 0u16;
+    wkc = ecx_BRD(
+        (*context).port,
+        0u16,
+        ECT_REG_ALSTAT as uint16,
+        ::core::mem::size_of::<uint16>() as uint16,
+        &mut rval as *mut uint16 as *mut libc::c_void,
+        2000i32,
+    );
     if wkc >= *(*context).slavecount {
-        allslavespresent = 1 as libc::c_int as boolean
+        allslavespresent = 1u8
     }
     rval = rval;
-    bitwisestate = (rval as libc::c_int & 0xf as libc::c_int) as uint16;
-    if rval as libc::c_int & EC_STATE_ERROR as libc::c_int == 0 as libc::c_int
-       {
-        noerrorflag = 1 as libc::c_int as boolean;
-        (*(*context).slavelist.offset(0 as libc::c_int as isize)).ALstatuscode
-            = 0 as libc::c_int as uint16
-    } else { noerrorflag = 0 as libc::c_int as boolean }
+    bitwisestate = (rval as libc::c_int & 0xfi32) as uint16;
+    if rval as libc::c_int & EC_STATE_ERROR as libc::c_int == 0i32 {
+        noerrorflag = 1u8;
+        (*(*context).slavelist.offset(0isize)).ALstatuscode = 0u16
+    } else {
+        noerrorflag = 0u8
+    }
     match bitwisestate as libc::c_int {
         1 | 2 | 3 | 4 | 8 => {
-            allslavessamestate = 1 as libc::c_int as boolean;
-            (*(*context).slavelist.offset(0 as libc::c_int as isize)).state =
-                bitwisestate
+            allslavessamestate = 1u8;
+            (*(*context).slavelist.offset(0isize)).state = bitwisestate
         }
-        _ => { allslavessamestate = 0 as libc::c_int as boolean }
+        _ => allslavessamestate = 0u8,
     }
-    if noerrorflag as libc::c_int != 0 &&
-           allslavessamestate as libc::c_int != 0 &&
-           allslavespresent as libc::c_int != 0 {
+    if noerrorflag as libc::c_int != 0
+        && allslavessamestate as libc::c_int != 0
+        && allslavespresent as libc::c_int != 0
+    {
         /* No slave has toggled the error flag so the alstatuscode
-       * (even if different from 0) should be ignored and
-       * the slaves have reached the same state so the internal state
-       * can be updated without sending any datagram. */
-        slave = 1 as libc::c_int as uint16;
+         * (even if different from 0) should be ignored and
+         * the slaves have reached the same state so the internal state
+         * can be updated without sending any datagram. */
+        slave = 1u16;
         while slave as libc::c_int <= *(*context).slavecount {
-            (*(*context).slavelist.offset(slave as isize)).ALstatuscode =
-                0 as libc::c_int as uint16;
-            (*(*context).slavelist.offset(slave as isize)).state =
-                bitwisestate;
+            (*(*context).slavelist.offset(slave as isize)).ALstatuscode = 0u16;
+            (*(*context).slavelist.offset(slave as isize)).state = bitwisestate;
             slave = slave.wrapping_add(1)
         }
         lowest = bitwisestate
     } else {
         /* Not all slaves have the same state or at least one is in error so one datagram per slave
-       * is needed. */
-        (*(*context).slavelist.offset(0 as libc::c_int as isize)).ALstatuscode
-            = 0 as libc::c_int as uint16;
-        lowest = 0xff as libc::c_int as uint16;
-        fslave = 1 as libc::c_int as uint16;
-        loop  {
+         * is needed. */
+        (*(*context).slavelist.offset(0isize)).ALstatuscode = 0u16;
+        lowest = 0xffu16;
+        fslave = 1u16;
+        loop {
             lslave = *(*context).slavecount as uint16;
-            if lslave as libc::c_int - fslave as libc::c_int >=
-                   64 as libc::c_int {
-                lslave =
-                    (fslave as libc::c_int + 64 as libc::c_int -
-                         1 as libc::c_int) as uint16
+            if lslave as libc::c_int - fslave as libc::c_int >= 64i32 {
+                lslave = (fslave as libc::c_int + 64i32 - 1i32) as uint16
             }
             slave = fslave;
             while slave as libc::c_int <= lslave as libc::c_int {
-                let zero: ec_alstatust =
-                    {
-                        let mut init =
-                            ec_alstatus{alstatus: 0 as libc::c_int as uint16,
-                                        unused: 0 as libc::c_int as uint16,
-                                        alstatuscode:
-                                            0 as libc::c_int as uint16,};
-                        init
+                let zero: ec_alstatust = {
+                    let mut init = ec_alstatus {
+                        alstatus: 0u16,
+                        unused: 0u16,
+                        alstatuscode: 0u16,
                     };
-                configadr =
-                    (*(*context).slavelist.offset(slave as isize)).configadr;
-                slca[(slave as libc::c_int - fslave as libc::c_int) as usize]
-                    = configadr;
-                sl[(slave as libc::c_int - fslave as libc::c_int) as usize] =
-                    zero;
+                    init
+                };
+                configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+                slca[(slave as libc::c_int - fslave as libc::c_int) as usize] = configadr;
+                sl[(slave as libc::c_int - fslave as libc::c_int) as usize] = zero;
                 slave = slave.wrapping_add(1)
             }
-            ecx_FPRD_multi(context,
-                           lslave as libc::c_int - fslave as libc::c_int +
-                               1 as libc::c_int,
-                           &mut *slca.as_mut_ptr().offset(0 as libc::c_int as
-                                                              isize),
-                           &mut *sl.as_mut_ptr().offset(0 as libc::c_int as
-                                                            isize),
-                           2000 as libc::c_int * 3 as libc::c_int);
+            ecx_FPRD_multi(
+                context,
+                lslave as libc::c_int - fslave as libc::c_int + 1i32,
+                &mut *slca.as_mut_ptr().offset(0isize),
+                &mut *sl.as_mut_ptr().offset(0isize),
+                2000i32 * 3i32,
+            );
             slave = fslave;
             while slave as libc::c_int <= lslave as libc::c_int {
-                configadr =
-                    (*(*context).slavelist.offset(slave as isize)).configadr;
-                rval =
-                    sl[(slave as libc::c_int - fslave as libc::c_int) as
-                           usize].alstatus;
+                configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+                rval = sl[(slave as libc::c_int - fslave as libc::c_int) as usize].alstatus;
                 (*(*context).slavelist.offset(slave as isize)).ALstatuscode =
-                    sl[(slave as libc::c_int - fslave as libc::c_int) as
-                           usize].alstatuscode;
-                if (rval as libc::c_int & 0xf as libc::c_int) <
-                       lowest as libc::c_int {
-                    lowest =
-                        (rval as libc::c_int & 0xf as libc::c_int) as uint16
+                    sl[(slave as libc::c_int - fslave as libc::c_int) as usize].alstatuscode;
+                if (rval as libc::c_int & 0xfi32) < lowest as libc::c_int {
+                    lowest = (rval as libc::c_int & 0xfi32) as uint16
                 }
                 (*(*context).slavelist.offset(slave as isize)).state = rval;
-                let ref mut fresh41 =
-                    (*(*context).slavelist.offset(0 as libc::c_int as
-                                                      isize)).ALstatuscode;
-                *fresh41 =
-                    (*fresh41 as libc::c_int |
-                         (*(*context).slavelist.offset(slave as
-                                                           isize)).ALstatuscode
-                             as libc::c_int) as uint16;
+                let ref mut fresh41 = (*(*context).slavelist.offset(0isize)).ALstatuscode;
+                *fresh41 = (*fresh41 as libc::c_int
+                    | (*(*context).slavelist.offset(slave as isize)).ALstatuscode as libc::c_int)
+                    as uint16;
                 slave = slave.wrapping_add(1)
             }
-            fslave = (lslave as libc::c_int + 1 as libc::c_int) as uint16;
-            if !((lslave as libc::c_int) < *(*context).slavecount) { break ; }
+            fslave = (lslave as libc::c_int + 1i32) as uint16;
+            if !((lslave as libc::c_int) < *(*context).slavecount) {
+                break;
+            }
         }
-        (*(*context).slavelist.offset(0 as libc::c_int as isize)).state =
-            lowest
+        (*(*context).slavelist.offset(0isize)).state = lowest
     }
     return lowest as libc::c_int;
 }
@@ -1936,27 +1963,32 @@ pub unsafe extern "C" fn ecx_readstate(mut context: *mut ecx_contextt)
  * @return Workcounter or EC_NOFRAME
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_writestate(mut context: *mut ecx_contextt,
-                                        mut slave: uint16) -> libc::c_int {
+pub unsafe extern "C" fn ecx_writestate(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+) -> libc::c_int {
     let mut ret: libc::c_int = 0;
     let mut configadr: uint16 = 0;
     let mut slstate: uint16 = 0;
-    if slave as libc::c_int == 0 as libc::c_int {
+    if slave as libc::c_int == 0i32 {
         slstate = (*(*context).slavelist.offset(slave as isize)).state;
-        ret =
-            ecx_BWR((*context).port, 0 as libc::c_int as uint16,
-                    ECT_REG_ALCTL as libc::c_int as uint16,
-                    ::core::mem::size_of::<uint16>() as libc::c_ulong as
-                        uint16,
-                    &mut slstate as *mut uint16 as *mut libc::c_void,
-                    2000 as libc::c_int * 3 as libc::c_int)
+        ret = ecx_BWR(
+            (*context).port,
+            0u16,
+            ECT_REG_ALCTL as uint16,
+            ::core::mem::size_of::<uint16>() as uint16,
+            &mut slstate as *mut uint16 as *mut libc::c_void,
+            2000i32 * 3i32,
+        )
     } else {
         configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
-        ret =
-            ecx_FPWRw((*context).port, configadr,
-                      ECT_REG_ALCTL as libc::c_int as uint16,
-                      (*(*context).slavelist.offset(slave as isize)).state,
-                      2000 as libc::c_int * 3 as libc::c_int)
+        ret = ecx_FPWRw(
+            (*context).port,
+            configadr,
+            ECT_REG_ALCTL as uint16,
+            (*(*context).slavelist.offset(slave as isize)).state,
+            2000i32 * 3i32,
+        )
     }
     return ret;
 }
@@ -1970,52 +2002,62 @@ pub unsafe extern "C" fn ecx_writestate(mut context: *mut ecx_contextt,
  * @return Requested state, or found state after timeout.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_statecheck(mut context: *mut ecx_contextt,
-                                        mut slave: uint16,
-                                        mut reqstate: uint16,
-                                        mut timeout: libc::c_int) -> uint16 {
+pub unsafe extern "C" fn ecx_statecheck(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut reqstate: uint16,
+    mut timeout: libc::c_int,
+) -> uint16 {
     let mut configadr: uint16 = 0; /* read slave status */
     let mut state: uint16 = 0;
     let mut rval: uint16 = 0;
-    let mut slstat: ec_alstatust =
-        ec_alstatust{alstatus: 0, unused: 0, alstatuscode: 0,};
-    let mut timer: osal_timert =
-        osal_timert{stop_time: ec_timet{sec: 0, usec: 0,},};
+    let mut slstat: ec_alstatust = ec_alstatust {
+        alstatus: 0,
+        unused: 0,
+        alstatuscode: 0,
+    };
+    let mut timer: osal_timert = osal_timert {
+        stop_time: ec_timet { sec: 0, usec: 0 },
+    };
     if slave as libc::c_int > *(*context).slavecount {
-        return 0 as libc::c_int as uint16
+        return 0u16;
     }
     osal_timer_start(&mut timer, timeout as uint32);
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
-    loop  {
-        if (slave as libc::c_int) < 1 as libc::c_int {
-            rval = 0 as libc::c_int as uint16;
-            ecx_BRD((*context).port, 0 as libc::c_int as uint16,
-                    ECT_REG_ALSTAT as libc::c_int as uint16,
-                    ::core::mem::size_of::<uint16>() as libc::c_ulong as
-                        uint16, &mut rval as *mut uint16 as *mut libc::c_void,
-                    2000 as libc::c_int);
+    loop {
+        if (slave as libc::c_int) < 1i32 {
+            rval = 0u16;
+            ecx_BRD(
+                (*context).port,
+                0u16,
+                ECT_REG_ALSTAT as uint16,
+                ::core::mem::size_of::<uint16>() as uint16,
+                &mut rval as *mut uint16 as *mut libc::c_void,
+                2000i32,
+            );
             rval = rval
         } else {
-            slstat.alstatus = 0 as libc::c_int as uint16;
-            slstat.alstatuscode = 0 as libc::c_int as uint16;
-            ecx_FPRD((*context).port, configadr,
-                     ECT_REG_ALSTAT as libc::c_int as uint16,
-                     ::core::mem::size_of::<ec_alstatust>() as libc::c_ulong
-                         as uint16,
-                     &mut slstat as *mut ec_alstatust as *mut libc::c_void,
-                     2000 as libc::c_int);
+            slstat.alstatus = 0u16;
+            slstat.alstatuscode = 0u16;
+            ecx_FPRD(
+                (*context).port,
+                configadr,
+                ECT_REG_ALSTAT as uint16,
+                ::core::mem::size_of::<ec_alstatust>() as uint16,
+                &mut slstat as *mut ec_alstatust as *mut libc::c_void,
+                2000i32,
+            );
             rval = slstat.alstatus;
-            (*(*context).slavelist.offset(slave as isize)).ALstatuscode =
-                slstat.alstatuscode
+            (*(*context).slavelist.offset(slave as isize)).ALstatuscode = slstat.alstatuscode
         }
-        state = (rval as libc::c_int & 0xf as libc::c_int) as uint16;
+        state = (rval as libc::c_int & 0xfi32) as uint16;
         if state as libc::c_int != reqstate as libc::c_int {
-            osal_usleep(1000 as libc::c_int as uint32);
+            osal_usleep(1000u32);
         }
-        if !(state as libc::c_int != reqstate as libc::c_int &&
-                 osal_timer_is_expired(&mut timer) as libc::c_int ==
-                     0 as libc::c_int) {
-            break ;
+        if !(state as libc::c_int != reqstate as libc::c_int
+            && osal_timer_is_expired(&mut timer) as libc::c_int == 0i32)
+        {
+            break;
         }
     }
     (*(*context).slavelist.offset(slave as isize)).state = rval;
@@ -2029,8 +2071,8 @@ pub unsafe extern "C" fn ecx_statecheck(mut context: *mut ecx_contextt,
 #[no_mangle]
 pub unsafe extern "C" fn ec_nextmbxcnt(mut cnt: uint8) -> uint8 {
     cnt = cnt.wrapping_add(1);
-    if cnt as libc::c_int > 7 as libc::c_int {
-        cnt = 1 as libc::c_int as uint8
+    if cnt as libc::c_int > 7i32 {
+        cnt = 1u8
         /* wrap around to 1, not 0 */
     }
     return cnt;
@@ -2040,8 +2082,7 @@ pub unsafe extern "C" fn ec_nextmbxcnt(mut cnt: uint8) -> uint8 {
  */
 #[no_mangle]
 pub unsafe extern "C" fn ec_clearmbx(mut Mbx: *mut ec_mbxbuft) {
-    memset(Mbx as *mut libc::c_void, 0 as libc::c_int,
-           1486 as libc::c_int as libc::c_ulong);
+    memset(Mbx as *mut libc::c_void, 0i32, 1486u64);
 }
 /* * Check if IN mailbox of slave is empty.
  * @param[in] context  = context struct
@@ -2050,44 +2091,43 @@ pub unsafe extern "C" fn ec_clearmbx(mut Mbx: *mut ec_mbxbuft) {
  * @return >0 is success
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_mbxempty(mut context: *mut ecx_contextt,
-                                      mut slave: uint16,
-                                      mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_mbxempty(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     let mut configadr: uint16 = 0;
     let mut SMstat: uint8 = 0;
     let mut wkc: libc::c_int = 0;
-    let mut timer: osal_timert =
-        osal_timert{stop_time: ec_timet{sec: 0, usec: 0,},};
+    let mut timer: osal_timert = osal_timert {
+        stop_time: ec_timet { sec: 0, usec: 0 },
+    };
     osal_timer_start(&mut timer, timeout as uint32);
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
-    loop  {
-        SMstat = 0 as libc::c_int as uint8;
-        wkc =
-            ecx_FPRD((*context).port, configadr,
-                     ECT_REG_SM0STAT as libc::c_int as uint16,
-                     ::core::mem::size_of::<uint8>() as libc::c_ulong as
-                         uint16,
-                     &mut SMstat as *mut uint8 as *mut libc::c_void,
-                     2000 as libc::c_int);
+    loop {
+        SMstat = 0u8;
+        wkc = ecx_FPRD(
+            (*context).port,
+            configadr,
+            ECT_REG_SM0STAT as uint16,
+            ::core::mem::size_of::<uint8>() as uint16,
+            &mut SMstat as *mut uint8 as *mut libc::c_void,
+            2000i32,
+        );
         SMstat = SMstat;
-        if SMstat as libc::c_int & 0x8 as libc::c_int != 0 as libc::c_int &&
-               timeout > 200 as libc::c_int {
-            osal_usleep(200 as libc::c_int as uint32);
+        if SMstat as libc::c_int & 0x8i32 != 0i32 && timeout > 200i32 {
+            osal_usleep(200u32);
         }
-        if !((wkc <= 0 as libc::c_int ||
-                  SMstat as libc::c_int & 0x8 as libc::c_int !=
-                      0 as libc::c_int) &&
-                 osal_timer_is_expired(&mut timer) as libc::c_int ==
-                     0 as libc::c_int) {
-            break ;
+        if !((wkc <= 0i32 || SMstat as libc::c_int & 0x8i32 != 0i32)
+            && osal_timer_is_expired(&mut timer) as libc::c_int == 0i32)
+        {
+            break;
         }
     }
-    if wkc > 0 as libc::c_int &&
-           SMstat as libc::c_int & 0x8 as libc::c_int == 0 as libc::c_int {
-        return 1 as libc::c_int
+    if wkc > 0i32 && SMstat as libc::c_int & 0x8i32 == 0i32 {
+        return 1i32;
     }
-    return 0 as libc::c_int;
+    return 0i32;
 }
 /* * Write IN mailbox to slave.
  * @param[in]  context    = context struct
@@ -2097,28 +2137,34 @@ pub unsafe extern "C" fn ecx_mbxempty(mut context: *mut ecx_contextt,
  * @return Work counter (>0 is success)
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_mbxsend(mut context: *mut ecx_contextt,
-                                     mut slave: uint16,
-                                     mut mbx: *mut ec_mbxbuft,
-                                     mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_mbxsend(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut mbx: *mut ec_mbxbuft,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     let mut mbxwo: uint16 = 0;
     let mut mbxl: uint16 = 0;
     let mut configadr: uint16 = 0;
     let mut wkc: libc::c_int = 0;
-    wkc = 0 as libc::c_int;
+    wkc = 0i32;
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
     mbxl = (*(*context).slavelist.offset(slave as isize)).mbx_l;
-    if mbxl as libc::c_int > 0 as libc::c_int &&
-           mbxl as libc::c_int <= 1486 as libc::c_int {
+    if mbxl as libc::c_int > 0i32 && mbxl as libc::c_int <= 1486i32 {
         if ecx_mbxempty(context, slave, timeout) != 0 {
             mbxwo = (*(*context).slavelist.offset(slave as isize)).mbx_wo;
             /* write slave in mailbox */
-            wkc =
-                ecx_FPWR((*context).port, configadr, mbxwo, mbxl,
-                         mbx as *mut libc::c_void,
-                         2000 as libc::c_int * 3 as libc::c_int)
-        } else { wkc = 0 as libc::c_int }
+            wkc = ecx_FPWR(
+                (*context).port,
+                configadr,
+                mbxwo,
+                mbxl,
+                mbx as *mut libc::c_void,
+                2000i32 * 3i32,
+            )
+        } else {
+            wkc = 0i32
+        }
     }
     return wkc;
 }
@@ -2131,15 +2177,16 @@ pub unsafe extern "C" fn ecx_mbxsend(mut context: *mut ecx_contextt,
  * @return Work counter (>0 is success)
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_mbxreceive(mut context: *mut ecx_contextt,
-                                        mut slave: uint16,
-                                        mut mbx: *mut ec_mbxbuft,
-                                        mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_mbxreceive(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut mbx: *mut ec_mbxbuft,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     let mut mbxro: uint16 = 0;
     let mut mbxl: uint16 = 0;
     let mut configadr: uint16 = 0;
-    let mut wkc: libc::c_int = 0 as libc::c_int;
+    let mut wkc: libc::c_int = 0i32;
     let mut wkc2: libc::c_int = 0;
     let mut SMstat: uint16 = 0;
     let mut SMcontr: uint8 = 0;
@@ -2148,163 +2195,153 @@ pub unsafe extern "C" fn ecx_mbxreceive(mut context: *mut ecx_contextt,
     let mut MBXEp: *mut ec_mbxerrort = 0 as *mut ec_mbxerrort;
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
     mbxl = (*(*context).slavelist.offset(slave as isize)).mbx_rl;
-    if mbxl as libc::c_int > 0 as libc::c_int &&
-           mbxl as libc::c_int <= 1486 as libc::c_int {
-        let mut timer: osal_timert =
-            osal_timert{stop_time: ec_timet{sec: 0, usec: 0,},};
+    if mbxl as libc::c_int > 0i32 && mbxl as libc::c_int <= 1486i32 {
+        let mut timer: osal_timert = osal_timert {
+            stop_time: ec_timet { sec: 0, usec: 0 },
+        };
         osal_timer_start(&mut timer, timeout as uint32);
-        wkc = 0 as libc::c_int;
-        loop  {
+        wkc = 0i32;
+        loop {
             /* wait for read mailbox available */
-            SMstat = 0 as libc::c_int as uint16;
-            wkc =
-                ecx_FPRD((*context).port, configadr,
-                         ECT_REG_SM1STAT as libc::c_int as uint16,
-                         ::core::mem::size_of::<uint16>() as libc::c_ulong as
-                             uint16,
-                         &mut SMstat as *mut uint16 as *mut libc::c_void,
-                         2000 as libc::c_int);
+            SMstat = 0u16;
+            wkc = ecx_FPRD(
+                (*context).port,
+                configadr,
+                ECT_REG_SM1STAT as uint16,
+                ::core::mem::size_of::<uint16>() as uint16,
+                &mut SMstat as *mut uint16 as *mut libc::c_void,
+                2000i32,
+            );
             SMstat = SMstat;
-            if SMstat as libc::c_int & 0x8 as libc::c_int == 0 as libc::c_int
-                   && timeout > 200 as libc::c_int {
-                osal_usleep(200 as libc::c_int as uint32);
+            if SMstat as libc::c_int & 0x8i32 == 0i32 && timeout > 200i32 {
+                osal_usleep(200u32);
             }
-            if !((wkc <= 0 as libc::c_int ||
-                      SMstat as libc::c_int & 0x8 as libc::c_int ==
-                          0 as libc::c_int) &&
-                     osal_timer_is_expired(&mut timer) as libc::c_int ==
-                         0 as libc::c_int) {
-                break ;
+            if !((wkc <= 0i32 || SMstat as libc::c_int & 0x8i32 == 0i32)
+                && osal_timer_is_expired(&mut timer) as libc::c_int == 0i32)
+            {
+                break;
             }
         }
-        if wkc > 0 as libc::c_int &&
-               SMstat as libc::c_int & 0x8 as libc::c_int > 0 as libc::c_int {
+        if wkc > 0i32 && SMstat as libc::c_int & 0x8i32 > 0i32 {
             /* read mailbox available ? */
             mbxro = (*(*context).slavelist.offset(slave as isize)).mbx_ro;
             mbxh = mbx as *mut ec_mbxheadert;
-            loop  {
+            loop {
                 /* if WKC<=0 repeat */
-                wkc =
-                    ecx_FPRD((*context).port, configadr, mbxro, mbxl,
-                             mbx as *mut libc::c_void,
-                             2000 as libc::c_int); /* get mailbox */
-                if wkc > 0 as libc::c_int &&
-                       (*mbxh).mbxtype as libc::c_int & 0xf as libc::c_int ==
-                           0 as libc::c_int {
+                wkc = ecx_FPRD(
+                    (*context).port,
+                    configadr,
+                    mbxro,
+                    mbxl,
+                    mbx as *mut libc::c_void,
+                    2000i32,
+                ); /* get mailbox */
+                if wkc > 0i32 && (*mbxh).mbxtype as libc::c_int & 0xfi32 == 0i32 {
                     /* Mailbox error response? */
                     MBXEp = mbx as *mut ec_mbxerrort;
                     ecx_mbxerror(context, slave, (*MBXEp).Detail);
-                    wkc = 0 as libc::c_int
-                    /* prevent emergency to cascade up, it is already handled. */
-                } else if wkc > 0 as libc::c_int &&
-                              (*mbxh).mbxtype as libc::c_int &
-                                  0xf as libc::c_int ==
-                                  ECT_MBXT_COE as libc::c_int {
+                    wkc = 0i32
+                /* prevent emergency to cascade up, it is already handled. */
+                } else if wkc > 0i32
+                    && (*mbxh).mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_COE as libc::c_int
+                {
                     /* CoE response? */
                     EMp = mbx as *mut ec_emcyt;
-                    if (*EMp).CANOpen as libc::c_int >> 12 as libc::c_int ==
-                           0x1 as libc::c_int {
+                    if (*EMp).CANOpen as libc::c_int >> 12i32 == 0x1i32 {
                         /* Emergency request? */
-                        ecx_mbxemergencyerror(context, slave,
-                                              (*EMp).ErrorCode,
-                                              (*EMp).ErrorReg as uint16,
-                                              (*EMp).bData, (*EMp).w1,
-                                              (*EMp).w2);
-                        wkc = 0 as libc::c_int
+                        ecx_mbxemergencyerror(
+                            context,
+                            slave,
+                            (*EMp).ErrorCode,
+                            (*EMp).ErrorReg as uint16,
+                            (*EMp).bData,
+                            (*EMp).w1,
+                            (*EMp).w2,
+                        );
+                        wkc = 0i32
                         /* prevent emergency to cascade up, it is already handled. */
                     }
-                } else if wkc > 0 as libc::c_int &&
-                              (*mbxh).mbxtype as libc::c_int &
-                                  0xf as libc::c_int ==
-                                  ECT_MBXT_EOE as libc::c_int {
+                } else if wkc > 0i32
+                    && (*mbxh).mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_EOE as libc::c_int
+                {
                     /* EoE response? */
                     let mut eoembx: *mut ec_EOEt = mbx as *mut ec_EOEt;
                     let mut frameinfo1: uint16 = (*eoembx).frameinfo1;
                     /* All non fragment data frame types are expected to be handled by
-               * slave send/receive API if the EoE hook is set
-               */
-                    if frameinfo1 as libc::c_int >> 0 as libc::c_int &
-                           0xf as libc::c_int == 0 as libc::c_int {
+                     * slave send/receive API if the EoE hook is set
+                     */
+                    if frameinfo1 as libc::c_int >> 0i32 & 0xfi32 == 0i32 {
                         if (*context).EOEhook.is_some() {
-                            if (*context).EOEhook.expect("non-null function pointer")(context,
-                                                                                      slave,
-                                                                                      eoembx
-                                                                                          as
-                                                                                          *mut libc::c_void)
-                                   > 0 as libc::c_int {
+                            if (*context).EOEhook.expect("non-null function pointer")(
+                                context,
+                                slave,
+                                eoembx as *mut libc::c_void,
+                            ) > 0i32
+                            {
                                 /* Fragment handled by EoE hook */
-                                wkc = 0 as libc::c_int
+                                wkc = 0i32
                             }
                         }
                     }
-                } else if wkc <= 0 as libc::c_int {
+                } else if wkc <= 0i32 {
                     /* read mailbox lost */
-                    SMstat =
-                        (SMstat as libc::c_int ^ 0x200 as libc::c_int) as
-                            uint16; /* toggle repeat request */
+                    SMstat = (SMstat as libc::c_int ^ 0x200i32) as uint16; /* toggle repeat request */
                     SMstat = SMstat;
-                    wkc2 =
-                        ecx_FPWR((*context).port, configadr,
-                                 ECT_REG_SM1STAT as libc::c_int as uint16,
-                                 ::core::mem::size_of::<uint16>() as
-                                     libc::c_ulong as uint16,
-                                 &mut SMstat as *mut uint16 as
-                                     *mut libc::c_void, 2000 as libc::c_int);
+                    wkc2 = ecx_FPWR(
+                        (*context).port,
+                        configadr,
+                        ECT_REG_SM1STAT as uint16,
+                        ::core::mem::size_of::<uint16>() as uint16,
+                        &mut SMstat as *mut uint16 as *mut libc::c_void,
+                        2000i32,
+                    );
                     SMstat = SMstat;
-                    loop  {
+                    loop {
                         /* wait for toggle ack */
-                        wkc2 =
-                            ecx_FPRD((*context).port, configadr,
-                                     ECT_REG_SM1CONTR as libc::c_int as
-                                         uint16,
-                                     ::core::mem::size_of::<uint8>() as
-                                         libc::c_ulong as uint16,
-                                     &mut SMcontr as *mut uint8 as
-                                         *mut libc::c_void,
-                                     2000 as libc::c_int);
-                        if !((wkc2 <= 0 as libc::c_int ||
-                                  SMcontr as libc::c_int & 0x2 as libc::c_int
-                                      !=
-                                      SMstat as libc::c_int >>
-                                          8 as libc::c_int &
-                                          0x2 as libc::c_int) &&
-                                 osal_timer_is_expired(&mut timer) as
-                                     libc::c_int == 0 as libc::c_int) {
-                            break ;
+                        wkc2 = ecx_FPRD(
+                            (*context).port,
+                            configadr,
+                            ECT_REG_SM1CONTR as uint16,
+                            ::core::mem::size_of::<uint8>() as uint16,
+                            &mut SMcontr as *mut uint8 as *mut libc::c_void,
+                            2000i32,
+                        );
+                        if !((wkc2 <= 0i32
+                            || SMcontr as libc::c_int & 0x2i32
+                                != SMstat as libc::c_int >> 8i32 & 0x2i32)
+                            && osal_timer_is_expired(&mut timer) as libc::c_int == 0i32)
+                        {
+                            break;
                         }
                     }
-                    loop  {
+                    loop {
                         /* wait for read mailbox available */
-                        wkc2 =
-                            ecx_FPRD((*context).port, configadr,
-                                     ECT_REG_SM1STAT as libc::c_int as uint16,
-                                     ::core::mem::size_of::<uint16>() as
-                                         libc::c_ulong as uint16,
-                                     &mut SMstat as *mut uint16 as
-                                         *mut libc::c_void,
-                                     2000 as libc::c_int);
+                        wkc2 = ecx_FPRD(
+                            (*context).port,
+                            configadr,
+                            ECT_REG_SM1STAT as uint16,
+                            ::core::mem::size_of::<uint16>() as uint16,
+                            &mut SMstat as *mut uint16 as *mut libc::c_void,
+                            2000i32,
+                        );
                         SMstat = SMstat;
-                        if SMstat as libc::c_int & 0x8 as libc::c_int ==
-                               0 as libc::c_int &&
-                               timeout > 200 as libc::c_int {
-                            osal_usleep(200 as libc::c_int as uint32);
+                        if SMstat as libc::c_int & 0x8i32 == 0i32 && timeout > 200i32 {
+                            osal_usleep(200u32);
                         }
-                        if !((wkc2 <= 0 as libc::c_int ||
-                                  SMstat as libc::c_int & 0x8 as libc::c_int
-                                      == 0 as libc::c_int) &&
-                                 osal_timer_is_expired(&mut timer) as
-                                     libc::c_int == 0 as libc::c_int) {
-                            break ;
+                        if !((wkc2 <= 0i32 || SMstat as libc::c_int & 0x8i32 == 0i32)
+                            && osal_timer_is_expired(&mut timer) as libc::c_int == 0i32)
+                        {
+                            break;
                         }
                     }
                 }
-                if !(wkc <= 0 as libc::c_int &&
-                         osal_timer_is_expired(&mut timer) as libc::c_int ==
-                             0 as libc::c_int) {
-                    break ;
+                if !(wkc <= 0i32 && osal_timer_is_expired(&mut timer) as libc::c_int == 0i32) {
+                    break;
                 }
             }
-        } else if wkc > 0 as libc::c_int { wkc = -(5 as libc::c_int) }
+        } else if wkc > 0i32 {
+            wkc = -(5i32)
+        }
     }
     return wkc;
 }
@@ -2315,36 +2352,36 @@ pub unsafe extern "C" fn ecx_mbxreceive(mut context: *mut ecx_contextt,
  * @param[out] esibuf   = EEPROM data buffer, make sure it is big enough.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_esidump(mut context: *mut ecx_contextt,
-                                     mut slave: uint16,
-                                     mut esibuf: *mut uint8) {
+pub unsafe extern "C" fn ecx_esidump(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut esibuf: *mut uint8,
+) {
     let mut configadr: uint16 = 0; /* set eeprom control to master */
     let mut address: uint16 = 0;
     let mut incr: uint16 = 0;
     let mut p64: *mut uint64 = 0 as *mut uint64;
     let mut p16: *mut uint16 = 0 as *mut uint16;
     let mut edat: uint64 = 0;
-    let mut eectl: uint8 =
-        (*(*context).slavelist.offset(slave as isize)).eep_pdi;
+    let mut eectl: uint8 = (*(*context).slavelist.offset(slave as isize)).eep_pdi;
     ecx_eeprom2master(context, slave);
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
-    address = 0x40 as libc::c_int as uint16;
+    address = 0x40u16;
     p16 = esibuf as *mut uint16;
     if (*(*context).slavelist.offset(slave as isize)).eep_8byte != 0 {
-        incr = 4 as libc::c_int as uint16
-    } else { incr = 2 as libc::c_int as uint16 }
-    loop  {
-        edat =
-            ecx_readeepromFP(context, configadr, address,
-                             20000 as libc::c_int);
+        incr = 4u16
+    } else {
+        incr = 2u16
+    }
+    loop {
+        edat = ecx_readeepromFP(context, configadr, address, 20000i32);
         p64 = p16 as *mut uint64;
         *p64 = edat;
         p16 = p16.offset(incr as libc::c_int as isize);
         address = (address as libc::c_int + incr as libc::c_int) as uint16;
-        if !(address as libc::c_int <=
-                 (128 as libc::c_int) << 5 as libc::c_int >> 1 as libc::c_int
-                 && edat as uint32 != 0xffffffff as libc::c_uint) {
-            break ;
+        if !(address as libc::c_int <= (128i32) << 5i32 >> 1i32 && edat as uint32 != 0xffffffffu32)
+        {
+            break;
         }
     }
     if eectl != 0 {
@@ -2360,10 +2397,12 @@ pub unsafe extern "C" fn ecx_esidump(mut context: *mut ecx_contextt,
  * @return EEPROM data 32bit
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readeeprom(mut context: *mut ecx_contextt,
-                                        mut slave: uint16,
-                                        mut eeproma: uint16,
-                                        mut timeout: libc::c_int) -> uint32 {
+pub unsafe extern "C" fn ecx_readeeprom(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut eeproma: uint16,
+    mut timeout: libc::c_int,
+) -> uint32 {
     let mut configadr: uint16 = 0; /* set eeprom control to master */
     ecx_eeprom2master(context, slave);
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
@@ -2378,12 +2417,13 @@ pub unsafe extern "C" fn ecx_readeeprom(mut context: *mut ecx_contextt,
  * @return >0 if OK
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_writeeeprom(mut context: *mut ecx_contextt,
-                                         mut slave: uint16,
-                                         mut eeproma: uint16,
-                                         mut data: uint16,
-                                         mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_writeeeprom(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut eeproma: uint16,
+    mut data: uint16,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     let mut configadr: uint16 = 0; /* set eeprom control to master */
     ecx_eeprom2master(context, slave);
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
@@ -2395,55 +2435,56 @@ pub unsafe extern "C" fn ecx_writeeeprom(mut context: *mut ecx_contextt,
  * @return >0 if OK
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_eeprom2master(mut context: *mut ecx_contextt,
-                                           mut slave: uint16) -> libc::c_int {
-    let mut wkc: libc::c_int = 1 as libc::c_int;
-    let mut cnt: libc::c_int = 0 as libc::c_int;
+pub unsafe extern "C" fn ecx_eeprom2master(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+) -> libc::c_int {
+    let mut wkc: libc::c_int = 1i32;
+    let mut cnt: libc::c_int = 0i32;
     let mut configadr: uint16 = 0;
     let mut eepctl: uint8 = 0;
     if (*(*context).slavelist.offset(slave as isize)).eep_pdi != 0 {
         configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
-        eepctl = 2 as libc::c_int as uint8;
-        loop  {
-            wkc =
-                ecx_FPWR((*context).port, configadr,
-                         ECT_REG_EEPCFG as libc::c_int as uint16,
-                         ::core::mem::size_of::<uint8>() as libc::c_ulong as
-                             uint16,
-                         &mut eepctl as *mut uint8 as *mut libc::c_void,
-                         2000 as libc::c_int);
-            if !(wkc <= 0 as libc::c_int &&
-                     {
-                         let fresh42 = cnt;
-                         cnt = cnt + 1;
-                         (fresh42) < 3 as libc::c_int
-                     }) {
-                break ;
+        eepctl = 2u8;
+        loop {
+            wkc = ecx_FPWR(
+                (*context).port,
+                configadr,
+                ECT_REG_EEPCFG as uint16,
+                ::core::mem::size_of::<uint8>() as uint16,
+                &mut eepctl as *mut uint8 as *mut libc::c_void,
+                2000i32,
+            );
+            if !(wkc <= 0i32 && {
+                let fresh42 = cnt;
+                cnt = cnt + 1;
+                (fresh42) < 3i32
+            }) {
+                break;
             }
             /* force Eeprom from PDI */
         }
-        eepctl = 0 as libc::c_int as uint8;
-        cnt = 0 as libc::c_int;
-        loop  {
-            wkc =
-                ecx_FPWR((*context).port, configadr,
-                         ECT_REG_EEPCFG as libc::c_int as uint16,
-                         ::core::mem::size_of::<uint8>() as libc::c_ulong as
-                             uint16,
-                         &mut eepctl as *mut uint8 as *mut libc::c_void,
-                         2000 as libc::c_int);
-            if !(wkc <= 0 as libc::c_int &&
-                     {
-                         let fresh43 = cnt;
-                         cnt = cnt + 1;
-                         (fresh43) < 3 as libc::c_int
-                     }) {
-                break ;
+        eepctl = 0u8;
+        cnt = 0i32;
+        loop {
+            wkc = ecx_FPWR(
+                (*context).port,
+                configadr,
+                ECT_REG_EEPCFG as uint16,
+                ::core::mem::size_of::<uint8>() as uint16,
+                &mut eepctl as *mut uint8 as *mut libc::c_void,
+                2000i32,
+            );
+            if !(wkc <= 0i32 && {
+                let fresh43 = cnt;
+                cnt = cnt + 1;
+                (fresh43) < 3i32
+            }) {
+                break;
             }
             /* set Eeprom to master */
         }
-        (*(*context).slavelist.offset(slave as isize)).eep_pdi =
-            0 as libc::c_int as uint8
+        (*(*context).slavelist.offset(slave as isize)).eep_pdi = 0u8
     }
     return wkc;
 }
@@ -2453,73 +2494,77 @@ pub unsafe extern "C" fn ecx_eeprom2master(mut context: *mut ecx_contextt,
  * @return >0 if OK
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_eeprom2pdi(mut context: *mut ecx_contextt,
-                                        mut slave: uint16) -> libc::c_int {
-    let mut wkc: libc::c_int = 1 as libc::c_int;
-    let mut cnt: libc::c_int = 0 as libc::c_int;
+pub unsafe extern "C" fn ecx_eeprom2pdi(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+) -> libc::c_int {
+    let mut wkc: libc::c_int = 1i32;
+    let mut cnt: libc::c_int = 0i32;
     let mut configadr: uint16 = 0;
     let mut eepctl: uint8 = 0;
     if (*(*context).slavelist.offset(slave as isize)).eep_pdi == 0 {
         configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
-        eepctl = 1 as libc::c_int as uint8;
-        loop  {
-            wkc =
-                ecx_FPWR((*context).port, configadr,
-                         ECT_REG_EEPCFG as libc::c_int as uint16,
-                         ::core::mem::size_of::<uint8>() as libc::c_ulong as
-                             uint16,
-                         &mut eepctl as *mut uint8 as *mut libc::c_void,
-                         2000 as libc::c_int);
-            if !(wkc <= 0 as libc::c_int &&
-                     {
-                         let fresh44 = cnt;
-                         cnt = cnt + 1;
-                         (fresh44) < 3 as libc::c_int
-                     }) {
-                break ;
+        eepctl = 1u8;
+        loop {
+            wkc = ecx_FPWR(
+                (*context).port,
+                configadr,
+                ECT_REG_EEPCFG as uint16,
+                ::core::mem::size_of::<uint8>() as uint16,
+                &mut eepctl as *mut uint8 as *mut libc::c_void,
+                2000i32,
+            );
+            if !(wkc <= 0i32 && {
+                let fresh44 = cnt;
+                cnt = cnt + 1;
+                (fresh44) < 3i32
+            }) {
+                break;
             }
             /* set Eeprom to PDI */
         } /* wait for eeprom ready */
-        (*(*context).slavelist.offset(slave as isize)).eep_pdi =
-            1 as libc::c_int as uint8
+        (*(*context).slavelist.offset(slave as isize)).eep_pdi = 1u8
     }
     return wkc;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ecx_eeprom_waitnotbusyAP(mut context:
-                                                      *mut ecx_contextt,
-                                                  mut aiadr: uint16,
-                                                  mut estat: *mut uint16,
-                                                  mut timeout: libc::c_int)
- -> uint16 {
+pub unsafe extern "C" fn ecx_eeprom_waitnotbusyAP(
+    mut context: *mut ecx_contextt,
+    mut aiadr: uint16,
+    mut estat: *mut uint16,
+    mut timeout: libc::c_int,
+) -> uint16 {
     let mut wkc: libc::c_int = 0;
-    let mut cnt: libc::c_int = 0 as libc::c_int;
-    let mut retval: uint16 = 0 as libc::c_int as uint16;
-    let mut timer: osal_timert =
-        osal_timert{stop_time: ec_timet{sec: 0, usec: 0,},};
+    let mut cnt: libc::c_int = 0i32;
+    let mut retval: uint16 = 0u16;
+    let mut timer: osal_timert = osal_timert {
+        stop_time: ec_timet { sec: 0, usec: 0 },
+    };
     osal_timer_start(&mut timer, timeout as uint32);
-    loop  {
+    loop {
         let fresh45 = cnt;
         cnt = cnt + 1;
-        if fresh45 != 0 { osal_usleep(200 as libc::c_int as uint32); }
-        *estat = 0 as libc::c_int as uint16;
-        wkc =
-            ecx_APRD((*context).port, aiadr,
-                     ECT_REG_EEPSTAT as libc::c_int as uint16,
-                     ::core::mem::size_of::<uint16>() as libc::c_ulong as
-                         uint16, estat as *mut libc::c_void,
-                     2000 as libc::c_int);
+        if fresh45 != 0 {
+            osal_usleep(200u32);
+        }
+        *estat = 0u16;
+        wkc = ecx_APRD(
+            (*context).port,
+            aiadr,
+            ECT_REG_EEPSTAT as uint16,
+            ::core::mem::size_of::<uint16>() as uint16,
+            estat as *mut libc::c_void,
+            2000i32,
+        );
         *estat = *estat;
-        if !((wkc <= 0 as libc::c_int ||
-                  *estat as libc::c_int & 0x8000 as libc::c_int >
-                      0 as libc::c_int) &&
-                 osal_timer_is_expired(&mut timer) as libc::c_int ==
-                     0 as libc::c_int) {
-            break ;
+        if !((wkc <= 0i32 || *estat as libc::c_int & 0x8000i32 > 0i32)
+            && osal_timer_is_expired(&mut timer) as libc::c_int == 0i32)
+        {
+            break;
         }
     }
-    if *estat as libc::c_int & 0x8000 as libc::c_int == 0 as libc::c_int {
-        retval = 1 as libc::c_int as uint16
+    if *estat as libc::c_int & 0x8000i32 == 0i32 {
+        retval = 1u16
     }
     return retval;
 }
@@ -2531,106 +2576,105 @@ pub unsafe extern "C" fn ecx_eeprom_waitnotbusyAP(mut context:
  * @return EEPROM data 64bit or 32bit
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readeepromAP(mut context: *mut ecx_contextt,
-                                          mut aiadr: uint16,
-                                          mut eeproma: uint16,
-                                          mut timeout: libc::c_int)
- -> uint64 {
+pub unsafe extern "C" fn ecx_readeepromAP(
+    mut context: *mut ecx_contextt,
+    mut aiadr: uint16,
+    mut eeproma: uint16,
+    mut timeout: libc::c_int,
+) -> uint64 {
     let mut estat: uint16 = 0;
     let mut edat32: uint32 = 0;
     let mut edat64: uint64 = 0;
-    let mut ed: ec_eepromt = ec_eepromt{comm: 0, addr: 0, d2: 0,};
+    let mut ed: ec_eepromt = ec_eepromt {
+        comm: 0,
+        addr: 0,
+        d2: 0,
+    };
     let mut wkc: libc::c_int = 0;
     let mut cnt: libc::c_int = 0;
-    let mut nackcnt: libc::c_int = 0 as libc::c_int;
-    edat64 = 0 as libc::c_int as uint64;
-    edat32 = 0 as libc::c_int as uint32;
+    let mut nackcnt: libc::c_int = 0i32;
+    edat64 = 0u64;
+    edat32 = 0u32;
     if ecx_eeprom_waitnotbusyAP(context, aiadr, &mut estat, timeout) != 0 {
-        if estat as libc::c_int & 0x7800 as libc::c_int != 0 {
+        if estat as libc::c_int & 0x7800i32 != 0 {
             /* error bits are set */
-            estat =
-                EC_ECMD_NOP as libc::c_int as uint16; /* clear error bits */
-            wkc =
-                ecx_APWR((*context).port, aiadr,
-                         ECT_REG_EEPCTL as libc::c_int as uint16,
-                         ::core::mem::size_of::<uint16>() as libc::c_ulong as
-                             uint16,
-                         &mut estat as *mut uint16 as *mut libc::c_void,
-                         2000 as libc::c_int * 3 as libc::c_int)
+            estat = EC_ECMD_NOP as uint16; /* clear error bits */
+            wkc = ecx_APWR(
+                (*context).port,
+                aiadr,
+                ECT_REG_EEPCTL as uint16,
+                ::core::mem::size_of::<uint16>() as uint16,
+                &mut estat as *mut uint16 as *mut libc::c_void,
+                2000i32 * 3i32,
+            )
         }
-        loop  {
-            ed.comm = EC_ECMD_READ as libc::c_int as uint16;
+        loop {
+            ed.comm = EC_ECMD_READ as uint16;
             ed.addr = eeproma;
-            ed.d2 = 0 as libc::c_int as uint16;
-            cnt = 0 as libc::c_int;
-            loop  {
-                wkc =
-                    ecx_APWR((*context).port, aiadr,
-                             ECT_REG_EEPCTL as libc::c_int as uint16,
-                             ::core::mem::size_of::<ec_eepromt>() as
-                                 libc::c_ulong as uint16,
-                             &mut ed as *mut ec_eepromt as *mut libc::c_void,
-                             2000 as libc::c_int);
-                if !(wkc <= 0 as libc::c_int &&
-                         {
-                             let fresh46 = cnt;
-                             cnt = cnt + 1;
-                             (fresh46) < 3 as libc::c_int
-                         }) {
-                    break ;
+            ed.d2 = 0u16;
+            cnt = 0i32;
+            loop {
+                wkc = ecx_APWR(
+                    (*context).port,
+                    aiadr,
+                    ECT_REG_EEPCTL as uint16,
+                    ::core::mem::size_of::<ec_eepromt>() as uint16,
+                    &mut ed as *mut ec_eepromt as *mut libc::c_void,
+                    2000i32,
+                );
+                if !(wkc <= 0i32 && {
+                    let fresh46 = cnt;
+                    cnt = cnt + 1;
+                    (fresh46) < 3i32
+                }) {
+                    break;
                 }
             }
             if wkc != 0 {
-                osal_usleep(200 as libc::c_int as uint32);
-                estat = 0 as libc::c_int as uint16;
-                if ecx_eeprom_waitnotbusyAP(context, aiadr, &mut estat,
-                                            timeout) != 0 {
-                    if estat as libc::c_int & 0x2000 as libc::c_int != 0 {
+                osal_usleep(200u32);
+                estat = 0u16;
+                if ecx_eeprom_waitnotbusyAP(context, aiadr, &mut estat, timeout) != 0 {
+                    if estat as libc::c_int & 0x2000i32 != 0 {
                         nackcnt += 1;
-                        osal_usleep((200 as libc::c_int * 5 as libc::c_int) as
-                                        uint32);
+                        osal_usleep((200i32 * 5i32) as uint32);
                     } else {
-                        nackcnt = 0 as libc::c_int;
-                        if estat as libc::c_int & 0x40 as libc::c_int != 0 {
-                            cnt = 0 as libc::c_int;
-                            loop  {
-                                wkc =
-                                    ecx_APRD((*context).port, aiadr,
-                                             ECT_REG_EEPDAT as libc::c_int as
-                                                 uint16,
-                                             ::core::mem::size_of::<uint64>()
-                                                 as libc::c_ulong as uint16,
-                                             &mut edat64 as *mut uint64 as
-                                                 *mut libc::c_void,
-                                             2000 as libc::c_int);
-                                if !(wkc <= 0 as libc::c_int &&
-                                         {
-                                             let fresh47 = cnt;
-                                             cnt = cnt + 1;
-                                             (fresh47) < 3 as libc::c_int
-                                         }) {
-                                    break ;
+                        nackcnt = 0i32;
+                        if estat as libc::c_int & 0x40i32 != 0 {
+                            cnt = 0i32;
+                            loop {
+                                wkc = ecx_APRD(
+                                    (*context).port,
+                                    aiadr,
+                                    ECT_REG_EEPDAT as uint16,
+                                    ::core::mem::size_of::<uint64>() as uint16,
+                                    &mut edat64 as *mut uint64 as *mut libc::c_void,
+                                    2000i32,
+                                );
+                                if !(wkc <= 0i32 && {
+                                    let fresh47 = cnt;
+                                    cnt = cnt + 1;
+                                    (fresh47) < 3i32
+                                }) {
+                                    break;
                                 }
                             }
                         } else {
-                            cnt = 0 as libc::c_int;
-                            loop  {
-                                wkc =
-                                    ecx_APRD((*context).port, aiadr,
-                                             ECT_REG_EEPDAT as libc::c_int as
-                                                 uint16,
-                                             ::core::mem::size_of::<uint32>()
-                                                 as libc::c_ulong as uint16,
-                                             &mut edat32 as *mut uint32 as
-                                                 *mut libc::c_void,
-                                             2000 as libc::c_int);
-                                if !(wkc <= 0 as libc::c_int &&
-                                         {
-                                             let fresh48 = cnt;
-                                             cnt = cnt + 1;
-                                             (fresh48) < 3 as libc::c_int
-                                         }) {
-                                    break ;
+                            cnt = 0i32;
+                            loop {
+                                wkc = ecx_APRD(
+                                    (*context).port,
+                                    aiadr,
+                                    ECT_REG_EEPDAT as uint16,
+                                    ::core::mem::size_of::<uint32>() as uint16,
+                                    &mut edat32 as *mut uint32 as *mut libc::c_void,
+                                    2000i32,
+                                );
+                                if !(wkc <= 0i32 && {
+                                    let fresh48 = cnt;
+                                    cnt = cnt + 1;
+                                    (fresh48) < 3i32
+                                }) {
+                                    break;
                                 }
                             }
                             edat64 = edat32 as uint64
@@ -2638,8 +2682,8 @@ pub unsafe extern "C" fn ecx_readeepromAP(mut context: *mut ecx_contextt,
                     }
                 }
             }
-            if !(nackcnt > 0 as libc::c_int && nackcnt < 3 as libc::c_int) {
-                break ;
+            if !(nackcnt > 0i32 && nackcnt < 3i32) {
+                break;
             }
         }
     }
@@ -2654,129 +2698,134 @@ pub unsafe extern "C" fn ecx_readeepromAP(mut context: *mut ecx_contextt,
  * @return >0 if OK
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_writeeepromAP(mut context: *mut ecx_contextt,
-                                           mut aiadr: uint16,
-                                           mut eeproma: uint16,
-                                           mut data: uint16,
-                                           mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_writeeepromAP(
+    mut context: *mut ecx_contextt,
+    mut aiadr: uint16,
+    mut eeproma: uint16,
+    mut data: uint16,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     let mut estat: uint16 = 0;
-    let mut ed: ec_eepromt = ec_eepromt{comm: 0, addr: 0, d2: 0,};
+    let mut ed: ec_eepromt = ec_eepromt {
+        comm: 0,
+        addr: 0,
+        d2: 0,
+    };
     let mut wkc: libc::c_int = 0;
-    let mut rval: libc::c_int = 0 as libc::c_int;
-    let mut cnt: libc::c_int = 0 as libc::c_int;
-    let mut nackcnt: libc::c_int = 0 as libc::c_int;
+    let mut rval: libc::c_int = 0i32;
+    let mut cnt: libc::c_int = 0i32;
+    let mut nackcnt: libc::c_int = 0i32;
     if ecx_eeprom_waitnotbusyAP(context, aiadr, &mut estat, timeout) != 0 {
-        if estat as libc::c_int & 0x7800 as libc::c_int != 0 {
+        if estat as libc::c_int & 0x7800i32 != 0 {
             /* error bits are set */
-            estat =
-                EC_ECMD_NOP as libc::c_int as uint16; /* clear error bits */
-            wkc =
-                ecx_APWR((*context).port, aiadr,
-                         ECT_REG_EEPCTL as libc::c_int as uint16,
-                         ::core::mem::size_of::<uint16>() as libc::c_ulong as
-                             uint16,
-                         &mut estat as *mut uint16 as *mut libc::c_void,
-                         2000 as libc::c_int * 3 as libc::c_int)
+            estat = EC_ECMD_NOP as uint16; /* clear error bits */
+            wkc = ecx_APWR(
+                (*context).port,
+                aiadr,
+                ECT_REG_EEPCTL as uint16,
+                ::core::mem::size_of::<uint16>() as uint16,
+                &mut estat as *mut uint16 as *mut libc::c_void,
+                2000i32 * 3i32,
+            )
         } /* wait for eeprom ready */
-        loop  {
-            cnt = 0 as libc::c_int;
-            loop  {
-                wkc =
-                    ecx_APWR((*context).port, aiadr,
-                             ECT_REG_EEPDAT as libc::c_int as uint16,
-                             ::core::mem::size_of::<uint16>() as libc::c_ulong
-                                 as uint16,
-                             &mut data as *mut uint16 as *mut libc::c_void,
-                             2000 as libc::c_int);
-                if !(wkc <= 0 as libc::c_int &&
-                         {
-                             let fresh49 = cnt;
-                             cnt = cnt + 1;
-                             (fresh49) < 3 as libc::c_int
-                         }) {
-                    break ;
+        loop {
+            cnt = 0i32;
+            loop {
+                wkc = ecx_APWR(
+                    (*context).port,
+                    aiadr,
+                    ECT_REG_EEPDAT as uint16,
+                    ::core::mem::size_of::<uint16>() as uint16,
+                    &mut data as *mut uint16 as *mut libc::c_void,
+                    2000i32,
+                );
+                if !(wkc <= 0i32 && {
+                    let fresh49 = cnt;
+                    cnt = cnt + 1;
+                    (fresh49) < 3i32
+                }) {
+                    break;
                 }
             }
-            ed.comm = EC_ECMD_WRITE as libc::c_int as uint16;
+            ed.comm = EC_ECMD_WRITE as uint16;
             ed.addr = eeproma;
-            ed.d2 = 0 as libc::c_int as uint16;
-            cnt = 0 as libc::c_int;
-            loop  {
-                wkc =
-                    ecx_APWR((*context).port, aiadr,
-                             ECT_REG_EEPCTL as libc::c_int as uint16,
-                             ::core::mem::size_of::<ec_eepromt>() as
-                                 libc::c_ulong as uint16,
-                             &mut ed as *mut ec_eepromt as *mut libc::c_void,
-                             2000 as libc::c_int);
-                if !(wkc <= 0 as libc::c_int &&
-                         {
-                             let fresh50 = cnt;
-                             cnt = cnt + 1;
-                             (fresh50) < 3 as libc::c_int
-                         }) {
-                    break ;
+            ed.d2 = 0u16;
+            cnt = 0i32;
+            loop {
+                wkc = ecx_APWR(
+                    (*context).port,
+                    aiadr,
+                    ECT_REG_EEPCTL as uint16,
+                    ::core::mem::size_of::<ec_eepromt>() as uint16,
+                    &mut ed as *mut ec_eepromt as *mut libc::c_void,
+                    2000i32,
+                );
+                if !(wkc <= 0i32 && {
+                    let fresh50 = cnt;
+                    cnt = cnt + 1;
+                    (fresh50) < 3i32
+                }) {
+                    break;
                 }
             }
             if wkc != 0 {
-                osal_usleep((200 as libc::c_int * 2 as libc::c_int) as
-                                uint32);
-                estat = 0 as libc::c_int as uint16;
-                if ecx_eeprom_waitnotbusyAP(context, aiadr, &mut estat,
-                                            timeout) != 0 {
-                    if estat as libc::c_int & 0x2000 as libc::c_int != 0 {
+                osal_usleep((200i32 * 2i32) as uint32);
+                estat = 0u16;
+                if ecx_eeprom_waitnotbusyAP(context, aiadr, &mut estat, timeout) != 0 {
+                    if estat as libc::c_int & 0x2000i32 != 0 {
                         nackcnt += 1;
-                        osal_usleep((200 as libc::c_int * 5 as libc::c_int) as
-                                        uint32);
+                        osal_usleep((200i32 * 5i32) as uint32);
                     } else {
-                        nackcnt = 0 as libc::c_int;
-                        rval = 1 as libc::c_int
+                        nackcnt = 0i32;
+                        rval = 1i32
                     }
                 }
             }
-            if !(nackcnt > 0 as libc::c_int && nackcnt < 3 as libc::c_int) {
-                break ;
+            if !(nackcnt > 0i32 && nackcnt < 3i32) {
+                break;
             }
         }
     }
     return rval;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ecx_eeprom_waitnotbusyFP(mut context:
-                                                      *mut ecx_contextt,
-                                                  mut configadr: uint16,
-                                                  mut estat: *mut uint16,
-                                                  mut timeout: libc::c_int)
- -> uint16 {
+pub unsafe extern "C" fn ecx_eeprom_waitnotbusyFP(
+    mut context: *mut ecx_contextt,
+    mut configadr: uint16,
+    mut estat: *mut uint16,
+    mut timeout: libc::c_int,
+) -> uint16 {
     let mut wkc: libc::c_int = 0;
-    let mut cnt: libc::c_int = 0 as libc::c_int;
-    let mut retval: uint16 = 0 as libc::c_int as uint16;
-    let mut timer: osal_timert =
-        osal_timert{stop_time: ec_timet{sec: 0, usec: 0,},};
+    let mut cnt: libc::c_int = 0i32;
+    let mut retval: uint16 = 0u16;
+    let mut timer: osal_timert = osal_timert {
+        stop_time: ec_timet { sec: 0, usec: 0 },
+    };
     osal_timer_start(&mut timer, timeout as uint32);
-    loop  {
+    loop {
         let fresh51 = cnt;
         cnt = cnt + 1;
-        if fresh51 != 0 { osal_usleep(200 as libc::c_int as uint32); }
-        *estat = 0 as libc::c_int as uint16;
-        wkc =
-            ecx_FPRD((*context).port, configadr,
-                     ECT_REG_EEPSTAT as libc::c_int as uint16,
-                     ::core::mem::size_of::<uint16>() as libc::c_ulong as
-                         uint16, estat as *mut libc::c_void,
-                     2000 as libc::c_int);
+        if fresh51 != 0 {
+            osal_usleep(200u32);
+        }
+        *estat = 0u16;
+        wkc = ecx_FPRD(
+            (*context).port,
+            configadr,
+            ECT_REG_EEPSTAT as uint16,
+            ::core::mem::size_of::<uint16>() as uint16,
+            estat as *mut libc::c_void,
+            2000i32,
+        );
         *estat = *estat;
-        if !((wkc <= 0 as libc::c_int ||
-                  *estat as libc::c_int & 0x8000 as libc::c_int >
-                      0 as libc::c_int) &&
-                 osal_timer_is_expired(&mut timer) as libc::c_int ==
-                     0 as libc::c_int) {
-            break ;
+        if !((wkc <= 0i32 || *estat as libc::c_int & 0x8000i32 > 0i32)
+            && osal_timer_is_expired(&mut timer) as libc::c_int == 0i32)
+        {
+            break;
         }
     }
-    if *estat as libc::c_int & 0x8000 as libc::c_int == 0 as libc::c_int {
-        retval = 1 as libc::c_int as uint16
+    if *estat as libc::c_int & 0x8000i32 == 0i32 {
+        retval = 1u16
     }
     return retval;
 }
@@ -2788,107 +2837,105 @@ pub unsafe extern "C" fn ecx_eeprom_waitnotbusyFP(mut context:
  * @return EEPROM data 64bit or 32bit
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readeepromFP(mut context: *mut ecx_contextt,
-                                          mut configadr: uint16,
-                                          mut eeproma: uint16,
-                                          mut timeout: libc::c_int)
- -> uint64 {
+pub unsafe extern "C" fn ecx_readeepromFP(
+    mut context: *mut ecx_contextt,
+    mut configadr: uint16,
+    mut eeproma: uint16,
+    mut timeout: libc::c_int,
+) -> uint64 {
     let mut estat: uint16 = 0;
     let mut edat32: uint32 = 0;
     let mut edat64: uint64 = 0;
-    let mut ed: ec_eepromt = ec_eepromt{comm: 0, addr: 0, d2: 0,};
+    let mut ed: ec_eepromt = ec_eepromt {
+        comm: 0,
+        addr: 0,
+        d2: 0,
+    };
     let mut wkc: libc::c_int = 0;
     let mut cnt: libc::c_int = 0;
-    let mut nackcnt: libc::c_int = 0 as libc::c_int;
-    edat64 = 0 as libc::c_int as uint64;
-    edat32 = 0 as libc::c_int as uint32;
-    if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, timeout) != 0
-       {
-        if estat as libc::c_int & 0x7800 as libc::c_int != 0 {
+    let mut nackcnt: libc::c_int = 0i32;
+    edat64 = 0u64;
+    edat32 = 0u32;
+    if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, timeout) != 0 {
+        if estat as libc::c_int & 0x7800i32 != 0 {
             /* error bits are set */
-            estat =
-                EC_ECMD_NOP as libc::c_int as uint16; /* clear error bits */
-            wkc =
-                ecx_FPWR((*context).port, configadr,
-                         ECT_REG_EEPCTL as libc::c_int as uint16,
-                         ::core::mem::size_of::<uint16>() as libc::c_ulong as
-                             uint16,
-                         &mut estat as *mut uint16 as *mut libc::c_void,
-                         2000 as libc::c_int * 3 as libc::c_int)
+            estat = EC_ECMD_NOP as uint16; /* clear error bits */
+            wkc = ecx_FPWR(
+                (*context).port,
+                configadr,
+                ECT_REG_EEPCTL as uint16,
+                ::core::mem::size_of::<uint16>() as uint16,
+                &mut estat as *mut uint16 as *mut libc::c_void,
+                2000i32 * 3i32,
+            )
         }
-        loop  {
-            ed.comm = EC_ECMD_READ as libc::c_int as uint16;
+        loop {
+            ed.comm = EC_ECMD_READ as uint16;
             ed.addr = eeproma;
-            ed.d2 = 0 as libc::c_int as uint16;
-            cnt = 0 as libc::c_int;
-            loop  {
-                wkc =
-                    ecx_FPWR((*context).port, configadr,
-                             ECT_REG_EEPCTL as libc::c_int as uint16,
-                             ::core::mem::size_of::<ec_eepromt>() as
-                                 libc::c_ulong as uint16,
-                             &mut ed as *mut ec_eepromt as *mut libc::c_void,
-                             2000 as libc::c_int);
-                if !(wkc <= 0 as libc::c_int &&
-                         {
-                             let fresh52 = cnt;
-                             cnt = cnt + 1;
-                             (fresh52) < 3 as libc::c_int
-                         }) {
-                    break ;
+            ed.d2 = 0u16;
+            cnt = 0i32;
+            loop {
+                wkc = ecx_FPWR(
+                    (*context).port,
+                    configadr,
+                    ECT_REG_EEPCTL as uint16,
+                    ::core::mem::size_of::<ec_eepromt>() as uint16,
+                    &mut ed as *mut ec_eepromt as *mut libc::c_void,
+                    2000i32,
+                );
+                if !(wkc <= 0i32 && {
+                    let fresh52 = cnt;
+                    cnt = cnt + 1;
+                    (fresh52) < 3i32
+                }) {
+                    break;
                 }
             }
             if wkc != 0 {
-                osal_usleep(200 as libc::c_int as uint32);
-                estat = 0 as libc::c_int as uint16;
-                if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat,
-                                            timeout) != 0 {
-                    if estat as libc::c_int & 0x2000 as libc::c_int != 0 {
+                osal_usleep(200u32);
+                estat = 0u16;
+                if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, timeout) != 0 {
+                    if estat as libc::c_int & 0x2000i32 != 0 {
                         nackcnt += 1;
-                        osal_usleep((200 as libc::c_int * 5 as libc::c_int) as
-                                        uint32);
+                        osal_usleep((200i32 * 5i32) as uint32);
                     } else {
-                        nackcnt = 0 as libc::c_int;
-                        if estat as libc::c_int & 0x40 as libc::c_int != 0 {
-                            cnt = 0 as libc::c_int;
-                            loop  {
-                                wkc =
-                                    ecx_FPRD((*context).port, configadr,
-                                             ECT_REG_EEPDAT as libc::c_int as
-                                                 uint16,
-                                             ::core::mem::size_of::<uint64>()
-                                                 as libc::c_ulong as uint16,
-                                             &mut edat64 as *mut uint64 as
-                                                 *mut libc::c_void,
-                                             2000 as libc::c_int);
-                                if !(wkc <= 0 as libc::c_int &&
-                                         {
-                                             let fresh53 = cnt;
-                                             cnt = cnt + 1;
-                                             (fresh53) < 3 as libc::c_int
-                                         }) {
-                                    break ;
+                        nackcnt = 0i32;
+                        if estat as libc::c_int & 0x40i32 != 0 {
+                            cnt = 0i32;
+                            loop {
+                                wkc = ecx_FPRD(
+                                    (*context).port,
+                                    configadr,
+                                    ECT_REG_EEPDAT as uint16,
+                                    ::core::mem::size_of::<uint64>() as uint16,
+                                    &mut edat64 as *mut uint64 as *mut libc::c_void,
+                                    2000i32,
+                                );
+                                if !(wkc <= 0i32 && {
+                                    let fresh53 = cnt;
+                                    cnt = cnt + 1;
+                                    (fresh53) < 3i32
+                                }) {
+                                    break;
                                 }
                             }
                         } else {
-                            cnt = 0 as libc::c_int;
-                            loop  {
-                                wkc =
-                                    ecx_FPRD((*context).port, configadr,
-                                             ECT_REG_EEPDAT as libc::c_int as
-                                                 uint16,
-                                             ::core::mem::size_of::<uint32>()
-                                                 as libc::c_ulong as uint16,
-                                             &mut edat32 as *mut uint32 as
-                                                 *mut libc::c_void,
-                                             2000 as libc::c_int);
-                                if !(wkc <= 0 as libc::c_int &&
-                                         {
-                                             let fresh54 = cnt;
-                                             cnt = cnt + 1;
-                                             (fresh54) < 3 as libc::c_int
-                                         }) {
-                                    break ;
+                            cnt = 0i32;
+                            loop {
+                                wkc = ecx_FPRD(
+                                    (*context).port,
+                                    configadr,
+                                    ECT_REG_EEPDAT as uint16,
+                                    ::core::mem::size_of::<uint32>() as uint16,
+                                    &mut edat32 as *mut uint32 as *mut libc::c_void,
+                                    2000i32,
+                                );
+                                if !(wkc <= 0i32 && {
+                                    let fresh54 = cnt;
+                                    cnt = cnt + 1;
+                                    (fresh54) < 3i32
+                                }) {
+                                    break;
                                 }
                             }
                             edat64 = edat32 as uint64
@@ -2896,8 +2943,8 @@ pub unsafe extern "C" fn ecx_readeepromFP(mut context: *mut ecx_contextt,
                     }
                 }
             }
-            if !(nackcnt > 0 as libc::c_int && nackcnt < 3 as libc::c_int) {
-                break ;
+            if !(nackcnt > 0i32 && nackcnt < 3i32) {
+                break;
             }
         }
     }
@@ -2912,90 +2959,91 @@ pub unsafe extern "C" fn ecx_readeepromFP(mut context: *mut ecx_contextt,
  * @return >0 if OK
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_writeeepromFP(mut context: *mut ecx_contextt,
-                                           mut configadr: uint16,
-                                           mut eeproma: uint16,
-                                           mut data: uint16,
-                                           mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_writeeepromFP(
+    mut context: *mut ecx_contextt,
+    mut configadr: uint16,
+    mut eeproma: uint16,
+    mut data: uint16,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     let mut estat: uint16 = 0;
-    let mut ed: ec_eepromt = ec_eepromt{comm: 0, addr: 0, d2: 0,};
+    let mut ed: ec_eepromt = ec_eepromt {
+        comm: 0,
+        addr: 0,
+        d2: 0,
+    };
     let mut wkc: libc::c_int = 0;
-    let mut rval: libc::c_int = 0 as libc::c_int;
-    let mut cnt: libc::c_int = 0 as libc::c_int;
-    let mut nackcnt: libc::c_int = 0 as libc::c_int;
-    if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, timeout) != 0
-       {
-        if estat as libc::c_int & 0x7800 as libc::c_int != 0 {
+    let mut rval: libc::c_int = 0i32;
+    let mut cnt: libc::c_int = 0i32;
+    let mut nackcnt: libc::c_int = 0i32;
+    if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, timeout) != 0 {
+        if estat as libc::c_int & 0x7800i32 != 0 {
             /* error bits are set */
-            estat =
-                EC_ECMD_NOP as libc::c_int as uint16; /* clear error bits */
-            wkc =
-                ecx_FPWR((*context).port, configadr,
-                         ECT_REG_EEPCTL as libc::c_int as uint16,
-                         ::core::mem::size_of::<uint16>() as libc::c_ulong as
-                             uint16,
-                         &mut estat as *mut uint16 as *mut libc::c_void,
-                         2000 as libc::c_int * 3 as libc::c_int)
+            estat = EC_ECMD_NOP as uint16; /* clear error bits */
+            wkc = ecx_FPWR(
+                (*context).port,
+                configadr,
+                ECT_REG_EEPCTL as uint16,
+                ::core::mem::size_of::<uint16>() as uint16,
+                &mut estat as *mut uint16 as *mut libc::c_void,
+                2000i32 * 3i32,
+            )
         }
-        loop  {
-            cnt = 0 as libc::c_int;
-            loop  {
-                wkc =
-                    ecx_FPWR((*context).port, configadr,
-                             ECT_REG_EEPDAT as libc::c_int as uint16,
-                             ::core::mem::size_of::<uint16>() as libc::c_ulong
-                                 as uint16,
-                             &mut data as *mut uint16 as *mut libc::c_void,
-                             2000 as libc::c_int);
-                if !(wkc <= 0 as libc::c_int &&
-                         {
-                             let fresh55 = cnt;
-                             cnt = cnt + 1;
-                             (fresh55) < 3 as libc::c_int
-                         }) {
-                    break ;
+        loop {
+            cnt = 0i32;
+            loop {
+                wkc = ecx_FPWR(
+                    (*context).port,
+                    configadr,
+                    ECT_REG_EEPDAT as uint16,
+                    ::core::mem::size_of::<uint16>() as uint16,
+                    &mut data as *mut uint16 as *mut libc::c_void,
+                    2000i32,
+                );
+                if !(wkc <= 0i32 && {
+                    let fresh55 = cnt;
+                    cnt = cnt + 1;
+                    (fresh55) < 3i32
+                }) {
+                    break;
                 }
             }
-            ed.comm = EC_ECMD_WRITE as libc::c_int as uint16;
+            ed.comm = EC_ECMD_WRITE as uint16;
             ed.addr = eeproma;
-            ed.d2 = 0 as libc::c_int as uint16;
-            cnt = 0 as libc::c_int;
-            loop  {
-                wkc =
-                    ecx_FPWR((*context).port, configadr,
-                             ECT_REG_EEPCTL as libc::c_int as uint16,
-                             ::core::mem::size_of::<ec_eepromt>() as
-                                 libc::c_ulong as uint16,
-                             &mut ed as *mut ec_eepromt as *mut libc::c_void,
-                             2000 as libc::c_int);
-                if !(wkc <= 0 as libc::c_int &&
-                         {
-                             let fresh56 = cnt;
-                             cnt = cnt + 1;
-                             (fresh56) < 3 as libc::c_int
-                         }) {
-                    break ;
+            ed.d2 = 0u16;
+            cnt = 0i32;
+            loop {
+                wkc = ecx_FPWR(
+                    (*context).port,
+                    configadr,
+                    ECT_REG_EEPCTL as uint16,
+                    ::core::mem::size_of::<ec_eepromt>() as uint16,
+                    &mut ed as *mut ec_eepromt as *mut libc::c_void,
+                    2000i32,
+                );
+                if !(wkc <= 0i32 && {
+                    let fresh56 = cnt;
+                    cnt = cnt + 1;
+                    (fresh56) < 3i32
+                }) {
+                    break;
                 }
             }
             if wkc != 0 {
-                osal_usleep((200 as libc::c_int * 2 as libc::c_int) as
-                                uint32);
-                estat = 0 as libc::c_int as uint16;
-                if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat,
-                                            timeout) != 0 {
-                    if estat as libc::c_int & 0x2000 as libc::c_int != 0 {
+                osal_usleep((200i32 * 2i32) as uint32);
+                estat = 0u16;
+                if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, timeout) != 0 {
+                    if estat as libc::c_int & 0x2000i32 != 0 {
                         nackcnt += 1;
-                        osal_usleep((200 as libc::c_int * 5 as libc::c_int) as
-                                        uint32);
+                        osal_usleep((200i32 * 5i32) as uint32);
                     } else {
-                        nackcnt = 0 as libc::c_int;
-                        rval = 1 as libc::c_int
+                        nackcnt = 0i32;
+                        rval = 1i32
                     }
                 }
             }
-            if !(nackcnt > 0 as libc::c_int && nackcnt < 3 as libc::c_int) {
-                break ;
+            if !(nackcnt > 0i32 && nackcnt < 3i32) {
+                break;
             }
         }
     }
@@ -3008,48 +3056,53 @@ pub unsafe extern "C" fn ecx_writeeepromFP(mut context: *mut ecx_contextt,
  * @param[in] eeproma     = (WORD) Address in the EEPROM
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readeeprom1(mut context: *mut ecx_contextt,
-                                         mut slave: uint16,
-                                         mut eeproma: uint16) {
+pub unsafe extern "C" fn ecx_readeeprom1(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut eeproma: uint16,
+) {
     let mut configadr: uint16 = 0; /* set eeprom control to master */
     let mut estat: uint16 = 0;
-    let mut ed: ec_eepromt = ec_eepromt{comm: 0, addr: 0, d2: 0,};
+    let mut ed: ec_eepromt = ec_eepromt {
+        comm: 0,
+        addr: 0,
+        d2: 0,
+    };
     let mut wkc: libc::c_int = 0;
-    let mut cnt: libc::c_int = 0 as libc::c_int;
+    let mut cnt: libc::c_int = 0i32;
     ecx_eeprom2master(context, slave);
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
-    if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat,
-                                20000 as libc::c_int) != 0 {
-        if estat as libc::c_int & 0x7800 as libc::c_int != 0 {
+    if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, 20000i32) != 0 {
+        if estat as libc::c_int & 0x7800i32 != 0 {
             /* error bits are set */
-            estat =
-                EC_ECMD_NOP as libc::c_int as uint16; /* clear error bits */
-            wkc =
-                ecx_FPWR((*context).port, configadr,
-                         ECT_REG_EEPCTL as libc::c_int as uint16,
-                         ::core::mem::size_of::<uint16>() as libc::c_ulong as
-                             uint16,
-                         &mut estat as *mut uint16 as *mut libc::c_void,
-                         2000 as libc::c_int * 3 as libc::c_int)
+            estat = EC_ECMD_NOP as uint16; /* clear error bits */
+            wkc = ecx_FPWR(
+                (*context).port,
+                configadr,
+                ECT_REG_EEPCTL as uint16,
+                ::core::mem::size_of::<uint16>() as uint16,
+                &mut estat as *mut uint16 as *mut libc::c_void,
+                2000i32 * 3i32,
+            )
         }
-        ed.comm = EC_ECMD_READ as libc::c_int as uint16;
+        ed.comm = EC_ECMD_READ as uint16;
         ed.addr = eeproma;
-        ed.d2 = 0 as libc::c_int as uint16;
-        loop  {
-            wkc =
-                ecx_FPWR((*context).port, configadr,
-                         ECT_REG_EEPCTL as libc::c_int as uint16,
-                         ::core::mem::size_of::<ec_eepromt>() as libc::c_ulong
-                             as uint16,
-                         &mut ed as *mut ec_eepromt as *mut libc::c_void,
-                         2000 as libc::c_int);
-            if !(wkc <= 0 as libc::c_int &&
-                     {
-                         let fresh57 = cnt;
-                         cnt = cnt + 1;
-                         (fresh57) < 3 as libc::c_int
-                     }) {
-                break ;
+        ed.d2 = 0u16;
+        loop {
+            wkc = ecx_FPWR(
+                (*context).port,
+                configadr,
+                ECT_REG_EEPCTL as uint16,
+                ::core::mem::size_of::<ec_eepromt>() as uint16,
+                &mut ed as *mut ec_eepromt as *mut libc::c_void,
+                2000i32,
+            );
+            if !(wkc <= 0i32 && {
+                let fresh57 = cnt;
+                cnt = cnt + 1;
+                (fresh57) < 3i32
+            }) {
+                break;
             }
         }
     };
@@ -3062,34 +3115,35 @@ pub unsafe extern "C" fn ecx_readeeprom1(mut context: *mut ecx_contextt,
  * @return EEPROM data 32bit
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_readeeprom2(mut context: *mut ecx_contextt,
-                                         mut slave: uint16,
-                                         mut timeout: libc::c_int) -> uint32 {
+pub unsafe extern "C" fn ecx_readeeprom2(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut timeout: libc::c_int,
+) -> uint32 {
     let mut estat: uint16 = 0;
     let mut configadr: uint16 = 0;
     let mut edat: uint32 = 0;
     let mut wkc: libc::c_int = 0;
-    let mut cnt: libc::c_int = 0 as libc::c_int;
+    let mut cnt: libc::c_int = 0i32;
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
-    edat = 0 as libc::c_int as uint32;
-    estat = 0 as libc::c_int as uint16;
-    if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, timeout) != 0
-       {
-        loop  {
-            wkc =
-                ecx_FPRD((*context).port, configadr,
-                         ECT_REG_EEPDAT as libc::c_int as uint16,
-                         ::core::mem::size_of::<uint32>() as libc::c_ulong as
-                             uint16,
-                         &mut edat as *mut uint32 as *mut libc::c_void,
-                         2000 as libc::c_int);
-            if !(wkc <= 0 as libc::c_int &&
-                     {
-                         let fresh58 = cnt;
-                         cnt = cnt + 1;
-                         (fresh58) < 3 as libc::c_int
-                     }) {
-                break ;
+    edat = 0u32;
+    estat = 0u16;
+    if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, timeout) != 0 {
+        loop {
+            wkc = ecx_FPRD(
+                (*context).port,
+                configadr,
+                ECT_REG_EEPDAT as uint16,
+                ::core::mem::size_of::<uint32>() as uint16,
+                &mut edat as *mut uint32 as *mut libc::c_void,
+                2000i32,
+            );
+            if !(wkc <= 0i32 && {
+                let fresh58 = cnt;
+                cnt = cnt + 1;
+                (fresh58) < 3i32
+            }) {
+                break;
             }
         }
     }
@@ -3102,46 +3156,42 @@ pub unsafe extern "C" fn ecx_readeeprom2(mut context: *mut ecx_contextt,
  * @param[in] length      = Length of data segment in bytes.
  * @param[in] DCO         = Offset position of DC frame.
  */
-unsafe extern "C" fn ecx_pushindex(mut context: *mut ecx_contextt,
-                                   mut idx: uint8,
-                                   mut data: *mut libc::c_void,
-                                   mut length: uint16, mut DCO: uint16) {
-    if ((*(*context).idxstack).pushed as libc::c_int) < 16 as libc::c_int {
-        (*(*context).idxstack).idx[(*(*context).idxstack).pushed as usize] =
-            idx;
-        (*(*context).idxstack).data[(*(*context).idxstack).pushed as usize] =
-            data;
-        (*(*context).idxstack).length[(*(*context).idxstack).pushed as usize]
-            = length;
-        (*(*context).idxstack).dcoffset[(*(*context).idxstack).pushed as
-                                            usize] = DCO;
-        (*(*context).idxstack).pushed =
-            (*(*context).idxstack).pushed.wrapping_add(1)
+unsafe extern "C" fn ecx_pushindex(
+    mut context: *mut ecx_contextt,
+    mut idx: uint8,
+    mut data: *mut libc::c_void,
+    mut length: uint16,
+    mut DCO: uint16,
+) {
+    if ((*(*context).idxstack).pushed as libc::c_int) < 16i32 {
+        (*(*context).idxstack).idx[(*(*context).idxstack).pushed as usize] = idx;
+        (*(*context).idxstack).data[(*(*context).idxstack).pushed as usize] = data;
+        (*(*context).idxstack).length[(*(*context).idxstack).pushed as usize] = length;
+        (*(*context).idxstack).dcoffset[(*(*context).idxstack).pushed as usize] = DCO;
+        (*(*context).idxstack).pushed = (*(*context).idxstack).pushed.wrapping_add(1)
     };
 }
 /* * Pull index of segmented LRD/LWR/LRW combination.
  * @param[in]  context        = context struct
  * @return Stack location, -1 if stack is empty.
  */
-unsafe extern "C" fn ecx_pullindex(mut context: *mut ecx_contextt)
- -> libc::c_int {
-    let mut rval: libc::c_int = -(1 as libc::c_int);
-    if ((*(*context).idxstack).pulled as libc::c_int) <
-           (*(*context).idxstack).pushed as libc::c_int {
+unsafe extern "C" fn ecx_pullindex(mut context: *mut ecx_contextt) -> libc::c_int {
+    let mut rval: libc::c_int = -(1i32);
+    if ((*(*context).idxstack).pulled as libc::c_int) < (*(*context).idxstack).pushed as libc::c_int
+    {
         rval = (*(*context).idxstack).pulled as libc::c_int;
-        (*(*context).idxstack).pulled =
-            (*(*context).idxstack).pulled.wrapping_add(1)
+        (*(*context).idxstack).pulled = (*(*context).idxstack).pulled.wrapping_add(1)
     }
     return rval;
 }
-/* * 
+/* *
  * Clear the idx stack.
- * 
+ *
  * @param context           = context struct
  */
 unsafe extern "C" fn ecx_clearindex(mut context: *mut ecx_contextt) {
-    (*(*context).idxstack).pushed = 0 as libc::c_int as uint8;
-    (*(*context).idxstack).pulled = 0 as libc::c_int as uint8;
+    (*(*context).idxstack).pushed = 0u8;
+    (*(*context).idxstack).pulled = 0u8;
 }
 /* * Transmit processdata to slaves.
  * Uses LRW, or LRD/LWR if LRW is not allowed (blockLRW).
@@ -3156,10 +3206,11 @@ unsafe extern "C" fn ecx_clearindex(mut context: *mut ecx_contextt) {
  * @param[in]  use_overlap_io = flag if overlapped iomap is used
  * @return >0 if processdata is transmitted.
  */
-unsafe extern "C" fn ecx_main_send_processdata(mut context: *mut ecx_contextt,
-                                               mut group: uint8,
-                                               mut use_overlap_io: boolean)
- -> libc::c_int {
+unsafe extern "C" fn ecx_main_send_processdata(
+    mut context: *mut ecx_contextt,
+    mut group: uint8,
+    mut use_overlap_io: boolean,
+) -> libc::c_int {
     let mut LogAdr: uint32 = 0;
     let mut w1: uint16 = 0;
     let mut w2: uint16 = 0;
@@ -3168,229 +3219,180 @@ unsafe extern "C" fn ecx_main_send_processdata(mut context: *mut ecx_contextt,
     let mut idx: uint8 = 0;
     let mut wkc: libc::c_int = 0;
     let mut data: *mut uint8 = 0 as *mut uint8;
-    let mut first: boolean = 0 as libc::c_int as boolean;
-    let mut currentsegment: uint16 = 0 as libc::c_int as uint16;
+    let mut first: boolean = 0u8;
+    let mut currentsegment: uint16 = 0u16;
     let mut iomapinputoffset: uint32 = 0;
     let mut DCO: uint16 = 0;
-    wkc = 0 as libc::c_int;
+    wkc = 0i32;
     if (*(*context).grouplist.offset(group as isize)).hasdc != 0 {
-        first = 1 as libc::c_int as boolean
+        first = 1u8
     }
     /* For overlapping IO map use the biggest */
-    if use_overlap_io as libc::c_int == 1 as libc::c_int {
+    if use_overlap_io as libc::c_int == 1i32 {
         /* For overlap IOmap make the frame EQ big to biggest part */
-        length =
-            if (*(*context).grouplist.offset(group as isize)).Obytes >
-                   (*(*context).grouplist.offset(group as isize)).Ibytes {
-                (*(*context).grouplist.offset(group as isize)).Obytes
-            } else { (*(*context).grouplist.offset(group as isize)).Ibytes }
-                as libc::c_int;
-        /* Save the offset used to compensate where to save inputs when frame returns */
-        iomapinputoffset =
+        length = if (*(*context).grouplist.offset(group as isize)).Obytes
+            > (*(*context).grouplist.offset(group as isize)).Ibytes
+        {
             (*(*context).grouplist.offset(group as isize)).Obytes
+        } else {
+            (*(*context).grouplist.offset(group as isize)).Ibytes
+        } as libc::c_int;
+        /* Save the offset used to compensate where to save inputs when frame returns */
+        iomapinputoffset = (*(*context).grouplist.offset(group as isize)).Obytes
     } else {
-        length =
-            (*(*context).grouplist.offset(group as
-                                              isize)).Obytes.wrapping_add((*(*context).grouplist.offset(group
-                                                                                                            as
-                                                                                                            isize)).Ibytes)
-                as libc::c_int;
-        iomapinputoffset = 0 as libc::c_int as uint32
+        length = (*(*context).grouplist.offset(group as isize))
+            .Obytes
+            .wrapping_add((*(*context).grouplist.offset(group as isize)).Ibytes)
+            as libc::c_int;
+        iomapinputoffset = 0u32
     }
     LogAdr = (*(*context).grouplist.offset(group as isize)).logstartaddr;
     if length != 0 {
-        wkc = 1 as libc::c_int;
+        wkc = 1i32;
         /* LRW blocked by one or more slaves ? */
         if (*(*context).grouplist.offset(group as isize)).blockLRW != 0 {
             /* if inputs available generate LRD */
             if (*(*context).grouplist.offset(group as isize)).Ibytes != 0 {
-                currentsegment =
-                    (*(*context).grouplist.offset(group as isize)).Isegment;
+                currentsegment = (*(*context).grouplist.offset(group as isize)).Isegment;
                 data = (*(*context).grouplist.offset(group as isize)).inputs;
-                length =
-                    (*(*context).grouplist.offset(group as isize)).Ibytes as
-                        libc::c_int;
+                length = (*(*context).grouplist.offset(group as isize)).Ibytes as libc::c_int;
                 LogAdr =
-                    (LogAdr as
-                         libc::c_uint).wrapping_add((*(*context).grouplist.offset(group
-                                                                                      as
-                                                                                      isize)).Obytes)
-                        as uint32 as uint32;
-                loop 
-                     /* segment transfer if needed */
-                     {
-                    if currentsegment as libc::c_int ==
-                           (*(*context).grouplist.offset(group as
-                                                             isize)).Isegment
-                               as libc::c_int {
+                    (LogAdr).wrapping_add((*(*context).grouplist.offset(group as isize)).Obytes);
+                loop
+                /* segment transfer if needed */
+                {
+                    if currentsegment as libc::c_int
+                        == (*(*context).grouplist.offset(group as isize)).Isegment as libc::c_int
+                    {
                         let fresh59 = currentsegment;
                         currentsegment = currentsegment.wrapping_add(1);
-                        sublength =
-                            (*(*context).grouplist.offset(group as
-                                                              isize)).IOsegment[fresh59
-                                                                                    as
-                                                                                    usize].wrapping_sub((*(*context).grouplist.offset(group
-                                                                                                                                          as
-                                                                                                                                          isize)).Ioffset
-                                                                                                            as
-                                                                                                            libc::c_uint)
-                                as uint16
+                        sublength = (*(*context).grouplist.offset(group as isize)).IOsegment
+                            [fresh59 as usize]
+                            .wrapping_sub(
+                                (*(*context).grouplist.offset(group as isize)).Ioffset
+                                    as libc::c_uint,
+                            ) as uint16
                     } else {
                         let fresh60 = currentsegment;
                         currentsegment = currentsegment.wrapping_add(1);
-                        sublength =
-                            (*(*context).grouplist.offset(group as
-                                                              isize)).IOsegment[fresh60
-                                                                                    as
-                                                                                    usize]
-                                as uint16
+                        sublength = (*(*context).grouplist.offset(group as isize)).IOsegment
+                            [fresh60 as usize] as uint16
                     }
                     /* get new index */
                     idx = ecx_getindex((*context).port);
-                    w1 =
-                        (LogAdr & 0xffff as libc::c_int as libc::c_uint) as
-                            uint16;
-                    w2 = (LogAdr >> 16 as libc::c_int) as uint16;
-                    DCO = 0 as libc::c_int as uint16;
-                    ecx_setupdatagram((*context).port,
-                                      &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx
-                                                                                             as
-                                                                                             isize)
-                                          as *mut ec_bufT as
-                                          *mut libc::c_void,
-                                      EC_CMD_LRD as libc::c_int as uint8, idx,
-                                      w1, w2, sublength,
-                                      data as *mut libc::c_void);
+                    w1 = (LogAdr & 0xffffu32) as uint16;
+                    w2 = (LogAdr >> 16i32) as uint16;
+                    DCO = 0u16;
+                    ecx_setupdatagram(
+                        (*context).port,
+                        &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize)
+                            as *mut ec_bufT as *mut libc::c_void,
+                        EC_CMD_LRD as uint8,
+                        idx,
+                        w1,
+                        w2,
+                        sublength,
+                        data as *mut libc::c_void,
+                    );
                     if first != 0 {
                         /* FPRMW in second datagram */
-                        DCO =
-                            ecx_adddatagram((*context).port,
-                                            &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx
-                                                                                                   as
-                                                                                                   isize)
-                                                as *mut ec_bufT as
-                                                *mut libc::c_void,
-                                            EC_CMD_FRMW as libc::c_int as
-                                                uint8, idx,
-                                            0 as libc::c_int as boolean,
-                                            (*(*context).slavelist.offset((*(*context).grouplist.offset(group
-                                                                                                            as
-                                                                                                            isize)).DCnext
-                                                                              as
-                                                                              isize)).configadr,
-                                            ECT_REG_DCSYSTIME as libc::c_int
-                                                as uint16,
-                                            ::core::mem::size_of::<int64>() as
-                                                libc::c_ulong as uint16,
-                                            (*context).DCtime as
-                                                *mut libc::c_void);
-                        first = 0 as libc::c_int as boolean
+                        DCO = ecx_adddatagram(
+                            (*context).port,
+                            &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize)
+                                as *mut ec_bufT as *mut libc::c_void,
+                            EC_CMD_FRMW as uint8,
+                            idx,
+                            0u8,
+                            (*(*context).slavelist.offset(
+                                (*(*context).grouplist.offset(group as isize)).DCnext as isize,
+                            ))
+                            .configadr,
+                            ECT_REG_DCSYSTIME as uint16,
+                            ::core::mem::size_of::<int64>() as uint16,
+                            (*context).DCtime as *mut libc::c_void,
+                        );
+                        first = 0u8
                     }
                     /* send frame */
                     ecx_outframe_red((*context).port, idx);
                     /* push index and data pointer on stack */
-                    ecx_pushindex(context, idx, data as *mut libc::c_void,
-                                  sublength, DCO);
+                    ecx_pushindex(context, idx, data as *mut libc::c_void, sublength, DCO);
                     length -= sublength as libc::c_int;
-                    LogAdr =
-                        (LogAdr as
-                             libc::c_uint).wrapping_add(sublength as
-                                                            libc::c_uint) as
-                            uint32 as uint32;
+                    LogAdr = (LogAdr).wrapping_add(sublength as libc::c_uint);
                     data = data.offset(sublength as libc::c_int as isize);
-                    if !(length != 0 &&
-                             (currentsegment as libc::c_int) <
-                                 (*(*context).grouplist.offset(group as
-                                                                   isize)).nsegments
-                                     as libc::c_int) {
-                        break ;
+                    if !(length != 0
+                        && (currentsegment as libc::c_int)
+                            < (*(*context).grouplist.offset(group as isize)).nsegments
+                                as libc::c_int)
+                    {
+                        break;
                     }
                 }
             }
             /* if outputs available generate LWR */
             if (*(*context).grouplist.offset(group as isize)).Obytes != 0 {
                 data = (*(*context).grouplist.offset(group as isize)).outputs;
-                length =
-                    (*(*context).grouplist.offset(group as isize)).Obytes as
-                        libc::c_int;
-                LogAdr =
-                    (*(*context).grouplist.offset(group as
-                                                      isize)).logstartaddr;
-                currentsegment = 0 as libc::c_int as uint16;
-                loop 
-                     /* segment transfer if needed */
-                     {
+                length = (*(*context).grouplist.offset(group as isize)).Obytes as libc::c_int;
+                LogAdr = (*(*context).grouplist.offset(group as isize)).logstartaddr;
+                currentsegment = 0u16;
+                loop
+                /* segment transfer if needed */
+                {
                     let fresh61 = currentsegment;
                     currentsegment = currentsegment.wrapping_add(1);
-                    sublength =
-                        (*(*context).grouplist.offset(group as
-                                                          isize)).IOsegment[fresh61
-                                                                                as
-                                                                                usize]
-                            as uint16;
-                    if (length - sublength as libc::c_int) < 0 as libc::c_int
-                       {
+                    sublength = (*(*context).grouplist.offset(group as isize)).IOsegment
+                        [fresh61 as usize] as uint16;
+                    if (length - sublength as libc::c_int) < 0i32 {
                         sublength = length as uint16
                     }
                     /* get new index */
                     idx = ecx_getindex((*context).port);
-                    w1 =
-                        (LogAdr & 0xffff as libc::c_int as libc::c_uint) as
-                            uint16;
-                    w2 = (LogAdr >> 16 as libc::c_int) as uint16;
-                    DCO = 0 as libc::c_int as uint16;
-                    ecx_setupdatagram((*context).port,
-                                      &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx
-                                                                                             as
-                                                                                             isize)
-                                          as *mut ec_bufT as
-                                          *mut libc::c_void,
-                                      EC_CMD_LWR as libc::c_int as uint8, idx,
-                                      w1, w2, sublength,
-                                      data as *mut libc::c_void);
+                    w1 = (LogAdr & 0xffffu32) as uint16;
+                    w2 = (LogAdr >> 16i32) as uint16;
+                    DCO = 0u16;
+                    ecx_setupdatagram(
+                        (*context).port,
+                        &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize)
+                            as *mut ec_bufT as *mut libc::c_void,
+                        EC_CMD_LWR as uint8,
+                        idx,
+                        w1,
+                        w2,
+                        sublength,
+                        data as *mut libc::c_void,
+                    );
                     if first != 0 {
                         /* FPRMW in second datagram */
-                        DCO =
-                            ecx_adddatagram((*context).port,
-                                            &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx
-                                                                                                   as
-                                                                                                   isize)
-                                                as *mut ec_bufT as
-                                                *mut libc::c_void,
-                                            EC_CMD_FRMW as libc::c_int as
-                                                uint8, idx,
-                                            0 as libc::c_int as boolean,
-                                            (*(*context).slavelist.offset((*(*context).grouplist.offset(group
-                                                                                                            as
-                                                                                                            isize)).DCnext
-                                                                              as
-                                                                              isize)).configadr,
-                                            ECT_REG_DCSYSTIME as libc::c_int
-                                                as uint16,
-                                            ::core::mem::size_of::<int64>() as
-                                                libc::c_ulong as uint16,
-                                            (*context).DCtime as
-                                                *mut libc::c_void);
-                        first = 0 as libc::c_int as boolean
+                        DCO = ecx_adddatagram(
+                            (*context).port,
+                            &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize)
+                                as *mut ec_bufT as *mut libc::c_void,
+                            EC_CMD_FRMW as uint8,
+                            idx,
+                            0u8,
+                            (*(*context).slavelist.offset(
+                                (*(*context).grouplist.offset(group as isize)).DCnext as isize,
+                            ))
+                            .configadr,
+                            ECT_REG_DCSYSTIME as uint16,
+                            ::core::mem::size_of::<int64>() as uint16,
+                            (*context).DCtime as *mut libc::c_void,
+                        );
+                        first = 0u8
                     }
                     /* send frame */
                     ecx_outframe_red((*context).port, idx);
                     /* push index and data pointer on stack */
-                    ecx_pushindex(context, idx, data as *mut libc::c_void,
-                                  sublength, DCO);
+                    ecx_pushindex(context, idx, data as *mut libc::c_void, sublength, DCO);
                     length -= sublength as libc::c_int;
-                    LogAdr =
-                        (LogAdr as
-                             libc::c_uint).wrapping_add(sublength as
-                                                            libc::c_uint) as
-                            uint32 as uint32;
+                    LogAdr = (LogAdr).wrapping_add(sublength as libc::c_uint);
                     data = data.offset(sublength as libc::c_int as isize);
-                    if !(length != 0 &&
-                             (currentsegment as libc::c_int) <
-                                 (*(*context).grouplist.offset(group as
-                                                                   isize)).nsegments
-                                     as libc::c_int) {
-                        break ;
+                    if !(length != 0
+                        && (currentsegment as libc::c_int)
+                            < (*(*context).grouplist.offset(group as isize)).nsegments
+                                as libc::c_int)
+                    {
+                        break;
                     }
                 }
             }
@@ -3401,79 +3403,72 @@ unsafe extern "C" fn ecx_main_send_processdata(mut context: *mut ecx_contextt,
             } else {
                 data = (*(*context).grouplist.offset(group as isize)).inputs;
                 /* Clear offset, don't compensate for overlapping IOmap if we only got inputs */
-                iomapinputoffset = 0 as libc::c_int as uint32
+                iomapinputoffset = 0u32
             }
-            loop 
-                 /* segment transfer if needed */
-                 {
+            loop
+            /* segment transfer if needed */
+            {
                 let fresh62 = currentsegment;
                 currentsegment = currentsegment.wrapping_add(1);
-                sublength =
-                    (*(*context).grouplist.offset(group as
-                                                      isize)).IOsegment[fresh62
-                                                                            as
-                                                                            usize]
-                        as uint16;
+                sublength = (*(*context).grouplist.offset(group as isize)).IOsegment
+                    [fresh62 as usize] as uint16;
                 /* get new index */
                 idx = ecx_getindex((*context).port);
-                w1 =
-                    (LogAdr & 0xffff as libc::c_int as libc::c_uint) as
-                        uint16;
-                w2 = (LogAdr >> 16 as libc::c_int) as uint16;
-                DCO = 0 as libc::c_int as uint16;
-                ecx_setupdatagram((*context).port,
-                                  &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx
-                                                                                         as
-                                                                                         isize)
-                                      as *mut ec_bufT as *mut libc::c_void,
-                                  EC_CMD_LRW as libc::c_int as uint8, idx, w1,
-                                  w2, sublength, data as *mut libc::c_void);
+                w1 = (LogAdr & 0xffffu32) as uint16;
+                w2 = (LogAdr >> 16i32) as uint16;
+                DCO = 0u16;
+                ecx_setupdatagram(
+                    (*context).port,
+                    &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
+                        as *mut libc::c_void,
+                    EC_CMD_LRW as uint8,
+                    idx,
+                    w1,
+                    w2,
+                    sublength,
+                    data as *mut libc::c_void,
+                );
                 if first != 0 {
                     /* FPRMW in second datagram */
-                    DCO =
-                        ecx_adddatagram((*context).port,
-                                        &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx
-                                                                                               as
-                                                                                               isize)
-                                            as *mut ec_bufT as
-                                            *mut libc::c_void,
-                                        EC_CMD_FRMW as libc::c_int as uint8,
-                                        idx, 0 as libc::c_int as boolean,
-                                        (*(*context).slavelist.offset((*(*context).grouplist.offset(group
-                                                                                                        as
-                                                                                                        isize)).DCnext
-                                                                          as
-                                                                          isize)).configadr,
-                                        ECT_REG_DCSYSTIME as libc::c_int as
-                                            uint16,
-                                        ::core::mem::size_of::<int64>() as
-                                            libc::c_ulong as uint16,
-                                        (*context).DCtime as
-                                            *mut libc::c_void);
-                    first = 0 as libc::c_int as boolean
+                    DCO = ecx_adddatagram(
+                        (*context).port,
+                        &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize)
+                            as *mut ec_bufT as *mut libc::c_void,
+                        EC_CMD_FRMW as uint8,
+                        idx,
+                        0u8,
+                        (*(*context).slavelist.offset(
+                            (*(*context).grouplist.offset(group as isize)).DCnext as isize,
+                        ))
+                        .configadr,
+                        ECT_REG_DCSYSTIME as uint16,
+                        ::core::mem::size_of::<int64>() as uint16,
+                        (*context).DCtime as *mut libc::c_void,
+                    );
+                    first = 0u8
                 }
                 /* send frame */
                 ecx_outframe_red((*context).port, idx);
                 /* push index and data pointer on stack.
-             * the iomapinputoffset compensate for where the inputs are stored 
-             * in the IOmap if we use an overlapping IOmap. If a regular IOmap
-             * is used it should always be 0.
-             */
-                ecx_pushindex(context, idx,
-                              data.offset(iomapinputoffset as isize) as
-                                  *mut libc::c_void, sublength, DCO);
+                 * the iomapinputoffset compensate for where the inputs are stored
+                 * in the IOmap if we use an overlapping IOmap. If a regular IOmap
+                 * is used it should always be 0.
+                 */
+                ecx_pushindex(
+                    context,
+                    idx,
+                    data.offset(iomapinputoffset as isize) as *mut libc::c_void,
+                    sublength,
+                    DCO,
+                );
                 length -= sublength as libc::c_int;
-                LogAdr =
-                    (LogAdr as
-                         libc::c_uint).wrapping_add(sublength as libc::c_uint)
-                        as uint32 as uint32;
+                LogAdr = (LogAdr).wrapping_add(sublength as libc::c_uint);
                 data = data.offset(sublength as libc::c_int as isize);
-                if !(length != 0 &&
-                         (currentsegment as libc::c_int) <
-                             (*(*context).grouplist.offset(group as
-                                                               isize)).nsegments
-                                 as libc::c_int) {
-                    break ;
+                if !(length != 0
+                    && (currentsegment as libc::c_int)
+                        < (*(*context).grouplist.offset(group as isize)).nsegments as libc::c_int)
+                {
+                    break;
                 }
             }
         }
@@ -3493,12 +3488,11 @@ unsafe extern "C" fn ecx_main_send_processdata(mut context: *mut ecx_contextt,
 * @return >0 if processdata is transmitted.
 */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_send_overlap_processdata_group(mut context:
-                                                                *mut ecx_contextt,
-                                                            mut group: uint8)
- -> libc::c_int {
-    return ecx_main_send_processdata(context, group,
-                                     1 as libc::c_int as boolean);
+pub unsafe extern "C" fn ecx_send_overlap_processdata_group(
+    mut context: *mut ecx_contextt,
+    mut group: uint8,
+) -> libc::c_int {
+    return ecx_main_send_processdata(context, group, 1u8);
 }
 /* * Transmit processdata to slaves.
 * Uses LRW, or LRD/LWR if LRW is not allowed (blockLRW).
@@ -3513,12 +3507,11 @@ pub unsafe extern "C" fn ecx_send_overlap_processdata_group(mut context:
 * @return >0 if processdata is transmitted.
 */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_send_processdata_group(mut context:
-                                                        *mut ecx_contextt,
-                                                    mut group: uint8)
- -> libc::c_int {
-    return ecx_main_send_processdata(context, group,
-                                     0 as libc::c_int as boolean);
+pub unsafe extern "C" fn ecx_send_processdata_group(
+    mut context: *mut ecx_contextt,
+    mut group: uint8,
+) -> libc::c_int {
+    return ecx_main_send_processdata(context, group, 0u8);
 }
 /* * Receive processdata from slaves.
  * Second part from ec_send_processdata().
@@ -3530,18 +3523,17 @@ pub unsafe extern "C" fn ecx_send_processdata_group(mut context:
  * @return Work counter.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_receive_processdata_group(mut context:
-                                                           *mut ecx_contextt,
-                                                       mut group: uint8,
-                                                       mut timeout:
-                                                           libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_receive_processdata_group(
+    mut context: *mut ecx_contextt,
+    mut group: uint8,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     let mut idx: uint8 = 0;
     let mut pos: libc::c_int = 0;
-    let mut wkc: libc::c_int = 0 as libc::c_int;
+    let mut wkc: libc::c_int = 0i32;
     let mut wkc2: libc::c_int = 0;
-    let mut le_wkc: uint16 = 0 as libc::c_int as uint16;
-    let mut valid_wkc: libc::c_int = 0 as libc::c_int;
+    let mut le_wkc: uint16 = 0u16;
+    let mut valid_wkc: libc::c_int = 0i32;
     let mut le_DCtime: int64 = 0;
     let mut idxstack: *mut ec_idxstackT = 0 as *mut ec_idxstackT;
     let mut rxbuf: *mut ec_bufT = 0 as *mut ec_bufT;
@@ -3552,43 +3544,34 @@ pub unsafe extern "C" fn ecx_receive_processdata_group(mut context:
     /* get first index */
     pos = ecx_pullindex(context);
     /* read the same number of frames as send */
-    while pos >= 0 as libc::c_int {
+    while pos >= 0i32 {
         idx = (*idxstack).idx[pos as usize];
         wkc2 = ecx_waitinframe((*context).port, idx, timeout);
         /* check if there is input data in frame */
-        if wkc2 > -(1 as libc::c_int) {
-            if (*rxbuf.offset(idx as
-                                  isize))[::core::mem::size_of::<uint16>() as
-                                              libc::c_ulong as usize] as
-                   libc::c_int == EC_CMD_LRD as libc::c_int ||
-                   (*rxbuf.offset(idx as
-                                      isize))[::core::mem::size_of::<uint16>()
-                                                  as libc::c_ulong as usize]
-                       as libc::c_int == EC_CMD_LRW as libc::c_int {
-                if (*idxstack).dcoffset[pos as usize] as libc::c_int >
-                       0 as libc::c_int {
-                    memcpy((*idxstack).data[pos as usize],
-                           &mut *(*rxbuf.offset(idx as
-                                                    isize)).as_mut_ptr().offset(::core::mem::size_of::<ec_comt>()
-                                                                                    as
-                                                                                    libc::c_ulong
-                                                                                    as
-                                                                                    isize)
-                               as *mut uint8 as *const libc::c_void,
-                           (*idxstack).length[pos as usize] as libc::c_ulong);
-                    memcpy(&mut le_wkc as *mut uint16 as *mut libc::c_void,
-                           &mut *(*rxbuf.offset(idx as
-                                                    isize)).as_mut_ptr().offset((::core::mem::size_of::<ec_comt>()
-                                                                                     as
-                                                                                     libc::c_ulong).wrapping_add(*(*idxstack).length.as_mut_ptr().offset(pos
-                                                                                                                                                             as
-                                                                                                                                                             isize)
-                                                                                                                     as
-                                                                                                                     libc::c_ulong)
-                                                                                    as
-                                                                                    isize)
-                               as *mut uint8 as *const libc::c_void,
-                           ::core::mem::size_of::<uint16>() as libc::c_ulong);
+        if wkc2 > -(1i32) {
+            if (*rxbuf.offset(idx as isize))[::core::mem::size_of::<uint16>()] as libc::c_int
+                == EC_CMD_LRD as libc::c_int
+                || (*rxbuf.offset(idx as isize))[::core::mem::size_of::<uint16>()] as libc::c_int
+                    == EC_CMD_LRW as libc::c_int
+            {
+                if (*idxstack).dcoffset[pos as usize] as libc::c_int > 0i32 {
+                    memcpy(
+                        (*idxstack).data[pos as usize],
+                        &mut *(*rxbuf.offset(idx as isize))
+                            .as_mut_ptr()
+                            .offset(::core::mem::size_of::<ec_comt>() as isize)
+                            as *mut uint8 as *const libc::c_void,
+                        (*idxstack).length[pos as usize] as libc::c_ulong,
+                    );
+                    memcpy(
+                        &mut le_wkc as *mut uint16 as *mut libc::c_void,
+                        &mut *(*rxbuf.offset(idx as isize)).as_mut_ptr().offset(
+                            (::core::mem::size_of::<ec_comt>() as libc::c_ulong)
+                                .wrapping_add(*(*idxstack).length.as_mut_ptr().offset(pos as isize)
+                                    as libc::c_ulong) as isize,
+                        ) as *mut uint8 as *const libc::c_void,
+                        ::core::mem::size_of::<uint16>() as libc::c_ulong,
+                    );
                     wkc = le_wkc as libc::c_int;
                     memcpy(&mut le_DCtime as *mut int64 as *mut libc::c_void,
                            &mut *(*rxbuf.offset(idx as
@@ -3602,40 +3585,32 @@ pub unsafe extern "C" fn ecx_receive_processdata_group(mut context:
                     *(*context).DCtime = le_DCtime
                 } else {
                     /* copy input data back to process data buffer */
-                    memcpy((*idxstack).data[pos as usize],
-                           &mut *(*rxbuf.offset(idx as
-                                                    isize)).as_mut_ptr().offset(::core::mem::size_of::<ec_comt>()
-                                                                                    as
-                                                                                    libc::c_ulong
-                                                                                    as
-                                                                                    isize)
-                               as *mut uint8 as *const libc::c_void,
-                           (*idxstack).length[pos as usize] as libc::c_ulong);
+                    memcpy(
+                        (*idxstack).data[pos as usize],
+                        &mut *(*rxbuf.offset(idx as isize))
+                            .as_mut_ptr()
+                            .offset(::core::mem::size_of::<ec_comt>() as isize)
+                            as *mut uint8 as *const libc::c_void,
+                        (*idxstack).length[pos as usize] as libc::c_ulong,
+                    );
                     wkc += wkc2
                 }
-                valid_wkc = 1 as libc::c_int
-            } else if (*rxbuf.offset(idx as
-                                         isize))[::core::mem::size_of::<uint16>()
-                                                     as libc::c_ulong as
-                                                     usize] as libc::c_int ==
-                          EC_CMD_LWR as libc::c_int {
-                if (*idxstack).dcoffset[pos as usize] as libc::c_int >
-                       0 as libc::c_int {
-                    memcpy(&mut le_wkc as *mut uint16 as *mut libc::c_void,
-                           &mut *(*rxbuf.offset(idx as
-                                                    isize)).as_mut_ptr().offset((::core::mem::size_of::<ec_comt>()
-                                                                                     as
-                                                                                     libc::c_ulong).wrapping_add(*(*idxstack).length.as_mut_ptr().offset(pos
-                                                                                                                                                             as
-                                                                                                                                                             isize)
-                                                                                                                     as
-                                                                                                                     libc::c_ulong)
-                                                                                    as
-                                                                                    isize)
-                               as *mut uint8 as *const libc::c_void,
-                           ::core::mem::size_of::<uint16>() as libc::c_ulong);
+                valid_wkc = 1i32
+            } else if (*rxbuf.offset(idx as isize))[::core::mem::size_of::<uint16>()] as libc::c_int
+                == EC_CMD_LWR as libc::c_int
+            {
+                if (*idxstack).dcoffset[pos as usize] as libc::c_int > 0i32 {
+                    memcpy(
+                        &mut le_wkc as *mut uint16 as *mut libc::c_void,
+                        &mut *(*rxbuf.offset(idx as isize)).as_mut_ptr().offset(
+                            (::core::mem::size_of::<ec_comt>() as libc::c_ulong)
+                                .wrapping_add(*(*idxstack).length.as_mut_ptr().offset(pos as isize)
+                                    as libc::c_ulong) as isize,
+                        ) as *mut uint8 as *const libc::c_void,
+                        ::core::mem::size_of::<uint16>() as libc::c_ulong,
+                    );
                     /* output WKC counts 2 times when using LRW, emulate the same for LWR */
-                    wkc = le_wkc as libc::c_int * 2 as libc::c_int;
+                    wkc = le_wkc as libc::c_int * 2i32;
                     memcpy(&mut le_DCtime as *mut int64 as *mut libc::c_void,
                            &mut *(*rxbuf.offset(idx as
                                                     isize)).as_mut_ptr().offset(*(*idxstack).dcoffset.as_mut_ptr().offset(pos
@@ -3648,9 +3623,9 @@ pub unsafe extern "C" fn ecx_receive_processdata_group(mut context:
                     *(*context).DCtime = le_DCtime
                 } else {
                     /* output WKC counts 2 times when using LRW, emulate the same for LWR */
-                    wkc += wkc2 * 2 as libc::c_int
+                    wkc += wkc2 * 2i32
                 }
-                valid_wkc = 1 as libc::c_int
+                valid_wkc = 1i32
             }
         }
         /* release buffer */
@@ -3660,28 +3635,27 @@ pub unsafe extern "C" fn ecx_receive_processdata_group(mut context:
     }
     ecx_clearindex(context);
     /* if no frames has arrived */
-    if valid_wkc == 0 as libc::c_int { return -(1 as libc::c_int) }
+    if valid_wkc == 0i32 {
+        return -(1i32);
+    }
     return wkc;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ecx_send_processdata(mut context: *mut ecx_contextt)
- -> libc::c_int {
-    return ecx_send_processdata_group(context, 0 as libc::c_int as uint8);
+pub unsafe extern "C" fn ecx_send_processdata(mut context: *mut ecx_contextt) -> libc::c_int {
+    return ecx_send_processdata_group(context, 0u8);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ecx_send_overlap_processdata(mut context:
-                                                          *mut ecx_contextt)
- -> libc::c_int {
-    return ecx_send_overlap_processdata_group(context,
-                                              0 as libc::c_int as uint8);
+pub unsafe extern "C" fn ecx_send_overlap_processdata(
+    mut context: *mut ecx_contextt,
+) -> libc::c_int {
+    return ecx_send_overlap_processdata_group(context, 0u8);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ecx_receive_processdata(mut context:
-                                                     *mut ecx_contextt,
-                                                 mut timeout: libc::c_int)
- -> libc::c_int {
-    return ecx_receive_processdata_group(context, 0 as libc::c_int as uint8,
-                                         timeout);
+pub unsafe extern "C" fn ecx_receive_processdata(
+    mut context: *mut ecx_contextt,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
+    return ecx_receive_processdata_group(context, 0u8, timeout);
 }
 #[no_mangle]
 pub unsafe extern "C" fn ec_pusherror(mut Ec: *const ec_errort) {
@@ -3696,9 +3670,12 @@ pub unsafe extern "C" fn ec_iserror() -> boolean {
     return ecx_iserror(&mut ecx_context);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_packeterror(mut Slave: uint16, mut Index: uint16,
-                                        mut SubIdx: uint8,
-                                        mut ErrorCode: uint16) {
+pub unsafe extern "C" fn ec_packeterror(
+    mut Slave: uint16,
+    mut Index: uint16,
+    mut SubIdx: uint8,
+    mut ErrorCode: uint16,
+) {
     ecx_packeterror(&mut ecx_context, Slave, Index, SubIdx, ErrorCode);
 }
 /* * Initialise lib in single NIC mode
@@ -3707,8 +3684,7 @@ pub unsafe extern "C" fn ec_packeterror(mut Slave: uint16, mut Index: uint16,
  * @see ecx_init
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_init(mut ifname: *const libc::c_char)
- -> libc::c_int {
+pub unsafe extern "C" fn ec_init(mut ifname: *const libc::c_char) -> libc::c_int {
     return ecx_init(&mut ecx_context, ifname);
 }
 /* * Initialise lib in redundant NIC mode
@@ -3718,17 +3694,19 @@ pub unsafe extern "C" fn ec_init(mut ifname: *const libc::c_char)
  * @see ecx_init_redundant
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_init_redundant(mut ifname: *const libc::c_char,
-                                           mut if2name: *mut libc::c_char)
- -> libc::c_int {
-    return ecx_init_redundant(&mut ecx_context, &mut ecx_redport, ifname,
-                              if2name);
+pub unsafe extern "C" fn ec_init_redundant(
+    mut ifname: *const libc::c_char,
+    mut if2name: *mut libc::c_char,
+) -> libc::c_int {
+    return ecx_init_redundant(&mut ecx_context, &mut ecx_redport, ifname, if2name);
 }
 /* * Close lib.
  * @see ecx_close
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_close() { ecx_close(&mut ecx_context); }
+pub unsafe extern "C" fn ec_close() {
+    ecx_close(&mut ecx_context);
+}
 /* * Read one byte from slave EEPROM via cache.
  *  If the cache location is empty then a read request is made to the slave.
  *  Depending on the slave capabillities the request is 4 or 8 bytes.
@@ -3738,8 +3716,7 @@ pub unsafe extern "C" fn ec_close() { ecx_close(&mut ecx_context); }
  * @see ecx_siigetbyte
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_siigetbyte(mut slave: uint16, mut address: uint16)
- -> uint8 {
+pub unsafe extern "C" fn ec_siigetbyte(mut slave: uint16, mut address: uint16) -> uint8 {
     return ecx_siigetbyte(&mut ecx_context, slave, address);
 }
 /* * Find SII section header in slave EEPROM.
@@ -3749,8 +3726,7 @@ pub unsafe extern "C" fn ec_siigetbyte(mut slave: uint16, mut address: uint16)
  *  @see ecx_siifind
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_siifind(mut slave: uint16, mut cat: uint16)
- -> int16 {
+pub unsafe extern "C" fn ec_siifind(mut slave: uint16, mut cat: uint16) -> int16 {
     return ecx_siifind(&mut ecx_context, slave, cat);
 }
 /* * Get string from SII string section in slave EEPROM.
@@ -3760,8 +3736,11 @@ pub unsafe extern "C" fn ec_siifind(mut slave: uint16, mut cat: uint16)
  *  @see ecx_siistring
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_siistring(mut str: *mut libc::c_char,
-                                      mut slave: uint16, mut Sn: uint16) {
+pub unsafe extern "C" fn ec_siistring(
+    mut str: *mut libc::c_char,
+    mut slave: uint16,
+    mut Sn: uint16,
+) {
     ecx_siistring(&mut ecx_context, str, slave, Sn);
 }
 /* * Get FMMU data from SII FMMU section in slave EEPROM.
@@ -3771,8 +3750,7 @@ pub unsafe extern "C" fn ec_siistring(mut str: *mut libc::c_char,
  *  @see ecx_siiFMMU
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_siiFMMU(mut slave: uint16,
-                                    mut FMMU: *mut ec_eepromFMMUt) -> uint16 {
+pub unsafe extern "C" fn ec_siiFMMU(mut slave: uint16, mut FMMU: *mut ec_eepromFMMUt) -> uint16 {
     return ecx_siiFMMU(&mut ecx_context, slave, FMMU);
 }
 /* * Get SM data from SII SM section in slave EEPROM.
@@ -3782,8 +3760,7 @@ pub unsafe extern "C" fn ec_siiFMMU(mut slave: uint16,
  *  @see ecx_siiSM
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_siiSM(mut slave: uint16,
-                                  mut SM: *mut ec_eepromSMt) -> uint16 {
+pub unsafe extern "C" fn ec_siiSM(mut slave: uint16, mut SM: *mut ec_eepromSMt) -> uint16 {
     return ecx_siiSM(&mut ecx_context, slave, SM);
 }
 /* * Get next SM data from SII SM section in slave EEPROM.
@@ -3794,9 +3771,11 @@ pub unsafe extern "C" fn ec_siiSM(mut slave: uint16,
  *  @see ecx_siiSMnext
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_siiSMnext(mut slave: uint16,
-                                      mut SM: *mut ec_eepromSMt,
-                                      mut n: uint16) -> uint16 {
+pub unsafe extern "C" fn ec_siiSMnext(
+    mut slave: uint16,
+    mut SM: *mut ec_eepromSMt,
+    mut n: uint16,
+) -> uint16 {
     return ecx_siiSMnext(&mut ecx_context, slave, SM, n);
 }
 /* * Get PDO data from SII PDO section in slave EEPROM.
@@ -3807,9 +3786,11 @@ pub unsafe extern "C" fn ec_siiSMnext(mut slave: uint16,
  *  @see ecx_siiPDO
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_siiPDO(mut slave: uint16,
-                                   mut PDO: *mut ec_eepromPDOt, mut t: uint8)
- -> uint32 {
+pub unsafe extern "C" fn ec_siiPDO(
+    mut slave: uint16,
+    mut PDO: *mut ec_eepromPDOt,
+    mut t: uint8,
+) -> uint32 {
     return ecx_siiPDO(&mut ecx_context, slave, PDO, t);
 }
 /* * Read all slave states in ec_slave.
@@ -3839,9 +3820,11 @@ pub unsafe extern "C" fn ec_writestate(mut slave: uint16) -> libc::c_int {
  * @see ecx_statecheck
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_statecheck(mut slave: uint16,
-                                       mut reqstate: uint16,
-                                       mut timeout: libc::c_int) -> uint16 {
+pub unsafe extern "C" fn ec_statecheck(
+    mut slave: uint16,
+    mut reqstate: uint16,
+    mut timeout: libc::c_int,
+) -> uint16 {
     return ecx_statecheck(&mut ecx_context, slave, reqstate, timeout);
 }
 /* * Check if IN mailbox of slave is empty.
@@ -3851,9 +3834,7 @@ pub unsafe extern "C" fn ec_statecheck(mut slave: uint16,
  * @see ecx_mbxempty
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_mbxempty(mut slave: uint16,
-                                     mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ec_mbxempty(mut slave: uint16, mut timeout: libc::c_int) -> libc::c_int {
     return ecx_mbxempty(&mut ecx_context, slave, timeout);
 }
 /* * Write IN mailbox to slave.
@@ -3864,9 +3845,11 @@ pub unsafe extern "C" fn ec_mbxempty(mut slave: uint16,
  * @see ecx_mbxsend
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_mbxsend(mut slave: uint16,
-                                    mut mbx: *mut ec_mbxbuft,
-                                    mut timeout: libc::c_int) -> libc::c_int {
+pub unsafe extern "C" fn ec_mbxsend(
+    mut slave: uint16,
+    mut mbx: *mut ec_mbxbuft,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     return ecx_mbxsend(&mut ecx_context, slave, mbx, timeout);
 }
 /* * Read OUT mailbox from slave.
@@ -3878,10 +3861,11 @@ pub unsafe extern "C" fn ec_mbxsend(mut slave: uint16,
  * @see ecx_mbxreceive
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_mbxreceive(mut slave: uint16,
-                                       mut mbx: *mut ec_mbxbuft,
-                                       mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ec_mbxreceive(
+    mut slave: uint16,
+    mut mbx: *mut ec_mbxbuft,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     return ecx_mbxreceive(&mut ecx_context, slave, mbx, timeout);
 }
 /* * Dump complete EEPROM data from slave in buffer.
@@ -3890,8 +3874,7 @@ pub unsafe extern "C" fn ec_mbxreceive(mut slave: uint16,
  * @see ecx_esidump
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_esidump(mut slave: uint16,
-                                    mut esibuf: *mut uint8) {
+pub unsafe extern "C" fn ec_esidump(mut slave: uint16, mut esibuf: *mut uint8) {
     ecx_esidump(&mut ecx_context, slave, esibuf);
 }
 /* * Read EEPROM from slave bypassing cache.
@@ -3902,8 +3885,11 @@ pub unsafe extern "C" fn ec_esidump(mut slave: uint16,
  * @see ecx_readeeprom
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readeeprom(mut slave: uint16, mut eeproma: uint16,
-                                       mut timeout: libc::c_int) -> uint32 {
+pub unsafe extern "C" fn ec_readeeprom(
+    mut slave: uint16,
+    mut eeproma: uint16,
+    mut timeout: libc::c_int,
+) -> uint32 {
     return ecx_readeeprom(&mut ecx_context, slave, eeproma, timeout);
 }
 /* * Write EEPROM to slave bypassing cache.
@@ -3915,10 +3901,12 @@ pub unsafe extern "C" fn ec_readeeprom(mut slave: uint16, mut eeproma: uint16,
  * @see ecx_writeeeprom
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_writeeeprom(mut slave: uint16,
-                                        mut eeproma: uint16, mut data: uint16,
-                                        mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ec_writeeeprom(
+    mut slave: uint16,
+    mut eeproma: uint16,
+    mut data: uint16,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     return ecx_writeeeprom(&mut ecx_context, slave, eeproma, data, timeout);
 }
 /* * Set eeprom control to master. Only if set to PDI.
@@ -3935,10 +3923,11 @@ pub unsafe extern "C" fn ec_eeprom2pdi(mut slave: uint16) -> libc::c_int {
     return ecx_eeprom2pdi(&mut ecx_context, slave);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_eeprom_waitnotbusyAP(mut aiadr: uint16,
-                                                 mut estat: *mut uint16,
-                                                 mut timeout: libc::c_int)
- -> uint16 {
+pub unsafe extern "C" fn ec_eeprom_waitnotbusyAP(
+    mut aiadr: uint16,
+    mut estat: *mut uint16,
+    mut timeout: libc::c_int,
+) -> uint16 {
     return ecx_eeprom_waitnotbusyAP(&mut ecx_context, aiadr, estat, timeout);
 }
 /* * Read EEPROM from slave bypassing cache. APRD method.
@@ -3948,9 +3937,11 @@ pub unsafe extern "C" fn ec_eeprom_waitnotbusyAP(mut aiadr: uint16,
  * @return EEPROM data 64bit or 32bit
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readeepromAP(mut aiadr: uint16,
-                                         mut eeproma: uint16,
-                                         mut timeout: libc::c_int) -> uint64 {
+pub unsafe extern "C" fn ec_readeepromAP(
+    mut aiadr: uint16,
+    mut eeproma: uint16,
+    mut timeout: libc::c_int,
+) -> uint64 {
     return ecx_readeepromAP(&mut ecx_context, aiadr, eeproma, timeout);
 }
 /* * Write EEPROM to slave bypassing cache. APWR method.
@@ -3962,20 +3953,21 @@ pub unsafe extern "C" fn ec_readeepromAP(mut aiadr: uint16,
  * @see ecx_writeeepromAP
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_writeeepromAP(mut aiadr: uint16,
-                                          mut eeproma: uint16,
-                                          mut data: uint16,
-                                          mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ec_writeeepromAP(
+    mut aiadr: uint16,
+    mut eeproma: uint16,
+    mut data: uint16,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     return ecx_writeeepromAP(&mut ecx_context, aiadr, eeproma, data, timeout);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_eeprom_waitnotbusyFP(mut configadr: uint16,
-                                                 mut estat: *mut uint16,
-                                                 mut timeout: libc::c_int)
- -> uint16 {
-    return ecx_eeprom_waitnotbusyFP(&mut ecx_context, configadr, estat,
-                                    timeout);
+pub unsafe extern "C" fn ec_eeprom_waitnotbusyFP(
+    mut configadr: uint16,
+    mut estat: *mut uint16,
+    mut timeout: libc::c_int,
+) -> uint16 {
+    return ecx_eeprom_waitnotbusyFP(&mut ecx_context, configadr, estat, timeout);
 }
 /* * Read EEPROM from slave bypassing cache. FPRD method.
  * @param[in] configadr   = configured address of slave
@@ -3985,9 +3977,11 @@ pub unsafe extern "C" fn ec_eeprom_waitnotbusyFP(mut configadr: uint16,
  * @see ecx_readeepromFP
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readeepromFP(mut configadr: uint16,
-                                         mut eeproma: uint16,
-                                         mut timeout: libc::c_int) -> uint64 {
+pub unsafe extern "C" fn ec_readeepromFP(
+    mut configadr: uint16,
+    mut eeproma: uint16,
+    mut timeout: libc::c_int,
+) -> uint64 {
     return ecx_readeepromFP(&mut ecx_context, configadr, eeproma, timeout);
 }
 /* * Write EEPROM to slave bypassing cache. FPWR method.
@@ -3999,13 +3993,13 @@ pub unsafe extern "C" fn ec_readeepromFP(mut configadr: uint16,
  * @see ecx_writeeepromFP
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_writeeepromFP(mut configadr: uint16,
-                                          mut eeproma: uint16,
-                                          mut data: uint16,
-                                          mut timeout: libc::c_int)
- -> libc::c_int {
-    return ecx_writeeepromFP(&mut ecx_context, configadr, eeproma, data,
-                             timeout);
+pub unsafe extern "C" fn ec_writeeepromFP(
+    mut configadr: uint16,
+    mut eeproma: uint16,
+    mut data: uint16,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
+    return ecx_writeeepromFP(&mut ecx_context, configadr, eeproma, data, timeout);
 }
 /* * Read EEPROM from slave bypassing cache.
  * Parallel read step 1, make request to slave.
@@ -4014,8 +4008,7 @@ pub unsafe extern "C" fn ec_writeeepromFP(mut configadr: uint16,
  * @see ecx_readeeprom1
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readeeprom1(mut slave: uint16,
-                                        mut eeproma: uint16) {
+pub unsafe extern "C" fn ec_readeeprom1(mut slave: uint16, mut eeproma: uint16) {
     ecx_readeeprom1(&mut ecx_context, slave, eeproma);
 }
 /* * Read EEPROM from slave bypassing cache.
@@ -4026,8 +4019,7 @@ pub unsafe extern "C" fn ec_readeeprom1(mut slave: uint16,
  * @see ecx_readeeprom2
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_readeeprom2(mut slave: uint16,
-                                        mut timeout: libc::c_int) -> uint32 {
+pub unsafe extern "C" fn ec_readeeprom2(mut slave: uint16, mut timeout: libc::c_int) -> uint32 {
     return ecx_readeeprom2(&mut ecx_context, slave, timeout);
 }
 /* * Transmit processdata to slaves.
@@ -4043,8 +4035,7 @@ pub unsafe extern "C" fn ec_readeeprom2(mut slave: uint16,
  * @see ecx_send_processdata_group
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_send_processdata_group(mut group: uint8)
- -> libc::c_int {
+pub unsafe extern "C" fn ec_send_processdata_group(mut group: uint8) -> libc::c_int {
     return ecx_send_processdata_group(&mut ecx_context, group);
 }
 /* * Transmit processdata to slaves.
@@ -4060,8 +4051,7 @@ pub unsafe extern "C" fn ec_send_processdata_group(mut group: uint8)
 * @see ecx_send_overlap_processdata_group
 */
 #[no_mangle]
-pub unsafe extern "C" fn ec_send_overlap_processdata_group(mut group: uint8)
- -> libc::c_int {
+pub unsafe extern "C" fn ec_send_overlap_processdata_group(mut group: uint8) -> libc::c_int {
     return ecx_send_overlap_processdata_group(&mut ecx_context, group);
 }
 /* * Receive processdata from slaves.
@@ -4074,88 +4064,52 @@ pub unsafe extern "C" fn ec_send_overlap_processdata_group(mut group: uint8)
  * @see ecx_receive_processdata_group
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_receive_processdata_group(mut group: uint8,
-                                                      mut timeout:
-                                                          libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ec_receive_processdata_group(
+    mut group: uint8,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     return ecx_receive_processdata_group(&mut ecx_context, group, timeout);
 }
 #[no_mangle]
 pub unsafe extern "C" fn ec_send_processdata() -> libc::c_int {
-    return ec_send_processdata_group(0 as libc::c_int as uint8);
+    return ec_send_processdata_group(0u8);
 }
 #[no_mangle]
 pub unsafe extern "C" fn ec_send_overlap_processdata() -> libc::c_int {
-    return ec_send_overlap_processdata_group(0 as libc::c_int as uint8);
+    return ec_send_overlap_processdata_group(0u8);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_receive_processdata(mut timeout: libc::c_int)
- -> libc::c_int {
-    return ec_receive_processdata_group(0 as libc::c_int as uint8, timeout);
+pub unsafe extern "C" fn ec_receive_processdata(mut timeout: libc::c_int) -> libc::c_int {
+    return ec_receive_processdata_group(0u8, timeout);
 }
 unsafe extern "C" fn run_static_initializers() {
-    ecx_context =
-        {
-            let mut init =
-                ecx_context{port: &mut ecx_port,
-                            slavelist:
-                                &mut *ec_slave.as_mut_ptr().offset(0 as
-                                                                       libc::c_int
-                                                                       as
-                                                                       isize)
-                                    as *mut ec_slavet,
-                            slavecount: &mut ec_slavecount,
-                            maxslave: 200 as libc::c_int,
-                            grouplist:
-                                &mut *ec_group.as_mut_ptr().offset(0 as
-                                                                       libc::c_int
-                                                                       as
-                                                                       isize)
-                                    as *mut ec_groupt,
-                            maxgroup: 2 as libc::c_int,
-                            esibuf:
-                                &mut *ec_esibuf.as_mut_ptr().offset(0 as
-                                                                        libc::c_int
-                                                                        as
-                                                                        isize)
-                                    as *mut uint8,
-                            esimap:
-                                &mut *ec_esimap.as_mut_ptr().offset(0 as
-                                                                        libc::c_int
-                                                                        as
-                                                                        isize)
-                                    as *mut uint32,
-                            esislave: 0 as libc::c_int as uint16,
-                            elist: &mut ec_elist,
-                            idxstack: &mut ec_idxstack,
-                            ecaterror: &mut EcatError,
-                            DCtime: &mut ec_DCtime,
-                            SMcommtype:
-                                &mut *ec_SMcommtype.as_mut_ptr().offset(0 as
-                                                                            libc::c_int
-                                                                            as
-                                                                            isize)
-                                    as *mut ec_SMcommtypet,
-                            PDOassign:
-                                &mut *ec_PDOassign.as_mut_ptr().offset(0 as
-                                                                           libc::c_int
-                                                                           as
-                                                                           isize)
-                                    as *mut ec_PDOassignt,
-                            PDOdesc:
-                                &mut *ec_PDOdesc.as_mut_ptr().offset(0 as
-                                                                         libc::c_int
-                                                                         as
-                                                                         isize)
-                                    as *mut ec_PDOdesct,
-                            eepSM: &mut ec_SM,
-                            eepFMMU: &mut ec_FMMU,
-                            FOEhook: None,
-                            EOEhook: None,
-                            manualstatechange: 0 as libc::c_int,
-                            userdata: 0 as *mut libc::c_void,};
-            init
-        }
+    ecx_context = {
+        let mut init = ecx_context {
+            port: &mut ecx_port,
+            slavelist: &mut *ec_slave.as_mut_ptr().offset(0isize) as *mut ec_slavet,
+            slavecount: &mut ec_slavecount,
+            maxslave: 200i32,
+            grouplist: &mut *ec_group.as_mut_ptr().offset(0isize) as *mut ec_groupt,
+            maxgroup: 2i32,
+            esibuf: &mut *ec_esibuf.as_mut_ptr().offset(0isize) as *mut uint8,
+            esimap: &mut *ec_esimap.as_mut_ptr().offset(0isize) as *mut uint32,
+            esislave: 0u16,
+            elist: &mut ec_elist,
+            idxstack: &mut ec_idxstack,
+            ecaterror: &mut EcatError,
+            DCtime: &mut ec_DCtime,
+            SMcommtype: &mut *ec_SMcommtype.as_mut_ptr().offset(0isize) as *mut ec_SMcommtypet,
+            PDOassign: &mut *ec_PDOassign.as_mut_ptr().offset(0isize) as *mut ec_PDOassignt,
+            PDOdesc: &mut *ec_PDOdesc.as_mut_ptr().offset(0isize) as *mut ec_PDOdesct,
+            eepSM: &mut ec_SM,
+            eepFMMU: &mut ec_FMMU,
+            FOEhook: None,
+            EOEhook: None,
+            manualstatechange: 0i32,
+            userdata: 0 as *mut libc::c_void,
+        };
+        init
+    }
 }
 #[used]
 #[cfg_attr(target_os = "linux", link_section = ".init_array")]

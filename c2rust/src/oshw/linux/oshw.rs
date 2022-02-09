@@ -14,19 +14,21 @@ extern "C" {
     fn free(__ptr: *mut libc::c_void);
     #[no_mangle]
     fn strncpy(_: *mut libc::c_char, _: *const libc::c_char, _: libc::c_ulong)
-     -> *mut libc::c_char;
+        -> *mut libc::c_char;
 }
 pub type __uint16_t = libc::c_ushort;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct if_nameindex {
     pub if_index: libc::c_uint,
     pub if_name: *mut libc::c_char,
 }
 pub type uint16_t = __uint16_t;
 pub type uint16 = uint16_t;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_adapter {
     pub name: [libc::c_char; 128],
     pub desc: [libc::c_char; 128],
@@ -70,40 +72,40 @@ pub unsafe extern "C" fn oshw_find_adapters() -> *mut ec_adaptert {
     let mut prev_adapter: *mut ec_adaptert = 0 as *mut ec_adaptert;
     let mut ret_adapter: *mut ec_adaptert = 0 as *mut ec_adaptert;
     /* Iterate all devices and create a local copy holding the name and
-    * description.
-    */
+     * description.
+     */
     ids = if_nameindex();
-    i = 0 as libc::c_int;
-    while (*ids.offset(i as isize)).if_index !=
-              0 as libc::c_int as libc::c_uint {
+    i = 0i32;
+    while (*ids.offset(i as isize)).if_index != 0u32 {
         adapter =
-            malloc(::core::mem::size_of::<ec_adaptert>() as libc::c_ulong) as
-                *mut ec_adaptert;
+            malloc(::core::mem::size_of::<ec_adaptert>() as libc::c_ulong) as *mut ec_adaptert;
         /* If we got more than one adapter save link list pointer to previous
-       * adapter.
-       * Else save as pointer to return.
-       */
+         * adapter.
+         * Else save as pointer to return.
+         */
         if i != 0 {
             (*prev_adapter).next = adapter
-        } else { ret_adapter = adapter }
+        } else {
+            ret_adapter = adapter
+        }
         /* fetch description and name, in Linux we use the same on both */
         (*adapter).next = 0 as *mut ec_adaptert;
         if !(*ids.offset(i as isize)).if_name.is_null() {
-            strncpy((*adapter).name.as_mut_ptr(),
-                    (*ids.offset(i as isize)).if_name,
-                    128 as libc::c_int as libc::c_ulong);
-            (*adapter).name[(128 as libc::c_int - 1 as libc::c_int) as usize]
-                = '\u{0}' as i32 as libc::c_char;
-            strncpy((*adapter).desc.as_mut_ptr(),
-                    (*ids.offset(i as isize)).if_name,
-                    128 as libc::c_int as libc::c_ulong);
-            (*adapter).desc[(128 as libc::c_int - 1 as libc::c_int) as usize]
-                = '\u{0}' as i32 as libc::c_char
+            strncpy(
+                (*adapter).name.as_mut_ptr(),
+                (*ids.offset(i as isize)).if_name,
+                128u64,
+            );
+            (*adapter).name[(128i32 - 1i32) as usize] = '\u{0}' as libc::c_char;
+            strncpy(
+                (*adapter).desc.as_mut_ptr(),
+                (*ids.offset(i as isize)).if_name,
+                128u64,
+            );
+            (*adapter).desc[(128i32 - 1i32) as usize] = '\u{0}' as libc::c_char
         } else {
-            (*adapter).name[0 as libc::c_int as usize] =
-                '\u{0}' as i32 as libc::c_char;
-            (*adapter).desc[0 as libc::c_int as usize] =
-                '\u{0}' as i32 as libc::c_char
+            (*adapter).name[0usize] = '\u{0}' as libc::c_char;
+            (*adapter).desc[0usize] = '\u{0}' as libc::c_char
         }
         prev_adapter = adapter;
         i += 1
@@ -119,8 +121,8 @@ pub unsafe extern "C" fn oshw_find_adapters() -> *mut ec_adaptert {
 pub unsafe extern "C" fn oshw_free_adapters(mut adapter: *mut ec_adaptert) {
     let mut next_adapter: *mut ec_adaptert = 0 as *mut ec_adaptert;
     /* Iterate the linked list and free all elements holding
-    * adapter information
-    */
+     * adapter information
+     */
     if !adapter.is_null() {
         next_adapter = (*adapter).next;
         free(adapter as *mut libc::c_void);

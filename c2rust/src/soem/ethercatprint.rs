@@ -1,13 +1,11 @@
 use ::libc;
 extern "C" {
     #[no_mangle]
-    fn sprintf(_: *mut libc::c_char, _: *const libc::c_char, _: ...)
-     -> libc::c_int;
+    fn sprintf(_: *mut libc::c_char, _: *const libc::c_char, _: ...) -> libc::c_int;
     #[no_mangle]
     static mut ecx_context: ecx_contextt;
     #[no_mangle]
-    fn ecx_poperror(context: *mut ecx_contextt, Ec: *mut ec_errort)
-     -> boolean;
+    fn ecx_poperror(context: *mut ecx_contextt, Ec: *mut ec_errort) -> boolean;
 }
 pub type __uint8_t = libc::c_uchar;
 pub type __int16_t = libc::c_short;
@@ -15,15 +13,17 @@ pub type __uint16_t = libc::c_ushort;
 pub type __int32_t = libc::c_int;
 pub type __uint32_t = libc::c_uint;
 pub type __int64_t = libc::c_long;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct __pthread_internal_list {
     pub __prev: *mut __pthread_internal_list,
     pub __next: *mut __pthread_internal_list,
 }
 pub type __pthread_list_t = __pthread_internal_list;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct __pthread_mutex_s {
     pub __lock: libc::c_int,
     pub __count: libc::c_uint,
@@ -34,8 +34,9 @@ pub struct __pthread_mutex_s {
     pub __elision: libc::c_short,
     pub __list: __pthread_list_t,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union pthread_mutex_t {
     pub __data: __pthread_mutex_s,
     pub __size: [libc::c_char; 40],
@@ -54,8 +55,9 @@ pub type uint8 = uint8_t;
 pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type int64 = int64_t;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_timet {
     pub sec: uint32,
     pub usec: uint32,
@@ -73,8 +75,9 @@ pub const EC_ERR_TYPE_SDOINFO_ERROR: ec_err_type = 4;
 pub const EC_ERR_TYPE_PACKET_ERROR: ec_err_type = 3;
 pub const EC_ERR_TYPE_EMERGENCY: ec_err_type = 1;
 pub const EC_ERR_TYPE_SDO_ERROR: ec_err_type = 0;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_errort {
     pub Time: ec_timet,
     pub Signal: boolean,
@@ -84,14 +87,16 @@ pub struct ec_errort {
     pub Etype: ec_err_type,
     pub c2rust_unnamed: C2RustUnnamed,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union C2RustUnnamed {
     pub AbortCode: int32,
     pub c2rust_unnamed: C2RustUnnamed_0,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct C2RustUnnamed_0 {
     pub ErrorCode: uint16,
     pub ErrorReg: uint8,
@@ -99,8 +104,9 @@ pub struct C2RustUnnamed_0 {
     pub w1: uint16,
     pub w2: uint16,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_stackT {
     pub sock: *mut libc::c_int,
     pub txbuf: *mut [ec_bufT; 16],
@@ -110,8 +116,9 @@ pub struct ec_stackT {
     pub rxbufstat: *mut [libc::c_int; 16],
     pub rxsa: *mut [libc::c_int; 16],
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_redportt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
@@ -120,8 +127,9 @@ pub struct ecx_redportt {
     pub rxsa: [libc::c_int; 16],
     pub tempinbuf: ec_bufT,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_portt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
@@ -141,8 +149,9 @@ pub struct ecx_portt {
     pub tx_mutex: pthread_mutex_t,
     pub rx_mutex: pthread_mutex_t,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_fmmu {
     pub LogStart: uint32,
     pub LogLength: uint16,
@@ -156,16 +165,18 @@ pub struct ec_fmmu {
     pub unused2: uint16,
 }
 pub type ec_fmmut = ec_fmmu;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_sm {
     pub StartAddr: uint16,
     pub SMlength: uint16,
     pub SMflags: uint32,
 }
 pub type ec_smt = ec_sm;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_context {
     pub port: *mut ecx_portt,
     pub slavelist: *mut ec_slavet,
@@ -185,18 +196,19 @@ pub struct ecx_context {
     pub PDOdesc: *mut ec_PDOdesct,
     pub eepSM: *mut ec_eepromSMt,
     pub eepFMMU: *mut ec_eepromFMMUt,
-    pub FOEhook: Option<unsafe extern "C" fn(_: uint16, _: libc::c_int,
-                                             _: libc::c_int) -> libc::c_int>,
-    pub EOEhook: Option<unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16,
-                                             _: *mut libc::c_void)
-                            -> libc::c_int>,
+    pub FOEhook:
+        Option<unsafe extern "C" fn(_: uint16, _: libc::c_int, _: libc::c_int) -> libc::c_int>,
+    pub EOEhook: Option<
+        unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16, _: *mut libc::c_void) -> libc::c_int,
+    >,
     pub manualstatechange: libc::c_int,
     pub userdata: *mut libc::c_void,
 }
 pub type ecx_contextt = ecx_context;
 pub type ec_eepromFMMUt = ec_eepromFMMU;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_eepromFMMU {
     pub Startpos: uint16,
     pub nFMMU: uint8,
@@ -206,8 +218,9 @@ pub struct ec_eepromFMMU {
     pub FMMU3: uint8,
 }
 pub type ec_eepromSMt = ec_eepromSM;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_eepromSM {
     pub Startpos: uint16,
     pub nSM: uint8,
@@ -219,32 +232,36 @@ pub struct ec_eepromSM {
     pub PDIctrl: uint8,
 }
 pub type ec_PDOdesct = ec_PDOdesc;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_PDOdesc {
     pub n: uint8,
     pub nu1: uint8,
     pub PDO: [uint32; 256],
 }
 pub type ec_PDOassignt = ec_PDOassign;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_PDOassign {
     pub n: uint8,
     pub nu1: uint8,
     pub index: [uint16; 256],
 }
 pub type ec_SMcommtypet = ec_SMcommtype;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_SMcommtype {
     pub n: uint8,
     pub nu1: uint8,
     pub SMtype: [uint8; 8],
 }
 pub type ec_idxstackT = ec_idxstack;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_idxstack {
     pub pushed: uint8,
     pub pulled: uint8,
@@ -254,16 +271,18 @@ pub struct ec_idxstack {
     pub dcoffset: [uint16; 16],
 }
 pub type ec_eringt = ec_ering;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_ering {
     pub head: int16,
     pub tail: int16,
     pub Error: [ec_errort; 65],
 }
 pub type ec_groupt = ec_group;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_group {
     pub logstartaddr: uint32,
     pub Obytes: uint32,
@@ -283,8 +302,9 @@ pub struct ec_group {
     pub IOsegment: [uint32; 64],
 }
 pub type ec_slavet = ec_slave;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_slave {
     pub state: uint16,
     pub ALstatuscode: uint16,
@@ -348,30 +368,33 @@ pub struct ec_slave {
     pub FMMUunused: uint8,
     pub islost: boolean,
     pub PO2SOconfig: Option<unsafe extern "C" fn(_: uint16) -> libc::c_int>,
-    pub PO2SOconfigx: Option<unsafe extern "C" fn(_: *mut ecx_contextt,
-                                                  _: uint16) -> libc::c_int>,
+    pub PO2SOconfigx: Option<unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16) -> libc::c_int>,
     pub name: [libc::c_char; 41],
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_sdoerrorlist_t {
     pub errorcode: uint32,
     pub errordescription: [libc::c_char; 128],
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_ALstatuscodelist_t {
     pub ALstatuscode: uint16,
     pub ALstatuscodedescription: [libc::c_char; 128],
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_soeerrorlist_t {
     pub errorcode: uint16,
     pub errordescription: [libc::c_char; 128],
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_mbxerrorlist_t {
     pub errorcode: uint16,
     pub errordescription: [libc::c_char; 128],
@@ -380,1287 +403,1290 @@ pub struct ec_mbxerrorlist_t {
 pub static mut estring: [libc::c_char; 127] = [0; 127];
 /* * SDO error list definition */
 #[no_mangle]
-pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] =
-    unsafe {
-        [{
-             let mut init =
-                 ec_sdoerrorlist_t{errorcode: 0 as libc::c_int as uint32,
+pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
+    [
+        {
+            let mut init =
+                 ec_sdoerrorlist_t{errorcode: 0u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"No error\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x5030000 as libc::c_int as uint32,
+                                       0x5030000u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Toggle bit not changed\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x5040000 as libc::c_int as uint32,
+                                       0x5040000u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"SDO protocol timeout\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x5040001 as libc::c_int as uint32,
+                                       0x5040001u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Client/Server command specifier not valid or unknown\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x5040005 as libc::c_int as uint32,
+                                       0x5040005u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Out of memory\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6010000 as libc::c_int as uint32,
+                                       0x6010000u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Unsupported access to an object\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6010001 as libc::c_int as uint32,
+                                       0x6010001u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Attempt to read to a write only object\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6010002 as libc::c_int as uint32,
+                                       0x6010002u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Attempt to write to a read only object\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6010003 as libc::c_int as uint32,
+                                       0x6010003u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Subindex can not be written, SI0 must be 0 for write access\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6010004 as libc::c_int as uint32,
+                                       0x6010004u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"SDO Complete access not supported for variable length objects\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6010005 as libc::c_int as uint32,
+                                       0x6010005u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Object length exceeds mailbox size\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6010006 as libc::c_int as uint32,
+                                       0x6010006u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Object mapped to RxPDO, SDO download blocked\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6020000 as libc::c_int as uint32,
+                                       0x6020000u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"The object does not exist in the object directory\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6040041 as libc::c_int as uint32,
+                                       0x6040041u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"The object can not be mapped into the PDO\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6040042 as libc::c_int as uint32,
+                                       0x6040042u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"The number and length of the objects to be mapped would exceed the PDO length\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6040043 as libc::c_int as uint32,
+                                       0x6040043u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"General parameter incompatibility reason\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6040047 as libc::c_int as uint32,
+                                       0x6040047u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"General internal incompatibility in the device\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6060000 as libc::c_int as uint32,
+                                       0x6060000u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Access failed due to a hardware error\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6070010 as libc::c_int as uint32,
+                                       0x6070010u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Data type does not match, length of service parameter does not match\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6070012 as libc::c_int as uint32,
+                                       0x6070012u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Data type does not match, length of service parameter too high\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6070013 as libc::c_int as uint32,
+                                       0x6070013u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Data type does not match, length of service parameter too low\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6090011 as libc::c_int as uint32,
+                                       0x6090011u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Subindex does not exist\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6090030 as libc::c_int as uint32,
+                                       0x6090030u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Value range of parameter exceeded (only for write access)\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6090031 as libc::c_int as uint32,
+                                       0x6090031u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Value of parameter written too high\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6090032 as libc::c_int as uint32,
+                                       0x6090032u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Value of parameter written too low\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x6090036 as libc::c_int as uint32,
+                                       0x6090036u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Maximum value is less than minimum value\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x8000000 as libc::c_int as uint32,
+                                       0x8000000u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"General error\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x8000020 as libc::c_int as uint32,
+                                       0x8000020u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Data cannot be transferred or stored to the application\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x8000021 as libc::c_int as uint32,
+                                       0x8000021u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Data cannot be transferred or stored to the application because of local control\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x8000022 as libc::c_int as uint32,
+                                       0x8000022u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Data cannot be transferred or stored to the application because of the present device state\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_sdoerrorlist_t{errorcode:
-                                       0x8000023 as libc::c_int as uint32,
+                                       0x8000023u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Object dictionary dynamic generation fails or no object dictionary is present\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_sdoerrorlist_t{errorcode: 0xffffffff as libc::c_uint,
+            init
+        },
+        {
+            let mut init =
+                 ec_sdoerrorlist_t{errorcode: 0xffffffffu32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Unknown\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         }]
-    };
+            init
+        },
+    ]
+};
 /* * AL status code list definition */
 #[no_mangle]
-pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] =
-    unsafe {
-        [{
-             let mut init =
+pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
+    [
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0 as libc::c_int as uint16,
+                                           0u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"No error\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x1 as libc::c_int as uint16,
+                                           0x1u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Unspecified error\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x2 as libc::c_int as uint16,
+                                           0x2u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"No memory\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x11 as libc::c_int as uint16,
+                                           0x11u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Invalid requested state change\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x12 as libc::c_int as uint16,
+                                           0x12u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Unknown requested state\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x13 as libc::c_int as uint16,
+                                           0x13u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Bootstrap not supported\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x14 as libc::c_int as uint16,
+                                           0x14u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"No valid firmware\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x15 as libc::c_int as uint16,
+                                           0x15u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Invalid mailbox configuration\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x16 as libc::c_int as uint16,
+                                           0x16u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Invalid mailbox configuration\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x17 as libc::c_int as uint16,
+                                           0x17u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Invalid sync manager configuration\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x18 as libc::c_int as uint16,
+                                           0x18u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"No valid inputs available\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x19 as libc::c_int as uint16,
+                                           0x19u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"No valid outputs\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x1a as libc::c_int as uint16,
+                                           0x1au16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Synchronization error\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x1b as libc::c_int as uint16,
+                                           0x1bu16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Sync manager watchdog\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x1c as libc::c_int as uint16,
+                                           0x1cu16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Invalid sync Manager types\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x1d as libc::c_int as uint16,
+                                           0x1du16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Invalid output configuration\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x1e as libc::c_int as uint16,
+                                           0x1eu16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Invalid input configuration\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x1f as libc::c_int as uint16,
+                                           0x1fu16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Invalid watchdog configuration\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x20 as libc::c_int as uint16,
+                                           0x20u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Slave needs cold start\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x21 as libc::c_int as uint16,
+                                           0x21u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Slave needs INIT\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x22 as libc::c_int as uint16,
+                                           0x22u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Slave needs PREOP\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x23 as libc::c_int as uint16,
+                                           0x23u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Slave needs SAFEOP\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x24 as libc::c_int as uint16,
+                                           0x24u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Invalid input mapping\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x25 as libc::c_int as uint16,
+                                           0x25u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Invalid output mapping\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x26 as libc::c_int as uint16,
+                                           0x26u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Inconsistent settings\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x27 as libc::c_int as uint16,
+                                           0x27u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Freerun not supported\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x28 as libc::c_int as uint16,
+                                           0x28u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Synchronisation not supported\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x29 as libc::c_int as uint16,
+                                           0x29u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Freerun needs 3buffer mode\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x2a as libc::c_int as uint16,
+                                           0x2au16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Background watchdog\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x2b as libc::c_int as uint16,
+                                           0x2bu16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"No valid Inputs and Outputs\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x2c as libc::c_int as uint16,
+                                           0x2cu16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Fatal sync error\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x2d as libc::c_int as uint16,
+                                           0x2du16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"No sync error\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x2e as libc::c_int as uint16,
+                                           0x2eu16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Invalid input FMMU configuration\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x30 as libc::c_int as uint16,
+                                           0x30u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Invalid DC SYNC configuration\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x31 as libc::c_int as uint16,
+                                           0x31u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Invalid DC latch configuration\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x32 as libc::c_int as uint16,
+                                           0x32u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"PLL error\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x33 as libc::c_int as uint16,
+                                           0x33u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"DC sync IO error\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x34 as libc::c_int as uint16,
+                                           0x34u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"DC sync timeout error\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x35 as libc::c_int as uint16,
+                                           0x35u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"DC invalid sync cycle time\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x36 as libc::c_int as uint16,
+                                           0x36u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"DC invalid sync0 cycle time\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x37 as libc::c_int as uint16,
+                                           0x37u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"DC invalid sync1 cycle time\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x41 as libc::c_int as uint16,
+                                           0x41u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"MBX_AOE\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x42 as libc::c_int as uint16,
+                                           0x42u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"MBX_EOE\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x43 as libc::c_int as uint16,
+                                           0x43u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"MBX_COE\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x44 as libc::c_int as uint16,
+                                           0x44u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"MBX_FOE\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x45 as libc::c_int as uint16,
+                                           0x45u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"MBX_SOE\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x4f as libc::c_int as uint16,
+                                           0x4fu16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"MBX_VOE\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x50 as libc::c_int as uint16,
+                                           0x50u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"EEPROM no access\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x51 as libc::c_int as uint16,
+                                           0x51u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"EEPROM error\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x60 as libc::c_int as uint16,
+                                           0x60u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Slave restarted locally\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0x61 as libc::c_int as uint16,
+                                           0x61u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Device identification value updated\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0xf0 as libc::c_int as uint16,
+                                           0xf0u16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Application controller available\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
+            init
+        },
+        {
+            let mut init =
                  ec_ALstatuscodelist_t{ALstatuscode:
-                                           0xffff as libc::c_int as uint16,
+                                           0xffffu16,
                                        ALstatuscodedescription:
                                            *::core::mem::transmute::<&[u8; 128],
                                                                      &mut [libc::c_char; 128]>(b"Unknown\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         }]
-    };
+            init
+        },
+    ]
+};
 /* * SoE error list definition */
 #[no_mangle]
-pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] =
-    unsafe {
-        [{
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0 as libc::c_int as uint16,
+pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
+    [
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"No error\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x1001 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x1001u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"No IDN\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x1009 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x1009u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Invalid access to element 1\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x2001 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x2001u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"No Name\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x2002 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x2002u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Name transmission too short\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x2003 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x2003u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Name transmission too long\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x2004 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x2004u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Name cannot be changed (read only)\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x2005 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x2005u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Name is write-protected at this time\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x3002 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x3002u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Attribute transmission too short\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x3003 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x3003u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Attribute transmission too long\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x3004 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x3004u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Attribute cannot be changed (read only)\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x3005 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x3005u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Attribute is write-protected at this time\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x4001 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x4001u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"No units\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x4002 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x4002u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Unit transmission too short\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x4003 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x4003u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Unit transmission too long\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x4004 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x4004u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Unit cannot be changed (read only)\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x4005 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x4005u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Unit is write-protected at this time\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x5001 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x5001u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"No minimum input value\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x5002 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x5002u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Minimum input value transmission too short\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x5003 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x5003u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Minimum input value transmission too long\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x5004 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x5004u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Minimum input value cannot be changed (read only)\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x5005 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x5005u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Minimum input value is write-protected at this time\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x6001 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x6001u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"No maximum input value\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x6002 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x6002u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Maximum input value transmission too short\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x6003 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x6003u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Maximum input value transmission too long\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x6004 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x6004u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Maximum input value cannot be changed (read only)\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x6005 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x6005u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Maximum input value is write-protected at this time\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x7002 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x7002u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Operation data transmission too short\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x7003 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x7003u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Operation data transmission too long\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x7004 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x7004u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Operation data cannot be changed (read only)\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x7005 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x7005u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Operation data is write-protected at this time (state)\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x7006 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x7006u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Operation data is smaller than the minimum input value\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x7007 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x7007u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Operation data is smaller than the maximum input value\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x7008 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x7008u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Invalid operation data:Configured IDN will not be supported\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x7009 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x7009u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Operation data write protected by a password\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x700a as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x700au16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Operation data is write protected, it is configured cyclically\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x700b as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x700bu16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Invalid indirect addressing: (e.g., data container, list handling)\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x700c as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x700cu16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Operation data is write protected, due to other settings\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x700d as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x700du16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Reserved\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x7010 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x7010u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Procedure command already active\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x7011 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x7011u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Procedure command not interruptible\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x7012 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x7012u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Procedure command at this time not executable (state)\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x7013 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x7013u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Procedure command not executable (invalid or false parameters)\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x7014 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x7014u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"No data state\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x8001 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x8001u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"No default value\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x8002 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x8002u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Default value transmission too long\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x8004 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x8004u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Default value cannot be changed, read only\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x800a as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x800au16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Invalid drive number\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x800a as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x800au16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"General error\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0x800a as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0x800au16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"No element addressed\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_soeerrorlist_t{errorcode: 0xffff as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_soeerrorlist_t{errorcode: 0xffffu16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Unknown\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         }]
-    };
+            init
+        },
+    ]
+};
 /* * MBX error list definition */
 #[no_mangle]
-pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] =
-    unsafe {
-        [{
-             let mut init =
-                 ec_mbxerrorlist_t{errorcode: 0 as libc::c_int as uint16,
+pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] = unsafe {
+    [
+        {
+            let mut init =
+                 ec_mbxerrorlist_t{errorcode: 0u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"No error\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_mbxerrorlist_t{errorcode: 0x1 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_mbxerrorlist_t{errorcode: 0x1u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Syntax of 6 octet Mailbox Header is wrong\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_mbxerrorlist_t{errorcode: 0x2 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_mbxerrorlist_t{errorcode: 0x2u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"The mailbox protocol is not supported\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_mbxerrorlist_t{errorcode: 0x3 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_mbxerrorlist_t{errorcode: 0x3u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Channel Field contains wrong value\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_mbxerrorlist_t{errorcode: 0x4 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_mbxerrorlist_t{errorcode: 0x4u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"The service is no supported\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_mbxerrorlist_t{errorcode: 0x5 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_mbxerrorlist_t{errorcode: 0x5u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Invalid mailbox header\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_mbxerrorlist_t{errorcode: 0x6 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_mbxerrorlist_t{errorcode: 0x6u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Length of received mailbox data is too short\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_mbxerrorlist_t{errorcode: 0x7 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_mbxerrorlist_t{errorcode: 0x7u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"No more memory in slave\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_mbxerrorlist_t{errorcode: 0x8 as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_mbxerrorlist_t{errorcode: 0x8u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"The length of data is inconsistent\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         },
-         {
-             let mut init =
-                 ec_mbxerrorlist_t{errorcode: 0xffff as libc::c_int as uint16,
+            init
+        },
+        {
+            let mut init =
+                 ec_mbxerrorlist_t{errorcode: 0xffffu16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
                                                                  &mut [libc::c_char; 128]>(b"Unknown\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),};
-             init
-         }]
-    };
+            init
+        },
+    ]
+};
 /* * Look up text string that belongs to SDO error code.
  *
  * @param[in] sdoerrorcode   = SDO error code as defined in EtherCAT protocol
  * @return readable string
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_sdoerror2string(mut sdoerrorcode: uint32)
- -> *const libc::c_char {
-    let mut i: libc::c_int = 0 as libc::c_int;
-    while ec_sdoerrorlist[i as usize].errorcode as libc::c_ulong !=
-              0xffffffff as libc::c_ulong &&
-              ec_sdoerrorlist[i as usize].errorcode != sdoerrorcode {
+pub unsafe extern "C" fn ec_sdoerror2string(mut sdoerrorcode: uint32) -> *const libc::c_char {
+    let mut i: libc::c_int = 0i32;
+    while ec_sdoerrorlist[i as usize].errorcode as libc::c_ulong != 0xffffffffu64
+        && ec_sdoerrorlist[i as usize].errorcode != sdoerrorcode
+    {
         i += 1
     }
     return ec_sdoerrorlist[i as usize].errordescription.as_ptr();
@@ -1671,17 +1697,17 @@ pub unsafe extern "C" fn ec_sdoerror2string(mut sdoerrorcode: uint32)
  * @return readable string
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_ALstatuscode2string(mut ALstatuscode: uint16)
- -> *mut libc::c_char {
-    let mut i: libc::c_int = 0 as libc::c_int;
-    while ec_ALstatuscodelist[i as usize].ALstatuscode as libc::c_int !=
-              0xffff as libc::c_int &&
-              ec_ALstatuscodelist[i as usize].ALstatuscode as libc::c_int !=
-                  ALstatuscode as libc::c_int {
+pub unsafe extern "C" fn ec_ALstatuscode2string(mut ALstatuscode: uint16) -> *mut libc::c_char {
+    let mut i: libc::c_int = 0i32;
+    while ec_ALstatuscodelist[i as usize].ALstatuscode as libc::c_int != 0xffffi32
+        && ec_ALstatuscodelist[i as usize].ALstatuscode as libc::c_int
+            != ALstatuscode as libc::c_int
+    {
         i += 1
     }
-    return ec_ALstatuscodelist[i as usize].ALstatuscodedescription.as_ptr() as
-               *mut libc::c_char;
+    return ec_ALstatuscodelist[i as usize]
+        .ALstatuscodedescription
+        .as_ptr() as *mut libc::c_char;
 }
 /* * Look up text string that belongs to SoE error code.
  *
@@ -1689,17 +1715,14 @@ pub unsafe extern "C" fn ec_ALstatuscode2string(mut ALstatuscode: uint16)
  * @return readable string
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_soeerror2string(mut errorcode: uint16)
- -> *mut libc::c_char {
-    let mut i: libc::c_int = 0 as libc::c_int;
-    while ec_soeerrorlist[i as usize].errorcode as libc::c_int !=
-              0xffff as libc::c_int &&
-              ec_soeerrorlist[i as usize].errorcode as libc::c_int !=
-                  errorcode as libc::c_int {
+pub unsafe extern "C" fn ec_soeerror2string(mut errorcode: uint16) -> *mut libc::c_char {
+    let mut i: libc::c_int = 0i32;
+    while ec_soeerrorlist[i as usize].errorcode as libc::c_int != 0xffffi32
+        && ec_soeerrorlist[i as usize].errorcode as libc::c_int != errorcode as libc::c_int
+    {
         i += 1
     }
-    return ec_soeerrorlist[i as usize].errordescription.as_ptr() as
-               *mut libc::c_char;
+    return ec_soeerrorlist[i as usize].errordescription.as_ptr() as *mut libc::c_char;
 }
 /* * Look up text string that belongs to MBX error code.
  *
@@ -1707,17 +1730,14 @@ pub unsafe extern "C" fn ec_soeerror2string(mut errorcode: uint16)
  * @return readable string
  */
 #[no_mangle]
-pub unsafe extern "C" fn ec_mbxerror2string(mut errorcode: uint16)
- -> *mut libc::c_char {
-    let mut i: libc::c_int = 0 as libc::c_int;
-    while ec_mbxerrorlist[i as usize].errorcode as libc::c_int !=
-              0xffff as libc::c_int &&
-              ec_mbxerrorlist[i as usize].errorcode as libc::c_int !=
-                  errorcode as libc::c_int {
+pub unsafe extern "C" fn ec_mbxerror2string(mut errorcode: uint16) -> *mut libc::c_char {
+    let mut i: libc::c_int = 0i32;
+    while ec_mbxerrorlist[i as usize].errorcode as libc::c_int != 0xffffi32
+        && ec_mbxerrorlist[i as usize].errorcode as libc::c_int != errorcode as libc::c_int
+    {
         i += 1
     }
-    return ec_mbxerrorlist[i as usize].errordescription.as_ptr() as
-               *mut libc::c_char;
+    return ec_mbxerrorlist[i as usize].errordescription.as_ptr() as *mut libc::c_char;
 }
 /* * Convert an error to text string.
  *
@@ -1727,70 +1747,88 @@ pub unsafe extern "C" fn ec_mbxerror2string(mut errorcode: uint16)
 #[no_mangle]
 pub unsafe extern "C" fn ecx_err2string(Ec: ec_errort) -> *mut libc::c_char {
     let mut timestr: [libc::c_char; 20] = [0; 20];
-    sprintf(timestr.as_mut_ptr(),
-            b"Time:%12.3f\x00" as *const u8 as *const libc::c_char,
-            Ec.Time.sec as libc::c_double +
-                Ec.Time.usec as libc::c_double / 1000000.0f64);
-    match Ec.Etype as libc::c_uint {
+    sprintf(
+        timestr.as_mut_ptr(),
+        b"Time:%12.3f\x00" as *const u8 as *const libc::c_char,
+        Ec.Time.sec as libc::c_double + Ec.Time.usec as libc::c_double / 1000000.0f64,
+    );
+    match Ec.Etype {
         0 => {
-            sprintf(estring.as_mut_ptr(),
-                    b"%s SDO slave:%d index:%4.4x.%2.2x error:%8.8x %s\n\x00"
-                        as *const u8 as *const libc::c_char,
-                    timestr.as_mut_ptr(), Ec.Slave as libc::c_int,
-                    Ec.Index as libc::c_int, Ec.SubIdx as libc::c_int,
-                    Ec.c2rust_unnamed.AbortCode as libc::c_uint,
-                    ec_sdoerror2string(Ec.c2rust_unnamed.AbortCode as
-                                           uint32));
+            sprintf(
+                estring.as_mut_ptr(),
+                b"%s SDO slave:%d index:%4.4x.%2.2x error:%8.8x %s\n\x00" as *const u8
+                    as *const libc::c_char,
+                timestr.as_mut_ptr(),
+                Ec.Slave as libc::c_int,
+                Ec.Index as libc::c_int,
+                Ec.SubIdx as libc::c_int,
+                Ec.c2rust_unnamed.AbortCode as libc::c_uint,
+                ec_sdoerror2string(Ec.c2rust_unnamed.AbortCode as uint32),
+            );
         }
         1 => {
-            sprintf(estring.as_mut_ptr(),
-                    b"%s EMERGENCY slave:%d error:%4.4x\n\x00" as *const u8 as
-                        *const libc::c_char, timestr.as_mut_ptr(),
-                    Ec.Slave as libc::c_int,
-                    Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode as
-                        libc::c_int);
+            sprintf(
+                estring.as_mut_ptr(),
+                b"%s EMERGENCY slave:%d error:%4.4x\n\x00" as *const u8 as *const libc::c_char,
+                timestr.as_mut_ptr(),
+                Ec.Slave as libc::c_int,
+                Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode as libc::c_int,
+            );
         }
         3 => {
-            sprintf(estring.as_mut_ptr(),
-                    b"%s PACKET slave:%d index:%4.4x.%2.2x error:%d\n\x00" as
-                        *const u8 as *const libc::c_char,
-                    timestr.as_mut_ptr(), Ec.Slave as libc::c_int,
-                    Ec.Index as libc::c_int, Ec.SubIdx as libc::c_int,
-                    Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode as
-                        libc::c_int);
+            sprintf(
+                estring.as_mut_ptr(),
+                b"%s PACKET slave:%d index:%4.4x.%2.2x error:%d\n\x00" as *const u8
+                    as *const libc::c_char,
+                timestr.as_mut_ptr(),
+                Ec.Slave as libc::c_int,
+                Ec.Index as libc::c_int,
+                Ec.SubIdx as libc::c_int,
+                Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode as libc::c_int,
+            );
         }
         4 => {
-            sprintf(estring.as_mut_ptr(),
-                    b"%s SDO slave:%d index:%4.4x.%2.2x error:%8.8x %s\n\x00"
-                        as *const u8 as *const libc::c_char,
-                    timestr.as_mut_ptr(), Ec.Slave as libc::c_int,
-                    Ec.Index as libc::c_int, Ec.SubIdx as libc::c_int,
-                    Ec.c2rust_unnamed.AbortCode as libc::c_uint,
-                    ec_sdoerror2string(Ec.c2rust_unnamed.AbortCode as
-                                           uint32));
+            sprintf(
+                estring.as_mut_ptr(),
+                b"%s SDO slave:%d index:%4.4x.%2.2x error:%8.8x %s\n\x00" as *const u8
+                    as *const libc::c_char,
+                timestr.as_mut_ptr(),
+                Ec.Slave as libc::c_int,
+                Ec.Index as libc::c_int,
+                Ec.SubIdx as libc::c_int,
+                Ec.c2rust_unnamed.AbortCode as libc::c_uint,
+                ec_sdoerror2string(Ec.c2rust_unnamed.AbortCode as uint32),
+            );
         }
         8 => {
-            sprintf(estring.as_mut_ptr(),
-                    b"%s SoE slave:%d IDN:%4.4x error:%4.4x %s\n\x00" as
-                        *const u8 as *const libc::c_char,
-                    timestr.as_mut_ptr(), Ec.Slave as libc::c_int,
-                    Ec.Index as libc::c_int,
-                    Ec.c2rust_unnamed.AbortCode as libc::c_uint,
-                    ec_soeerror2string(Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode));
+            sprintf(
+                estring.as_mut_ptr(),
+                b"%s SoE slave:%d IDN:%4.4x error:%4.4x %s\n\x00" as *const u8
+                    as *const libc::c_char,
+                timestr.as_mut_ptr(),
+                Ec.Slave as libc::c_int,
+                Ec.Index as libc::c_int,
+                Ec.c2rust_unnamed.AbortCode as libc::c_uint,
+                ec_soeerror2string(Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode),
+            );
         }
         9 => {
-            sprintf(estring.as_mut_ptr(),
-                    b"%s MBX slave:%d error:%4.4x %s\n\x00" as *const u8 as
-                        *const libc::c_char, timestr.as_mut_ptr(),
-                    Ec.Slave as libc::c_int,
-                    Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode as libc::c_int,
-                    ec_mbxerror2string(Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode));
+            sprintf(
+                estring.as_mut_ptr(),
+                b"%s MBX slave:%d error:%4.4x %s\n\x00" as *const u8 as *const libc::c_char,
+                timestr.as_mut_ptr(),
+                Ec.Slave as libc::c_int,
+                Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode as libc::c_int,
+                ec_mbxerror2string(Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode),
+            );
         }
         _ => {
-            sprintf(estring.as_mut_ptr(),
-                    b"%s error:%8.8x\n\x00" as *const u8 as
-                        *const libc::c_char, timestr.as_mut_ptr(),
-                    Ec.c2rust_unnamed.AbortCode as libc::c_uint);
+            sprintf(
+                estring.as_mut_ptr(),
+                b"%s error:%8.8x\n\x00" as *const u8 as *const libc::c_char,
+                timestr.as_mut_ptr(),
+                Ec.c2rust_unnamed.AbortCode as libc::c_uint,
+            );
         }
     }
     return estring.as_mut_ptr();
@@ -1801,21 +1839,20 @@ pub unsafe extern "C" fn ecx_err2string(Ec: ec_errort) -> *mut libc::c_char {
  * @return readable string
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_elist2string(mut context: *mut ecx_contextt)
- -> *mut libc::c_char {
-    let mut Ec: ec_errort =
-        ec_errort{Time: ec_timet{sec: 0, usec: 0,},
-                  Signal: 0,
-                  Slave: 0,
-                  Index: 0,
-                  SubIdx: 0,
-                  Etype: EC_ERR_TYPE_SDO_ERROR,
-                  c2rust_unnamed: C2RustUnnamed{AbortCode: 0,},};
+pub unsafe extern "C" fn ecx_elist2string(mut context: *mut ecx_contextt) -> *mut libc::c_char {
+    let mut Ec: ec_errort = ec_errort {
+        Time: ec_timet { sec: 0, usec: 0 },
+        Signal: 0,
+        Slave: 0,
+        Index: 0,
+        SubIdx: 0,
+        Etype: EC_ERR_TYPE_SDO_ERROR,
+        c2rust_unnamed: C2RustUnnamed { AbortCode: 0 },
+    };
     if ecx_poperror(context, &mut Ec) != 0 {
-        return ecx_err2string(Ec)
+        return ecx_err2string(Ec);
     } else {
-        return b"\x00" as *const u8 as *const libc::c_char as
-                   *mut libc::c_char
+        return b"\x00" as *const u8 as *mut libc::c_char;
     };
 }
 #[no_mangle]

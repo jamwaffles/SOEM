@@ -64,15 +64,17 @@ pub type __uint16_t = libc::c_ushort;
 pub type __int32_t = libc::c_int;
 pub type __uint32_t = libc::c_uint;
 pub type __int64_t = libc::c_long;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct __pthread_internal_list {
     pub __prev: *mut __pthread_internal_list,
     pub __next: *mut __pthread_internal_list,
 }
 pub type __pthread_list_t = __pthread_internal_list;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct __pthread_mutex_s {
     pub __lock: libc::c_int,
     pub __count: libc::c_uint,
@@ -83,8 +85,9 @@ pub struct __pthread_mutex_s {
     pub __elision: libc::c_short,
     pub __list: __pthread_list_t,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union pthread_mutex_t {
     pub __data: __pthread_mutex_s,
     pub __size: [libc::c_char; 40],
@@ -103,8 +106,9 @@ pub type uint8 = uint8_t;
 pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type int64 = int64_t;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_timet {
     pub sec: uint32,
     pub usec: uint32,
@@ -131,8 +135,9 @@ pub const EC_ERR_TYPE_SDOINFO_ERROR: ec_err_type = 4;
 pub const EC_ERR_TYPE_PACKET_ERROR: ec_err_type = 3;
 pub const EC_ERR_TYPE_EMERGENCY: ec_err_type = 1;
 pub const EC_ERR_TYPE_SDO_ERROR: ec_err_type = 0;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_errort {
     pub Time: ec_timet,
     pub Signal: boolean,
@@ -142,14 +147,16 @@ pub struct ec_errort {
     pub Etype: ec_err_type,
     pub c2rust_unnamed: C2RustUnnamed_0,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union C2RustUnnamed_0 {
     pub AbortCode: int32,
     pub c2rust_unnamed: C2RustUnnamed_1,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct C2RustUnnamed_1 {
     pub ErrorCode: uint16,
     pub ErrorReg: uint8,
@@ -157,8 +164,9 @@ pub struct C2RustUnnamed_1 {
     pub w1: uint16,
     pub w2: uint16,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_stackT {
     pub sock: *mut libc::c_int,
     pub txbuf: *mut [ec_bufT; 16],
@@ -168,8 +176,9 @@ pub struct ec_stackT {
     pub rxbufstat: *mut [libc::c_int; 16],
     pub rxsa: *mut [libc::c_int; 16],
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_redportt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
@@ -178,8 +187,9 @@ pub struct ecx_redportt {
     pub rxsa: [libc::c_int; 16],
     pub tempinbuf: ec_bufT,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_portt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
@@ -199,16 +209,18 @@ pub struct ecx_portt {
     pub tx_mutex: pthread_mutex_t,
     pub rx_mutex: pthread_mutex_t,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_adapter {
     pub name: [libc::c_char; 128],
     pub desc: [libc::c_char; 128],
     pub next: *mut ec_adaptert,
 }
 pub type ec_adaptert = ec_adapter;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_fmmu {
     pub LogStart: uint32,
     pub LogLength: uint16,
@@ -222,16 +234,18 @@ pub struct ec_fmmu {
     pub unused2: uint16,
 }
 pub type ec_fmmut = ec_fmmu;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_sm {
     pub StartAddr: uint16,
     pub SMlength: uint16,
     pub SMflags: uint32,
 }
 pub type ec_smt = ec_sm;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_context {
     pub port: *mut ecx_portt,
     pub slavelist: *mut ec_slavet,
@@ -261,8 +275,9 @@ pub struct ecx_context {
 }
 pub type ecx_contextt = ecx_context;
 pub type ec_eepromFMMUt = ec_eepromFMMU;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_eepromFMMU {
     pub Startpos: uint16,
     pub nFMMU: uint8,
@@ -272,8 +287,9 @@ pub struct ec_eepromFMMU {
     pub FMMU3: uint8,
 }
 pub type ec_eepromSMt = ec_eepromSM;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_eepromSM {
     pub Startpos: uint16,
     pub nSM: uint8,
@@ -285,32 +301,36 @@ pub struct ec_eepromSM {
     pub PDIctrl: uint8,
 }
 pub type ec_PDOdesct = ec_PDOdesc;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_PDOdesc {
     pub n: uint8,
     pub nu1: uint8,
     pub PDO: [uint32; 256],
 }
 pub type ec_PDOassignt = ec_PDOassign;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_PDOassign {
     pub n: uint8,
     pub nu1: uint8,
     pub index: [uint16; 256],
 }
 pub type ec_SMcommtypet = ec_SMcommtype;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_SMcommtype {
     pub n: uint8,
     pub nu1: uint8,
     pub SMtype: [uint8; 8],
 }
 pub type ec_idxstackT = ec_idxstack;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_idxstack {
     pub pushed: uint8,
     pub pulled: uint8,
@@ -320,16 +340,18 @@ pub struct ec_idxstack {
     pub dcoffset: [uint16; 16],
 }
 pub type ec_eringt = ec_ering;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_ering {
     pub head: int16,
     pub tail: int16,
     pub Error: [ec_errort; 65],
 }
 pub type ec_groupt = ec_group;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_group {
     pub logstartaddr: uint32,
     pub Obytes: uint32,
@@ -349,8 +371,9 @@ pub struct ec_group {
     pub IOsegment: [uint32; 64],
 }
 pub type ec_slavet = ec_slave;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_slave {
     pub state: uint16,
     pub ALstatuscode: uint16,
@@ -417,8 +440,9 @@ pub struct ec_slave {
     pub PO2SOconfigx: Option<unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16) -> libc::c_int>,
     pub name: [libc::c_char; 41],
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct Fieldbus {
     pub context: ecx_contextt,
     pub iface: *mut libc::c_char,
@@ -449,24 +473,24 @@ unsafe extern "C" fn fieldbus_initialize(
     /* Let's start by 0-filling `fieldbus` to avoid surprises */
     memset(
         fieldbus as *mut libc::c_void,
-        0 as libc::c_int,
+        0i32,
         ::core::mem::size_of::<Fieldbus>() as libc::c_ulong,
     );
     (*fieldbus).iface = iface;
-    (*fieldbus).group = 0 as libc::c_int as uint8;
-    (*fieldbus).roundtrip_time = 0 as libc::c_int;
-    (*fieldbus).ecaterror = 0 as libc::c_int as boolean;
+    (*fieldbus).group = 0u8;
+    (*fieldbus).roundtrip_time = 0i32;
+    (*fieldbus).ecaterror = 0u8;
     /* Initialize the ecx_contextt data structure */
     context = &mut (*fieldbus).context;
     (*context).port = &mut (*fieldbus).port;
     (*context).slavelist = (*fieldbus).slavelist.as_mut_ptr();
     (*context).slavecount = &mut (*fieldbus).slavecount;
-    (*context).maxslave = 200 as libc::c_int;
+    (*context).maxslave = 200i32;
     (*context).grouplist = (*fieldbus).grouplist.as_mut_ptr();
-    (*context).maxgroup = 2 as libc::c_int;
+    (*context).maxgroup = 2i32;
     (*context).esibuf = (*fieldbus).esibuf.as_mut_ptr();
     (*context).esimap = (*fieldbus).esimap.as_mut_ptr();
-    (*context).esislave = 0 as libc::c_int as uint16;
+    (*context).esislave = 0u16;
     (*context).elist = &mut (*fieldbus).elist;
     (*context).idxstack = &mut (*fieldbus).idxstack;
     (*context).ecaterror = &mut (*fieldbus).ecaterror;
@@ -478,7 +502,7 @@ unsafe extern "C" fn fieldbus_initialize(
     (*context).eepFMMU = &mut (*fieldbus).eepFMMU;
     (*context).FOEhook = None;
     (*context).EOEhook = None;
-    (*context).manualstatechange = 0 as libc::c_int;
+    (*context).manualstatechange = 0i32;
 }
 unsafe extern "C" fn fieldbus_roundtrip(mut fieldbus: *mut Fieldbus) -> libc::c_int {
     let mut context: *mut ecx_contextt = 0 as *mut ecx_contextt;
@@ -489,13 +513,11 @@ unsafe extern "C" fn fieldbus_roundtrip(mut fieldbus: *mut Fieldbus) -> libc::c_
     context = &mut (*fieldbus).context;
     start = osal_current_time();
     ecx_send_processdata(context);
-    wkc = ecx_receive_processdata(context, 2000 as libc::c_int);
+    wkc = ecx_receive_processdata(context, 2000i32);
     end = osal_current_time();
     osal_time_diff(&mut start, &mut end, &mut diff);
-    (*fieldbus).roundtrip_time = diff
-        .sec
-        .wrapping_mul(1000000 as libc::c_int as libc::c_uint)
-        .wrapping_add(diff.usec) as libc::c_int;
+    (*fieldbus).roundtrip_time =
+        diff.sec.wrapping_mul(1000000u32).wrapping_add(diff.usec) as libc::c_int;
     return wkc;
 }
 unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
@@ -514,13 +536,13 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
     );
     if ecx_init(context, (*fieldbus).iface) == 0 {
         printf(b"no socket connection\n\x00" as *const u8 as *const libc::c_char);
-        return 0 as libc::c_int as boolean;
+        return 0u8;
     }
     printf(b"done\n\x00" as *const u8 as *const libc::c_char);
     printf(b"Finding autoconfig slaves... \x00" as *const u8 as *const libc::c_char);
-    if ecx_config_init(context, 0 as libc::c_int as uint8) <= 0 as libc::c_int {
+    if ecx_config_init(context, 0u8) <= 0i32 {
         printf(b"no slaves found\n\x00" as *const u8 as *const libc::c_char);
-        return 0 as libc::c_int as boolean;
+        return 0u8;
     }
     printf(
         b"%d slaves found\n\x00" as *const u8 as *const libc::c_char,
@@ -538,13 +560,13 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
         (*grp).Ibytes,
         (*grp).nsegments as libc::c_int,
     );
-    if (*grp).nsegments as libc::c_int > 1 as libc::c_int {
+    if (*grp).nsegments as libc::c_int > 1i32 {
         /* Show how slaves are distrubuted */
-        i = 0 as libc::c_int;
+        i = 0i32;
         while i < (*grp).nsegments as libc::c_int {
             printf(
                 b"%s%d\x00" as *const u8 as *const libc::c_char,
-                if i == 0 as libc::c_int {
+                if i == 0i32 {
                     b" (\x00" as *const u8 as *const libc::c_char
                 } else {
                     b"+\x00" as *const u8 as *const libc::c_char
@@ -562,12 +584,7 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
     printf(
         b"Waiting for all slaves in safe operational... \x00" as *const u8 as *const libc::c_char,
     );
-    ecx_statecheck(
-        context,
-        0 as libc::c_int as uint16,
-        EC_STATE_SAFE_OP as libc::c_int as uint16,
-        2000000 as libc::c_int * 4 as libc::c_int,
-    );
+    ecx_statecheck(context, 0u16, EC_STATE_SAFE_OP as uint16, 2000000i32 * 4i32);
     printf(b"done\n\x00" as *const u8 as *const libc::c_char);
     printf(
         b"Send a roundtrip to make outputs in slaves happy... \x00" as *const u8
@@ -578,28 +595,28 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
     printf(b"Setting operational state..\x00" as *const u8 as *const libc::c_char);
     /* Act on slave 0 (a virtual slave used for broadcasting) */
     slave = (*fieldbus).slavelist.as_mut_ptr();
-    (*slave).state = EC_STATE_OPERATIONAL as libc::c_int as uint16;
-    ecx_writestate(context, 0 as libc::c_int as uint16);
+    (*slave).state = EC_STATE_OPERATIONAL as uint16;
+    ecx_writestate(context, 0u16);
     /* Poll the result ten times before giving up */
-    i = 0 as libc::c_int;
-    while i < 10 as libc::c_int {
+    i = 0i32;
+    while i < 10i32 {
         printf(b".\x00" as *const u8 as *const libc::c_char);
         fieldbus_roundtrip(fieldbus);
         ecx_statecheck(
             context,
-            0 as libc::c_int as uint16,
-            EC_STATE_OPERATIONAL as libc::c_int as uint16,
-            2000000 as libc::c_int / 10 as libc::c_int,
+            0u16,
+            EC_STATE_OPERATIONAL as uint16,
+            2000000i32 / 10i32,
         );
         if (*slave).state as libc::c_int == EC_STATE_OPERATIONAL as libc::c_int {
             printf(b" all slaves are now operational\n\x00" as *const u8 as *const libc::c_char);
-            return 1 as libc::c_int as boolean;
+            return 1u8;
         }
         i += 1
     }
     printf(b" failed,\x00" as *const u8 as *const libc::c_char);
     ecx_readstate(context);
-    i = 1 as libc::c_int;
+    i = 1i32;
     while i <= (*fieldbus).slavecount {
         slave = (*fieldbus).slavelist.as_mut_ptr().offset(i as isize);
         if (*slave).state as libc::c_int != EC_STATE_OPERATIONAL as libc::c_int {
@@ -615,7 +632,7 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
         i += 1
     }
     printf(b"\n\x00" as *const u8 as *const libc::c_char);
-    return 0 as libc::c_int as boolean;
+    return 0u8;
 }
 unsafe extern "C" fn fieldbus_stop(mut fieldbus: *mut Fieldbus) {
     let mut context: *mut ecx_contextt = 0 as *mut ecx_contextt;
@@ -624,8 +641,8 @@ unsafe extern "C" fn fieldbus_stop(mut fieldbus: *mut Fieldbus) {
     /* Act on slave 0 (a virtual slave used for broadcasting) */
     slave = (*fieldbus).slavelist.as_mut_ptr();
     printf(b"Requesting init state on all slaves... \x00" as *const u8 as *const libc::c_char);
-    (*slave).state = EC_STATE_INIT as libc::c_int as uint16;
-    ecx_writestate(context, 0 as libc::c_int as uint16);
+    (*slave).state = EC_STATE_INIT as uint16;
+    ecx_writestate(context, 0u16);
     printf(b"done\n\x00" as *const u8 as *const libc::c_char);
     printf(b"Close socket... \x00" as *const u8 as *const libc::c_char);
     ecx_close(context);
@@ -641,8 +658,7 @@ unsafe extern "C" fn fieldbus_dump(mut fieldbus: *mut Fieldbus) -> boolean {
         .as_mut_ptr()
         .offset((*fieldbus).group as libc::c_int as isize);
     wkc = fieldbus_roundtrip(fieldbus);
-    expected_wkc =
-        (*grp).outputsWKC as libc::c_int * 2 as libc::c_int + (*grp).inputsWKC as libc::c_int;
+    expected_wkc = (*grp).outputsWKC as libc::c_int * 2i32 + (*grp).inputsWKC as libc::c_int;
     printf(
         b"%6d usec  WKC %d\x00" as *const u8 as *const libc::c_char,
         (*fieldbus).roundtrip_time,
@@ -653,10 +669,10 @@ unsafe extern "C" fn fieldbus_dump(mut fieldbus: *mut Fieldbus) -> boolean {
             b" wrong (expected %d)\n\x00" as *const u8 as *const libc::c_char,
             expected_wkc,
         );
-        return 0 as libc::c_int as boolean;
+        return 0u8;
     }
     printf(b"  O:\x00" as *const u8 as *const libc::c_char);
-    n = 0 as libc::c_int as uint32;
+    n = 0u32;
     while n < (*grp).Obytes {
         printf(
             b" %02X\x00" as *const u8 as *const libc::c_char,
@@ -665,7 +681,7 @@ unsafe extern "C" fn fieldbus_dump(mut fieldbus: *mut Fieldbus) -> boolean {
         n = n.wrapping_add(1)
     }
     printf(b"  I:\x00" as *const u8 as *const libc::c_char);
-    n = 0 as libc::c_int as uint32;
+    n = 0u32;
     while n < (*grp).Ibytes {
         printf(
             b" %02X\x00" as *const u8 as *const libc::c_char,
@@ -675,9 +691,9 @@ unsafe extern "C" fn fieldbus_dump(mut fieldbus: *mut Fieldbus) -> boolean {
     }
     printf(
         b"  T: %lld\r\x00" as *const u8 as *const libc::c_char,
-        (*fieldbus).DCtime as libc::c_longlong,
+        (*fieldbus).DCtime,
     );
-    return 1 as libc::c_int as boolean;
+    return 1u8;
 }
 unsafe extern "C" fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
     let mut context: *mut ecx_contextt = 0 as *mut ecx_contextt;
@@ -688,14 +704,14 @@ unsafe extern "C" fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
     grp = (*context)
         .grouplist
         .offset((*fieldbus).group as libc::c_int as isize);
-    (*grp).docheckstate = 0 as libc::c_int as boolean;
+    (*grp).docheckstate = 0u8;
     ecx_readstate(context);
-    i = 1 as libc::c_int;
+    i = 1i32;
     while i <= (*fieldbus).slavecount {
         slave = (*context).slavelist.offset(i as isize);
         if !((*slave).group as libc::c_int != (*fieldbus).group as libc::c_int) {
             if (*slave).state as libc::c_int != EC_STATE_OPERATIONAL as libc::c_int {
-                (*grp).docheckstate = 1 as libc::c_int as boolean;
+                (*grp).docheckstate = 1u8;
                 if (*slave).state as libc::c_int
                     == EC_STATE_SAFE_OP as libc::c_int + EC_STATE_ERROR as libc::c_int
                 {
@@ -713,11 +729,11 @@ unsafe extern "C" fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
                             as *const libc::c_char,
                         i,
                     );
-                    (*slave).state = EC_STATE_OPERATIONAL as libc::c_int as uint16;
+                    (*slave).state = EC_STATE_OPERATIONAL as uint16;
                     ecx_writestate(context, i as uint16);
                 } else if (*slave).state as libc::c_int > EC_STATE_NONE as libc::c_int {
-                    if ecx_reconfig_slave(context, i as uint16, 2000 as libc::c_int) != 0 {
-                        (*slave).islost = 0 as libc::c_int as boolean;
+                    if ecx_reconfig_slave(context, i as uint16, 2000i32) != 0 {
+                        (*slave).islost = 0u8;
                         printf(
                             b"* Slave %d reconfigured\n\x00" as *const u8 as *const libc::c_char,
                             i,
@@ -727,11 +743,11 @@ unsafe extern "C" fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
                     ecx_statecheck(
                         context,
                         i as uint16,
-                        EC_STATE_OPERATIONAL as libc::c_int as uint16,
-                        2000 as libc::c_int,
+                        EC_STATE_OPERATIONAL as uint16,
+                        2000i32,
                     );
                     if (*slave).state as libc::c_int == EC_STATE_NONE as libc::c_int {
-                        (*slave).islost = 1 as libc::c_int as boolean;
+                        (*slave).islost = 1u8;
                         printf(
                             b"* Slave %d lost\n\x00" as *const u8 as *const libc::c_char,
                             i,
@@ -740,13 +756,13 @@ unsafe extern "C" fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
                 }
             } else if (*slave).islost != 0 {
                 if (*slave).state as libc::c_int != EC_STATE_NONE as libc::c_int {
-                    (*slave).islost = 0 as libc::c_int as boolean;
+                    (*slave).islost = 0u8;
                     printf(
                         b"* Slave %d found\n\x00" as *const u8 as *const libc::c_char,
                         i,
                     );
-                } else if ecx_recover_slave(context, i as uint16, 2000 as libc::c_int) != 0 {
-                    (*slave).islost = 0 as libc::c_int as boolean;
+                } else if ecx_recover_slave(context, i as uint16, 2000i32) != 0 {
+                    (*slave).islost = 0u8;
                     printf(
                         b"* Slave %d recovered\n\x00" as *const u8 as *const libc::c_char,
                         i,
@@ -1018,7 +1034,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             FMMU3: 0,
         },
     };
-    if argc != 2 as libc::c_int {
+    if argc != 2i32 {
         let mut adapter: *mut ec_adaptert = 0 as *mut ec_adaptert;
         printf(
             b"Usage: simple_ng IFNAME1\nIFNAME1 is the NIC interface name, e.g. \'eth0\'\n\x00"
@@ -1035,21 +1051,21 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             adapter = (*adapter).next
         }
         ec_free_adapters(adapter);
-        return 1 as libc::c_int;
+        return 1i32;
     }
-    fieldbus_initialize(&mut fieldbus, *argv.offset(1 as libc::c_int as isize));
+    fieldbus_initialize(&mut fieldbus, *argv.offset(1isize));
     if fieldbus_start(&mut fieldbus) != 0 {
         let mut i: libc::c_int = 0;
         let mut min_time: libc::c_int = 0;
         let mut max_time: libc::c_int = 0;
-        max_time = 0 as libc::c_int;
+        max_time = 0i32;
         min_time = max_time;
-        i = 1 as libc::c_int;
-        while i <= 10000 as libc::c_int {
+        i = 1i32;
+        while i <= 10000i32 {
             printf(b"Iteration %4d:\x00" as *const u8 as *const libc::c_char, i);
             if fieldbus_dump(&mut fieldbus) == 0 {
                 fieldbus_check_state(&mut fieldbus);
-            } else if i == 1 as libc::c_int {
+            } else if i == 1i32 {
                 max_time = fieldbus.roundtrip_time;
                 min_time = max_time
             } else if fieldbus.roundtrip_time < min_time {
@@ -1057,7 +1073,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             } else if fieldbus.roundtrip_time > max_time {
                 max_time = fieldbus.roundtrip_time
             }
-            osal_usleep(5000 as libc::c_int as uint32);
+            osal_usleep(5000u32);
             i += 1
         }
         printf(
@@ -1067,7 +1083,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
         );
         fieldbus_stop(&mut fieldbus);
     }
-    return 0 as libc::c_int;
+    return 0i32;
 }
 fn main() {
     let mut args: Vec<*mut libc::c_char> = Vec::new();
@@ -1079,10 +1095,5 @@ fn main() {
         );
     }
     args.push(::std::ptr::null_mut());
-    unsafe {
-        ::std::process::exit(main_0(
-            (args.len() - 1) as libc::c_int,
-            args.as_mut_ptr() as *mut *mut libc::c_char,
-        ) as i32)
-    }
+    unsafe { ::std::process::exit(main_0((args.len() - 1) as libc::c_int, args.as_mut_ptr())) }
 }

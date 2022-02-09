@@ -1,8 +1,7 @@
 use ::libc;
 extern "C" {
     #[no_mangle]
-    fn memcpy(_: *mut libc::c_void, _: *const libc::c_void, _: libc::c_ulong)
-     -> *mut libc::c_void;
+    fn memcpy(_: *mut libc::c_void, _: *const libc::c_void, _: libc::c_ulong) -> *mut libc::c_void;
     #[no_mangle]
     fn strlen(_: *const libc::c_char) -> libc::c_ulong;
     #[no_mangle]
@@ -12,12 +11,19 @@ extern "C" {
     #[no_mangle]
     fn ec_clearmbx(Mbx: *mut ec_mbxbuft);
     #[no_mangle]
-    fn ecx_mbxsend(context: *mut ecx_contextt, slave: uint16,
-                   mbx: *mut ec_mbxbuft, timeout: libc::c_int) -> libc::c_int;
+    fn ecx_mbxsend(
+        context: *mut ecx_contextt,
+        slave: uint16,
+        mbx: *mut ec_mbxbuft,
+        timeout: libc::c_int,
+    ) -> libc::c_int;
     #[no_mangle]
-    fn ecx_mbxreceive(context: *mut ecx_contextt, slave: uint16,
-                      mbx: *mut ec_mbxbuft, timeout: libc::c_int)
-     -> libc::c_int;
+    fn ecx_mbxreceive(
+        context: *mut ecx_contextt,
+        slave: uint16,
+        mbx: *mut ec_mbxbuft,
+        timeout: libc::c_int,
+    ) -> libc::c_int;
 }
 pub type __uint8_t = libc::c_uchar;
 pub type __int16_t = libc::c_short;
@@ -25,15 +31,17 @@ pub type __uint16_t = libc::c_ushort;
 pub type __int32_t = libc::c_int;
 pub type __uint32_t = libc::c_uint;
 pub type __int64_t = libc::c_long;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct __pthread_internal_list {
     pub __prev: *mut __pthread_internal_list,
     pub __next: *mut __pthread_internal_list,
 }
 pub type __pthread_list_t = __pthread_internal_list;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct __pthread_mutex_s {
     pub __lock: libc::c_int,
     pub __count: libc::c_uint,
@@ -44,8 +52,9 @@ pub struct __pthread_mutex_s {
     pub __elision: libc::c_short,
     pub __list: __pthread_list_t,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union pthread_mutex_t {
     pub __data: __pthread_mutex_s,
     pub __size: [libc::c_char; 40],
@@ -64,8 +73,9 @@ pub type uint8 = uint8_t;
 pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type int64 = int64_t;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_timet {
     pub sec: uint32,
     pub usec: uint32,
@@ -98,8 +108,9 @@ pub const EC_ERR_TYPE_SDOINFO_ERROR: ec_err_type = 4;
 pub const EC_ERR_TYPE_PACKET_ERROR: ec_err_type = 3;
 pub const EC_ERR_TYPE_EMERGENCY: ec_err_type = 1;
 pub const EC_ERR_TYPE_SDO_ERROR: ec_err_type = 0;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_errort {
     pub Time: ec_timet,
     pub Signal: boolean,
@@ -109,14 +120,16 @@ pub struct ec_errort {
     pub Etype: ec_err_type,
     pub c2rust_unnamed: C2RustUnnamed_1,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union C2RustUnnamed_1 {
     pub AbortCode: int32,
     pub c2rust_unnamed: C2RustUnnamed_2,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct C2RustUnnamed_2 {
     pub ErrorCode: uint16,
     pub ErrorReg: uint8,
@@ -124,8 +137,9 @@ pub struct C2RustUnnamed_2 {
     pub w1: uint16,
     pub w2: uint16,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_stackT {
     pub sock: *mut libc::c_int,
     pub txbuf: *mut [ec_bufT; 16],
@@ -135,8 +149,9 @@ pub struct ec_stackT {
     pub rxbufstat: *mut [libc::c_int; 16],
     pub rxsa: *mut [libc::c_int; 16],
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_redportt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
@@ -145,8 +160,9 @@ pub struct ecx_redportt {
     pub rxsa: [libc::c_int; 16],
     pub tempinbuf: ec_bufT,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_portt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
@@ -166,8 +182,9 @@ pub struct ecx_portt {
     pub tx_mutex: pthread_mutex_t,
     pub rx_mutex: pthread_mutex_t,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_fmmu {
     pub LogStart: uint32,
     pub LogLength: uint16,
@@ -181,16 +198,18 @@ pub struct ec_fmmu {
     pub unused2: uint16,
 }
 pub type ec_fmmut = ec_fmmu;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_sm {
     pub StartAddr: uint16,
     pub SMlength: uint16,
     pub SMflags: uint32,
 }
 pub type ec_smt = ec_sm;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_context {
     pub port: *mut ecx_portt,
     pub slavelist: *mut ec_slavet,
@@ -210,18 +229,19 @@ pub struct ecx_context {
     pub PDOdesc: *mut ec_PDOdesct,
     pub eepSM: *mut ec_eepromSMt,
     pub eepFMMU: *mut ec_eepromFMMUt,
-    pub FOEhook: Option<unsafe extern "C" fn(_: uint16, _: libc::c_int,
-                                             _: libc::c_int) -> libc::c_int>,
-    pub EOEhook: Option<unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16,
-                                             _: *mut libc::c_void)
-                            -> libc::c_int>,
+    pub FOEhook:
+        Option<unsafe extern "C" fn(_: uint16, _: libc::c_int, _: libc::c_int) -> libc::c_int>,
+    pub EOEhook: Option<
+        unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16, _: *mut libc::c_void) -> libc::c_int,
+    >,
     pub manualstatechange: libc::c_int,
     pub userdata: *mut libc::c_void,
 }
 pub type ecx_contextt = ecx_context;
 pub type ec_eepromFMMUt = ec_eepromFMMU;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_eepromFMMU {
     pub Startpos: uint16,
     pub nFMMU: uint8,
@@ -231,8 +251,9 @@ pub struct ec_eepromFMMU {
     pub FMMU3: uint8,
 }
 pub type ec_eepromSMt = ec_eepromSM;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_eepromSM {
     pub Startpos: uint16,
     pub nSM: uint8,
@@ -244,32 +265,36 @@ pub struct ec_eepromSM {
     pub PDIctrl: uint8,
 }
 pub type ec_PDOdesct = ec_PDOdesc;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_PDOdesc {
     pub n: uint8,
     pub nu1: uint8,
     pub PDO: [uint32; 256],
 }
 pub type ec_PDOassignt = ec_PDOassign;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_PDOassign {
     pub n: uint8,
     pub nu1: uint8,
     pub index: [uint16; 256],
 }
 pub type ec_SMcommtypet = ec_SMcommtype;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_SMcommtype {
     pub n: uint8,
     pub nu1: uint8,
     pub SMtype: [uint8; 8],
 }
 pub type ec_idxstackT = ec_idxstack;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_idxstack {
     pub pushed: uint8,
     pub pulled: uint8,
@@ -279,16 +304,18 @@ pub struct ec_idxstack {
     pub dcoffset: [uint16; 16],
 }
 pub type ec_eringt = ec_ering;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_ering {
     pub head: int16,
     pub tail: int16,
     pub Error: [ec_errort; 65],
 }
 pub type ec_groupt = ec_group;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_group {
     pub logstartaddr: uint32,
     pub Obytes: uint32,
@@ -308,8 +335,9 @@ pub struct ec_group {
     pub IOsegment: [uint32; 64],
 }
 pub type ec_slavet = ec_slave;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_slave {
     pub state: uint16,
     pub ALstatuscode: uint16,
@@ -373,13 +401,13 @@ pub struct ec_slave {
     pub FMMUunused: uint8,
     pub islost: boolean,
     pub PO2SOconfig: Option<unsafe extern "C" fn(_: uint16) -> libc::c_int>,
-    pub PO2SOconfigx: Option<unsafe extern "C" fn(_: *mut ecx_contextt,
-                                                  _: uint16) -> libc::c_int>,
+    pub PO2SOconfigx: Option<unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16) -> libc::c_int>,
     pub name: [libc::c_char; 41],
 }
 pub type ec_mbxbuft = [uint8; 1487];
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_mbxheader {
     pub length: uint16,
     pub address: uint16,
@@ -387,8 +415,9 @@ pub struct ec_mbxheader {
     pub mbxtype: uint8,
 }
 pub type ec_mbxheadert = ec_mbxheader;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_FOEt {
     pub MbxHeader: ec_mbxheadert,
     pub OpCode: uint8,
@@ -396,15 +425,17 @@ pub struct ec_FOEt {
     pub c2rust_unnamed: C2RustUnnamed_4,
     pub c2rust_unnamed_0: C2RustUnnamed_3,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union C2RustUnnamed_3 {
     pub FileName: [libc::c_char; 512],
     pub Data: [uint8; 512],
     pub ErrorText: [libc::c_char; 512],
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union C2RustUnnamed_4 {
     pub Password: uint32,
     pub PacketNumber: uint32,
@@ -417,16 +448,15 @@ pub union C2RustUnnamed_4 {
  * @return 1
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_FOEdefinehook(mut context: *mut ecx_contextt,
-                                           mut hook: *mut libc::c_void)
- -> libc::c_int {
-    (*context).FOEhook =
-        ::core::mem::transmute::<*mut libc::c_void,
-                                 Option<unsafe extern "C" fn(_: uint16,
-                                                             _: libc::c_int,
-                                                             _: libc::c_int)
-                                            -> libc::c_int>>(hook);
-    return 1 as libc::c_int;
+pub unsafe extern "C" fn ecx_FOEdefinehook(
+    mut context: *mut ecx_contextt,
+    mut hook: *mut libc::c_void,
+) -> libc::c_int {
+    (*context).FOEhook = ::core::mem::transmute::<
+        *mut libc::c_void,
+        Option<unsafe extern "C" fn(_: uint16, _: libc::c_int, _: libc::c_int) -> libc::c_int>,
+    >(hook);
+    return 1i32;
 }
 /* * FoE read, blocking.
  *
@@ -440,21 +470,22 @@ pub unsafe extern "C" fn ecx_FOEdefinehook(mut context: *mut ecx_contextt,
  * @return Workcounter from last slave response
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_FOEread(mut context: *mut ecx_contextt,
-                                     mut slave: uint16,
-                                     mut filename: *mut libc::c_char,
-                                     mut password: uint32,
-                                     mut psize: *mut libc::c_int,
-                                     mut p: *mut libc::c_void,
-                                     mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_FOEread(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut filename: *mut libc::c_char,
+    mut password: uint32,
+    mut psize: *mut libc::c_int,
+    mut p: *mut libc::c_void,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     let mut FOEp: *mut ec_FOEt = 0 as *mut ec_FOEt;
     let mut aFOEp: *mut ec_FOEt = 0 as *mut ec_FOEt;
     let mut wkc: libc::c_int = 0;
-    let mut dataread: int32 = 0 as libc::c_int;
+    let mut dataread: int32 = 0i32;
     let mut buffersize: int32 = 0;
     let mut packetnumber: int32 = 0;
-    let mut prevpacket: int32 = 0 as libc::c_int;
+    let mut prevpacket: int32 = 0i32;
     let mut fnsize: uint16 = 0;
     let mut maxdata: uint16 = 0;
     let mut segmentdata: uint16 = 0;
@@ -465,130 +496,107 @@ pub unsafe extern "C" fn ecx_FOEread(mut context: *mut ecx_contextt,
     buffersize = *psize;
     ec_clearmbx(&mut MbxIn);
     /* Empty slave out mailbox if something is in. Timeout set to 0 */
-    wkc =
-        ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft,
-                       0 as libc::c_int);
+    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0i32);
     ec_clearmbx(&mut MbxOut);
     aFOEp = &mut MbxIn as *mut ec_mbxbuft as *mut ec_FOEt;
     FOEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_FOEt;
     fnsize = strlen(filename) as uint16;
     maxdata =
-        ((*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int -
-             12 as libc::c_int) as uint16;
-    if fnsize as libc::c_int > maxdata as libc::c_int { fnsize = maxdata }
-    (*FOEp).MbxHeader.length =
-        (0x6 as libc::c_int + fnsize as libc::c_int) as uint16;
-    (*FOEp).MbxHeader.address = 0 as libc::c_int as uint16;
-    (*FOEp).MbxHeader.priority = 0 as libc::c_int as uint8;
+        ((*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int - 12i32) as uint16;
+    if fnsize as libc::c_int > maxdata as libc::c_int {
+        fnsize = maxdata
+    }
+    (*FOEp).MbxHeader.length = (0x6i32 + fnsize as libc::c_int) as uint16;
+    (*FOEp).MbxHeader.address = 0u16;
+    (*FOEp).MbxHeader.priority = 0u8;
     /* get new mailbox count value, used as session handle */
-    cnt =
-        ec_nextmbxcnt((*(*context).slavelist.offset(slave as
-                                                        isize)).mbx_cnt); /* FoE */
+    cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* FoE */
     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-    (*FOEp).MbxHeader.mbxtype =
-        (ECT_MBXT_FOE as libc::c_int +
-             ((cnt as libc::c_int) << 4 as libc::c_int) as uint8 as
-                 libc::c_int) as uint8;
-    (*FOEp).OpCode = ECT_FOE_READ as libc::c_int as uint8;
+    (*FOEp).MbxHeader.mbxtype = (ECT_MBXT_FOE as libc::c_int
+        + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
+        as uint8;
+    (*FOEp).OpCode = ECT_FOE_READ as uint8;
     (*FOEp).c2rust_unnamed.Password = password;
     /* copy filename in mailbox */
-    memcpy(&mut *(*FOEp).c2rust_unnamed_0.FileName.as_mut_ptr().offset(0 as
-                                                                           libc::c_int
-                                                                           as
-                                                                           isize)
-               as *mut libc::c_char as *mut libc::c_void,
-           filename as *const libc::c_void, fnsize as libc::c_ulong);
+    memcpy(
+        &mut *(*FOEp)
+            .c2rust_unnamed_0
+            .FileName
+            .as_mut_ptr()
+            .offset(0isize) as *mut libc::c_char as *mut libc::c_void,
+        filename as *const libc::c_void,
+        fnsize as libc::c_ulong,
+    );
     /* send FoE request to slave */
-    wkc =
-        ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft,
-                    20000 as libc::c_int);
-    if wkc > 0 as libc::c_int {
+    wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+    if wkc > 0i32 {
         /* succeeded to place mailbox in slave ? */
-        loop  {
-            worktodo = 0 as libc::c_int as boolean;
+        loop {
+            worktodo = 0u8;
             /* clean mailboxbuffer */
             ec_clearmbx(&mut MbxIn);
             /* read slave response */
-            wkc =
-                ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft,
-                               timeout);
-            if wkc > 0 as libc::c_int {
+            wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, timeout);
+            if wkc > 0i32 {
                 /* succeeded to read slave response ? */
                 /* slave response should be FoE */
-                if (*aFOEp).MbxHeader.mbxtype as libc::c_int &
-                       0xf as libc::c_int == ECT_MBXT_FOE as libc::c_int {
-                    if (*aFOEp).OpCode as libc::c_int ==
-                           ECT_FOE_DATA as libc::c_int {
-                        segmentdata =
-                            ((*aFOEp).MbxHeader.length as libc::c_int -
-                                 0x6 as libc::c_int) as uint16;
-                        packetnumber =
-                            (*aFOEp).c2rust_unnamed.PacketNumber as int32;
+                if (*aFOEp).MbxHeader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_FOE as libc::c_int
+                {
+                    if (*aFOEp).OpCode as libc::c_int == ECT_FOE_DATA as libc::c_int {
+                        segmentdata = ((*aFOEp).MbxHeader.length as libc::c_int - 0x6i32) as uint16;
+                        packetnumber = (*aFOEp).c2rust_unnamed.PacketNumber as int32;
                         prevpacket += 1;
-                        if packetnumber == prevpacket &&
-                               dataread + segmentdata as libc::c_int <=
-                                   buffersize {
-                            memcpy(p,
-                                   &mut *(*aFOEp).c2rust_unnamed_0.Data.as_mut_ptr().offset(0
-                                                                                                as
-                                                                                                libc::c_int
-                                                                                                as
-                                                                                                isize)
-                                       as *mut uint8 as *const libc::c_void,
-                                   segmentdata as libc::c_ulong);
+                        if packetnumber == prevpacket
+                            && dataread + segmentdata as libc::c_int <= buffersize
+                        {
+                            memcpy(
+                                p,
+                                &mut *(*aFOEp).c2rust_unnamed_0.Data.as_mut_ptr().offset(0isize)
+                                    as *mut uint8
+                                    as *const libc::c_void,
+                                segmentdata as libc::c_ulong,
+                            );
                             dataread += segmentdata as libc::c_int;
-                            p =
-                                (p as
-                                     *mut uint8).offset(segmentdata as
-                                                            libc::c_int as
-                                                            isize) as
-                                    *mut libc::c_void;
-                            if segmentdata as libc::c_int ==
-                                   maxdata as libc::c_int {
-                                worktodo = 1 as libc::c_int as boolean
+                            p = (p as *mut uint8).offset(segmentdata as libc::c_int as isize)
+                                as *mut libc::c_void;
+                            if segmentdata as libc::c_int == maxdata as libc::c_int {
+                                worktodo = 1u8
                             }
-                            (*FOEp).MbxHeader.length =
-                                0x6 as libc::c_int as uint16;
-                            (*FOEp).MbxHeader.address =
-                                0 as libc::c_int as uint16;
-                            (*FOEp).MbxHeader.priority =
-                                0 as libc::c_int as uint8;
+                            (*FOEp).MbxHeader.length = 0x6u16;
+                            (*FOEp).MbxHeader.address = 0u16;
+                            (*FOEp).MbxHeader.priority = 0u8;
                             /* get new mailbox count value */
-                            cnt =
-                                ec_nextmbxcnt((*(*context).slavelist.offset(slave
-                                                                                as
-                                                                                isize)).mbx_cnt); /* FoE */
-                            (*(*context).slavelist.offset(slave as
-                                                              isize)).mbx_cnt
-                                = cnt;
-                            (*FOEp).MbxHeader.mbxtype =
-                                (ECT_MBXT_FOE as libc::c_int +
-                                     ((cnt as libc::c_int) <<
-                                          4 as libc::c_int) as uint8 as
-                                         libc::c_int) as uint8;
-                            (*FOEp).OpCode =
-                                ECT_FOE_ACK as libc::c_int as uint8;
-                            (*FOEp).c2rust_unnamed.PacketNumber =
-                                packetnumber as uint32;
+                            cnt = ec_nextmbxcnt(
+                                (*(*context).slavelist.offset(slave as isize)).mbx_cnt,
+                            ); /* FoE */
+                            (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
+                            (*FOEp).MbxHeader.mbxtype = (ECT_MBXT_FOE as libc::c_int
+                                + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
+                                as uint8;
+                            (*FOEp).OpCode = ECT_FOE_ACK as uint8;
+                            (*FOEp).c2rust_unnamed.PacketNumber = packetnumber as uint32;
                             /* send FoE ack to slave */
-                            wkc =
-                                ecx_mbxsend(context, slave,
-                                            &mut MbxOut as *mut ec_mbxbuft,
-                                            20000 as libc::c_int);
-                            if wkc <= 0 as libc::c_int {
-                                worktodo = 0 as libc::c_int as boolean
+                            wkc = ecx_mbxsend(
+                                context,
+                                slave,
+                                &mut MbxOut as *mut ec_mbxbuft,
+                                20000i32,
+                            );
+                            if wkc <= 0i32 {
+                                worktodo = 0u8
                             }
                             if (*context).FOEhook.is_some() {
-                                (*context).FOEhook.expect("non-null function pointer")(slave,
-                                                                                       packetnumber,
-                                                                                       dataread);
+                                (*context).FOEhook.expect("non-null function pointer")(
+                                    slave,
+                                    packetnumber,
+                                    dataread,
+                                );
                             }
                         } else {
                             /* FoE error */
                             wkc = -(EC_ERR_TYPE_FOE_BUF2SMALL as libc::c_int)
                         }
-                    } else if (*aFOEp).OpCode as libc::c_int ==
-                                  ECT_FOE_ERROR as libc::c_int {
+                    } else if (*aFOEp).OpCode as libc::c_int == ECT_FOE_ERROR as libc::c_int {
                         /* FoE error */
                         wkc = -(EC_ERR_TYPE_FOE_ERROR as libc::c_int)
                     } else {
@@ -601,7 +609,9 @@ pub unsafe extern "C" fn ecx_FOEread(mut context: *mut ecx_contextt,
                 }
                 *psize = dataread
             }
-            if !(worktodo != 0) { break ; }
+            if !(worktodo != 0) {
+                break;
+            }
         }
     }
     return wkc;
@@ -618,19 +628,20 @@ pub unsafe extern "C" fn ecx_FOEread(mut context: *mut ecx_contextt,
  * @return Workcounter from last slave response
  */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_FOEwrite(mut context: *mut ecx_contextt,
-                                      mut slave: uint16,
-                                      mut filename: *mut libc::c_char,
-                                      mut password: uint32,
-                                      mut psize: libc::c_int,
-                                      mut p: *mut libc::c_void,
-                                      mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_FOEwrite(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut filename: *mut libc::c_char,
+    mut password: uint32,
+    mut psize: libc::c_int,
+    mut p: *mut libc::c_void,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     let mut FOEp: *mut ec_FOEt = 0 as *mut ec_FOEt;
     let mut aFOEp: *mut ec_FOEt = 0 as *mut ec_FOEt;
     let mut wkc: libc::c_int = 0;
     let mut packetnumber: int32 = 0;
-    let mut sendpacket: int32 = 0 as libc::c_int;
+    let mut sendpacket: int32 = 0i32;
     let mut fnsize: uint16 = 0;
     let mut maxdata: uint16 = 0;
     let mut segmentdata: libc::c_int = 0;
@@ -642,165 +653,138 @@ pub unsafe extern "C" fn ecx_FOEwrite(mut context: *mut ecx_contextt,
     let mut tsize: libc::c_int = 0;
     ec_clearmbx(&mut MbxIn);
     /* Empty slave out mailbox if something is in. Timeout set to 0 */
-    wkc =
-        ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft,
-                       0 as libc::c_int);
+    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0i32);
     ec_clearmbx(&mut MbxOut);
     aFOEp = &mut MbxIn as *mut ec_mbxbuft as *mut ec_FOEt;
     FOEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_FOEt;
-    dofinalzero = 0 as libc::c_int as boolean;
+    dofinalzero = 0u8;
     fnsize = strlen(filename) as uint16;
     maxdata =
-        ((*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int -
-             12 as libc::c_int) as uint16;
-    if fnsize as libc::c_int > maxdata as libc::c_int { fnsize = maxdata }
-    (*FOEp).MbxHeader.length =
-        (0x6 as libc::c_int + fnsize as libc::c_int) as uint16;
-    (*FOEp).MbxHeader.address = 0 as libc::c_int as uint16;
-    (*FOEp).MbxHeader.priority = 0 as libc::c_int as uint8;
+        ((*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int - 12i32) as uint16;
+    if fnsize as libc::c_int > maxdata as libc::c_int {
+        fnsize = maxdata
+    }
+    (*FOEp).MbxHeader.length = (0x6i32 + fnsize as libc::c_int) as uint16;
+    (*FOEp).MbxHeader.address = 0u16;
+    (*FOEp).MbxHeader.priority = 0u8;
     /* get new mailbox count value, used as session handle */
-    cnt =
-        ec_nextmbxcnt((*(*context).slavelist.offset(slave as
-                                                        isize)).mbx_cnt); /* FoE */
+    cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* FoE */
     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-    (*FOEp).MbxHeader.mbxtype =
-        (ECT_MBXT_FOE as libc::c_int +
-             ((cnt as libc::c_int) << 4 as libc::c_int) as uint8 as
-                 libc::c_int) as uint8;
-    (*FOEp).OpCode = ECT_FOE_WRITE as libc::c_int as uint8;
+    (*FOEp).MbxHeader.mbxtype = (ECT_MBXT_FOE as libc::c_int
+        + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
+        as uint8;
+    (*FOEp).OpCode = ECT_FOE_WRITE as uint8;
     (*FOEp).c2rust_unnamed.Password = password;
     /* copy filename in mailbox */
-    memcpy(&mut *(*FOEp).c2rust_unnamed_0.FileName.as_mut_ptr().offset(0 as
-                                                                           libc::c_int
-                                                                           as
-                                                                           isize)
-               as *mut libc::c_char as *mut libc::c_void,
-           filename as *const libc::c_void, fnsize as libc::c_ulong);
+    memcpy(
+        &mut *(*FOEp)
+            .c2rust_unnamed_0
+            .FileName
+            .as_mut_ptr()
+            .offset(0isize) as *mut libc::c_char as *mut libc::c_void,
+        filename as *const libc::c_void,
+        fnsize as libc::c_ulong,
+    );
     /* send FoE request to slave */
-    wkc =
-        ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft,
-                    20000 as libc::c_int);
-    if wkc > 0 as libc::c_int {
+    wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+    if wkc > 0i32 {
         /* succeeded to place mailbox in slave ? */
-        loop  {
-            worktodo = 0 as libc::c_int as boolean;
+        loop {
+            worktodo = 0u8;
             /* clean mailboxbuffer */
             ec_clearmbx(&mut MbxIn);
             /* read slave response */
-            wkc =
-                ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft,
-                               timeout);
-            if wkc > 0 as libc::c_int {
+            wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, timeout);
+            if wkc > 0i32 {
                 /* succeeded to read slave response ? */
                 /* slave response should be FoE */
-                if (*aFOEp).MbxHeader.mbxtype as libc::c_int &
-                       0xf as libc::c_int == ECT_MBXT_FOE as libc::c_int {
+                if (*aFOEp).MbxHeader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_FOE as libc::c_int
+                {
                     match (*aFOEp).OpCode as libc::c_int {
                         4 => {
-                            packetnumber =
-                                (*aFOEp).c2rust_unnamed.PacketNumber as int32;
+                            packetnumber = (*aFOEp).c2rust_unnamed.PacketNumber as int32;
                             if packetnumber == sendpacket {
                                 if (*context).FOEhook.is_some() {
-                                    (*context).FOEhook.expect("non-null function pointer")(slave,
-                                                                                           packetnumber,
-                                                                                           psize);
+                                    (*context).FOEhook.expect("non-null function pointer")(
+                                        slave,
+                                        packetnumber,
+                                        psize,
+                                    );
                                 }
                                 tsize = psize;
                                 if tsize > maxdata as libc::c_int {
                                     tsize = maxdata as libc::c_int
                                 }
-                                if tsize != 0 ||
-                                       dofinalzero as libc::c_int != 0 {
-                                    worktodo = 1 as libc::c_int as boolean;
-                                    dofinalzero = 0 as libc::c_int as boolean;
+                                if tsize != 0 || dofinalzero as libc::c_int != 0 {
+                                    worktodo = 1u8;
+                                    dofinalzero = 0u8;
                                     segmentdata = tsize;
                                     psize -= segmentdata;
                                     /* if last packet was full size, add a zero size packet as final */
-                           /* EOF is defined as packetsize < full packetsize */
-                                    if psize == 0 &&
-                                           segmentdata ==
-                                               maxdata as libc::c_int {
-                                        dofinalzero =
-                                            1 as libc::c_int as boolean
+                                    /* EOF is defined as packetsize < full packetsize */
+                                    if psize == 0 && segmentdata == maxdata as libc::c_int {
+                                        dofinalzero = 1u8
                                     }
-                                    (*FOEp).MbxHeader.length =
-                                        (0x6 as libc::c_int + segmentdata) as
-                                            uint16;
-                                    (*FOEp).MbxHeader.address =
-                                        0 as libc::c_int as uint16;
-                                    (*FOEp).MbxHeader.priority =
-                                        0 as libc::c_int as uint8;
+                                    (*FOEp).MbxHeader.length = (0x6i32 + segmentdata) as uint16;
+                                    (*FOEp).MbxHeader.address = 0u16;
+                                    (*FOEp).MbxHeader.priority = 0u8;
                                     /* get new mailbox count value */
-                                    cnt =
-                                        ec_nextmbxcnt((*(*context).slavelist.offset(slave
-                                                                                        as
-                                                                                        isize)).mbx_cnt); /* FoE */
-                                    (*(*context).slavelist.offset(slave as
-                                                                      isize)).mbx_cnt
-                                        = cnt;
-                                    (*FOEp).MbxHeader.mbxtype =
-                                        (ECT_MBXT_FOE as libc::c_int +
-                                             ((cnt as libc::c_int) <<
-                                                  4 as libc::c_int) as uint8
-                                                 as libc::c_int) as uint8;
-                                    (*FOEp).OpCode =
-                                        ECT_FOE_DATA as libc::c_int as uint8;
+                                    cnt = ec_nextmbxcnt(
+                                        (*(*context).slavelist.offset(slave as isize)).mbx_cnt,
+                                    ); /* FoE */
+                                    (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
+                                    (*FOEp).MbxHeader.mbxtype = (ECT_MBXT_FOE as libc::c_int
+                                        + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
+                                        as uint8;
+                                    (*FOEp).OpCode = ECT_FOE_DATA as uint8;
                                     sendpacket += 1;
-                                    (*FOEp).c2rust_unnamed.PacketNumber =
-                                        sendpacket as uint32;
-                                    memcpy(&mut *(*FOEp).c2rust_unnamed_0.Data.as_mut_ptr().offset(0
-                                                                                                       as
-                                                                                                       libc::c_int
-                                                                                                       as
-                                                                                                       isize)
-                                               as *mut uint8 as
-                                               *mut libc::c_void, p,
-                                           segmentdata as libc::c_ulong);
-                                    p =
-                                        (p as
-                                             *mut uint8).offset(segmentdata as
-                                                                    isize) as
-                                            *mut libc::c_void;
+                                    (*FOEp).c2rust_unnamed.PacketNumber = sendpacket as uint32;
+                                    memcpy(
+                                        &mut *(*FOEp)
+                                            .c2rust_unnamed_0
+                                            .Data
+                                            .as_mut_ptr()
+                                            .offset(0isize)
+                                            as *mut uint8
+                                            as *mut libc::c_void,
+                                        p,
+                                        segmentdata as libc::c_ulong,
+                                    );
+                                    p = (p as *mut uint8).offset(segmentdata as isize)
+                                        as *mut libc::c_void;
                                     /* send FoE data to slave */
-                                    wkc =
-                                        ecx_mbxsend(context, slave,
-                                                    &mut MbxOut as
-                                                        *mut ec_mbxbuft,
-                                                    20000 as libc::c_int);
-                                    if wkc <= 0 as libc::c_int {
-                                        worktodo = 0 as libc::c_int as boolean
+                                    wkc = ecx_mbxsend(
+                                        context,
+                                        slave,
+                                        &mut MbxOut as *mut ec_mbxbuft,
+                                        20000i32,
+                                    );
+                                    if wkc <= 0i32 {
+                                        worktodo = 0u8
                                     }
                                 }
                             } else {
                                 /* FoE error */
-                                wkc =
-                                    -(EC_ERR_TYPE_FOE_PACKETNUMBER as
-                                          libc::c_int)
+                                wkc = -(EC_ERR_TYPE_FOE_PACKETNUMBER as libc::c_int)
                             }
                         }
                         6 => {
                             /* resend if data has been send before */
-                     /* otherwise ignore */
+                            /* otherwise ignore */
                             if sendpacket != 0 {
                                 if psize == 0 {
-                                    dofinalzero = 1 as libc::c_int as boolean
+                                    dofinalzero = 1u8
                                 }
                                 psize += segmentdata;
-                                p =
-                                    (p as
-                                         *mut uint8).offset(-(segmentdata as
-                                                                  isize)) as
-                                        *mut libc::c_void;
+                                p = (p as *mut uint8).offset(-(segmentdata as isize))
+                                    as *mut libc::c_void;
                                 sendpacket -= 1
                             }
                         }
                         5 => {
                             /* FoE error */
-                            if (*aFOEp).c2rust_unnamed.ErrorCode ==
-                                   0x8001 as libc::c_int as libc::c_uint {
-                                wkc =
-                                    -(EC_ERR_TYPE_FOE_FILE_NOTFOUND as
-                                          libc::c_int)
+                            if (*aFOEp).c2rust_unnamed.ErrorCode == 0x8001u32 {
+                                wkc = -(EC_ERR_TYPE_FOE_FILE_NOTFOUND as libc::c_int)
                             } else {
                                 wkc = -(EC_ERR_TYPE_FOE_ERROR as libc::c_int)
                             }
@@ -815,34 +799,52 @@ pub unsafe extern "C" fn ecx_FOEwrite(mut context: *mut ecx_contextt,
                     wkc = -(EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
                 }
             }
-            if !(worktodo != 0) { break ; }
+            if !(worktodo != 0) {
+                break;
+            }
         }
     }
     return wkc;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_FOEdefinehook(mut hook: *mut libc::c_void)
- -> libc::c_int {
+pub unsafe extern "C" fn ec_FOEdefinehook(mut hook: *mut libc::c_void) -> libc::c_int {
     return ecx_FOEdefinehook(&mut ecx_context, hook);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_FOEread(mut slave: uint16,
-                                    mut filename: *mut libc::c_char,
-                                    mut password: uint32,
-                                    mut psize: *mut libc::c_int,
-                                    mut p: *mut libc::c_void,
-                                    mut timeout: libc::c_int) -> libc::c_int {
-    return ecx_FOEread(&mut ecx_context, slave, filename, password, psize, p,
-                       timeout);
+pub unsafe extern "C" fn ec_FOEread(
+    mut slave: uint16,
+    mut filename: *mut libc::c_char,
+    mut password: uint32,
+    mut psize: *mut libc::c_int,
+    mut p: *mut libc::c_void,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
+    return ecx_FOEread(
+        &mut ecx_context,
+        slave,
+        filename,
+        password,
+        psize,
+        p,
+        timeout,
+    );
 }
 #[no_mangle]
-pub unsafe extern "C" fn ec_FOEwrite(mut slave: uint16,
-                                     mut filename: *mut libc::c_char,
-                                     mut password: uint32,
-                                     mut psize: libc::c_int,
-                                     mut p: *mut libc::c_void,
-                                     mut timeout: libc::c_int)
- -> libc::c_int {
-    return ecx_FOEwrite(&mut ecx_context, slave, filename, password, psize, p,
-                        timeout);
+pub unsafe extern "C" fn ec_FOEwrite(
+    mut slave: uint16,
+    mut filename: *mut libc::c_char,
+    mut password: uint32,
+    mut psize: libc::c_int,
+    mut p: *mut libc::c_void,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
+    return ecx_FOEwrite(
+        &mut ecx_context,
+        slave,
+        filename,
+        password,
+        psize,
+        p,
+        timeout,
+    );
 }

@@ -66,15 +66,17 @@ pub type uint8_t = __uint8_t;
 pub type uint16_t = __uint16_t;
 pub type uint32_t = __uint32_t;
 pub type time_t = __time_t;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct __pthread_internal_list {
     pub __prev: *mut __pthread_internal_list,
     pub __next: *mut __pthread_internal_list,
 }
 pub type __pthread_list_t = __pthread_internal_list;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct __pthread_mutex_s {
     pub __lock: libc::c_int,
     pub __count: libc::c_uint,
@@ -86,8 +88,9 @@ pub struct __pthread_mutex_s {
     pub __list: __pthread_list_t,
 }
 pub type pthread_t = libc::c_ulong;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union pthread_mutex_t {
     pub __data: __pthread_mutex_s,
     pub __size: [libc::c_char; 40],
@@ -100,8 +103,9 @@ pub type uint8 = uint8_t;
 pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type int64 = int64_t;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_timet {
     pub sec: uint32,
     pub usec: uint32,
@@ -128,8 +132,9 @@ pub const EC_ERR_TYPE_SDOINFO_ERROR: ec_err_type = 4;
 pub const EC_ERR_TYPE_PACKET_ERROR: ec_err_type = 3;
 pub const EC_ERR_TYPE_EMERGENCY: ec_err_type = 1;
 pub const EC_ERR_TYPE_SDO_ERROR: ec_err_type = 0;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_errort {
     pub Time: ec_timet,
     pub Signal: boolean,
@@ -139,14 +144,16 @@ pub struct ec_errort {
     pub Etype: ec_err_type,
     pub c2rust_unnamed: C2RustUnnamed_0,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union C2RustUnnamed_0 {
     pub AbortCode: int32,
     pub c2rust_unnamed: C2RustUnnamed_1,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct C2RustUnnamed_1 {
     pub ErrorCode: uint16,
     pub ErrorReg: uint8,
@@ -154,8 +161,9 @@ pub struct C2RustUnnamed_1 {
     pub w1: uint16,
     pub w2: uint16,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_stackT {
     pub sock: *mut libc::c_int,
     pub txbuf: *mut [ec_bufT; 16],
@@ -165,8 +173,9 @@ pub struct ec_stackT {
     pub rxbufstat: *mut [libc::c_int; 16],
     pub rxsa: *mut [libc::c_int; 16],
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_redportt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
@@ -175,8 +184,9 @@ pub struct ecx_redportt {
     pub rxsa: [libc::c_int; 16],
     pub tempinbuf: ec_bufT,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_portt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
@@ -196,16 +206,18 @@ pub struct ecx_portt {
     pub tx_mutex: pthread_mutex_t,
     pub rx_mutex: pthread_mutex_t,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_adapter {
     pub name: [libc::c_char; 128],
     pub desc: [libc::c_char; 128],
     pub next: *mut ec_adaptert,
 }
 pub type ec_adaptert = ec_adapter;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_fmmu {
     pub LogStart: uint32,
     pub LogLength: uint16,
@@ -219,16 +231,18 @@ pub struct ec_fmmu {
     pub unused2: uint16,
 }
 pub type ec_fmmut = ec_fmmu;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_sm {
     pub StartAddr: uint16,
     pub SMlength: uint16,
     pub SMflags: uint32,
 }
 pub type ec_smt = ec_sm;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_context {
     pub port: *mut ecx_portt,
     pub slavelist: *mut ec_slavet,
@@ -258,8 +272,9 @@ pub struct ecx_context {
 }
 pub type ecx_contextt = ecx_context;
 pub type ec_eepromFMMUt = ec_eepromFMMU;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_eepromFMMU {
     pub Startpos: uint16,
     pub nFMMU: uint8,
@@ -269,8 +284,9 @@ pub struct ec_eepromFMMU {
     pub FMMU3: uint8,
 }
 pub type ec_eepromSMt = ec_eepromSM;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_eepromSM {
     pub Startpos: uint16,
     pub nSM: uint8,
@@ -282,32 +298,36 @@ pub struct ec_eepromSM {
     pub PDIctrl: uint8,
 }
 pub type ec_PDOdesct = ec_PDOdesc;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_PDOdesc {
     pub n: uint8,
     pub nu1: uint8,
     pub PDO: [uint32; 256],
 }
 pub type ec_PDOassignt = ec_PDOassign;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_PDOassign {
     pub n: uint8,
     pub nu1: uint8,
     pub index: [uint16; 256],
 }
 pub type ec_SMcommtypet = ec_SMcommtype;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_SMcommtype {
     pub n: uint8,
     pub nu1: uint8,
     pub SMtype: [uint8; 8],
 }
 pub type ec_idxstackT = ec_idxstack;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_idxstack {
     pub pushed: uint8,
     pub pulled: uint8,
@@ -317,16 +337,18 @@ pub struct ec_idxstack {
     pub dcoffset: [uint16; 16],
 }
 pub type ec_eringt = ec_ering;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_ering {
     pub head: int16,
     pub tail: int16,
     pub Error: [ec_errort; 65],
 }
 pub type ec_groupt = ec_group;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_group {
     pub logstartaddr: uint32,
     pub Obytes: uint32,
@@ -346,8 +368,9 @@ pub struct ec_group {
     pub IOsegment: [uint32; 64],
 }
 pub type ec_slavet = ec_slave;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_slave {
     pub state: uint16,
     pub ALstatuscode: uint16,
@@ -417,7 +440,7 @@ pub struct ec_slave {
 
 static mut IOmap: [libc::c_char; 4096] = [0; 4096];
 #[no_mangle]
-pub static mut thread1: *mut pthread_t = 0 as *const pthread_t as *mut pthread_t;
+pub static mut thread1: *mut pthread_t = 0 as *mut pthread_t;
 #[no_mangle]
 pub static mut expectedWKC: libc::c_int = 0;
 #[no_mangle]
@@ -427,7 +450,7 @@ static mut wkc: libc::c_int = 0;
 #[no_mangle]
 pub static mut inOP: boolean = 0;
 #[no_mangle]
-pub static mut currentgroup: uint8 = 0 as libc::c_int as uint8;
+pub static mut currentgroup: uint8 = 0u8;
 #[no_mangle]
 pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
     let mut i: libc::c_int = 0;
@@ -435,8 +458,8 @@ pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
     let mut oloop: libc::c_int = 0;
     let mut iloop: libc::c_int = 0;
     let mut chk: libc::c_int = 0;
-    needlf = 0 as libc::c_int as boolean;
-    inOP = 0 as libc::c_int as boolean;
+    needlf = 0u8;
+    inOP = 0u8;
     printf(b"Starting simple test\n\x00" as *const u8 as *const libc::c_char);
     /* initialise SOEM, bind socket to ifname */
     if ec_init(ifname) != 0 {
@@ -445,7 +468,7 @@ pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
             ifname,
         );
         /* find and auto-config slaves */
-        if ec_config_init(0 as libc::c_int as uint8) > 0 as libc::c_int {
+        if ec_config_init(0u8) > 0i32 {
             printf(
                 b"%d slaves found and configured.\n\x00" as *const u8 as *const libc::c_char,
                 ec_slavecount,
@@ -454,90 +477,73 @@ pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
             ec_configdc();
             printf(b"Slaves mapped, state to SAFE_OP.\n\x00" as *const u8 as *const libc::c_char);
             /* wait for all slaves to reach SAFE_OP state */
-            ec_statecheck(
-                0 as libc::c_int as uint16,
-                EC_STATE_SAFE_OP as libc::c_int as uint16,
-                2000000 as libc::c_int * 4 as libc::c_int,
-            );
-            oloop = ec_slave[0 as libc::c_int as usize].Obytes as libc::c_int;
-            if oloop == 0 as libc::c_int
-                && ec_slave[0 as libc::c_int as usize].Obits as libc::c_int > 0 as libc::c_int
-            {
-                oloop = 1 as libc::c_int
+            ec_statecheck(0u16, EC_STATE_SAFE_OP as uint16, 2000000i32 * 4i32);
+            oloop = ec_slave[0usize].Obytes as libc::c_int;
+            if oloop == 0i32 && ec_slave[0usize].Obits as libc::c_int > 0i32 {
+                oloop = 1i32
             }
-            if oloop > 8 as libc::c_int {
-                oloop = 8 as libc::c_int
+            if oloop > 8i32 {
+                oloop = 8i32
             }
-            iloop = ec_slave[0 as libc::c_int as usize].Ibytes as libc::c_int;
-            if iloop == 0 as libc::c_int
-                && ec_slave[0 as libc::c_int as usize].Ibits as libc::c_int > 0 as libc::c_int
-            {
-                iloop = 1 as libc::c_int
+            iloop = ec_slave[0usize].Ibytes as libc::c_int;
+            if iloop == 0i32 && ec_slave[0usize].Ibits as libc::c_int > 0i32 {
+                iloop = 1i32
             }
-            if iloop > 8 as libc::c_int {
-                iloop = 8 as libc::c_int
+            if iloop > 8i32 {
+                iloop = 8i32
             }
             printf(
                 b"segments : %d : %d %d %d %d\n\x00" as *const u8 as *const libc::c_char,
-                ec_group[0 as libc::c_int as usize].nsegments as libc::c_int,
-                ec_group[0 as libc::c_int as usize].IOsegment[0 as libc::c_int as usize],
-                ec_group[0 as libc::c_int as usize].IOsegment[1 as libc::c_int as usize],
-                ec_group[0 as libc::c_int as usize].IOsegment[2 as libc::c_int as usize],
-                ec_group[0 as libc::c_int as usize].IOsegment[3 as libc::c_int as usize],
+                ec_group[0usize].nsegments as libc::c_int,
+                ec_group[0usize].IOsegment[0usize],
+                ec_group[0usize].IOsegment[1usize],
+                ec_group[0usize].IOsegment[2usize],
+                ec_group[0usize].IOsegment[3usize],
             );
             printf(
                 b"Request operational state for all slaves\n\x00" as *const u8
                     as *const libc::c_char,
             );
-            expectedWKC = ec_group[0 as libc::c_int as usize].outputsWKC as libc::c_int
-                * 2 as libc::c_int
-                + ec_group[0 as libc::c_int as usize].inputsWKC as libc::c_int;
+            expectedWKC = ec_group[0usize].outputsWKC as libc::c_int * 2i32
+                + ec_group[0usize].inputsWKC as libc::c_int;
             printf(
                 b"Calculated workcounter %d\n\x00" as *const u8 as *const libc::c_char,
                 expectedWKC,
             );
-            ec_slave[0 as libc::c_int as usize].state =
-                EC_STATE_OPERATIONAL as libc::c_int as uint16;
+            ec_slave[0usize].state = EC_STATE_OPERATIONAL as uint16;
             /* send one valid process data to make outputs in slaves happy*/
             ec_send_processdata();
-            ec_receive_processdata(2000 as libc::c_int);
+            ec_receive_processdata(2000i32);
             /* request OP state for all slaves */
-            ec_writestate(0 as libc::c_int as uint16);
-            chk = 200 as libc::c_int;
+            ec_writestate(0u16);
+            chk = 200i32;
             loop
             /* wait for all slaves to reach OP state */
             {
                 ec_send_processdata();
-                ec_receive_processdata(2000 as libc::c_int);
-                ec_statecheck(
-                    0 as libc::c_int as uint16,
-                    EC_STATE_OPERATIONAL as libc::c_int as uint16,
-                    50000 as libc::c_int,
-                );
+                ec_receive_processdata(2000i32);
+                ec_statecheck(0u16, EC_STATE_OPERATIONAL as uint16, 50000i32);
                 let fresh0 = chk;
                 chk = chk - 1;
                 if !(fresh0 != 0
-                    && ec_slave[0 as libc::c_int as usize].state as libc::c_int
-                        != EC_STATE_OPERATIONAL as libc::c_int)
+                    && ec_slave[0usize].state as libc::c_int != EC_STATE_OPERATIONAL as libc::c_int)
                 {
                     break;
                 }
             }
-            if ec_slave[0 as libc::c_int as usize].state as libc::c_int
-                == EC_STATE_OPERATIONAL as libc::c_int
-            {
+            if ec_slave[0usize].state as libc::c_int == EC_STATE_OPERATIONAL as libc::c_int {
                 printf(
                     b"Operational state reached for all slaves.\n\x00" as *const u8
                         as *const libc::c_char,
                 );
-                inOP = 1 as libc::c_int as boolean;
+                inOP = 1u8;
                 /* cyclic loop */
-                i = 1 as libc::c_int;
-                while i <= 10000 as libc::c_int {
+                i = 1i32;
+                while i <= 10000i32 {
                     ec_send_processdata();
                     ::core::ptr::write_volatile(
                         &mut wkc as *mut libc::c_int,
-                        ec_receive_processdata(2000 as libc::c_int),
+                        ec_receive_processdata(2000i32),
                     );
                     if wkc >= expectedWKC {
                         printf(
@@ -546,26 +552,20 @@ pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
                             i,
                             wkc,
                         );
-                        j = 0 as libc::c_int;
+                        j = 0i32;
                         while j < oloop {
                             printf(
                                 b" %2.2x\x00" as *const u8 as *const libc::c_char,
-                                *ec_slave[0 as libc::c_int as usize]
-                                    .outputs
-                                    .offset(j as isize)
-                                    as libc::c_int,
+                                *ec_slave[0usize].outputs.offset(j as isize) as libc::c_int,
                             );
                             j += 1
                         }
                         printf(b" I:\x00" as *const u8 as *const libc::c_char);
-                        j = 0 as libc::c_int;
+                        j = 0i32;
                         while j < iloop {
                             printf(
                                 b" %2.2x\x00" as *const u8 as *const libc::c_char,
-                                *ec_slave[0 as libc::c_int as usize]
-                                    .inputs
-                                    .offset(j as isize)
-                                    as libc::c_int,
+                                *ec_slave[0usize].inputs.offset(j as isize) as libc::c_int,
                             );
                             j += 1
                         }
@@ -573,19 +573,19 @@ pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
                             b" T:%ld\r\x00" as *const u8 as *const libc::c_char,
                             ec_DCtime,
                         );
-                        needlf = 1 as libc::c_int as boolean
+                        needlf = 1u8
                     }
-                    osal_usleep(5000 as libc::c_int as uint32);
+                    osal_usleep(5000u32);
                     i += 1
                 }
-                inOP = 0 as libc::c_int as boolean
+                inOP = 0u8
             } else {
                 printf(
                     b"Not all slaves reached operational state.\n\x00" as *const u8
                         as *const libc::c_char,
                 );
                 ec_readstate();
-                i = 1 as libc::c_int;
+                i = 1i32;
                 while i <= ec_slavecount {
                     if ec_slave[i as usize].state as libc::c_int
                         != EC_STATE_OPERATIONAL as libc::c_int
@@ -605,9 +605,9 @@ pub unsafe extern "C" fn simpletest(mut ifname: *mut libc::c_char) {
             printf(
                 b"\nRequest init state for all slaves\n\x00" as *const u8 as *const libc::c_char,
             );
-            ec_slave[0 as libc::c_int as usize].state = EC_STATE_INIT as libc::c_int as uint16;
+            ec_slave[0usize].state = EC_STATE_INIT as uint16;
             /* request INIT state for all slaves */
-            ec_writestate(0 as libc::c_int as uint16);
+            ec_writestate(0u16);
         } else {
             printf(b"No slaves found!\n\x00" as *const u8 as *const libc::c_char);
         }
@@ -632,19 +632,19 @@ pub unsafe extern "C" fn ecatcheck(mut ptr: *mut libc::c_void) {
                 || ec_group[currentgroup as usize].docheckstate as libc::c_int != 0)
         {
             if needlf != 0 {
-                needlf = 0 as libc::c_int as boolean;
+                needlf = 0u8;
                 printf(b"\n\x00" as *const u8 as *const libc::c_char);
             }
             /* one ore more slaves are not responding */
-            ec_group[currentgroup as usize].docheckstate = 0 as libc::c_int as boolean;
+            ec_group[currentgroup as usize].docheckstate = 0u8;
             ec_readstate();
-            slave = 1 as libc::c_int;
+            slave = 1i32;
             while slave <= ec_slavecount {
                 if ec_slave[slave as usize].group as libc::c_int == currentgroup as libc::c_int
                     && ec_slave[slave as usize].state as libc::c_int
                         != EC_STATE_OPERATIONAL as libc::c_int
                 {
-                    ec_group[currentgroup as usize].docheckstate = 1 as libc::c_int as boolean;
+                    ec_group[currentgroup as usize].docheckstate = 1u8;
                     if ec_slave[slave as usize].state as libc::c_int
                         == EC_STATE_SAFE_OP as libc::c_int + EC_STATE_ERROR as libc::c_int
                     {
@@ -665,14 +665,13 @@ pub unsafe extern "C" fn ecatcheck(mut ptr: *mut libc::c_void) {
                                 as *const u8 as *const libc::c_char,
                             slave,
                         );
-                        ec_slave[slave as usize].state =
-                            EC_STATE_OPERATIONAL as libc::c_int as uint16;
+                        ec_slave[slave as usize].state = EC_STATE_OPERATIONAL as uint16;
                         ec_writestate(slave as uint16);
                     } else if ec_slave[slave as usize].state as libc::c_int
                         > EC_STATE_NONE as libc::c_int
                     {
-                        if ec_reconfig_slave(slave as uint16, 500 as libc::c_int) != 0 {
-                            ec_slave[slave as usize].islost = 0 as libc::c_int as boolean;
+                        if ec_reconfig_slave(slave as uint16, 500i32) != 0 {
+                            ec_slave[slave as usize].islost = 0u8;
                             printf(
                                 b"MESSAGE : slave %d reconfigured\n\x00" as *const u8
                                     as *const libc::c_char,
@@ -681,15 +680,11 @@ pub unsafe extern "C" fn ecatcheck(mut ptr: *mut libc::c_void) {
                         }
                     } else if ec_slave[slave as usize].islost == 0 {
                         /* re-check state */
-                        ec_statecheck(
-                            slave as uint16,
-                            EC_STATE_OPERATIONAL as libc::c_int as uint16,
-                            2000 as libc::c_int,
-                        );
+                        ec_statecheck(slave as uint16, EC_STATE_OPERATIONAL as uint16, 2000i32);
                         if ec_slave[slave as usize].state as libc::c_int
                             == EC_STATE_NONE as libc::c_int
                         {
-                            ec_slave[slave as usize].islost = 1 as libc::c_int as boolean;
+                            ec_slave[slave as usize].islost = 1u8;
                             printf(
                                 b"ERROR : slave %d lost\n\x00" as *const u8 as *const libc::c_char,
                                 slave,
@@ -700,8 +695,8 @@ pub unsafe extern "C" fn ecatcheck(mut ptr: *mut libc::c_void) {
                 if ec_slave[slave as usize].islost != 0 {
                     if ec_slave[slave as usize].state as libc::c_int == EC_STATE_NONE as libc::c_int
                     {
-                        if ec_recover_slave(slave as uint16, 500 as libc::c_int) != 0 {
-                            ec_slave[slave as usize].islost = 0 as libc::c_int as boolean;
+                        if ec_recover_slave(slave as uint16, 500i32) != 0 {
+                            ec_slave[slave as usize].islost = 0u8;
                             printf(
                                 b"MESSAGE : slave %d recovered\n\x00" as *const u8
                                     as *const libc::c_char,
@@ -709,7 +704,7 @@ pub unsafe extern "C" fn ecatcheck(mut ptr: *mut libc::c_void) {
                             );
                         }
                     } else {
-                        ec_slave[slave as usize].islost = 0 as libc::c_int as boolean;
+                        ec_slave[slave as usize].islost = 0u8;
                         printf(
                             b"MESSAGE : slave %d found\n\x00" as *const u8 as *const libc::c_char,
                             slave,
@@ -725,7 +720,7 @@ pub unsafe extern "C" fn ecatcheck(mut ptr: *mut libc::c_void) {
                 );
             }
         }
-        osal_usleep(10000 as libc::c_int as uint32);
+        osal_usleep(10000u32);
     }
 }
 unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> libc::c_int {
@@ -733,12 +728,12 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
         b"SOEM (Simple Open EtherCAT Master)\nSimple test\n\x00" as *const u8
             as *const libc::c_char,
     );
-    if argc > 1 as libc::c_int {
+    if argc > 1i32 {
         /* create thread to handle slave error handling in OP */
         //      pthread_create( &thread1, NULL, (void *) &ecatcheck, (void*) &ctime);
         osal_thread_create(
             &mut thread1 as *mut *mut pthread_t as *mut libc::c_void,
-            128000 as libc::c_int,
+            128000i32,
             ::core::mem::transmute::<
                 Option<unsafe extern "C" fn(_: *mut libc::c_void) -> ()>,
                 *mut libc::c_void,
@@ -753,7 +748,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             )),
         );
         /* start cyclic part */
-        simpletest(*argv.offset(1 as libc::c_int as isize));
+        simpletest(*argv.offset(1isize));
     } else {
         let mut adapter: *mut ec_adaptert = 0 as *mut ec_adaptert;
         printf(
@@ -773,7 +768,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
         ec_free_adapters(adapter);
     }
     printf(b"End program\n\x00" as *const u8 as *const libc::c_char);
-    return 0 as libc::c_int;
+    return 0i32;
 }
 fn main() {
     let mut args: Vec<*mut libc::c_char> = Vec::new();
@@ -785,10 +780,5 @@ fn main() {
         );
     }
     args.push(::std::ptr::null_mut());
-    unsafe {
-        ::std::process::exit(main_0(
-            (args.len() - 1) as libc::c_int,
-            args.as_mut_ptr() as *mut *mut libc::c_char,
-        ) as i32)
-    }
+    unsafe { ::std::process::exit(main_0((args.len() - 1) as libc::c_int, args.as_mut_ptr())) }
 }

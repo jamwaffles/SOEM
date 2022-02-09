@@ -1,20 +1,26 @@
-use ::libc;
 use ::c2rust_bitfields;
+use ::libc;
 extern "C" {
     #[no_mangle]
-    fn memcpy(_: *mut libc::c_void, _: *const libc::c_void, _: libc::c_ulong)
-     -> *mut libc::c_void;
+    fn memcpy(_: *mut libc::c_void, _: *const libc::c_void, _: libc::c_ulong) -> *mut libc::c_void;
     #[no_mangle]
     fn ec_nextmbxcnt(cnt: uint8) -> uint8;
     #[no_mangle]
     fn ec_clearmbx(Mbx: *mut ec_mbxbuft);
     #[no_mangle]
-    fn ecx_mbxsend(context: *mut ecx_contextt, slave: uint16,
-                   mbx: *mut ec_mbxbuft, timeout: libc::c_int) -> libc::c_int;
+    fn ecx_mbxsend(
+        context: *mut ecx_contextt,
+        slave: uint16,
+        mbx: *mut ec_mbxbuft,
+        timeout: libc::c_int,
+    ) -> libc::c_int;
     #[no_mangle]
-    fn ecx_mbxreceive(context: *mut ecx_contextt, slave: uint16,
-                      mbx: *mut ec_mbxbuft, timeout: libc::c_int)
-     -> libc::c_int;
+    fn ecx_mbxreceive(
+        context: *mut ecx_contextt,
+        slave: uint16,
+        mbx: *mut ec_mbxbuft,
+        timeout: libc::c_int,
+    ) -> libc::c_int;
 }
 pub type __uint8_t = libc::c_uchar;
 pub type __int16_t = libc::c_short;
@@ -22,15 +28,17 @@ pub type __uint16_t = libc::c_ushort;
 pub type __int32_t = libc::c_int;
 pub type __uint32_t = libc::c_uint;
 pub type __int64_t = libc::c_long;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct __pthread_internal_list {
     pub __prev: *mut __pthread_internal_list,
     pub __next: *mut __pthread_internal_list,
 }
 pub type __pthread_list_t = __pthread_internal_list;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct __pthread_mutex_s {
     pub __lock: libc::c_int,
     pub __count: libc::c_uint,
@@ -41,8 +49,9 @@ pub struct __pthread_mutex_s {
     pub __elision: libc::c_short,
     pub __list: __pthread_list_t,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union pthread_mutex_t {
     pub __data: __pthread_mutex_s,
     pub __size: [libc::c_char; 40],
@@ -61,8 +70,9 @@ pub type uint8 = uint8_t;
 pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type int64 = int64_t;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_timet {
     pub sec: uint32,
     pub usec: uint32,
@@ -88,8 +98,9 @@ pub const EC_ERR_TYPE_SDOINFO_ERROR: ec_err_type = 4;
 pub const EC_ERR_TYPE_PACKET_ERROR: ec_err_type = 3;
 pub const EC_ERR_TYPE_EMERGENCY: ec_err_type = 1;
 pub const EC_ERR_TYPE_SDO_ERROR: ec_err_type = 0;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_errort {
     pub Time: ec_timet,
     pub Signal: boolean,
@@ -99,14 +110,16 @@ pub struct ec_errort {
     pub Etype: ec_err_type,
     pub c2rust_unnamed: C2RustUnnamed_0,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union C2RustUnnamed_0 {
     pub AbortCode: int32,
     pub c2rust_unnamed: C2RustUnnamed_1,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct C2RustUnnamed_1 {
     pub ErrorCode: uint16,
     pub ErrorReg: uint8,
@@ -114,8 +127,9 @@ pub struct C2RustUnnamed_1 {
     pub w1: uint16,
     pub w2: uint16,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_stackT {
     pub sock: *mut libc::c_int,
     pub txbuf: *mut [ec_bufT; 16],
@@ -125,8 +139,9 @@ pub struct ec_stackT {
     pub rxbufstat: *mut [libc::c_int; 16],
     pub rxsa: *mut [libc::c_int; 16],
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_redportt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
@@ -135,8 +150,9 @@ pub struct ecx_redportt {
     pub rxsa: [libc::c_int; 16],
     pub tempinbuf: ec_bufT,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_portt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
@@ -156,8 +172,9 @@ pub struct ecx_portt {
     pub tx_mutex: pthread_mutex_t,
     pub rx_mutex: pthread_mutex_t,
 }
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_fmmu {
     pub LogStart: uint32,
     pub LogLength: uint16,
@@ -171,16 +188,18 @@ pub struct ec_fmmu {
     pub unused2: uint16,
 }
 pub type ec_fmmut = ec_fmmu;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_sm {
     pub StartAddr: uint16,
     pub SMlength: uint16,
     pub SMflags: uint32,
 }
 pub type ec_smt = ec_sm;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ecx_context {
     pub port: *mut ecx_portt,
     pub slavelist: *mut ec_slavet,
@@ -200,18 +219,19 @@ pub struct ecx_context {
     pub PDOdesc: *mut ec_PDOdesct,
     pub eepSM: *mut ec_eepromSMt,
     pub eepFMMU: *mut ec_eepromFMMUt,
-    pub FOEhook: Option<unsafe extern "C" fn(_: uint16, _: libc::c_int,
-                                             _: libc::c_int) -> libc::c_int>,
-    pub EOEhook: Option<unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16,
-                                             _: *mut libc::c_void)
-                            -> libc::c_int>,
+    pub FOEhook:
+        Option<unsafe extern "C" fn(_: uint16, _: libc::c_int, _: libc::c_int) -> libc::c_int>,
+    pub EOEhook: Option<
+        unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16, _: *mut libc::c_void) -> libc::c_int,
+    >,
     pub manualstatechange: libc::c_int,
     pub userdata: *mut libc::c_void,
 }
 pub type ecx_contextt = ecx_context;
 pub type ec_eepromFMMUt = ec_eepromFMMU;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_eepromFMMU {
     pub Startpos: uint16,
     pub nFMMU: uint8,
@@ -221,8 +241,9 @@ pub struct ec_eepromFMMU {
     pub FMMU3: uint8,
 }
 pub type ec_eepromSMt = ec_eepromSM;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_eepromSM {
     pub Startpos: uint16,
     pub nSM: uint8,
@@ -234,32 +255,36 @@ pub struct ec_eepromSM {
     pub PDIctrl: uint8,
 }
 pub type ec_PDOdesct = ec_PDOdesc;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_PDOdesc {
     pub n: uint8,
     pub nu1: uint8,
     pub PDO: [uint32; 256],
 }
 pub type ec_PDOassignt = ec_PDOassign;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_PDOassign {
     pub n: uint8,
     pub nu1: uint8,
     pub index: [uint16; 256],
 }
 pub type ec_SMcommtypet = ec_SMcommtype;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_SMcommtype {
     pub n: uint8,
     pub nu1: uint8,
     pub SMtype: [uint8; 8],
 }
 pub type ec_idxstackT = ec_idxstack;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_idxstack {
     pub pushed: uint8,
     pub pulled: uint8,
@@ -269,16 +294,18 @@ pub struct ec_idxstack {
     pub dcoffset: [uint16; 16],
 }
 pub type ec_eringt = ec_ering;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_ering {
     pub head: int16,
     pub tail: int16,
     pub Error: [ec_errort; 65],
 }
 pub type ec_groupt = ec_group;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_group {
     pub logstartaddr: uint32,
     pub Obytes: uint32,
@@ -298,8 +325,9 @@ pub struct ec_group {
     pub IOsegment: [uint32; 64],
 }
 pub type ec_slavet = ec_slave;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct ec_slave {
     pub state: uint16,
     pub ALstatuscode: uint16,
@@ -363,13 +391,13 @@ pub struct ec_slave {
     pub FMMUunused: uint8,
     pub islost: boolean,
     pub PO2SOconfig: Option<unsafe extern "C" fn(_: uint16) -> libc::c_int>,
-    pub PO2SOconfigx: Option<unsafe extern "C" fn(_: *mut ecx_contextt,
-                                                  _: uint16) -> libc::c_int>,
+    pub PO2SOconfigx: Option<unsafe extern "C" fn(_: *mut ecx_contextt, _: uint16) -> libc::c_int>,
     pub name: [libc::c_char; 41],
 }
 pub type ec_mbxbuft = [uint8; 1487];
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_mbxheader {
     pub length: uint16,
     pub address: uint16,
@@ -377,20 +405,23 @@ pub struct ec_mbxheader {
     pub mbxtype: uint8,
 }
 pub type ec_mbxheadert = ec_mbxheader;
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct eoe_ip4_addr {
     pub addr: uint32_t,
 }
 pub type eoe_ip4_addr_t = eoe_ip4_addr;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct eoe_ethaddr {
     pub addr: [uint8_t; 6],
 }
 pub type eoe_ethaddr_t = eoe_ethaddr;
-#[derive(Copy, Clone, BitfieldStruct)]
+
 #[repr(C)]
+#[derive(Copy, Clone, BitfieldStruct)]
 pub struct eoe_param {
     #[bitfield(name = "mac_set", ty = "uint8_t", bits = "0..=0")]
     #[bitfield(name = "ip_set", ty = "uint8_t", bits = "1..=1")]
@@ -407,16 +438,18 @@ pub struct eoe_param {
     pub dns_name: [libc::c_char; 32],
 }
 pub type eoe_param_t = eoe_param;
-#[derive(Copy, Clone)]
+
 #[repr(C, packed)]
+#[derive(Copy, Clone)]
 pub struct ec_EOEt {
     pub mbxheader: ec_mbxheadert,
     pub frameinfo1: uint16_t,
     pub c2rust_unnamed: C2RustUnnamed_2,
     pub data: [uint8; 1476],
 }
-#[derive(Copy, Clone)]
+
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub union C2RustUnnamed_2 {
     pub frameinfo2: uint16_t,
     pub result: uint16_t,
@@ -437,75 +470,46 @@ pub union C2RustUnnamed_2 {
  * @param[in] ip       = ip in uint32
  * @param[out] byte_ip = eoe ip 4th octet, 3ed octet, 2nd octet, 1st octet
  */
-unsafe extern "C" fn EOE_ip_uint32_to_byte(mut ip: *mut eoe_ip4_addr_t,
-                                           mut byte_ip: *mut uint8_t) {
-    *byte_ip.offset(3 as libc::c_int as isize) =
-        *(&mut (*ip).addr as *mut uint32_t as
-              *const uint8_t).offset(0 as libc::c_int as
-                                         isize); /* 1st octet */
-    *byte_ip.offset(2 as libc::c_int as isize) =
-        *(&mut (*ip).addr as *mut uint32_t as
-              *const uint8_t).offset(1 as libc::c_int as
-                                         isize); /* 2nd octet */
-    *byte_ip.offset(1 as libc::c_int as isize) =
-        *(&mut (*ip).addr as *mut uint32_t as
-              *const uint8_t).offset(2 as libc::c_int as
-                                         isize); /* 3ed octet */
-    *byte_ip.offset(0 as libc::c_int as isize) =
-        *(&mut (*ip).addr as *mut uint32_t as
-              *const uint8_t).offset(3 as libc::c_int as isize);
+unsafe extern "C" fn EOE_ip_uint32_to_byte(mut ip: *mut eoe_ip4_addr_t, mut byte_ip: *mut uint8_t) {
+    *byte_ip.offset(3isize) = *(&mut (*ip).addr as *mut uint32_t as *const uint8_t).offset(0isize); /* 1st octet */
+    *byte_ip.offset(2isize) = *(&mut (*ip).addr as *mut uint32_t as *const uint8_t).offset(1isize); /* 2nd octet */
+    *byte_ip.offset(1isize) = *(&mut (*ip).addr as *mut uint32_t as *const uint8_t).offset(2isize); /* 3ed octet */
+    *byte_ip.offset(0isize) = *(&mut (*ip).addr as *mut uint32_t as *const uint8_t).offset(3isize);
     /* 4th octet */
 }
 /* * EoE utility function to convert eoe ip bytes to uint32.
 * @param[in] byte_ip = eoe ip 4th octet, 3ed octet, 2nd octet, 1st octet
 * @param[out] ip     = ip in uint32
 */
-unsafe extern "C" fn EOE_ip_byte_to_uint32(mut byte_ip: *mut uint8_t,
-                                           mut ip: *mut eoe_ip4_addr_t) {
-    (*ip).addr =
-        (((((*byte_ip.offset(3 as libc::c_int as isize) as libc::c_int &
-                 0xff as libc::c_int) as uint32_t) << 24 as libc::c_int |
-               ((*byte_ip.offset(2 as libc::c_int as isize) as libc::c_int &
-                     0xff as libc::c_int) as uint32_t) << 16 as libc::c_int |
-               ((*byte_ip.offset(1 as libc::c_int as isize) as libc::c_int &
-                     0xff as libc::c_int) as uint32_t) << 8 as libc::c_int |
-               (*byte_ip.offset(0 as libc::c_int as isize) as libc::c_int &
-                    0xff as libc::c_int) as uint32_t) as libc::c_ulong &
-              0xff as libc::c_ulong) << 24 as libc::c_int |
-             ((((*byte_ip.offset(3 as libc::c_int as isize) as libc::c_int &
-                     0xff as libc::c_int) as uint32_t) << 24 as libc::c_int |
-                   ((*byte_ip.offset(2 as libc::c_int as isize) as libc::c_int
-                         & 0xff as libc::c_int) as uint32_t) <<
-                       16 as libc::c_int |
-                   ((*byte_ip.offset(1 as libc::c_int as isize) as libc::c_int
-                         & 0xff as libc::c_int) as uint32_t) <<
-                       8 as libc::c_int |
-                   (*byte_ip.offset(0 as libc::c_int as isize) as libc::c_int
-                        & 0xff as libc::c_int) as uint32_t) as libc::c_ulong &
-                  0xff00 as libc::c_ulong) << 8 as libc::c_int |
-             ((((*byte_ip.offset(3 as libc::c_int as isize) as libc::c_int &
-                     0xff as libc::c_int) as uint32_t) << 24 as libc::c_int |
-                   ((*byte_ip.offset(2 as libc::c_int as isize) as libc::c_int
-                         & 0xff as libc::c_int) as uint32_t) <<
-                       16 as libc::c_int |
-                   ((*byte_ip.offset(1 as libc::c_int as isize) as libc::c_int
-                         & 0xff as libc::c_int) as uint32_t) <<
-                       8 as libc::c_int |
-                   (*byte_ip.offset(0 as libc::c_int as isize) as libc::c_int
-                        & 0xff as libc::c_int) as uint32_t) as libc::c_ulong &
-                  0xff0000 as libc::c_ulong) >> 8 as libc::c_int |
-             ((((*byte_ip.offset(3 as libc::c_int as isize) as libc::c_int &
-                     0xff as libc::c_int) as uint32_t) << 24 as libc::c_int |
-                   ((*byte_ip.offset(2 as libc::c_int as isize) as libc::c_int
-                         & 0xff as libc::c_int) as uint32_t) <<
-                       16 as libc::c_int |
-                   ((*byte_ip.offset(1 as libc::c_int as isize) as libc::c_int
-                         & 0xff as libc::c_int) as uint32_t) <<
-                       8 as libc::c_int |
-                   (*byte_ip.offset(0 as libc::c_int as isize) as libc::c_int
-                        & 0xff as libc::c_int) as uint32_t) as libc::c_ulong &
-                  0xff000000 as libc::c_ulong) >> 24 as libc::c_int) as
-            uint32_t;
+unsafe extern "C" fn EOE_ip_byte_to_uint32(mut byte_ip: *mut uint8_t, mut ip: *mut eoe_ip4_addr_t) {
+    (*ip).addr = (((((*byte_ip.offset(3isize) as libc::c_int & 0xffi32) as uint32_t) << 24i32
+        | ((*byte_ip.offset(2isize) as libc::c_int & 0xffi32) as uint32_t) << 16i32
+        | ((*byte_ip.offset(1isize) as libc::c_int & 0xffi32) as uint32_t) << 8i32
+        | (*byte_ip.offset(0isize) as libc::c_int & 0xffi32) as uint32_t)
+        as libc::c_ulong
+        & 0xffu64)
+        << 24i32
+        | ((((*byte_ip.offset(3isize) as libc::c_int & 0xffi32) as uint32_t) << 24i32
+            | ((*byte_ip.offset(2isize) as libc::c_int & 0xffi32) as uint32_t) << 16i32
+            | ((*byte_ip.offset(1isize) as libc::c_int & 0xffi32) as uint32_t) << 8i32
+            | (*byte_ip.offset(0isize) as libc::c_int & 0xffi32) as uint32_t)
+            as libc::c_ulong
+            & 0xff00u64)
+            << 8i32
+        | ((((*byte_ip.offset(3isize) as libc::c_int & 0xffi32) as uint32_t) << 24i32
+            | ((*byte_ip.offset(2isize) as libc::c_int & 0xffi32) as uint32_t) << 16i32
+            | ((*byte_ip.offset(1isize) as libc::c_int & 0xffi32) as uint32_t) << 8i32
+            | (*byte_ip.offset(0isize) as libc::c_int & 0xffi32) as uint32_t)
+            as libc::c_ulong
+            & 0xff0000u64)
+            >> 8i32
+        | ((((*byte_ip.offset(3isize) as libc::c_int & 0xffi32) as uint32_t) << 24i32
+            | ((*byte_ip.offset(2isize) as libc::c_int & 0xffi32) as uint32_t) << 16i32
+            | ((*byte_ip.offset(1isize) as libc::c_int & 0xffi32) as uint32_t) << 8i32
+            | (*byte_ip.offset(0isize) as libc::c_int & 0xffi32) as uint32_t)
+            as libc::c_ulong
+            & 0xff000000u64)
+            >> 24i32) as uint32_t;
     /* 4th octet */
 }
 /* * EoE fragment data handler hook. Should not block.
@@ -515,18 +519,21 @@ unsafe extern "C" fn EOE_ip_byte_to_uint32(mut byte_ip: *mut uint8_t,
 * @return 1
 */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_EOEdefinehook(mut context: *mut ecx_contextt,
-                                           mut hook: *mut libc::c_void)
- -> libc::c_int {
-    (*context).EOEhook =
-        ::core::mem::transmute::<*mut libc::c_void,
-                                 Option<unsafe extern "C" fn(_:
-                                                                 *mut ecx_contextt,
-                                                             _: uint16,
-                                                             _:
-                                                                 *mut libc::c_void)
-                                            -> libc::c_int>>(hook);
-    return 1 as libc::c_int;
+pub unsafe extern "C" fn ecx_EOEdefinehook(
+    mut context: *mut ecx_contextt,
+    mut hook: *mut libc::c_void,
+) -> libc::c_int {
+    (*context).EOEhook = ::core::mem::transmute::<
+        *mut libc::c_void,
+        Option<
+            unsafe extern "C" fn(
+                _: *mut ecx_contextt,
+                _: uint16,
+                _: *mut libc::c_void,
+            ) -> libc::c_int,
+        >,
+    >(hook);
+    return 1i32;
 }
 /* * EoE EOE set IP, blocking. Waits for response from the slave.
 *
@@ -535,14 +542,16 @@ pub unsafe extern "C" fn ecx_EOEdefinehook(mut context: *mut ecx_contextt,
 * @param[in]  port       = Port number on slave if applicable
 * @param[in]  ipparam    = IP parameter data to be sent
 * @param[in]  timeout    = Timeout in us, standard is EC_TIMEOUTRXM
-* @return Workcounter from last slave response or returned result code 
+* @return Workcounter from last slave response or returned result code
 */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_EOEsetIp(mut context: *mut ecx_contextt,
-                                      mut slave: uint16, mut port: uint8,
-                                      mut ipparam: *mut eoe_param_t,
-                                      mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_EOEsetIp(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut port: uint8,
+    mut ipparam: *mut eoe_param_t,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     let mut EOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
     let mut aEOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
     let mut MbxIn: ec_mbxbuft = [0; 1487];
@@ -551,137 +560,107 @@ pub unsafe extern "C" fn ecx_EOEsetIp(mut context: *mut ecx_contextt,
     let mut result: uint16 = 0;
     let mut cnt: uint8 = 0;
     let mut data_offset: uint8 = 0;
-    let mut flags: uint8 = 0 as libc::c_int as uint8;
+    let mut flags: uint8 = 0u8;
     let mut wkc: libc::c_int = 0;
     ec_clearmbx(&mut MbxIn);
     /* Empty slave out mailbox if something is in. Timout set to 0 */
-    wkc =
-        ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft,
-                       0 as libc::c_int);
+    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0i32);
     ec_clearmbx(&mut MbxOut);
     aEOEp = &mut MbxIn as *mut ec_mbxbuft as *mut ec_EOEt;
     EOEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_EOEt;
-    (*EOEp).mbxheader.address = 0 as libc::c_int as uint16;
-    (*EOEp).mbxheader.priority = 0 as libc::c_int as uint8;
-    data_offset = 4 as libc::c_int as uint8;
+    (*EOEp).mbxheader.address = 0u16;
+    (*EOEp).mbxheader.priority = 0u8;
+    data_offset = 4u8;
     /* get new mailbox count value, used as session handle */
-    cnt =
-        ec_nextmbxcnt((*(*context).slavelist.offset(slave as
-                                                        isize)).mbx_cnt); /* EoE */
+    cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* EoE */
     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-    (*EOEp).mbxheader.mbxtype =
-        (ECT_MBXT_EOE as libc::c_int +
-             ((cnt as libc::c_int) << 4 as libc::c_int) as uint8 as
-                 libc::c_int) as uint8;
-    (*EOEp).frameinfo1 =
-        ((2 as libc::c_int & 0xf as libc::c_int) << 0 as libc::c_int |
-             ((port as libc::c_int & 0xf as libc::c_int) << 4 as libc::c_int)
-                 as uint16 as libc::c_int |
-             (0x1 as libc::c_int) << 8 as libc::c_int) as uint16_t;
-    (*EOEp).c2rust_unnamed.frameinfo2 = 0 as libc::c_int as uint16_t;
+    (*EOEp).mbxheader.mbxtype = (ECT_MBXT_EOE as libc::c_int
+        + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
+        as uint8;
+    (*EOEp).frameinfo1 = ((2i32 & 0xfi32) << 0i32
+        | ((port as libc::c_int & 0xfi32) << 4i32) as uint16 as libc::c_int
+        | (0x1i32) << 8i32) as uint16_t;
+    (*EOEp).c2rust_unnamed.frameinfo2 = 0u16;
     if (*ipparam).mac_set() != 0 {
-        flags =
-            (flags as libc::c_int | (0x1 as libc::c_int) << 0 as libc::c_int)
-                as uint8;
-        memcpy(&mut *(*EOEp).data.as_mut_ptr().offset(data_offset as isize) as
-                   *mut uint8 as *mut libc::c_void,
-               (*ipparam).mac.addr.as_mut_ptr() as *const libc::c_void,
-               6 as libc::c_int as libc::c_ulong);
-        data_offset = (data_offset as libc::c_int + 6 as libc::c_int) as uint8
+        flags = (flags as libc::c_int | (0x1i32) << 0i32) as uint8;
+        memcpy(
+            &mut *(*EOEp).data.as_mut_ptr().offset(data_offset as isize) as *mut uint8
+                as *mut libc::c_void,
+            (*ipparam).mac.addr.as_mut_ptr() as *const libc::c_void,
+            6u64,
+        );
+        data_offset = (data_offset as libc::c_int + 6i32) as uint8
     }
     if (*ipparam).ip_set() != 0 {
-        flags =
-            (flags as libc::c_int | (0x1 as libc::c_int) << 1 as libc::c_int)
-                as uint8;
-        EOE_ip_uint32_to_byte(&mut (*ipparam).ip,
-                              &mut *(*EOEp).data.as_mut_ptr().offset(data_offset
-                                                                         as
-                                                                         isize));
-        data_offset =
-            (data_offset as
-                 libc::c_ulong).wrapping_add(::core::mem::size_of::<uint32_t>()
-                                                 as libc::c_ulong) as uint8 as
-                uint8
+        flags = (flags as libc::c_int | (0x1i32) << 1i32) as uint8;
+        EOE_ip_uint32_to_byte(
+            &mut (*ipparam).ip,
+            &mut *(*EOEp).data.as_mut_ptr().offset(data_offset as isize),
+        );
+        data_offset = (data_offset as libc::c_ulong)
+            .wrapping_add(::core::mem::size_of::<uint32_t>() as libc::c_ulong)
+            as uint8
     }
     if (*ipparam).subnet_set() != 0 {
-        flags =
-            (flags as libc::c_int | (0x1 as libc::c_int) << 2 as libc::c_int)
-                as uint8;
-        EOE_ip_uint32_to_byte(&mut (*ipparam).subnet,
-                              &mut *(*EOEp).data.as_mut_ptr().offset(data_offset
-                                                                         as
-                                                                         isize));
-        data_offset =
-            (data_offset as
-                 libc::c_ulong).wrapping_add(::core::mem::size_of::<uint32_t>()
-                                                 as libc::c_ulong) as uint8 as
-                uint8
+        flags = (flags as libc::c_int | (0x1i32) << 2i32) as uint8;
+        EOE_ip_uint32_to_byte(
+            &mut (*ipparam).subnet,
+            &mut *(*EOEp).data.as_mut_ptr().offset(data_offset as isize),
+        );
+        data_offset = (data_offset as libc::c_ulong)
+            .wrapping_add(::core::mem::size_of::<uint32_t>() as libc::c_ulong)
+            as uint8
     }
     if (*ipparam).default_gateway_set() != 0 {
-        flags =
-            (flags as libc::c_int | (0x1 as libc::c_int) << 3 as libc::c_int)
-                as uint8;
-        EOE_ip_uint32_to_byte(&mut (*ipparam).default_gateway,
-                              &mut *(*EOEp).data.as_mut_ptr().offset(data_offset
-                                                                         as
-                                                                         isize));
-        data_offset =
-            (data_offset as
-                 libc::c_ulong).wrapping_add(::core::mem::size_of::<uint32_t>()
-                                                 as libc::c_ulong) as uint8 as
-                uint8
+        flags = (flags as libc::c_int | (0x1i32) << 3i32) as uint8;
+        EOE_ip_uint32_to_byte(
+            &mut (*ipparam).default_gateway,
+            &mut *(*EOEp).data.as_mut_ptr().offset(data_offset as isize),
+        );
+        data_offset = (data_offset as libc::c_ulong)
+            .wrapping_add(::core::mem::size_of::<uint32_t>() as libc::c_ulong)
+            as uint8
     }
     if (*ipparam).dns_ip_set() != 0 {
-        flags =
-            (flags as libc::c_int | (0x1 as libc::c_int) << 4 as libc::c_int)
-                as uint8;
-        EOE_ip_uint32_to_byte(&mut (*ipparam).dns_ip,
-                              &mut *(*EOEp).data.as_mut_ptr().offset(data_offset
-                                                                         as
-                                                                         isize));
-        data_offset =
-            (data_offset as
-                 libc::c_ulong).wrapping_add(::core::mem::size_of::<uint32_t>()
-                                                 as libc::c_ulong) as uint8 as
-                uint8
+        flags = (flags as libc::c_int | (0x1i32) << 4i32) as uint8;
+        EOE_ip_uint32_to_byte(
+            &mut (*ipparam).dns_ip,
+            &mut *(*EOEp).data.as_mut_ptr().offset(data_offset as isize),
+        );
+        data_offset = (data_offset as libc::c_ulong)
+            .wrapping_add(::core::mem::size_of::<uint32_t>() as libc::c_ulong)
+            as uint8
     }
     if (*ipparam).dns_name_set() != 0 {
         /* TwinCAT include EOE_DNS_NAME_LENGTH chars even if name is shorter */
-        flags =
-            (flags as libc::c_int | (0x1 as libc::c_int) << 5 as libc::c_int)
-                as uint8;
-        memcpy(&mut *(*EOEp).data.as_mut_ptr().offset(data_offset as isize) as
-                   *mut uint8 as *mut libc::c_void,
-               (*ipparam).dns_name.as_mut_ptr() as *mut libc::c_void,
-               32 as libc::c_int as libc::c_ulong);
-        data_offset =
-            (data_offset as libc::c_int + 32 as libc::c_int) as uint8
+        flags = (flags as libc::c_int | (0x1i32) << 5i32) as uint8;
+        memcpy(
+            &mut *(*EOEp).data.as_mut_ptr().offset(data_offset as isize) as *mut uint8
+                as *mut libc::c_void,
+            (*ipparam).dns_name.as_mut_ptr() as *mut libc::c_void,
+            32u64,
+        );
+        data_offset = (data_offset as libc::c_int + 32i32) as uint8
     }
-    (*EOEp).mbxheader.length =
-        (4 as libc::c_int + data_offset as libc::c_int) as uint16;
-    (*EOEp).data[0 as libc::c_int as usize] = flags;
+    (*EOEp).mbxheader.length = (4i32 + data_offset as libc::c_int) as uint16;
+    (*EOEp).data[0usize] = flags;
     /* send EoE request to slave */
-    wkc =
-        ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft,
-                    20000 as libc::c_int);
-    if wkc > 0 as libc::c_int {
+    wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+    if wkc > 0i32 {
         /* succeeded to place mailbox in slave ? */
         /* clean mailboxbuffer */
         ec_clearmbx(&mut MbxIn);
-        wkc =
-            ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft,
-                           timeout);
-        if wkc > 0 as libc::c_int {
+        wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, timeout);
+        if wkc > 0i32 {
             /* read slave response */
             /* succeeded to read slave response ? */
             /* slave response should be FoE */
-            if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xf as libc::c_int
-                   == ECT_MBXT_EOE as libc::c_int {
+            if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_EOE as libc::c_int {
                 frameinfo1 = (*aEOEp).frameinfo1;
                 result = (*aEOEp).c2rust_unnamed.result;
-                if frameinfo1 as libc::c_int >> 0 as libc::c_int &
-                       0xf as libc::c_int != 3 as libc::c_int ||
-                       result as libc::c_int != 0 as libc::c_int {
+                if frameinfo1 as libc::c_int >> 0i32 & 0xfi32 != 3i32
+                    || result as libc::c_int != 0i32
+                {
                     wkc = -(result as libc::c_int)
                 }
             } else {
@@ -702,11 +681,13 @@ pub unsafe extern "C" fn ecx_EOEsetIp(mut context: *mut ecx_contextt,
 * @return Workcounter from last slave response or returned result code
 */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_EOEgetIp(mut context: *mut ecx_contextt,
-                                      mut slave: uint16, mut port: uint8,
-                                      mut ipparam: *mut eoe_param_t,
-                                      mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_EOEgetIp(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut port: uint8,
+    mut ipparam: *mut eoe_param_t,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     let mut EOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
     let mut aEOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
     let mut MbxIn: ec_mbxbuft = [0; 1487];
@@ -715,161 +696,116 @@ pub unsafe extern "C" fn ecx_EOEgetIp(mut context: *mut ecx_contextt,
     let mut eoedatasize: uint16 = 0;
     let mut cnt: uint8 = 0;
     let mut data_offset: uint8 = 0;
-    let mut flags: uint8 = 0 as libc::c_int as uint8;
+    let mut flags: uint8 = 0u8;
     let mut wkc: libc::c_int = 0;
     /* Empty slave out mailbox if something is in. Timout set to 0 */
-    wkc =
-        ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft,
-                       0 as libc::c_int);
+    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0i32);
     ec_clearmbx(&mut MbxOut);
     aEOEp = &mut MbxIn as *mut ec_mbxbuft as *mut ec_EOEt;
     EOEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_EOEt;
-    (*EOEp).mbxheader.address = 0 as libc::c_int as uint16;
-    (*EOEp).mbxheader.priority = 0 as libc::c_int as uint8;
-    data_offset = 4 as libc::c_int as uint8;
+    (*EOEp).mbxheader.address = 0u16;
+    (*EOEp).mbxheader.priority = 0u8;
+    data_offset = 4u8;
     /* get new mailbox count value, used as session handle */
-    cnt =
-        ec_nextmbxcnt((*(*context).slavelist.offset(slave as
-                                                        isize)).mbx_cnt); /* EoE */
+    cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* EoE */
     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-    (*EOEp).mbxheader.mbxtype =
-        (ECT_MBXT_EOE as libc::c_int +
-             ((cnt as libc::c_int) << 4 as libc::c_int) as uint8 as
-                 libc::c_int) as uint8;
-    (*EOEp).frameinfo1 =
-        ((6 as libc::c_int & 0xf as libc::c_int) << 0 as libc::c_int |
-             ((port as libc::c_int & 0xf as libc::c_int) << 4 as libc::c_int)
-                 as uint16 as libc::c_int |
-             (0x1 as libc::c_int) << 8 as libc::c_int) as uint16_t;
-    (*EOEp).c2rust_unnamed.frameinfo2 = 0 as libc::c_int as uint16_t;
-    (*EOEp).mbxheader.length = 0x4 as libc::c_int as uint16;
-    (*EOEp).data[0 as libc::c_int as usize] = flags;
+    (*EOEp).mbxheader.mbxtype = (ECT_MBXT_EOE as libc::c_int
+        + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
+        as uint8;
+    (*EOEp).frameinfo1 = ((6i32 & 0xfi32) << 0i32
+        | ((port as libc::c_int & 0xfi32) << 4i32) as uint16 as libc::c_int
+        | (0x1i32) << 8i32) as uint16_t;
+    (*EOEp).c2rust_unnamed.frameinfo2 = 0u16;
+    (*EOEp).mbxheader.length = 0x4u16;
+    (*EOEp).data[0usize] = flags;
     /* send EoE request to slave */
-    wkc =
-        ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft,
-                    20000 as libc::c_int);
-    if wkc > 0 as libc::c_int {
+    wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, 20000i32);
+    if wkc > 0i32 {
         /* succeeded to place mailbox in slave ? */
         /* clean mailboxbuffer */
         ec_clearmbx(&mut MbxIn);
-        wkc =
-            ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft,
-                           timeout);
-        if wkc > 0 as libc::c_int {
+        wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, timeout);
+        if wkc > 0i32 {
             /* read slave response */
             /* succeeded to read slave response ? */
             /* slave response should be FoE */
-            if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xf as libc::c_int
-                   == ECT_MBXT_EOE as libc::c_int {
+            if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_EOE as libc::c_int {
                 frameinfo1 = (*aEOEp).frameinfo1;
-                eoedatasize =
-                    ((*aEOEp).mbxheader.length as libc::c_int -
-                         0x4 as libc::c_int) as uint16;
-                if frameinfo1 as libc::c_int >> 0 as libc::c_int &
-                       0xf as libc::c_int != 7 as libc::c_int {
-                    wkc = -(0x2 as libc::c_int)
+                eoedatasize = ((*aEOEp).mbxheader.length as libc::c_int - 0x4i32) as uint16;
+                if frameinfo1 as libc::c_int >> 0i32 & 0xfi32 != 7i32 {
+                    wkc = -(0x2i32)
                 } else {
-                    flags = (*aEOEp).data[0 as libc::c_int as usize];
-                    if flags as libc::c_int &
-                           (0x1 as libc::c_int) << 0 as libc::c_int != 0 {
-                        memcpy((*ipparam).mac.addr.as_mut_ptr() as
-                                   *mut libc::c_void,
-                               &mut *(*aEOEp).data.as_mut_ptr().offset(data_offset
-                                                                           as
-                                                                           isize)
-                                   as *mut uint8 as *const libc::c_void,
-                               6 as libc::c_int as libc::c_ulong);
-                        (*ipparam).set_mac_set(1 as libc::c_int as uint8_t);
-                        data_offset =
-                            (data_offset as libc::c_int + 6 as libc::c_int) as
-                                uint8
+                    flags = (*aEOEp).data[0usize];
+                    if flags as libc::c_int & (0x1i32) << 0i32 != 0 {
+                        memcpy(
+                            (*ipparam).mac.addr.as_mut_ptr() as *mut libc::c_void,
+                            &mut *(*aEOEp).data.as_mut_ptr().offset(data_offset as isize)
+                                as *mut uint8 as *const libc::c_void,
+                            6u64,
+                        );
+                        (*ipparam).set_mac_set(1u8);
+                        data_offset = (data_offset as libc::c_int + 6i32) as uint8
                     }
-                    if flags as libc::c_int &
-                           (0x1 as libc::c_int) << 1 as libc::c_int != 0 {
-                        EOE_ip_byte_to_uint32(&mut *(*aEOEp).data.as_mut_ptr().offset(data_offset
-                                                                                          as
-                                                                                          isize),
-                                              &mut (*ipparam).ip);
-                        (*ipparam).set_ip_set(1 as libc::c_int as uint8_t);
-                        data_offset =
-                            (data_offset as
-                                 libc::c_ulong).wrapping_add(::core::mem::size_of::<uint32_t>()
-                                                                 as
-                                                                 libc::c_ulong)
-                                as uint8 as uint8
+                    if flags as libc::c_int & (0x1i32) << 1i32 != 0 {
+                        EOE_ip_byte_to_uint32(
+                            &mut *(*aEOEp).data.as_mut_ptr().offset(data_offset as isize),
+                            &mut (*ipparam).ip,
+                        );
+                        (*ipparam).set_ip_set(1u8);
+                        data_offset = (data_offset as libc::c_ulong)
+                            .wrapping_add(::core::mem::size_of::<uint32_t>() as libc::c_ulong)
+                            as uint8
                     }
-                    if flags as libc::c_int &
-                           (0x1 as libc::c_int) << 2 as libc::c_int != 0 {
-                        EOE_ip_byte_to_uint32(&mut *(*aEOEp).data.as_mut_ptr().offset(data_offset
-                                                                                          as
-                                                                                          isize),
-                                              &mut (*ipparam).subnet);
-                        (*ipparam).set_subnet_set(1 as libc::c_int as
-                                                      uint8_t);
-                        data_offset =
-                            (data_offset as
-                                 libc::c_ulong).wrapping_add(::core::mem::size_of::<uint32_t>()
-                                                                 as
-                                                                 libc::c_ulong)
-                                as uint8 as uint8
+                    if flags as libc::c_int & (0x1i32) << 2i32 != 0 {
+                        EOE_ip_byte_to_uint32(
+                            &mut *(*aEOEp).data.as_mut_ptr().offset(data_offset as isize),
+                            &mut (*ipparam).subnet,
+                        );
+                        (*ipparam).set_subnet_set(1u8);
+                        data_offset = (data_offset as libc::c_ulong)
+                            .wrapping_add(::core::mem::size_of::<uint32_t>() as libc::c_ulong)
+                            as uint8
                     }
-                    if flags as libc::c_int &
-                           (0x1 as libc::c_int) << 3 as libc::c_int != 0 {
-                        EOE_ip_byte_to_uint32(&mut *(*aEOEp).data.as_mut_ptr().offset(data_offset
-                                                                                          as
-                                                                                          isize),
-                                              &mut (*ipparam).default_gateway);
-                        (*ipparam).set_default_gateway_set(1 as libc::c_int as
-                                                               uint8_t);
-                        data_offset =
-                            (data_offset as
-                                 libc::c_ulong).wrapping_add(::core::mem::size_of::<uint32_t>()
-                                                                 as
-                                                                 libc::c_ulong)
-                                as uint8 as uint8
+                    if flags as libc::c_int & (0x1i32) << 3i32 != 0 {
+                        EOE_ip_byte_to_uint32(
+                            &mut *(*aEOEp).data.as_mut_ptr().offset(data_offset as isize),
+                            &mut (*ipparam).default_gateway,
+                        );
+                        (*ipparam).set_default_gateway_set(1u8);
+                        data_offset = (data_offset as libc::c_ulong)
+                            .wrapping_add(::core::mem::size_of::<uint32_t>() as libc::c_ulong)
+                            as uint8
                     }
-                    if flags as libc::c_int &
-                           (0x1 as libc::c_int) << 4 as libc::c_int != 0 {
-                        EOE_ip_byte_to_uint32(&mut *(*aEOEp).data.as_mut_ptr().offset(data_offset
-                                                                                          as
-                                                                                          isize),
-                                              &mut (*ipparam).dns_ip);
-                        (*ipparam).set_dns_ip_set(1 as libc::c_int as
-                                                      uint8_t);
-                        data_offset =
-                            (data_offset as
-                                 libc::c_ulong).wrapping_add(::core::mem::size_of::<uint32_t>()
-                                                                 as
-                                                                 libc::c_ulong)
-                                as uint8 as uint8
+                    if flags as libc::c_int & (0x1i32) << 4i32 != 0 {
+                        EOE_ip_byte_to_uint32(
+                            &mut *(*aEOEp).data.as_mut_ptr().offset(data_offset as isize),
+                            &mut (*ipparam).dns_ip,
+                        );
+                        (*ipparam).set_dns_ip_set(1u8);
+                        data_offset = (data_offset as libc::c_ulong)
+                            .wrapping_add(::core::mem::size_of::<uint32_t>() as libc::c_ulong)
+                            as uint8
                     }
-                    if flags as libc::c_int &
-                           (0x1 as libc::c_int) << 5 as libc::c_int != 0 {
+                    if flags as libc::c_int & (0x1i32) << 5i32 != 0 {
                         let mut dns_len: uint16_t = 0;
-                        if (eoedatasize as libc::c_int -
-                                data_offset as libc::c_int) <
-                               32 as libc::c_int {
-                            dns_len =
-                                (eoedatasize as libc::c_int -
-                                     data_offset as libc::c_int) as uint16_t
-                        } else { dns_len = 32 as libc::c_int as uint16_t }
+                        if (eoedatasize as libc::c_int - data_offset as libc::c_int) < 32i32 {
+                            dns_len = (eoedatasize as libc::c_int - data_offset as libc::c_int)
+                                as uint16_t
+                        } else {
+                            dns_len = 32u16
+                        }
                         /* Assume ZERO terminated string */
-                        memcpy((*ipparam).dns_name.as_mut_ptr() as
-                                   *mut libc::c_void,
-                               &mut *(*aEOEp).data.as_mut_ptr().offset(data_offset
-                                                                           as
-                                                                           isize)
-                                   as *mut uint8 as *const libc::c_void,
-                               dns_len as libc::c_ulong);
-                        (*ipparam).set_dns_name_set(1 as libc::c_int as
-                                                        uint8_t);
-                        data_offset =
-                            (data_offset as libc::c_int + 32 as libc::c_int)
-                                as uint8
+                        memcpy(
+                            (*ipparam).dns_name.as_mut_ptr() as *mut libc::c_void,
+                            &mut *(*aEOEp).data.as_mut_ptr().offset(data_offset as isize)
+                                as *mut uint8 as *const libc::c_void,
+                            dns_len as libc::c_ulong,
+                        );
+                        (*ipparam).set_dns_name_set(1u8);
+                        data_offset = (data_offset as libc::c_int + 32i32) as uint8
                     }
                     /* Something os not correct, flag the error */
-                    if data_offset as libc::c_int > eoedatasize as libc::c_int
-                       {
+                    if data_offset as libc::c_int > eoedatasize as libc::c_int {
                         wkc = -(EC_ERR_TYPE_MBX_ERROR as libc::c_int)
                     }
                 }
@@ -881,9 +817,9 @@ pub unsafe extern "C" fn ecx_EOEgetIp(mut context: *mut ecx_contextt,
     }
     return wkc;
 }
-/* * EoE ethernet buffer write, blocking. 
+/* * EoE ethernet buffer write, blocking.
 *
-* If the buffer is larger than the mailbox size then the buffer is sent in 
+* If the buffer is larger than the mailbox size then the buffer is sent in
 * several fragments. The function will split the buf data in fragments and
 * send them to the slave one by one.
 *
@@ -896,12 +832,14 @@ pub unsafe extern "C" fn ecx_EOEgetIp(mut context: *mut ecx_contextt,
 * @return Workcounter from last slave transmission
 */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_EOEsend(mut context: *mut ecx_contextt,
-                                     mut slave: uint16, mut port: uint8,
-                                     mut psize: libc::c_int,
-                                     mut p: *mut libc::c_void,
-                                     mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_EOEsend(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut port: uint8,
+    mut psize: libc::c_int,
+    mut p: *mut libc::c_void,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     let mut EOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
     let mut MbxOut: ec_mbxbuft = [0; 1487];
     let mut frameinfo1: uint16 = 0;
@@ -914,93 +852,74 @@ pub unsafe extern "C" fn ecx_EOEsend(mut context: *mut ecx_contextt,
     let mut txframesize: libc::c_int = 0;
     let mut txframeoffset: libc::c_int = 0;
     let mut buf: *const uint8 = p as *const uint8;
-    static mut txframeno: uint8_t = 0 as libc::c_int as uint8_t;
+    static mut txframeno: uint8_t = 0u8;
     ec_clearmbx(&mut MbxOut);
     EOEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_EOEt;
-    (*EOEp).mbxheader.address = 0 as libc::c_int as uint16;
-    (*EOEp).mbxheader.priority = 0 as libc::c_int as uint8;
+    (*EOEp).mbxheader.address = 0u16;
+    (*EOEp).mbxheader.priority = 0u8;
     /* data section=mailbox size - 6 mbx - 4 EoEh */
-    maxdata =
-        (*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int -
-            0xa as libc::c_int;
+    maxdata = (*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int - 0xai32;
     txframesize = psize;
-    txfragmentno = 0 as libc::c_int as uint8;
-    txframeoffset = 0 as libc::c_int;
-    NotLast = 1 as libc::c_int as boolean;
-    loop  {
+    txfragmentno = 0u8;
+    txframeoffset = 0i32;
+    NotLast = 1u8;
+    loop {
         txframesize = psize - txframeoffset;
         if txframesize > maxdata {
             /* Adjust to even 32-octect blocks */
-            txframesize = (maxdata >> 5 as libc::c_int) << 5 as libc::c_int
+            txframesize = (maxdata >> 5i32) << 5i32
         }
         if txframesize == psize - txframeoffset {
-            frameinfo1 =
-                ((1 as libc::c_int & 0x1 as libc::c_int) << 8 as libc::c_int |
-                     ((port as libc::c_int & 0xf as libc::c_int) <<
-                          4 as libc::c_int) as uint16 as libc::c_int) as
-                    uint16;
-            NotLast = 0 as libc::c_int as boolean
+            frameinfo1 = ((1i32 & 0x1i32) << 8i32
+                | ((port as libc::c_int & 0xfi32) << 4i32) as uint16 as libc::c_int)
+                as uint16;
+            NotLast = 0u8
         } else {
-            frameinfo1 =
-                ((port as libc::c_int & 0xf as libc::c_int) <<
-                     4 as libc::c_int) as uint16
+            frameinfo1 = ((port as libc::c_int & 0xfi32) << 4i32) as uint16
         }
-        frameinfo2 =
-            ((txfragmentno as libc::c_int & 0x3f as libc::c_int) <<
-                 0 as libc::c_int) as uint16;
-        if txfragmentno as libc::c_int > 0 as libc::c_int {
-            frameinfo2 =
-                (frameinfo2 as libc::c_int |
-                     ((txframeoffset >> 5 as libc::c_int &
-                           0x3f as libc::c_int) << 6 as libc::c_int) as uint16
-                         as libc::c_int) as uint16
+        frameinfo2 = ((txfragmentno as libc::c_int & 0x3fi32) << 0i32) as uint16;
+        if txfragmentno as libc::c_int > 0i32 {
+            frameinfo2 = (frameinfo2 as libc::c_int
+                | ((txframeoffset >> 5i32 & 0x3fi32) << 6i32) as uint16 as libc::c_int)
+                as uint16
         } else {
-            frameinfo2 =
-                (frameinfo2 as libc::c_int |
-                     ((psize + 31 as libc::c_int >> 5 as libc::c_int &
-                           0x3f as libc::c_int) << 6 as libc::c_int) as uint16
-                         as libc::c_int) as uint16;
+            frameinfo2 = (frameinfo2 as libc::c_int
+                | ((psize + 31i32 >> 5i32 & 0x3fi32) << 6i32) as uint16 as libc::c_int)
+                as uint16;
             txframeno = txframeno.wrapping_add(1)
         }
-        frameinfo2 =
-            (frameinfo2 as libc::c_int |
-                 ((txframeno as libc::c_int & 0xf as libc::c_int) <<
-                      12 as libc::c_int) as uint16 as libc::c_int) as uint16;
+        frameinfo2 = (frameinfo2 as libc::c_int
+            | ((txframeno as libc::c_int & 0xfi32) << 12i32) as uint16 as libc::c_int)
+            as uint16;
         /* get new mailbox count value, used as session handle */
-        cnt =
-            ec_nextmbxcnt((*(*context).slavelist.offset(slave as
-                                                            isize)).mbx_cnt); /* no timestamp */
-        (*(*context).slavelist.offset(slave as isize)).mbx_cnt =
-            cnt; /* EoE */
-        (*EOEp).mbxheader.length = (4 as libc::c_int + txframesize) as uint16;
-        (*EOEp).mbxheader.mbxtype =
-            (ECT_MBXT_EOE as libc::c_int +
-                 ((cnt as libc::c_int) << 4 as libc::c_int) as uint8 as
-                     libc::c_int) as uint8;
+        cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* no timestamp */
+        (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt; /* EoE */
+        (*EOEp).mbxheader.length = (4i32 + txframesize) as uint16;
+        (*EOEp).mbxheader.mbxtype = (ECT_MBXT_EOE as libc::c_int
+            + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
+            as uint8;
         (*EOEp).frameinfo1 = frameinfo1;
         (*EOEp).c2rust_unnamed.frameinfo2 = frameinfo2;
-        memcpy((*EOEp).data.as_mut_ptr() as *mut libc::c_void,
-               &*buf.offset(txframeoffset as isize) as *const uint8 as
-                   *const libc::c_void, txframesize as libc::c_ulong);
+        memcpy(
+            (*EOEp).data.as_mut_ptr() as *mut libc::c_void,
+            &*buf.offset(txframeoffset as isize) as *const uint8 as *const libc::c_void,
+            txframesize as libc::c_ulong,
+        );
         /* send EoE request to slave */
-        wkc =
-            ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft,
-                        timeout);
-        if NotLast as libc::c_int == 1 as libc::c_int &&
-               wkc > 0 as libc::c_int {
+        wkc = ecx_mbxsend(context, slave, &mut MbxOut as *mut ec_mbxbuft, timeout);
+        if NotLast as libc::c_int == 1i32 && wkc > 0i32 {
             txframeoffset += txframesize;
             txfragmentno = txfragmentno.wrapping_add(1)
         }
-        if !(NotLast as libc::c_int == 1 as libc::c_int &&
-                 wkc > 0 as libc::c_int) {
-            break ;
+        if !(NotLast as libc::c_int == 1i32 && wkc > 0i32) {
+            break;
         }
     }
     return wkc;
 }
 /* * EoE ethernet buffer read, blocking.
 *
-* If the buffer is larger than the mailbox size then the buffer is received 
+* If the buffer is larger than the mailbox size then the buffer is received
 * by several fragments. The function will assamble the fragments into
 * a complete Ethernet buffer.
 *
@@ -1013,12 +932,14 @@ pub unsafe extern "C" fn ecx_EOEsend(mut context: *mut ecx_contextt,
 * @return Workcounter from last slave response or error code
 */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_EOErecv(mut context: *mut ecx_contextt,
-                                     mut slave: uint16, mut port: uint8,
-                                     mut psize: *mut libc::c_int,
-                                     mut p: *mut libc::c_void,
-                                     mut timeout: libc::c_int)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_EOErecv(
+    mut context: *mut ecx_contextt,
+    mut slave: uint16,
+    mut port: uint8,
+    mut psize: *mut libc::c_int,
+    mut p: *mut libc::c_void,
+    mut timeout: libc::c_int,
+) -> libc::c_int {
     let mut aEOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
     let mut MbxIn: ec_mbxbuft = [0; 1487];
     let mut frameinfo1: uint16 = 0;
@@ -1034,85 +955,64 @@ pub unsafe extern "C" fn ecx_EOErecv(mut context: *mut ecx_contextt,
     let mut buf: *mut uint8 = p as *mut uint8;
     ec_clearmbx(&mut MbxIn);
     aEOEp = &mut MbxIn as *mut ec_mbxbuft as *mut ec_EOEt;
-    NotLast = 1 as libc::c_int as boolean;
+    NotLast = 1u8;
     buffersize = *psize;
-    rxfragmentno = 0 as libc::c_int as uint8;
+    rxfragmentno = 0u8;
     /* Hang for a while if nothing is in */
-    wkc =
-        ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft,
-                       timeout);
-    while wkc > 0 as libc::c_int && NotLast as libc::c_int == 1 as libc::c_int
-          {
+    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, timeout);
+    while wkc > 0i32 && NotLast as libc::c_int == 1i32 {
         /* slave response should be FoE */
-        if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xf as libc::c_int ==
-               ECT_MBXT_EOE as libc::c_int {
-            eoedatasize =
-                (*aEOEp).mbxheader.length as libc::c_int - 0x4 as libc::c_int;
+        if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_EOE as libc::c_int {
+            eoedatasize = (*aEOEp).mbxheader.length as libc::c_int - 0x4i32;
             frameinfo1 = (*aEOEp).frameinfo1;
             frameinfo2 = (*aEOEp).c2rust_unnamed.frameinfo2;
-            if rxfragmentno as libc::c_int !=
-                   frameinfo2 as libc::c_int >> 0 as libc::c_int &
-                       0x3f as libc::c_int {
-                if frameinfo2 as libc::c_int >> 0 as libc::c_int &
-                       0x3f as libc::c_int > 0 as libc::c_int {
+            if rxfragmentno as libc::c_int != frameinfo2 as libc::c_int >> 0i32 & 0x3fi32 {
+                if frameinfo2 as libc::c_int >> 0i32 & 0x3fi32 > 0i32 {
                     wkc = -(EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
                     /* Exit here*/
-                    break ;
+                    break;
                 }
             }
-            if rxfragmentno as libc::c_int == 0 as libc::c_int {
-                rxframeoffset = 0 as libc::c_int;
-                rxframeno =
-                    (frameinfo2 as libc::c_int >> 12 as libc::c_int &
-                         0xf as libc::c_int) as uint8;
-                rxframesize =
-                    (frameinfo2 as libc::c_int >> 6 as libc::c_int &
-                         0x3f as libc::c_int) << 5 as libc::c_int;
+            if rxfragmentno as libc::c_int == 0i32 {
+                rxframeoffset = 0i32;
+                rxframeno = (frameinfo2 as libc::c_int >> 12i32 & 0xfi32) as uint8;
+                rxframesize = (frameinfo2 as libc::c_int >> 6i32 & 0x3fi32) << 5i32;
                 if rxframesize > buffersize {
                     wkc = -(EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
                     /* Exit here*/
-                    break ;
-                } else if port as libc::c_int !=
-                              frameinfo1 as libc::c_int >> 4 as libc::c_int &
-                                  0xf as libc::c_int {
+                    break;
+                } else if port as libc::c_int != frameinfo1 as libc::c_int >> 4i32 & 0xfi32 {
                     wkc = -(EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
                     /* Exit here*/
-                    break ;
+                    break;
                 }
-            } else if rxframeno as libc::c_int !=
-                          frameinfo2 as libc::c_int >> 12 as libc::c_int &
-                              0xf as libc::c_int {
+            } else if rxframeno as libc::c_int != frameinfo2 as libc::c_int >> 12i32 & 0xfi32 {
                 wkc = -(EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
                 /* Exit here*/
-                break ;
-            } else if rxframeoffset !=
-                          (frameinfo2 as libc::c_int >> 6 as libc::c_int &
-                               0x3f as libc::c_int) << 5 as libc::c_int {
+                break;
+            } else if rxframeoffset != (frameinfo2 as libc::c_int >> 6i32 & 0x3fi32) << 5i32 {
                 wkc = -(EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
-                break ;
+                break;
             }
             if rxframeoffset + eoedatasize <= buffersize {
-                memcpy(&mut *buf.offset(rxframeoffset as isize) as *mut uint8
-                           as *mut libc::c_void,
-                       (*aEOEp).data.as_mut_ptr() as *const libc::c_void,
-                       eoedatasize as libc::c_ulong);
+                memcpy(
+                    &mut *buf.offset(rxframeoffset as isize) as *mut uint8 as *mut libc::c_void,
+                    (*aEOEp).data.as_mut_ptr() as *const libc::c_void,
+                    eoedatasize as libc::c_ulong,
+                );
                 rxframeoffset += eoedatasize;
                 rxfragmentno = rxfragmentno.wrapping_add(1)
             }
-            if frameinfo1 as libc::c_int >> 8 as libc::c_int &
-                   0x1 as libc::c_int != 0 {
+            if frameinfo1 as libc::c_int >> 8i32 & 0x1i32 != 0 {
                 /* Remove timestamp */
-                if frameinfo1 as libc::c_int >> 9 as libc::c_int &
-                       0x1 as libc::c_int != 0 {
-                    rxframeoffset -= 4 as libc::c_int
+                if frameinfo1 as libc::c_int >> 9i32 & 0x1i32 != 0 {
+                    rxframeoffset -= 4i32
                 }
-                NotLast = 0 as libc::c_int as boolean;
+                NotLast = 0u8;
                 *psize = rxframeoffset
             } else {
                 /* Hang for a while if nothing is in */
-                wkc =
-                    ecx_mbxreceive(context, slave,
-                                   &mut MbxIn as *mut ec_mbxbuft, timeout)
+                wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, timeout)
             }
         } else {
             /* unexpected mailbox received */
@@ -1123,7 +1023,7 @@ pub unsafe extern "C" fn ecx_EOErecv(mut context: *mut ecx_contextt,
 }
 /* * EoE mailbox fragment read
 *
-* Will take the data in incoming mailbox buffer and copy to destination 
+* Will take the data in incoming mailbox buffer and copy to destination
 * Ethernet frame buffer at given offset and update current fragment variables
 *
 * @param[in] MbxIn             = Received mailbox containing fragment data
@@ -1136,14 +1036,15 @@ pub unsafe extern "C" fn ecx_EOErecv(mut context: *mut ecx_contextt,
 * @return 0= if fragment OK, >0 if last fragment, <0 on error
 */
 #[no_mangle]
-pub unsafe extern "C" fn ecx_EOEreadfragment(mut MbxIn: *mut ec_mbxbuft,
-                                             mut rxfragmentno: *mut uint8,
-                                             mut rxframesize: *mut uint16,
-                                             mut rxframeoffset: *mut uint16,
-                                             mut rxframeno: *mut uint16,
-                                             mut psize: *mut libc::c_int,
-                                             mut p: *mut libc::c_void)
- -> libc::c_int {
+pub unsafe extern "C" fn ecx_EOEreadfragment(
+    mut MbxIn: *mut ec_mbxbuft,
+    mut rxfragmentno: *mut uint8,
+    mut rxframesize: *mut uint16,
+    mut rxframeoffset: *mut uint16,
+    mut rxframeno: *mut uint16,
+    mut psize: *mut libc::c_int,
+    mut p: *mut libc::c_void,
+) -> libc::c_int {
     let mut frameinfo1: uint16 = 0;
     let mut frameinfo2: uint16 = 0;
     let mut eoedatasize: uint16 = 0;
@@ -1152,95 +1053,76 @@ pub unsafe extern "C" fn ecx_EOEreadfragment(mut MbxIn: *mut ec_mbxbuft,
     let mut buf: *mut uint8 = 0 as *mut uint8;
     aEOEp = MbxIn as *mut ec_EOEt;
     buf = p as *mut uint8;
-    wkc = 0 as libc::c_int;
+    wkc = 0i32;
     /* slave response should be EoE */
-    if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xf as libc::c_int ==
-           ECT_MBXT_EOE as libc::c_int {
-        eoedatasize =
-            ((*aEOEp).mbxheader.length as libc::c_int - 0x4 as libc::c_int) as
-                uint16;
+    if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_EOE as libc::c_int {
+        eoedatasize = ((*aEOEp).mbxheader.length as libc::c_int - 0x4i32) as uint16;
         frameinfo1 = (*aEOEp).frameinfo1;
         frameinfo2 = (*aEOEp).c2rust_unnamed.frameinfo2;
         /* Retrive fragment number, is it what we expect? */
-        if *rxfragmentno as libc::c_int !=
-               frameinfo2 as libc::c_int >> 0 as libc::c_int &
-                   0x3f as libc::c_int {
+        if *rxfragmentno as libc::c_int != frameinfo2 as libc::c_int >> 0i32 & 0x3fi32 {
             /* If expected fragment number is not 0, reset working variables */
-            if *rxfragmentno as libc::c_int != 0 as libc::c_int {
-                *rxfragmentno = 0 as libc::c_int as uint8;
-                *rxframesize = 0 as libc::c_int as uint16;
-                *rxframeoffset = 0 as libc::c_int as uint16;
-                *rxframeno = 0 as libc::c_int as uint16
+            if *rxfragmentno as libc::c_int != 0i32 {
+                *rxfragmentno = 0u8;
+                *rxframesize = 0u16;
+                *rxframeoffset = 0u16;
+                *rxframeno = 0u16
             }
             /* If incoming fragment number is not 0 we can't recover, exit */
-            if frameinfo2 as libc::c_int >> 0 as libc::c_int &
-                   0x3f as libc::c_int > 0 as libc::c_int {
+            if frameinfo2 as libc::c_int >> 0i32 & 0x3fi32 > 0i32 {
                 wkc = -(EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
-                return wkc
+                return wkc;
             }
         }
         /* Is it a new frame?*/
-        if *rxfragmentno as libc::c_int == 0 as libc::c_int {
-            *rxframesize =
-                ((frameinfo2 as libc::c_int >> 6 as libc::c_int &
-                      0x3f as libc::c_int) << 5 as libc::c_int) as uint16;
-            *rxframeoffset = 0 as libc::c_int as uint16;
-            *rxframeno =
-                (frameinfo2 as libc::c_int >> 12 as libc::c_int &
-                     0xf as libc::c_int) as uint16
-        } else if *rxframeno as libc::c_int !=
-                      frameinfo2 as libc::c_int >> 12 as libc::c_int &
-                          0xf as libc::c_int {
-            *rxfragmentno = 0 as libc::c_int as uint8;
-            *rxframesize = 0 as libc::c_int as uint16;
-            *rxframeoffset = 0 as libc::c_int as uint16;
-            *rxframeno = 0 as libc::c_int as uint16;
+        if *rxfragmentno as libc::c_int == 0i32 {
+            *rxframesize = ((frameinfo2 as libc::c_int >> 6i32 & 0x3fi32) << 5i32) as uint16;
+            *rxframeoffset = 0u16;
+            *rxframeno = (frameinfo2 as libc::c_int >> 12i32 & 0xfi32) as uint16
+        } else if *rxframeno as libc::c_int != frameinfo2 as libc::c_int >> 12i32 & 0xfi32 {
+            *rxfragmentno = 0u8;
+            *rxframesize = 0u16;
+            *rxframeoffset = 0u16;
+            *rxframeno = 0u16;
             wkc = -(EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
-            return wkc
+            return wkc;
         } else {
-            if *rxframeoffset as libc::c_int !=
-                   (frameinfo2 as libc::c_int >> 6 as libc::c_int &
-                        0x3f as libc::c_int) << 5 as libc::c_int {
-                *rxfragmentno = 0 as libc::c_int as uint8;
-                *rxframesize = 0 as libc::c_int as uint16;
-                *rxframeoffset = 0 as libc::c_int as uint16;
-                *rxframeno = 0 as libc::c_int as uint16;
+            if *rxframeoffset as libc::c_int
+                != (frameinfo2 as libc::c_int >> 6i32 & 0x3fi32) << 5i32
+            {
+                *rxfragmentno = 0u8;
+                *rxframesize = 0u16;
+                *rxframeoffset = 0u16;
+                *rxframeno = 0u16;
                 wkc = -(EC_ERR_TYPE_EOE_INVALID_RX_DATA as libc::c_int);
-                return wkc
+                return wkc;
             }
         }
         /* If we're inside a frame, make sure it is the same */
         /* Make sure we're inside expected frame size */
-        if *rxframeoffset as libc::c_int + eoedatasize as libc::c_int <=
-               *rxframesize as libc::c_int &&
-               *rxframeoffset as libc::c_int + eoedatasize as libc::c_int <=
-                   *psize {
-            memcpy(&mut *buf.offset(*rxframeoffset as isize) as *mut uint8 as
-                       *mut libc::c_void,
-                   (*aEOEp).data.as_mut_ptr() as *const libc::c_void,
-                   eoedatasize as libc::c_ulong);
-            *rxframeoffset =
-                (*rxframeoffset as libc::c_int + eoedatasize as libc::c_int)
-                    as uint16;
-            *rxfragmentno =
-                (*rxfragmentno as libc::c_int + 1 as libc::c_int) as uint8
+        if *rxframeoffset as libc::c_int + eoedatasize as libc::c_int <= *rxframesize as libc::c_int
+            && *rxframeoffset as libc::c_int + eoedatasize as libc::c_int <= *psize
+        {
+            memcpy(
+                &mut *buf.offset(*rxframeoffset as isize) as *mut uint8 as *mut libc::c_void,
+                (*aEOEp).data.as_mut_ptr() as *const libc::c_void,
+                eoedatasize as libc::c_ulong,
+            );
+            *rxframeoffset = (*rxframeoffset as libc::c_int + eoedatasize as libc::c_int) as uint16;
+            *rxfragmentno = (*rxfragmentno as libc::c_int + 1i32) as uint8
         }
         /* Is it the last fragment */
-        if frameinfo1 as libc::c_int >> 8 as libc::c_int & 0x1 as libc::c_int
-               != 0 {
+        if frameinfo1 as libc::c_int >> 8i32 & 0x1i32 != 0 {
             /* Remove timestamp */
-            if frameinfo1 as libc::c_int >> 9 as libc::c_int &
-                   0x1 as libc::c_int != 0 {
-                *rxframeoffset =
-                    (*rxframeoffset as libc::c_int - 4 as libc::c_int) as
-                        uint16
+            if frameinfo1 as libc::c_int >> 9i32 & 0x1i32 != 0 {
+                *rxframeoffset = (*rxframeoffset as libc::c_int - 4i32) as uint16
             }
             *psize = *rxframeoffset as libc::c_int;
-            *rxfragmentno = 0 as libc::c_int as uint8;
-            *rxframesize = 0 as libc::c_int as uint16;
-            *rxframeoffset = 0 as libc::c_int as uint16;
-            *rxframeno = 0 as libc::c_int as uint16;
-            wkc = 1 as libc::c_int
+            *rxfragmentno = 0u8;
+            *rxframesize = 0u16;
+            *rxframeoffset = 0u16;
+            *rxframeno = 0u16;
+            wkc = 1i32
         }
     } else {
         /* unexpected mailbox received */
