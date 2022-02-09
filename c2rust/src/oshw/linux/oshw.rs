@@ -1,3 +1,5 @@
+use libc::strncpy;
+
 pub type __uint16_t = libc::c_ushort;
 
 #[repr(C)]
@@ -9,14 +11,6 @@ pub struct if_nameindex {
 pub type uint16_t = __uint16_t;
 pub type uint16 = uint16_t;
 
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ec_adapter {
-    pub name: [libc::c_char; 128],
-    pub desc: [libc::c_char; 128],
-    pub next: *mut ec_adaptert,
-}
-pub type ec_adaptert = ec_adapter;
 /*
  * Licensed under the GNU General Public License version 2 with exceptions. See
  * LICENSE file in the project root for full license information
@@ -59,8 +53,7 @@ pub unsafe extern "C" fn oshw_find_adapters() -> *mut ec_adaptert {
     ids = if_nameindex();
     i = 0i32;
     while (*ids.offset(i as isize)).if_index != 0u32 {
-        adapter =
-            malloc(::core::mem::size_of::<ec_adaptert>() as libc::c_ulong) as *mut ec_adaptert;
+        adapter = malloc(core::mem::size_of::<ec_adaptert>()) as *mut ec_adaptert;
         /* If we got more than one adapter save link list pointer to previous
          * adapter.
          * Else save as pointer to return.

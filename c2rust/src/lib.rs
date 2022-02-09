@@ -31,5 +31,6 @@ pub mod ethercatfoe;
 pub mod ethercatmain;
 pub mod ethercatprint;
 pub mod ethercatsoe;
+pub mod ethercattype;
 
 pub mod test;

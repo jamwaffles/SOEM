@@ -1,37 +1,16 @@
+use crate::osal::linux::osal::{osal_timer_is_expired, osal_timer_start};
+use libc::{
+    bind, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
+    pthread_mutex_unlock, pthread_mutexattr_init, pthread_mutexattr_t, recv, send, setsockopt,
+    sockaddr, socket, strcpy, timeval,
+};
+
 pub type __uint8_t = libc::c_uchar;
 pub type __uint16_t = libc::c_ushort;
 pub type __uint32_t = libc::c_uint;
 pub type __int64_t = libc::c_long;
 pub type __uint64_t = libc::c_ulong;
 
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct __pthread_internal_list {
-    pub __prev: *mut __pthread_internal_list,
-    pub __next: *mut __pthread_internal_list,
-}
-pub type __pthread_list_t = __pthread_internal_list;
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct __pthread_mutex_s {
-    pub __lock: libc::c_int,
-    pub __count: libc::c_uint,
-    pub __owner: libc::c_int,
-    pub __nusers: libc::c_uint,
-    pub __kind: libc::c_int,
-    pub __spins: libc::c_short,
-    pub __elision: libc::c_short,
-    pub __list: __pthread_list_t,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union pthread_mutex_t {
-    pub __data: __pthread_mutex_s,
-    pub __size: [libc::c_char; 40],
-    pub __align: libc::c_long,
-}
 pub type int64_t = __int64_t;
 pub type uint8_t = __uint8_t;
 pub type uint16_t = __uint16_t;
@@ -146,50 +125,6 @@ pub const ECT_REG_ESCSUP: C2RustUnnamed_0 = 8;
 pub const ECT_REG_PORTDES: C2RustUnnamed_0 = 7;
 pub const ECT_REG_TYPE: C2RustUnnamed_0 = 0;
 
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ec_stackT {
-    pub sock: *mut libc::c_int,
-    pub txbuf: *mut [ec_bufT; 16],
-    pub txbuflength: *mut [libc::c_int; 16],
-    pub tempbuf: *mut ec_bufT,
-    pub rxbuf: *mut [ec_bufT; 16],
-    pub rxbufstat: *mut [libc::c_int; 16],
-    pub rxsa: *mut [libc::c_int; 16],
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ecx_redportt {
-    pub stack: ec_stackT,
-    pub sockhandle: libc::c_int,
-    pub rxbuf: [ec_bufT; 16],
-    pub rxbufstat: [libc::c_int; 16],
-    pub rxsa: [libc::c_int; 16],
-    pub tempinbuf: ec_bufT,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ecx_portt {
-    pub stack: ec_stackT,
-    pub sockhandle: libc::c_int,
-    pub rxbuf: [ec_bufT; 16],
-    pub rxbufstat: [libc::c_int; 16],
-    pub rxsa: [libc::c_int; 16],
-    pub tempinbuf: ec_bufT,
-    pub tempinbufs: libc::c_int,
-    pub txbuf: [ec_bufT; 16],
-    pub txbuflength: [libc::c_int; 16],
-    pub txbuf2: ec_bufT,
-    pub txbuflength2: libc::c_int,
-    pub lastidx: uint8,
-    pub redstate: libc::c_int,
-    pub redport: *mut ecx_redportt,
-    pub getindex_mutex: pthread_mutex_t,
-    pub tx_mutex: pthread_mutex_t,
-    pub rx_mutex: pthread_mutex_t,
-}
 /*
  * Licensed under the GNU General Public License version 2 with exceptions. See
  * LICENSE file in the project root for full license information
@@ -296,7 +231,7 @@ pub unsafe extern "C" fn ecx_setupdatagram(
     datagramP = &mut *frameP.offset(::core::mem::size_of::<ec_etherheadert>() as isize)
         as *mut uint8 as *mut ec_comt;
     (*datagramP).elength = (0x1000u64)
-        .wrapping_add(::core::mem::size_of::<ec_comt>() as libc::c_ulong)
+        .wrapping_add(core::mem::size_of::<ec_comt>())
         .wrapping_add(length as libc::c_ulong) as uint16;
     (*datagramP).command = com;
     (*datagramP).index = idx;
@@ -305,8 +240,7 @@ pub unsafe extern "C" fn ecx_setupdatagram(
     (*datagramP).dlength = length;
     ecx_writedatagramdata(
         &mut *frameP.offset(
-            (::core::mem::size_of::<ec_etherheadert>() as libc::c_ulong)
-                .wrapping_add(::core::mem::size_of::<ec_comt>() as libc::c_ulong)
+            core::mem::size_of::<ec_etherheadert>().wrapping_add(core::mem::size_of::<ec_comt>())
                 as isize,
         ) as *mut uint8 as *mut libc::c_void,
         com as ec_cmdtype,
@@ -315,20 +249,20 @@ pub unsafe extern "C" fn ecx_setupdatagram(
     );
     /* set WKC to zero */
     *frameP.offset(
-        (::core::mem::size_of::<ec_etherheadert>() as libc::c_ulong)
-            .wrapping_add(::core::mem::size_of::<ec_comt>() as libc::c_ulong)
+        core::mem::size_of::<ec_etherheadert>()
+            .wrapping_add(core::mem::size_of::<ec_comt>())
             .wrapping_add(length as libc::c_ulong) as isize,
     ) = 0u8;
     *frameP.offset(
-        (::core::mem::size_of::<ec_etherheadert>() as libc::c_ulong)
-            .wrapping_add(::core::mem::size_of::<ec_comt>() as libc::c_ulong)
+        core::mem::size_of::<ec_etherheadert>()
+            .wrapping_add(core::mem::size_of::<ec_comt>())
             .wrapping_add(length as libc::c_ulong)
-            .wrapping_add(1u64) as isize,
+            .wrapping_add(1usize) as isize,
     ) = 0u8;
     /* set size of frame in buffer array */
-    (*port).txbuflength[idx as usize] = (::core::mem::size_of::<ec_etherheadert>() as libc::c_ulong)
-        .wrapping_add(::core::mem::size_of::<ec_comt>() as libc::c_ulong)
-        .wrapping_add(::core::mem::size_of::<uint16>() as libc::c_ulong)
+    (*port).txbuflength[idx as usize] = core::mem::size_of::<ec_etherheadert>()
+        .wrapping_add(core::mem::size_of::<ec_comt>())
+        .wrapping_add(core::mem::size_of::<uint16>())
         .wrapping_add(length as libc::c_ulong)
         as libc::c_int;
     return 0i32;
@@ -368,15 +302,14 @@ pub unsafe extern "C" fn ecx_adddatagram(
         as *mut uint8 as *mut ec_comt;
     /* add new datagram to ethernet frame size */
     (*datagramP).elength = ((*datagramP).elength as libc::c_ulong)
-        .wrapping_add(::core::mem::size_of::<ec_comt>() as libc::c_ulong)
+        .wrapping_add(core::mem::size_of::<ec_comt>())
         .wrapping_add(length as libc::c_ulong) as uint16;
     /* add "datagram follows" flag to previous subframe dlength */
     (*datagramP).dlength = ((*datagramP).dlength as libc::c_int | (1i32) << 15i32) as uint16;
     /* set new EtherCAT header position */
-    datagramP = &mut *frameP.offset(
-        (prevlength as libc::c_ulong)
-            .wrapping_sub(::core::mem::size_of::<uint16>() as libc::c_ulong) as isize,
-    ) as *mut uint8 as *mut ec_comt;
+    datagramP = &mut *frameP
+        .offset((prevlength as libc::c_ulong).wrapping_sub(core::mem::size_of::<uint16>()) as isize)
+        as *mut uint8 as *mut ec_comt;
     (*datagramP).command = com;
     (*datagramP).index = idx;
     (*datagramP).ADP = ADP;
@@ -391,9 +324,8 @@ pub unsafe extern "C" fn ecx_adddatagram(
     ecx_writedatagramdata(
         &mut *frameP.offset(
             (prevlength as libc::c_ulong)
-                .wrapping_add(::core::mem::size_of::<ec_comt>() as libc::c_ulong)
-                .wrapping_sub(::core::mem::size_of::<uint16>() as libc::c_ulong)
-                as isize,
+                .wrapping_add(core::mem::size_of::<ec_comt>())
+                .wrapping_sub(core::mem::size_of::<uint16>()) as isize,
         ) as *mut uint8 as *mut libc::c_void,
         com as ec_cmdtype,
         length,
@@ -402,31 +334,30 @@ pub unsafe extern "C" fn ecx_adddatagram(
     /* set WKC to zero */
     *frameP.offset(
         (prevlength as libc::c_ulong)
-            .wrapping_add(::core::mem::size_of::<ec_comt>() as libc::c_ulong)
-            .wrapping_sub(::core::mem::size_of::<uint16>() as libc::c_ulong)
+            .wrapping_add(core::mem::size_of::<ec_comt>())
+            .wrapping_sub(core::mem::size_of::<uint16>())
             .wrapping_add(length as libc::c_ulong) as isize,
     ) = 0u8;
     *frameP.offset(
         (prevlength as libc::c_ulong)
-            .wrapping_add(::core::mem::size_of::<ec_comt>() as libc::c_ulong)
-            .wrapping_sub(::core::mem::size_of::<uint16>() as libc::c_ulong)
+            .wrapping_add(core::mem::size_of::<ec_comt>())
+            .wrapping_sub(core::mem::size_of::<uint16>())
             .wrapping_add(length as libc::c_ulong)
-            .wrapping_add(1u64) as isize,
+            .wrapping_add(1usize) as isize,
     ) = 0u8;
     /* set size of frame in buffer array */
     (*port).txbuflength[idx as usize] = (prevlength as libc::c_ulong)
-        .wrapping_add(::core::mem::size_of::<ec_comt>() as libc::c_ulong)
-        .wrapping_sub(::core::mem::size_of::<uint16>() as libc::c_ulong)
-        .wrapping_add(::core::mem::size_of::<uint16>() as libc::c_ulong)
+        .wrapping_add(core::mem::size_of::<ec_comt>())
+        .wrapping_sub(core::mem::size_of::<uint16>())
+        .wrapping_add(core::mem::size_of::<uint16>())
         .wrapping_add(length as libc::c_ulong)
         as libc::c_int;
     /* return offset to data in rx frame
     14 bytes smaller than tx frame due to stripping of ethernet header */
     return (prevlength as libc::c_ulong)
-        .wrapping_add(::core::mem::size_of::<ec_comt>() as libc::c_ulong)
-        .wrapping_sub(::core::mem::size_of::<uint16>() as libc::c_ulong)
-        .wrapping_sub(::core::mem::size_of::<ec_etherheadert>() as libc::c_ulong)
-        as uint16;
+        .wrapping_add(core::mem::size_of::<ec_comt>())
+        .wrapping_sub(core::mem::size_of::<uint16>())
+        .wrapping_sub(core::mem::size_of::<ec_etherheadert>()) as uint16;
 }
 /* * BRW "broadcast write" primitive. Blocking.
  *
@@ -1080,17 +1011,16 @@ pub unsafe extern "C" fn ecx_LRWDC(
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
                 .offset(
-                    (::core::mem::size_of::<ec_comt>() as libc::c_ulong)
-                        .wrapping_add(length as libc::c_ulong) as isize,
+                    core::mem::size_of::<ec_comt>().wrapping_add(length as libc::c_ulong) as isize,
                 ) as *mut uint8 as *const libc::c_void,
-            ::core::mem::size_of::<uint16>() as libc::c_ulong,
+            core::mem::size_of::<uint16>(),
         );
         memcpy(
             &mut DCtE as *mut uint64 as *mut libc::c_void,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
                 .offset(DCtO as isize) as *mut uint8 as *const libc::c_void,
-            ::core::mem::size_of::<int64>() as libc::c_ulong,
+            core::mem::size_of::<int64>(),
         );
         *DCtime = DCtE as int64
     }

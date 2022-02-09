@@ -1,3 +1,22 @@
+use crate::{
+    ethercatbase::{
+        ecx_APRD, ecx_APWR, ecx_BRD, ecx_BWR, ecx_FPRD, ecx_FPWR, ecx_FPWRw, ecx_adddatagram,
+        ecx_setupdatagram,
+    },
+    osal::linux::osal::{
+        ec_timet, osal_current_time, osal_timer_is_expired, osal_timer_start, osal_timert,
+        osal_usleep,
+    },
+    oshw::linux::{
+        nicdrv::{
+            ec_stackT, ecx_closenic, ecx_getindex, ecx_outframe_red, ecx_portt, ecx_redportt,
+            ecx_setbufstat, ecx_setupnic, ecx_srconfirm, ecx_waitinframe, secMAC,
+        },
+        oshw::{oshw_find_adapters, oshw_free_adapters, oshw_htons},
+    },
+};
+use libc::{memcpy, memset, pthread_mutex_t};
+
 pub type __uint8_t = libc::c_uchar;
 pub type __int16_t = libc::c_short;
 pub type __uint16_t = libc::c_ushort;
@@ -6,34 +25,6 @@ pub type __uint32_t = libc::c_uint;
 pub type __int64_t = libc::c_long;
 pub type __uint64_t = libc::c_ulong;
 
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct __pthread_internal_list {
-    pub __prev: *mut __pthread_internal_list,
-    pub __next: *mut __pthread_internal_list,
-}
-pub type __pthread_list_t = __pthread_internal_list;
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct __pthread_mutex_s {
-    pub __lock: libc::c_int,
-    pub __count: libc::c_uint,
-    pub __owner: libc::c_int,
-    pub __nusers: libc::c_uint,
-    pub __kind: libc::c_int,
-    pub __spins: libc::c_short,
-    pub __elision: libc::c_short,
-    pub __list: __pthread_list_t,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union pthread_mutex_t {
-    pub __data: __pthread_mutex_s,
-    pub __size: [libc::c_char; 40],
-    pub __align: libc::c_long,
-}
 pub type int16_t = __int16_t;
 pub type int32_t = __int32_t;
 pub type int64_t = __int64_t;
@@ -50,19 +41,6 @@ pub type uint32 = uint32_t;
 pub type int64 = int64_t;
 pub type uint64 = uint64_t;
 
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ec_timet {
-    pub sec: uint32,
-    pub usec: uint32,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct osal_timer {
-    pub stop_time: ec_timet,
-}
-pub type osal_timert = osal_timer;
 pub type ec_bufT = [uint8; 1518];
 
 #[repr(C, packed)]
@@ -237,51 +215,6 @@ pub struct C2RustUnnamed_7 {
 
 #[repr(C)]
 #[derive(Copy, Clone)]
-pub struct ec_stackT {
-    pub sock: *mut libc::c_int,
-    pub txbuf: *mut [ec_bufT; 16],
-    pub txbuflength: *mut [libc::c_int; 16],
-    pub tempbuf: *mut ec_bufT,
-    pub rxbuf: *mut [ec_bufT; 16],
-    pub rxbufstat: *mut [libc::c_int; 16],
-    pub rxsa: *mut [libc::c_int; 16],
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ecx_redportt {
-    pub stack: ec_stackT,
-    pub sockhandle: libc::c_int,
-    pub rxbuf: [ec_bufT; 16],
-    pub rxbufstat: [libc::c_int; 16],
-    pub rxsa: [libc::c_int; 16],
-    pub tempinbuf: ec_bufT,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ecx_portt {
-    pub stack: ec_stackT,
-    pub sockhandle: libc::c_int,
-    pub rxbuf: [ec_bufT; 16],
-    pub rxbufstat: [libc::c_int; 16],
-    pub rxsa: [libc::c_int; 16],
-    pub tempinbuf: ec_bufT,
-    pub tempinbufs: libc::c_int,
-    pub txbuf: [ec_bufT; 16],
-    pub txbuflength: [libc::c_int; 16],
-    pub txbuf2: ec_bufT,
-    pub txbuflength2: libc::c_int,
-    pub lastidx: uint8,
-    pub redstate: libc::c_int,
-    pub redport: *mut ecx_redportt,
-    pub getindex_mutex: pthread_mutex_t,
-    pub tx_mutex: pthread_mutex_t,
-    pub rx_mutex: pthread_mutex_t,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
 pub struct ec_adapter {
     pub name: [libc::c_char; 128],
     pub desc: [libc::c_char; 128],
@@ -370,6 +303,7 @@ pub struct ec_eepromSM {
     pub Activate: uint8,
     pub PDIctrl: uint8,
 }
+
 pub type ec_PDOdesct = ec_PDOdesc;
 
 #[repr(C, packed)]
@@ -379,6 +313,7 @@ pub struct ec_PDOdesc {
     pub nu1: uint8,
     pub PDO: [uint32; 256],
 }
+
 pub type ec_PDOassignt = ec_PDOassign;
 
 #[repr(C, packed)]
@@ -388,6 +323,7 @@ pub struct ec_PDOassign {
     pub nu1: uint8,
     pub index: [uint16; 256],
 }
+
 pub type ec_SMcommtypet = ec_SMcommtype;
 
 #[repr(C, packed)]
@@ -397,6 +333,7 @@ pub struct ec_SMcommtype {
     pub nu1: uint8,
     pub SMtype: [uint8; 8],
 }
+
 pub type ec_idxstackT = ec_idxstack;
 
 #[repr(C)]
@@ -409,6 +346,7 @@ pub struct ec_idxstack {
     pub length: [uint16; 16],
     pub dcoffset: [uint16; 16],
 }
+
 pub type ec_eringt = ec_ering;
 
 #[repr(C)]
@@ -418,6 +356,7 @@ pub struct ec_ering {
     pub tail: int16,
     pub Error: [ec_errort; 65],
 }
+
 pub type ec_groupt = ec_group;
 
 #[repr(C)]
@@ -440,6 +379,7 @@ pub struct ec_group {
     pub docheckstate: boolean,
     pub IOsegment: [uint32; 64],
 }
+
 pub type ec_slavet = ec_slave;
 
 #[repr(C)]
@@ -981,7 +921,7 @@ pub unsafe extern "C" fn ecx_packeterror(
     memset(
         &mut Ec as *mut ec_errort as *mut libc::c_void,
         0i32,
-        ::core::mem::size_of::<ec_errort>() as libc::c_ulong,
+        core::mem::size_of::<ec_errort>(),
     );
     Ec.Time = osal_current_time();
     Ec.Slave = Slave;
@@ -1015,7 +955,7 @@ unsafe extern "C" fn ecx_mbxerror(
     memset(
         &mut Ec as *mut ec_errort as *mut libc::c_void,
         0i32,
-        ::core::mem::size_of::<ec_errort>() as libc::c_ulong,
+        ::core::mem::size_of::<ec_errort>(),
     );
     Ec.Time = osal_current_time();
     Ec.Slave = Slave;
@@ -1056,7 +996,7 @@ unsafe extern "C" fn ecx_mbxemergencyerror(
     memset(
         &mut Ec as *mut ec_errort as *mut libc::c_void,
         0i32,
-        ::core::mem::size_of::<ec_errort>() as libc::c_ulong,
+        core::mem::size_of::<ec_errort>(),
     );
     Ec.Time = osal_current_time();
     Ec.Slave = Slave;
@@ -1116,10 +1056,10 @@ pub unsafe extern "C" fn ecx_init_redundant(
         2u16,
         &mut zbuf as *mut libc::c_int as *mut libc::c_void,
     );
-    (*(*context).port).txbuflength2 = (::core::mem::size_of::<ec_etherheadert>() as libc::c_ulong)
-        .wrapping_add(::core::mem::size_of::<ec_comt>() as libc::c_ulong)
-        .wrapping_add(::core::mem::size_of::<uint16>() as libc::c_ulong)
-        .wrapping_add(2u64) as libc::c_int;
+    (*(*context).port).txbuflength2 = core::mem::size_of::<ec_etherheadert>()
+        .wrapping_add(core::mem::size_of::<ec_comt>())
+        .wrapping_add(core::mem::size_of::<uint16>())
+        .wrapping_add(2usize) as libc::c_int;
     return rval;
 }
 /* * Close lib.
@@ -1158,7 +1098,7 @@ pub unsafe extern "C" fn ecx_siigetbyte(
         memset(
             (*context).esimap as *mut libc::c_void,
             0i32,
-            (128u64).wrapping_mul(::core::mem::size_of::<uint32>() as libc::c_ulong),
+            (128usize).wrapping_mul(core::mem::size_of::<uint32>()),
         ); /* clear esibuf cache map */
         (*context).esislave = slave
     }
@@ -1182,7 +1122,7 @@ pub unsafe extern "C" fn ecx_siigetbyte(
                         .offset(((eadr as libc::c_int) << 1i32) as isize)
                         as *mut uint8 as *mut libc::c_void,
                     &mut edat64 as *mut uint64 as *const libc::c_void,
-                    8u64,
+                    8usize,
                 );
                 cnt = 8i32
             } else {
@@ -1194,7 +1134,7 @@ pub unsafe extern "C" fn ecx_siigetbyte(
                         .offset(((eadr as libc::c_int) << 1i32) as isize)
                         as *mut uint8 as *mut libc::c_void,
                     &mut edat32 as *mut uint32 as *const libc::c_void,
-                    4u64,
+                    4usize,
                 );
                 cnt = 4i32
             }
@@ -1642,7 +1582,7 @@ pub unsafe extern "C" fn ecx_FPRD_multi(
     let mut sldatapos: [uint16; 64] = [0; 64];
     let mut slcnt: libc::c_int = 0;
     port = (*context).port;
-    idx = ecx_getindex(port);
+    idx = ecx_clearindex(port);
     slcnt = 0i32;
     ecx_setupdatagram(
         port,
@@ -1697,7 +1637,7 @@ pub unsafe extern "C" fn ecx_FPRD_multi(
                     .as_mut_ptr()
                     .offset(*sldatapos.as_mut_ptr().offset(slcnt as isize) as isize)
                     as *mut uint8 as *const libc::c_void,
-                ::core::mem::size_of::<ec_alstatust>() as libc::c_ulong,
+                ::core::mem::size_of::<ec_alstatust>(),
             );
             slcnt += 1
         }
@@ -1956,7 +1896,7 @@ pub unsafe extern "C" fn ec_nextmbxcnt(mut cnt: uint8) -> uint8 {
  */
 #[no_mangle]
 pub unsafe extern "C" fn ec_clearmbx(mut Mbx: *mut ec_mbxbuft) {
-    memset(Mbx as *mut libc::c_void, 0i32, 1486u64);
+    memset(Mbx as *mut libc::c_void, 0i32, 1486usize);
 }
 /* * Check if IN mailbox of slave is empty.
  * @param[in] context  = context struct
@@ -3435,16 +3375,16 @@ pub unsafe extern "C" fn ecx_receive_processdata_group(
                             .as_mut_ptr()
                             .offset(::core::mem::size_of::<ec_comt>() as isize)
                             as *mut uint8 as *const libc::c_void,
-                        (*idxstack).length[pos as usize] as libc::c_ulong,
+                        (*idxstack).length[pos as usize] as usize,
                     );
                     memcpy(
                         &mut le_wkc as *mut uint16 as *mut libc::c_void,
                         &mut *(*rxbuf.offset(idx as isize)).as_mut_ptr().offset(
-                            (::core::mem::size_of::<ec_comt>() as libc::c_ulong)
-                                .wrapping_add(*(*idxstack).length.as_mut_ptr().offset(pos as isize)
-                                    as libc::c_ulong) as isize,
+                            core::mem::size_of::<ec_comt>().wrapping_add(
+                                *(*idxstack).length.as_mut_ptr().offset(pos as isize) as usize,
+                            ) as isize,
                         ) as *mut uint8 as *const libc::c_void,
-                        ::core::mem::size_of::<uint16>() as libc::c_ulong,
+                        core::mem::size_of::<uint16>(),
                     );
                     wkc = le_wkc as libc::c_int;
                     memcpy(&mut le_DCtime as *mut int64 as *mut libc::c_void,
@@ -3455,7 +3395,7 @@ pub unsafe extern "C" fn ecx_receive_processdata_group(
                                                                                     as
                                                                                     isize)
                                as *mut uint8 as *const libc::c_void,
-                           ::core::mem::size_of::<int64>() as libc::c_ulong);
+                           core::mem::size_of::<int64>(),);
                     *(*context).DCtime = le_DCtime
                 } else {
                     /* copy input data back to process data buffer */
@@ -3465,7 +3405,7 @@ pub unsafe extern "C" fn ecx_receive_processdata_group(
                             .as_mut_ptr()
                             .offset(::core::mem::size_of::<ec_comt>() as isize)
                             as *mut uint8 as *const libc::c_void,
-                        (*idxstack).length[pos as usize] as libc::c_ulong,
+                        (*idxstack).length[pos as usize] as usize,
                     );
                     wkc += wkc2
                 }
@@ -3477,11 +3417,11 @@ pub unsafe extern "C" fn ecx_receive_processdata_group(
                     memcpy(
                         &mut le_wkc as *mut uint16 as *mut libc::c_void,
                         &mut *(*rxbuf.offset(idx as isize)).as_mut_ptr().offset(
-                            (::core::mem::size_of::<ec_comt>() as libc::c_ulong)
-                                .wrapping_add(*(*idxstack).length.as_mut_ptr().offset(pos as isize)
-                                    as libc::c_ulong) as isize,
+                            core::mem::size_of::<ec_comt>().wrapping_add(
+                                *(*idxstack).length.as_mut_ptr().offset(pos as isize) as usize,
+                            ) as isize,
                         ) as *mut uint8 as *const libc::c_void,
-                        ::core::mem::size_of::<uint16>() as libc::c_ulong,
+                        core::mem::size_of::<uint16>(),
                     );
                     /* output WKC counts 2 times when using LRW, emulate the same for LWR */
                     wkc = le_wkc as libc::c_int * 2i32;
@@ -3493,7 +3433,7 @@ pub unsafe extern "C" fn ecx_receive_processdata_group(
                                                                                     as
                                                                                     isize)
                                as *mut uint8 as *const libc::c_void,
-                           ::core::mem::size_of::<int64>() as libc::c_ulong);
+                           core::mem::size_of::<int64>(),);
                     *(*context).DCtime = le_DCtime
                 } else {
                     /* output WKC counts 2 times when using LRW, emulate the same for LWR */

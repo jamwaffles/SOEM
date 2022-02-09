@@ -1,4 +1,11 @@
-pub type size_t = libc::c_ulong;
+use crate::osal::linux::osal::{osal_timer_is_expired, osal_timer_start};
+use libc::{
+    bind, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
+    pthread_mutex_unlock, pthread_mutexattr_init, pthread_mutexattr_t, recv, send, setsockopt,
+    sockaddr, socket, strcpy, timeval,
+};
+
+pub type size_t = usize;
 pub type __uint8_t = libc::c_uchar;
 pub type __uint16_t = libc::c_ushort;
 pub type __uint32_t = libc::c_uint;
@@ -50,12 +57,7 @@ pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 pub type uint64 = uint64_t;
 
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ec_timet {
-    pub sec: uint32,
-    pub usec: uint32,
-}
+
 pub type C2RustUnnamed = libc::c_uint;
 pub const ECT_REG_DCCYCLE1: C2RustUnnamed = 2468;
 pub const ECT_REG_DCCYCLE0: C2RustUnnamed = 2464;
@@ -112,14 +114,7 @@ pub const ECT_REG_ESCSUP: C2RustUnnamed = 8;
 pub const ECT_REG_PORTDES: C2RustUnnamed = 7;
 pub const ECT_REG_TYPE: C2RustUnnamed = 0;
 
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ec_adapter {
-    pub name: [libc::c_char; 128],
-    pub desc: [libc::c_char; 128],
-    pub next: *mut ec_adaptert,
-}
-pub type ec_adaptert = ec_adapter;
+
 #[no_mangle]
 pub static mut ebuf: [uint8; 524288] = [0; 524288];
 #[no_mangle]
@@ -718,7 +713,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
         if strncmp(
             *argv.offset(3isize),
             b"-i\x00" as *const u8 as *const libc::c_char,
-            ::core::mem::size_of::<[libc::c_char; 3]>() as libc::c_ulong,
+            core::mem::size_of::<[libc::c_char; 3]>(),
         ) == 0i32
         {
             mode = 6i32
@@ -727,7 +722,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             if strncmp(
                 *argv.offset(3isize),
                 b"-r\x00" as *const u8 as *const libc::c_char,
-                ::core::mem::size_of::<[libc::c_char; 3]>() as libc::c_ulong,
+                core::mem::size_of::<[libc::c_char; 3]>(),
             ) == 0i32
             {
                 mode = 1i32
@@ -735,7 +730,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             if strncmp(
                 *argv.offset(3isize),
                 b"-ri\x00" as *const u8 as *const libc::c_char,
-                ::core::mem::size_of::<[libc::c_char; 4]>() as libc::c_ulong,
+                core::mem::size_of::<[libc::c_char; 4]>(),
             ) == 0i32
             {
                 mode = 2i32
@@ -743,7 +738,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             if strncmp(
                 *argv.offset(3isize),
                 b"-w\x00" as *const u8 as *const libc::c_char,
-                ::core::mem::size_of::<[libc::c_char; 3]>() as libc::c_ulong,
+                core::mem::size_of::<[libc::c_char; 3]>(),
             ) == 0i32
             {
                 mode = 3i32
@@ -751,7 +746,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             if strncmp(
                 *argv.offset(3isize),
                 b"-wi\x00" as *const u8 as *const libc::c_char,
-                ::core::mem::size_of::<[libc::c_char; 4]>() as libc::c_ulong,
+                core::mem::size_of::<[libc::c_char; 4]>(),
             ) == 0i32
             {
                 mode = 4i32
@@ -759,7 +754,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             if strncmp(
                 *argv.offset(3isize),
                 b"-walias\x00" as *const u8 as *const libc::c_char,
-                ::core::mem::size_of::<[libc::c_char; 8]>() as libc::c_ulong,
+                core::mem::size_of::<[libc::c_char; 8]>(),
             ) == 0i32
             {
                 mode = 5i32;

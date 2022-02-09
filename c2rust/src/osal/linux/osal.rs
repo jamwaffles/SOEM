@@ -1,4 +1,10 @@
-pub type size_t = libc::c_ulong;
+use libc::{
+    clock_gettime, free, malloc, memset, nanosleep, pthread_attr_destroy, pthread_attr_init,
+    pthread_attr_setstacksize, pthread_attr_t, pthread_create, pthread_setschedparam, pthread_t,
+    sched_param, timespec, timeval,
+};
+
+pub type size_t = usize;
 pub type __uint8_t = libc::c_uchar;
 pub type __uint32_t = libc::c_uint;
 pub type __time_t = libc::c_long;
@@ -6,34 +12,6 @@ pub type __suseconds_t = libc::c_long;
 pub type __clockid_t = libc::c_int;
 pub type __syscall_slong_t = libc::c_long;
 
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct timespec {
-    pub tv_sec: __time_t,
-    pub tv_nsec: __syscall_slong_t,
-}
-pub type clockid_t = __clockid_t;
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct timeval {
-    pub tv_sec: __time_t,
-    pub tv_usec: __suseconds_t,
-}
-pub type pthread_t = libc::c_ulong;
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union pthread_attr_t {
-    pub __size: [libc::c_char; 56],
-    pub __align: libc::c_long,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct sched_param {
-    pub sched_priority: libc::c_int,
-}
 pub type uint8_t = __uint8_t;
 pub type uint32_t = __uint32_t;
 pub type boolean = uint8_t;
@@ -52,6 +30,7 @@ pub struct osal_timer {
     pub stop_time: ec_timet,
 }
 pub type osal_timert = osal_timer;
+
 #[no_mangle]
 pub unsafe extern "C" fn osal_usleep(mut usec: uint32) -> libc::c_int {
     let mut ts: timespec = timespec {
@@ -219,7 +198,7 @@ pub unsafe extern "C" fn osal_thread_create_rt(
     memset(
         &mut schparam as *mut sched_param as *mut libc::c_void,
         0i32,
-        ::core::mem::size_of::<sched_param>() as libc::c_ulong,
+        core::mem::size_of::<sched_param>(),
     );
     schparam.sched_priority = 40i32;
     ret = pthread_setschedparam(*threadp, 1i32, &mut schparam);

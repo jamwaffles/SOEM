@@ -1,3 +1,10 @@
+use crate::osal::linux::osal::{ec_timet, osal_timer_is_expired, osal_timer_start};
+use libc::{
+    bind, close, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
+    pthread_mutex_unlock, pthread_mutexattr_init, recv, send, setsockopt, sockaddr, socket, strcpy,
+    timeval,
+};
+
 pub type __uint8_t = libc::c_uchar;
 pub type __uint16_t = libc::c_ushort;
 pub type __uint32_t = libc::c_uint;
@@ -7,50 +14,8 @@ pub type __ssize_t = libc::c_long;
 pub type __caddr_t = *mut libc::c_char;
 pub type __socklen_t = libc::c_uint;
 pub type ssize_t = __ssize_t;
-pub type size_t = libc::c_ulong;
+pub type size_t = usize;
 
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct timeval {
-    pub tv_sec: __time_t,
-    pub tv_usec: __suseconds_t,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct __pthread_internal_list {
-    pub __prev: *mut __pthread_internal_list,
-    pub __next: *mut __pthread_internal_list,
-}
-pub type __pthread_list_t = __pthread_internal_list;
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct __pthread_mutex_s {
-    pub __lock: libc::c_int,
-    pub __count: libc::c_uint,
-    pub __owner: libc::c_int,
-    pub __nusers: libc::c_uint,
-    pub __kind: libc::c_int,
-    pub __spins: libc::c_short,
-    pub __elision: libc::c_short,
-    pub __list: __pthread_list_t,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union pthread_mutexattr_t {
-    pub __size: [libc::c_char; 4],
-    pub __align: libc::c_int,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union pthread_mutex_t {
-    pub __data: __pthread_mutex_s,
-    pub __size: [libc::c_char; 40],
-    pub __align: libc::c_long,
-}
 pub type socklen_t = __socklen_t;
 pub type __socket_type = libc::c_uint;
 pub const SOCK_NONBLOCK: __socket_type = 2048;
@@ -64,12 +29,6 @@ pub const SOCK_DGRAM: __socket_type = 2;
 pub const SOCK_STREAM: __socket_type = 1;
 pub type sa_family_t = libc::c_ushort;
 
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct sockaddr {
-    pub sa_family: sa_family_t,
-    pub sa_data: [libc::c_char; 14],
-}
 pub type C2RustUnnamed = libc::c_uint;
 pub const IFF_DYNAMIC: C2RustUnnamed = 32768;
 pub const IFF_AUTOMEDIA: C2RustUnnamed = 16384;
@@ -152,19 +111,6 @@ pub type uint8 = uint8_t;
 pub type uint16 = uint16_t;
 pub type uint32 = uint32_t;
 
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ec_timet {
-    pub sec: uint32,
-    pub usec: uint32,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct osal_timer {
-    pub stop_time: ec_timet,
-}
-pub type osal_timert = osal_timer;
 pub type ec_bufT = [uint8; 1518];
 
 #[repr(C, packed)]
@@ -241,6 +187,7 @@ pub struct ecx_portt {
     pub tx_mutex: pthread_mutex_t,
     pub rx_mutex: pthread_mutex_t,
 }
+
 /* * No redundancy, single NIC mode */
 pub const ECT_RED_NONE: C2RustUnnamed_4 = 0;
 /* * Double redundant NIC connection */
@@ -698,9 +645,8 @@ pub unsafe extern "C" fn ecx_inframe(
                             .as_mut_ptr()
                             .offset(::core::mem::size_of::<ec_etherheadert>() as isize)
                             as *mut uint8 as *const libc::c_void,
-                        ((*(*stack).txbuflength)[idx as usize] as libc::c_ulong).wrapping_sub(
-                            ::core::mem::size_of::<ec_etherheadert>() as libc::c_ulong,
-                        ),
+                        ((*(*stack).txbuflength)[idx as usize] as libc::c_ulong)
+                            .wrapping_sub(core::mem::size_of::<ec_etherheadert>),
                     );
                     /* return WKC */
                     rval = (*rxbuf)[l as usize] as libc::c_int
@@ -722,9 +668,8 @@ pub unsafe extern "C" fn ecx_inframe(
                             .as_mut_ptr()
                             .offset(::core::mem::size_of::<ec_etherheadert>() as isize)
                             as *mut uint8 as *const libc::c_void,
-                        ((*(*stack).txbuflength)[idxf as usize] as libc::c_ulong).wrapping_sub(
-                            ::core::mem::size_of::<ec_etherheadert>() as libc::c_ulong,
-                        ),
+                        ((*(*stack).txbuflength)[idxf as usize] as libc::c_ulong)
+                            .wrapping_sub(core::mem::size_of::<ec_etherheadert>),
                     );
                     /* mark as received */
                     (*(*stack).rxbufstat)[idxf as usize] = EC_BUF_RCVD as libc::c_int;
@@ -804,7 +749,7 @@ unsafe extern "C" fn ecx_waitinframe_red(
                 &mut *(*(*port).redport).rxbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                     as *const libc::c_void,
                 ((*port).txbuflength[idx as usize] as libc::c_ulong)
-                    .wrapping_sub(::core::mem::size_of::<ec_etherheadert>() as libc::c_ulong),
+                    .wrapping_sub(core::mem::size_of::<ec_etherheadert>()),
             );
             wkc = wkc2
         }
@@ -826,7 +771,7 @@ unsafe extern "C" fn ecx_waitinframe_red(
                     &mut *(*port).rxbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                         as *const libc::c_void,
                     ((*port).txbuflength[idx as usize] as libc::c_ulong)
-                        .wrapping_sub(::core::mem::size_of::<ec_etherheadert>() as libc::c_ulong),
+                        .wrapping_sub(core::mem::size_of::<ec_etherheadert>()),
                 );
             }
             osal_timer_start(&mut timer2, 2000u32);
@@ -847,7 +792,7 @@ unsafe extern "C" fn ecx_waitinframe_red(
                     &mut *(*(*port).redport).rxbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                         as *const libc::c_void,
                     ((*port).txbuflength[idx as usize] as libc::c_ulong)
-                        .wrapping_sub(::core::mem::size_of::<ec_etherheadert>() as libc::c_ulong),
+                        .wrapping_sub(core::mem::size_of::<ec_etherheadert>()),
                 );
                 wkc = wkc2
             }
