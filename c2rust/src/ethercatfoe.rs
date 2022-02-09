@@ -3,7 +3,7 @@ use crate::{
         ec_clearmbx, ec_mbxbuft, ec_mbxheadert, ec_nextmbxcnt, ecx_context, ecx_contextt,
         ecx_mbxreceive, ecx_mbxsend,
     },
-    osal::linux::osal::ec_timet,
+    ethercattype::{ec_err_type, FoEOpCode, MailboxType},
 };
 use libc::{memcpy, strlen};
 
@@ -124,10 +124,10 @@ pub unsafe extern "C" fn ecx_FOEread(
     /* get new mailbox count value, used as session handle */
     cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* FoE */
     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-    (*FOEp).MbxHeader.mbxtype = (ECT_MBXT_FOE as libc::c_int
+    (*FOEp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_FOE as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
         as uint8;
-    (*FOEp).OpCode = ECT_FOE_READ as uint8;
+    (*FOEp).OpCode = FoEOpCode::ECT_FOE_READ as uint8;
     (*FOEp).c2rust_unnamed.Password = password;
     /* copy filename in mailbox */
     memcpy(
@@ -152,9 +152,10 @@ pub unsafe extern "C" fn ecx_FOEread(
             if wkc > 0i32 {
                 /* succeeded to read slave response ? */
                 /* slave response should be FoE */
-                if (*aFOEp).MbxHeader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_FOE as libc::c_int
+                if (*aFOEp).MbxHeader.mbxtype as libc::c_int & 0xfi32
+                    == MailboxType::ECT_MBXT_FOE as libc::c_int
                 {
-                    if (*aFOEp).OpCode as libc::c_int == ECT_FOE_DATA as libc::c_int {
+                    if (*aFOEp).OpCode as libc::c_int == FoEOpCode::ECT_FOE_DATA as libc::c_int {
                         segmentdata = ((*aFOEp).MbxHeader.length as libc::c_int - 0x6i32) as uint16;
                         packetnumber = (*aFOEp).c2rust_unnamed.PacketNumber as int32;
                         prevpacket += 1;
@@ -182,10 +183,10 @@ pub unsafe extern "C" fn ecx_FOEread(
                                 (*(*context).slavelist.offset(slave as isize)).mbx_cnt,
                             ); /* FoE */
                             (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-                            (*FOEp).MbxHeader.mbxtype = (ECT_MBXT_FOE as libc::c_int
+                            (*FOEp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_FOE as libc::c_int
                                 + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
                                 as uint8;
-                            (*FOEp).OpCode = ECT_FOE_ACK as uint8;
+                            (*FOEp).OpCode = FoEOpCode::ECT_FOE_ACK as uint8;
                             (*FOEp).c2rust_unnamed.PacketNumber = packetnumber as uint32;
                             /* send FoE ack to slave */
                             wkc = ecx_mbxsend(
@@ -206,18 +207,20 @@ pub unsafe extern "C" fn ecx_FOEread(
                             }
                         } else {
                             /* FoE error */
-                            wkc = -(EC_ERR_TYPE_FOE_BUF2SMALL as libc::c_int)
+                            wkc = -(ec_err_type::EC_ERR_TYPE_FOE_BUF2SMALL as libc::c_int)
                         }
-                    } else if (*aFOEp).OpCode as libc::c_int == ECT_FOE_ERROR as libc::c_int {
+                    } else if (*aFOEp).OpCode as libc::c_int
+                        == FoEOpCode::ECT_FOE_ERROR as libc::c_int
+                    {
                         /* FoE error */
-                        wkc = -(EC_ERR_TYPE_FOE_ERROR as libc::c_int)
+                        wkc = -(ec_err_type::EC_ERR_TYPE_FOE_ERROR as libc::c_int)
                     } else {
                         /* unexpected mailbox received */
-                        wkc = -(EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
+                        wkc = -(ec_err_type::EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
                     }
                 } else {
                     /* unexpected mailbox received */
-                    wkc = -(EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
+                    wkc = -(ec_err_type::EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
                 }
                 *psize = dataread
             }
@@ -282,10 +285,10 @@ pub unsafe extern "C" fn ecx_FOEwrite(
     /* get new mailbox count value, used as session handle */
     cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* FoE */
     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-    (*FOEp).MbxHeader.mbxtype = (ECT_MBXT_FOE as libc::c_int
+    (*FOEp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_FOE as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
         as uint8;
-    (*FOEp).OpCode = ECT_FOE_WRITE as uint8;
+    (*FOEp).OpCode = FoEOpCode::ECT_FOE_WRITE as uint8;
     (*FOEp).c2rust_unnamed.Password = password;
     /* copy filename in mailbox */
     memcpy(
@@ -310,7 +313,8 @@ pub unsafe extern "C" fn ecx_FOEwrite(
             if wkc > 0i32 {
                 /* succeeded to read slave response ? */
                 /* slave response should be FoE */
-                if (*aFOEp).MbxHeader.mbxtype as libc::c_int & 0xfi32 == ECT_MBXT_FOE as libc::c_int
+                if (*aFOEp).MbxHeader.mbxtype as libc::c_int & 0xfi32
+                    == MailboxType::ECT_MBXT_FOE as libc::c_int
                 {
                     match (*aFOEp).OpCode as libc::c_int {
                         4 => {
@@ -345,10 +349,11 @@ pub unsafe extern "C" fn ecx_FOEwrite(
                                         (*(*context).slavelist.offset(slave as isize)).mbx_cnt,
                                     ); /* FoE */
                                     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-                                    (*FOEp).MbxHeader.mbxtype = (ECT_MBXT_FOE as libc::c_int
+                                    (*FOEp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_FOE
+                                        as libc::c_int
                                         + ((cnt as libc::c_int) << 4i32) as uint8 as libc::c_int)
                                         as uint8;
-                                    (*FOEp).OpCode = ECT_FOE_DATA as uint8;
+                                    (*FOEp).OpCode = FoEOpCode::ECT_FOE_DATA as uint8;
                                     sendpacket += 1;
                                     (*FOEp).c2rust_unnamed.PacketNumber = sendpacket as uint32;
                                     memcpy(
@@ -377,7 +382,7 @@ pub unsafe extern "C" fn ecx_FOEwrite(
                                 }
                             } else {
                                 /* FoE error */
-                                wkc = -(EC_ERR_TYPE_FOE_PACKETNUMBER as libc::c_int)
+                                wkc = -(ec_err_type::EC_ERR_TYPE_FOE_PACKETNUMBER as libc::c_int)
                             }
                         }
                         6 => {
@@ -396,19 +401,19 @@ pub unsafe extern "C" fn ecx_FOEwrite(
                         5 => {
                             /* FoE error */
                             if (*aFOEp).c2rust_unnamed.ErrorCode == 0x8001u32 {
-                                wkc = -(EC_ERR_TYPE_FOE_FILE_NOTFOUND as libc::c_int)
+                                wkc = -(ec_err_type::EC_ERR_TYPE_FOE_FILE_NOTFOUND as libc::c_int)
                             } else {
-                                wkc = -(EC_ERR_TYPE_FOE_ERROR as libc::c_int)
+                                wkc = -(ec_err_type::EC_ERR_TYPE_FOE_ERROR as libc::c_int)
                             }
                         }
                         _ => {
                             /* unexpected mailbox received */
-                            wkc = -(EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
+                            wkc = -(ec_err_type::EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
                         }
                     }
                 } else {
                     /* unexpected mailbox received */
-                    wkc = -(EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
+                    wkc = -(ec_err_type::EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
                 }
             }
             if !(worktodo != 0) {
