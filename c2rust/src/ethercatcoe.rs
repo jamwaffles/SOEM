@@ -1431,14 +1431,14 @@ pub unsafe fn ecx_readODlist(
                         n = (((*aSDOp).MbxHeader.length as libc::c_int - 6i32) / 2i32) as uint16
                     }
                     /* check if indexes fit in buffer structure */
-                    if sp as libc::c_int + n as libc::c_int > 1024i32 {
-                        n = (1024i32 + 1i32 - sp as libc::c_int) as uint16; /* Too many entries for master buffer */
+                    if sp as libc::c_int + n as libc::c_int > EC_MAXODLIST {
+                        n = (EC_MAXODLIST + 1i32 - sp as libc::c_int) as uint16; /* Too many entries for master buffer */
                         ecx_SDOinfoerror(context, Slave, 0u16, 0u8, 0xf000000i32);
                         stop = 1u8
                     }
                     /* trim to maximum number of ODlist entries defined */
-                    if (*pODlist).Entries as libc::c_int + n as libc::c_int > 1024i32 {
-                        n = (1024i32 - (*pODlist).Entries as libc::c_int) as uint16
+                    if (*pODlist).Entries as libc::c_int + n as libc::c_int > EC_MAXODLIST {
+                        n = (EC_MAXODLIST - (*pODlist).Entries as libc::c_int) as uint16
                     }
                     (*pODlist).Entries =
                         ((*pODlist).Entries as libc::c_int + n as libc::c_int) as uint16;

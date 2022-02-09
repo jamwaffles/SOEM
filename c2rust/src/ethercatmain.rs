@@ -1566,7 +1566,7 @@ pub unsafe fn ecx_readstate(mut context: *mut ecx_contextt) -> libc::c_int {
                 lslave as libc::c_int - fslave as libc::c_int + 1i32,
                 &mut *slca.as_mut_ptr().offset(0isize),
                 &mut *sl.as_mut_ptr().offset(0isize),
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             );
             slave = fslave;
             while slave as libc::c_int <= lslave as libc::c_int {
@@ -1612,7 +1612,7 @@ pub unsafe fn ecx_writestate(mut context: *mut ecx_contextt, mut slave: uint16) 
             EthercatRegister::ECT_REG_ALCTL as uint16,
             ::core::mem::size_of::<uint16>() as uint16,
             &mut slstate as *mut uint16 as *mut libc::c_void,
-            2000i32 * 3i32,
+            EC_TIMEOUTRET3,
         )
     } else {
         configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
@@ -1621,7 +1621,7 @@ pub unsafe fn ecx_writestate(mut context: *mut ecx_contextt, mut slave: uint16) 
             configadr,
             EthercatRegister::ECT_REG_ALCTL as uint16,
             (*(*context).slavelist.offset(slave as isize)).state,
-            2000i32 * 3i32,
+            EC_TIMEOUTRET3,
         )
     }
     return ret;
@@ -1716,7 +1716,7 @@ pub unsafe fn ec_nextmbxcnt(mut cnt: uint8) -> uint8 {
  */
 #[no_mangle]
 pub unsafe fn ec_clearmbx(mut Mbx: *mut ec_mbxbuft) {
-    memset(Mbx as *mut libc::c_void, 0i32, 1486usize);
+    memset(Mbx as *mut libc::c_void, 0i32, EC_MAXMBX);
 }
 /* * Check if IN mailbox of slave is empty.
  * @param[in] context  = context struct
@@ -1784,7 +1784,7 @@ pub unsafe fn ecx_mbxsend(
     wkc = 0i32;
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
     mbxl = (*(*context).slavelist.offset(slave as isize)).mbx_l;
-    if mbxl as libc::c_int > 0i32 && mbxl as libc::c_int <= 1486i32 {
+    if mbxl as libc::c_int > 0i32 && mbxl as libc::c_int <= EC_MAXMBX {
         if ecx_mbxempty(context, slave, timeout) != 0 {
             mbxwo = (*(*context).slavelist.offset(slave as isize)).mbx_wo;
             /* write slave in mailbox */
@@ -1794,7 +1794,7 @@ pub unsafe fn ecx_mbxsend(
                 mbxwo,
                 mbxl,
                 mbx as *mut libc::c_void,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             )
         } else {
             wkc = 0i32
@@ -1829,7 +1829,7 @@ pub unsafe fn ecx_mbxreceive(
     let mut MBXEp: *mut ec_mbxerrort = 0 as *mut ec_mbxerrort;
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
     mbxl = (*(*context).slavelist.offset(slave as isize)).mbx_rl;
-    if mbxl as libc::c_int > 0i32 && mbxl as libc::c_int <= 1486i32 {
+    if mbxl as libc::c_int > 0i32 && mbxl as libc::c_int <= EC_MAXMBX {
         let mut timer: osal_timert = osal_timert {
             stop_time: ec_timet { sec: 0, usec: 0 },
         };
@@ -2235,7 +2235,7 @@ pub unsafe fn ecx_readeepromAP(
                 EthercatRegister::ECT_REG_EEPCTL as uint16,
                 ::core::mem::size_of::<uint16>() as uint16,
                 &mut estat as *mut uint16 as *mut libc::c_void,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             )
         }
         loop {
@@ -2355,7 +2355,7 @@ pub unsafe fn ecx_writeeepromAP(
                 EthercatRegister::ECT_REG_EEPCTL as uint16,
                 ::core::mem::size_of::<uint16>() as uint16,
                 &mut estat as *mut uint16 as *mut libc::c_void,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             )
         } /* wait for eeprom ready */
         loop {
@@ -2496,7 +2496,7 @@ pub unsafe fn ecx_readeepromFP(
                 EthercatRegister::ECT_REG_EEPCTL as uint16,
                 ::core::mem::size_of::<uint16>() as uint16,
                 &mut estat as *mut uint16 as *mut libc::c_void,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             )
         }
         loop {
@@ -2616,7 +2616,7 @@ pub unsafe fn ecx_writeeepromFP(
                 EthercatRegister::ECT_REG_EEPCTL as uint16,
                 ::core::mem::size_of::<uint16>() as uint16,
                 &mut estat as *mut uint16 as *mut libc::c_void,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             )
         }
         loop {
@@ -2712,7 +2712,7 @@ pub unsafe fn ecx_readeeprom1(
                 EthercatRegister::ECT_REG_EEPCTL as uint16,
                 ::core::mem::size_of::<uint16>() as uint16,
                 &mut estat as *mut uint16 as *mut libc::c_void,
-                2000i32 * 3i32,
+                EC_TIMEOUTRET3,
             )
         }
         ed.comm = ec_ecmdtype::EC_ECMD_READ as uint16;

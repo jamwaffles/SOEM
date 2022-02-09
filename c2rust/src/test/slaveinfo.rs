@@ -62,20 +62,20 @@ static mut IOmap: [libc::c_char; 4096] = [0; 4096];
 pub static mut ODlist: ec_ODlistt = ec_ODlistt {
     Slave: 0,
     Entries: 0,
-    Index: [0; 1024],
-    DataType: [0; 1024],
-    ObjectCode: [0; 1024],
-    MaxSub: [0; 1024],
-    Name: [[0; 41]; 1024],
+    Index: [0; EC_MAXODLIST],
+    DataType: [0; EC_MAXODLIST],
+    ObjectCode: [0; EC_MAXODLIST],
+    MaxSub: [0; EC_MAXODLIST],
+    Name: [[0; 41]; EC_MAXODLIST],
 };
 #[no_mangle]
 pub static mut OElist: ec_OElistt = ec_OElistt {
     Entries: 0,
-    ValueInfo: [0; 256],
-    DataType: [0; 256],
-    BitLength: [0; 256],
-    ObjAccess: [0; 256],
-    Name: [[0; 41]; 256],
+    ValueInfo: [0; EC_MAXOELIST],
+    DataType: [0; EC_MAXOELIST],
+    BitLength: [0; EC_MAXOELIST],
+    ObjAccess: [0; EC_MAXOELIST],
+    Name: [[0; 41]; EC_MAXOELIST],
 };
 #[no_mangle]
 pub static mut printSDO: boolean = 0u8;

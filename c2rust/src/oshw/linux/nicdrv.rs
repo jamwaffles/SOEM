@@ -697,7 +697,7 @@ unsafe fn ecx_waitinframe_red(
                         .wrapping_sub(core::mem::size_of::<ec_etherheadert>()),
                 );
             }
-            osal_timer_start(&mut timer2, 2000u32);
+            osal_timer_start(&mut timer2, EC_TIMEOUTRET);
             /* resend secondary tx */
             ecx_outframe(port, idx, 1i32);
             loop {
@@ -774,12 +774,12 @@ pub unsafe fn ecx_srconfirm(
     loop {
         /* tx frame on primary and if in redundant mode a dummy on secondary */
         ecx_outframe_red(port, idx);
-        if timeout < 2000i32 {
+        if timeout < EC_TIMEOUTRET {
             osal_timer_start(&mut timer2, timeout as uint32);
         } else {
             /* wait for answer with WKC>=0 or otherwise retry until timeout */
             /* normally use partial timeout for rx */
-            osal_timer_start(&mut timer2, 2000u32);
+            osal_timer_start(&mut timer2, EC_TIMEOUTRET);
         }
         wkc = ecx_waitinframe_red(port, idx, &mut timer2);
         if !(wkc <= -(1i32) && osal_timer_is_expired(&mut timer1) == 0) {
