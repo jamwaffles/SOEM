@@ -12,20 +12,13 @@ use crate::{
 };
 use libc::{c_void, pthread_t};
 
-pub type __uint8_t = libc::c_uchar;
-pub type __int16_t = libc::c_short;
-pub type __uint16_t = libc::c_ushort;
-pub type __int32_t = libc::c_int;
-pub type __uint32_t = libc::c_uint;
-pub type __int64_t = libc::c_long;
-pub type __time_t = libc::c_long;
-pub type int16_t = __int16_t;
-pub type int32_t = __int32_t;
-pub type int64_t = __int64_t;
-pub type uint8_t = __uint8_t;
-pub type uint16_t = __uint16_t;
-pub type uint32_t = __uint32_t;
-pub type time_t = __time_t;
+pub type uint8_t = libc::c_uchar;
+pub type int16_t = libc::c_short;
+pub type uint16_t = libc::c_ushort;
+pub type int32_t = libc::c_int;
+pub type uint32_t = libc::c_uint;
+pub type int64_t = libc::c_long;
+pub type time_t = libc::c_long;
 
 pub type boolean = uint8_t;
 pub type int16 = int16_t;

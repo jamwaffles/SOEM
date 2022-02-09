@@ -8,7 +8,7 @@ use crate::{
     ethercattype::{
         ec_bufT, ec_bufstate, ec_cmdtype, ec_comt, ec_ecmdtype, ec_err_type, ec_errort,
         ec_etherheadert, ec_state, C2RustUnnamed_0, EthercatRegister, MailboxType, SIICategory,
-        EC_TIMEOUTEEP,
+        EC_TIMEOUTEEP, EC_TIMEOUTRET3,
     },
     osal::linux::osal::{
         ec_timet, osal_current_time, osal_timer_is_expired, osal_timer_start, osal_timert,
@@ -24,21 +24,13 @@ use crate::{
 };
 use libc::{memcpy, memset, pthread_mutex_t};
 
-pub type __uint8_t = libc::c_uchar;
-pub type __int16_t = libc::c_short;
-pub type __uint16_t = libc::c_ushort;
-pub type __int32_t = libc::c_int;
-pub type __uint32_t = libc::c_uint;
-pub type __int64_t = libc::c_long;
-pub type __uint64_t = libc::c_ulong;
-
-pub type int16_t = __int16_t;
-pub type int32_t = __int32_t;
-pub type int64_t = __int64_t;
-pub type uint8_t = __uint8_t;
-pub type uint16_t = __uint16_t;
-pub type uint32_t = __uint32_t;
-pub type uint64_t = __uint64_t;
+pub type uint8_t = libc::c_uchar;
+pub type int16_t = libc::c_short;
+pub type uint16_t = libc::c_ushort;
+pub type int32_t = libc::c_int;
+pub type uint32_t = libc::c_uint;
+pub type int64_t = libc::c_long;
+pub type uint64_t = libc::c_ulong;
 pub type boolean = uint8_t;
 pub type int16 = int16_t;
 pub type int32 = int32_t;

@@ -5,22 +5,15 @@ use crate::{
     },
     ethercattype::{ec_err_type, MailboxType, EC_TIMEOUTTXM},
 };
-use ::c2rust_bitfields;
+use c2rust_bitfields;
 use libc::memcpy;
 
-pub type __uint8_t = libc::c_uchar;
-pub type __int16_t = libc::c_short;
-pub type __uint16_t = libc::c_ushort;
-pub type __int32_t = libc::c_int;
-pub type __uint32_t = libc::c_uint;
-pub type __int64_t = libc::c_long;
-
-pub type int16_t = __int16_t;
-pub type int32_t = __int32_t;
-pub type int64_t = __int64_t;
-pub type uint8_t = __uint8_t;
-pub type uint16_t = __uint16_t;
-pub type uint32_t = __uint32_t;
+pub type uint8_t = libc::c_uchar;
+pub type int16_t = libc::c_short;
+pub type uint16_t = libc::c_ushort;
+pub type int32_t = libc::c_int;
+pub type uint32_t = libc::c_uint;
+pub type int64_t = libc::c_long;
 pub type boolean = uint8_t;
 pub type int16 = int16_t;
 pub type int32 = int32_t;

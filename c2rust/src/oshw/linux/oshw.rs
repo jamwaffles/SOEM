@@ -4,9 +4,7 @@ use crate::{
 };
 use libc::{free, if_freenameindex, if_nameindex, malloc, strncpy};
 
-pub type __uint16_t = libc::c_ushort;
-
-pub type uint16_t = __uint16_t;
+pub type uint16_t = libc::c_ushort;
 pub type uint16 = uint16_t;
 
 /*

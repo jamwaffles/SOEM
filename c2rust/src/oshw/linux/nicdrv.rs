@@ -12,9 +12,6 @@ use libc::{
     SOCK_RAW,
 };
 
-pub type __uint8_t = libc::c_uchar;
-pub type __uint16_t = libc::c_ushort;
-pub type __uint32_t = libc::c_uint;
 pub type __time_t = libc::c_long;
 pub type __suseconds_t = libc::c_long;
 pub type __ssize_t = libc::c_long;
@@ -22,6 +19,15 @@ pub type __caddr_t = *mut libc::c_char;
 pub type __socklen_t = libc::c_uint;
 pub type ssize_t = __ssize_t;
 pub type size_t = usize;
+
+pub type uint8_t = libc::c_uchar;
+pub type uint16_t = libc::c_ushort;
+pub type uint32_t = libc::c_uint;
+
+pub type boolean = uint8_t;
+pub type uint8 = uint8_t;
+pub type uint16 = uint16_t;
+pub type uint32 = uint32_t;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -63,14 +69,6 @@ pub union C2RustUnnamed_0 {
 pub union C2RustUnnamed_1 {
     pub ifrn_name: [libc::c_char; 16],
 }
-pub type uint8_t = __uint8_t;
-pub type uint16_t = __uint16_t;
-pub type uint32_t = __uint32_t;
-
-pub type boolean = uint8_t;
-pub type uint8 = uint8_t;
-pub type uint16 = uint16_t;
-pub type uint32 = uint32_t;
 
 #[repr(C)]
 #[derive(Clone)]
