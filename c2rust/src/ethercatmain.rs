@@ -483,7 +483,7 @@ static mut ec_elist: ec_eringt = ec_eringt {
         Slave: 0,
         Index: 0,
         SubIdx: 0,
-        Etype: ec_err_type::EC_CMD_SDO_ERROR,
+        Etype: ec_err_type::EC_ERR_TYPE_SDO_ERROR,
         c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
     }; 65],
 };
@@ -748,7 +748,7 @@ pub unsafe extern "C" fn ecx_packeterror(
         Slave: 0,
         Index: 0,
         SubIdx: 0,
-        Etype: ec_err_type::EC_CMD_SDO_ERROR,
+        Etype: ec_err_type::EC_ERR_TYPE_SDO_ERROR,
         c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
     };
     memset(
@@ -782,7 +782,7 @@ unsafe extern "C" fn ecx_mbxerror(
         Slave: 0,
         Index: 0,
         SubIdx: 0,
-        Etype: ec_err_type::EC_CMD_SDO_ERROR,
+        Etype: ec_err_type::EC_ERR_TYPE_SDO_ERROR,
         c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
     };
     memset(
@@ -823,7 +823,7 @@ unsafe extern "C" fn ecx_mbxemergencyerror(
         Slave: 0,
         Index: 0,
         SubIdx: 0,
-        Etype: ec_err_type::EC_CMD_SDO_ERROR,
+        Etype: ec_err_type::EC_ERR_TYPE_SDO_ERROR,
         c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
     };
     memset(

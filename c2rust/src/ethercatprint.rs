@@ -1504,7 +1504,7 @@ pub unsafe extern "C" fn ecx_elist2string(mut context: *mut ecx_contextt) -> *mu
         Slave: 0,
         Index: 0,
         SubIdx: 0,
-        Etype: ec_err_type::EC_CMD_SDO_ERROR,
+        Etype: ec_err_type::EC_ERR_TYPE_SDO_ERROR,
         c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
     };
     if ecx_poperror(context, &mut Ec) != 0 {

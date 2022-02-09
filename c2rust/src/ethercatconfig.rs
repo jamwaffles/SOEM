@@ -570,8 +570,8 @@ pub unsafe extern "C" fn ecx_detect_slaves(mut context: *mut ecx_contextt) -> li
         &mut b as *mut uint8 as *mut libc::c_void,
         2000i32 * 3i32,
     ); /* Reset all slaves to Init */
-    b = (ec_state::EC_STATE_INIT as libc::c_int
-        | ec_state::ec_err_type::EC_STATE_ACK as libc::c_int) as uint8;
+    b = (ec_state::EC_STATE_INIT as libc::c_int | ethercattype::EC_STATE_ACK as libc::c_int)
+        as uint8;
     ecx_BWR(
         (*context).port,
         0u16,
@@ -702,8 +702,8 @@ unsafe extern "C" fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
         &mut b as *mut uint8 as *mut libc::c_void,
         2000i32 * 3i32,
     );
-    b = (ec_state::EC_STATE_INIT as libc::c_int
-        | ec_state::ec_err_type::EC_STATE_ACK as libc::c_int) as uint8;
+    b = (ec_state::EC_STATE_INIT as libc::c_int | ethercattype::EC_STATE_ACK as libc::c_int)
+        as uint8;
     ecx_BWR(
         (*context).port,
         0u16,
@@ -1103,7 +1103,7 @@ pub unsafe extern "C" fn ecx_config_init(
             ecx_statecheck(
                 context,
                 slave,
-                ec_state::ec_err_type::EC_STATE_INIT as uint16,
+                ec_state::EC_STATE_INIT as uint16,
                 2000000i32,
             );
             /* set default mailbox configuration if slave has mailbox */
@@ -1285,8 +1285,7 @@ pub unsafe extern "C" fn ecx_config_init(
                     configadr,
                     EthercatRegister::ec_err_type::EC_REG_ALCTL as uint16,
                     (ec_state::EC_STATE_PRE_OP as libc::c_int
-                        | ec_state::ec_err_type::EC_STATE_ACK as libc::c_int)
-                        as uint16,
+                        | ethercattype::EC_STATE_ACK as libc::c_int) as uint16,
                     2000i32 * 3i32,
                 );
                 /* set preop status */
@@ -1348,7 +1347,7 @@ unsafe extern "C" fn ecx_map_coe_soe(
     ecx_statecheck(
         context,
         slave,
-        ec_state::ec_err_type::EC_STATE_PRE_OP as uint16,
+        ec_state::EC_STATE_PRE_OP as uint16,
         2000000i32,
     );
     /* execute special slave configuration hook Pre-Op to Safe-OP */
@@ -2078,7 +2077,7 @@ pub unsafe extern "C" fn ecx_config_map_group(
                         (*context).port,
                         configadr,
                         EthercatRegister::ec_err_type::EC_REG_ALCTL as uint16,
-                        ec_state::ec_err_type::EC_STATE_SAFE_OP as uint16,
+                        ec_state::EC_STATE_SAFE_OP as uint16,
                         2000i32 * 3i32,
                     );
                     /* set safeop status */
@@ -2236,7 +2235,7 @@ pub unsafe extern "C" fn ecx_config_overlap_map_group(
                         (*context).port,
                         configadr,
                         EthercatRegister::ec_err_type::EC_REG_ALCTL as uint16,
-                        ec_state::ec_err_type::EC_STATE_SAFE_OP as uint16,
+                        ec_state::EC_STATE_SAFE_OP as uint16,
                         2000i32 * 3i32,
                     );
                 }
@@ -2429,7 +2428,7 @@ pub unsafe extern "C" fn ecx_reconfig_slave(
         (*context).port,
         configadr,
         EthercatRegister::ec_err_type::EC_REG_ALCTL as uint16,
-        ec_state::ec_err_type::EC_STATE_INIT as uint16,
+        ec_state::EC_STATE_INIT as uint16,
         timeout,
     ) <= 0i32
     {
@@ -2441,10 +2440,10 @@ pub unsafe extern "C" fn ecx_reconfig_slave(
     state = ecx_statecheck(
         context,
         slave,
-        ec_state::ec_err_type::EC_STATE_INIT as uint16,
+        ec_state::EC_STATE_INIT as uint16,
         2000000i32,
     ) as libc::c_int;
-    if state == ec_state::ec_err_type::EC_STATE_INIT as libc::c_int {
+    if state == ec_state::EC_STATE_INIT as libc::c_int {
         /* program all enabled SM */
         nSM = 0i32; /* check state change pre-op */
         while nSM < 8i32 {
@@ -2470,16 +2469,16 @@ pub unsafe extern "C" fn ecx_reconfig_slave(
             (*context).port,
             configadr,
             EthercatRegister::ec_err_type::EC_REG_ALCTL as uint16,
-            ec_state::ec_err_type::EC_STATE_PRE_OP as uint16,
+            ec_state::EC_STATE_PRE_OP as uint16,
             timeout,
         );
         state = ecx_statecheck(
             context,
             slave,
-            ec_state::ec_err_type::EC_STATE_PRE_OP as uint16,
+            ec_state::EC_STATE_PRE_OP as uint16,
             2000000i32,
         ) as libc::c_int;
-        if state == ec_state::ec_err_type::EC_STATE_PRE_OP as libc::c_int {
+        if state == ec_state::EC_STATE_PRE_OP as libc::c_int {
             /* execute special slave configuration hook Pre-Op to Safe-OP */
             if (*(*context).slavelist.offset(slave as isize))
                 .PO2SOconfig
@@ -2503,13 +2502,13 @@ pub unsafe extern "C" fn ecx_reconfig_slave(
                 (*context).port,
                 configadr,
                 EthercatRegister::ec_err_type::EC_REG_ALCTL as uint16,
-                ec_state::ec_err_type::EC_STATE_SAFE_OP as uint16,
+                ec_state::EC_STATE_SAFE_OP as uint16,
                 timeout,
             );
             state = ecx_statecheck(
                 context,
                 slave,
-                ec_state::ec_err_type::EC_STATE_SAFE_OP as uint16,
+                ec_state::EC_STATE_SAFE_OP as uint16,
                 2000000i32,
             ) as libc::c_int;
             /* program configured FMMU */

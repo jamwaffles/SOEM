@@ -1,9 +1,19 @@
-use crate::osal::linux::osal::{osal_timer_is_expired, osal_timer_start};
-use libc::{
-    bind, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
-    pthread_mutex_unlock, pthread_mutexattr_init, pthread_mutexattr_t, recv, send, setsockopt,
-    sockaddr, socket, strcpy, timeval,
+use crate::{
+    ethercatcoe::{
+        ec_ODlistt, ec_OElistt, ec_SDOread, ec_readODdescription, ec_readODlist, ec_readOE,
+        ec_readOEsingle,
+    },
+    ethercatconfig::ec_config,
+    ethercatdc::ec_configdc,
+    ethercatmain::{
+        ec_adaptert, ec_close, ec_eeprom2pdi, ec_eepromPDOt, ec_find_adapters, ec_free_adapters,
+        ec_group, ec_init, ec_readstate, ec_siifind, ec_siigetbyte, ec_siistring, ec_slave,
+        ec_slavecount, ec_statecheck, EcatError,
+    },
+    ethercatprint::{ec_ALstatuscode2string, ec_elist2string},
+    ethercattype::{ec_state, SIICategory},
 };
+use libc::{memset, snprintf, sprintf, strcat, strcpy, strncmp};
 
 pub type __int8_t = libc::c_schar;
 pub type __uint8_t = libc::c_uchar;
@@ -314,7 +324,7 @@ pub unsafe extern "C" fn SDO2string(
     mut dtype: uint16,
 ) -> *mut libc::c_char {
     let mut l: libc::c_int =
-        core::mem::size_of::<[libc::c_char; 128]>().wrapping_sub(1u64) as libc::c_int;
+        core::mem::size_of::<[libc::c_char; 128]>().wrapping_sub(1usize) as libc::c_int;
     let mut i: libc::c_int = 0;
     let mut u8: *mut uint8 = 0 as *mut uint8;
     let mut i8: *mut int8 = 0 as *mut int8;
@@ -330,7 +340,7 @@ pub unsafe extern "C" fn SDO2string(
     memset(
         &mut usdo as *mut [libc::c_char; 128] as *mut libc::c_void,
         0i32,
-        128u64,
+        128usize,
     );
     ec_SDOread(
         slave,
@@ -802,7 +812,7 @@ pub unsafe extern "C" fn si_siiPDO(
     }
     (*PDO).Startpos = ec_siifind(
         slave,
-        (ECT_SII_PDO as libc::c_int + t as libc::c_int) as uint16,
+        (SIICategory::ECT_SII_PDO as libc::c_int + t as libc::c_int) as uint16,
     ) as uint16;
     if (*PDO).Startpos as libc::c_int > 0i32 {
         a = (*PDO).Startpos;
@@ -1039,7 +1049,7 @@ pub unsafe extern "C" fn si_sdo(mut cnt: libc::c_int) {
             }
             snprintf(
                 name.as_mut_ptr(),
-                core::mem::size_of::<[libc::c_char; 128]>().wrapping_sub(1u64),
+                core::mem::size_of::<[libc::c_char; 128]>().wrapping_sub(1usize),
                 b"\"%s\"\x00" as *const u8 as *const libc::c_char,
                 ODlist.Name[i as usize].as_mut_ptr(),
             );
@@ -1114,7 +1124,7 @@ pub unsafe extern "C" fn si_sdo(mut cnt: libc::c_int) {
                 {
                     snprintf(
                         name.as_mut_ptr(),
-                        core::mem::size_of::<[libc::c_char; 128]>().wrapping_sub(1u64),
+                        core::mem::size_of::<[libc::c_char; 128]>().wrapping_sub(1usize),
                         b"\"%s\"\x00" as *const u8 as *const libc::c_char,
                         OElist.Name[j as usize].as_mut_ptr(),
                     );
@@ -1212,18 +1222,16 @@ pub unsafe extern "C" fn slaveinfo(mut ifname: *mut libc::c_char) {
             /* wait for all slaves to reach SAFE_OP state */
             ec_statecheck(
                 0u16,
-                ec_state::ec_err_type::EC_STATE_SAFE_OP as uint16,
+                ec_state::EC_STATE_SAFE_OP as uint16,
                 2000000i32 * 3i32,
             );
-            if ec_slave[0usize].state as libc::c_int
-                != ec_state::ec_err_type::EC_STATE_SAFE_OP as libc::c_int
-            {
+            if ec_slave[0usize].state as libc::c_int != ec_state::EC_STATE_SAFE_OP as libc::c_int {
                 println!("Not all slaves reached safe operational state.");
                 ec_readstate();
                 i = 1i32;
                 while i <= ec_slavecount {
                     if ec_slave[i as usize].state as libc::c_int
-                        != ec_state::ec_err_type::EC_STATE_SAFE_OP as libc::c_int
+                        != ec_state::EC_STATE_SAFE_OP as libc::c_int
                     {
                         println!(
                             "Slave {:} State={:2x} StatusCode={:4x} : {:}",
@@ -1337,7 +1345,8 @@ pub unsafe extern "C" fn slaveinfo(mut ifname: *mut libc::c_char) {
                     ec_slave[cnt as usize].mbx_rl as libc::c_int as libc::c_int,
                     ec_slave[cnt as usize].mbx_proto as libc::c_int as libc::c_uint
                 );
-                ssigen = ec_siifind(cnt as uint16, ECT_SII_GENERAL as uint16) as uint16;
+                ssigen =
+                    ec_siifind(cnt as uint16, SIICategory::ECT_SII_GENERAL as uint16) as uint16;
                 /* SII general section */
                 if ssigen != 0 {
                     ec_slave[cnt as usize].CoEdetails =

@@ -149,6 +149,9 @@ pub enum ec_state {
     EC_STATE_ERROR = 0x10,
 }
 
+/// ACK is the same value as ERROR so we'll kludge a new enum "variant" here
+pub const EC_STATE_ACK: isize = ec_state::EC_STATE_ERROR;
+
 /** Possible buffer states */
 pub enum ec_bufstate {
     /** Empty */

@@ -1,19 +1,20 @@
 use crate::{
-    ethercatconfig::{ecx_config_init, ecx_config_map_group, ecx_reconfig_slave},
+    ethercatconfig::{
+        ecx_config_init, ecx_config_map_group, ecx_reconfig_slave, ecx_recover_slave,
+    },
+    ethercatdc::ecx_configdc,
     ethercatmain::{
-        ecx_init, ecx_readstate, ecx_receive_processdata, ecx_send_processdata, ecx_statecheck,
-        ecx_writestate,
+        ec_PDOassignt, ec_PDOdesct, ec_SMcommtypet, ec_adaptert, ec_eepromFMMUt, ec_eepromSMt,
+        ec_eringt, ec_find_adapters, ec_fmmut, ec_free_adapters, ec_groupt, ec_idxstackT,
+        ec_slavet, ec_smt, ecx_close, ecx_contextt, ecx_init, ecx_readstate,
+        ecx_receive_processdata, ecx_send_processdata, ecx_statecheck, ecx_writestate,
     },
-    osal::linux::osal::{
-        ec_timet, osal_current_time, osal_time_diff, osal_timer_is_expired, osal_timer_start,
-        osal_usleep,
-    },
+    ethercatprint::ec_ALstatuscode2string,
+    ethercattype::{self, ec_bufT, ec_err_type, ec_errort, ec_state, C2RustUnnamed_0},
+    osal::linux::osal::{ec_timet, osal_current_time, osal_time_diff, osal_usleep},
+    oshw::linux::nicdrv::{ec_stackT, ecx_portt, ecx_redportt},
 };
-use libc::{
-    bind, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
-    pthread_mutex_unlock, pthread_mutexattr_init, pthread_mutexattr_t, recv, send, setsockopt,
-    sockaddr, socket, strcpy, timeval,
-};
+use libc::{memset, pthread_mutex_t};
 
 pub type __uint8_t = libc::c_uchar;
 pub type __int16_t = libc::c_short;
@@ -37,7 +38,7 @@ pub type uint32 = uint32_t;
 pub type int64 = int64_t;
 
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct Fieldbus {
     pub context: ecx_contextt,
     pub iface: *mut libc::c_char,
@@ -186,7 +187,7 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
     ecx_statecheck(
         context,
         0u16,
-        ec_state::ec_err_type::EC_STATE_SAFE_OP as uint16,
+        ec_state::EC_STATE_SAFE_OP as uint16,
         2000000i32 * 4i32,
     );
 
@@ -198,7 +199,7 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
     print!("Setting operational state..");
     /* Act on slave 0 (a virtual slave used for broadcasting) */
     slave = (*fieldbus).slavelist.as_mut_ptr();
-    (*slave).state = ec_state::ec_err_type::EC_STATE_OPERATIONAL as uint16;
+    (*slave).state = ec_state::EC_STATE_OPERATIONAL as uint16;
     ecx_writestate(context, 0u16);
     /* Poll the result ten times before giving up */
     i = 0i32;
@@ -208,12 +209,10 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
         ecx_statecheck(
             context,
             0u16,
-            ec_state::ec_err_type::EC_STATE_OPERATIONAL as uint16,
+            ec_state::EC_STATE_OPERATIONAL as uint16,
             2000000i32 / 10i32,
         );
-        if (*slave).state as libc::c_int
-            == ec_state::ec_err_type::EC_STATE_OPERATIONAL as libc::c_int
-        {
+        if (*slave).state as libc::c_int == ec_state::EC_STATE_OPERATIONAL as libc::c_int {
             println!(" all slaves are now operational");
             return 1u8;
         }
@@ -224,9 +223,7 @@ unsafe extern "C" fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> boolean {
     i = 1i32;
     while i <= (*fieldbus).slavecount {
         slave = (*fieldbus).slavelist.as_mut_ptr().offset(i as isize);
-        if (*slave).state as libc::c_int
-            != ec_state::ec_err_type::EC_STATE_OPERATIONAL as libc::c_int
-        {
+        if (*slave).state as libc::c_int != ec_state::EC_STATE_OPERATIONAL as libc::c_int {
             print!(
                 " slave {:} is 0x{:4X} (AL-status=0x{:4X} {:})",
                 i as libc::c_int,
@@ -253,7 +250,7 @@ unsafe extern "C" fn fieldbus_stop(mut fieldbus: *mut Fieldbus) {
     /* Act on slave 0 (a virtual slave used for broadcasting) */
     slave = (*fieldbus).slavelist.as_mut_ptr();
     print!("Requesting init state on all slaves... ");
-    (*slave).state = ec_state::ec_err_type::EC_STATE_INIT as uint16;
+    (*slave).state = ec_state::EC_STATE_INIT as uint16;
     ecx_writestate(context, 0u16);
 
     println!("done");
@@ -317,34 +314,29 @@ unsafe extern "C" fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
     while i <= (*fieldbus).slavecount {
         slave = (*context).slavelist.offset(i as isize);
         if !((*slave).group as libc::c_int != (*fieldbus).group as libc::c_int) {
-            if (*slave).state as libc::c_int
-                != ec_state::ec_err_type::EC_STATE_OPERATIONAL as libc::c_int
-            {
+            if (*slave).state as libc::c_int != ec_state::EC_STATE_OPERATIONAL as libc::c_int {
                 (*grp).docheckstate = 1u8;
                 if (*slave).state as libc::c_int
-                    == ec_state::ec_err_type::EC_STATE_SAFE_OP as libc::c_int
-                        + ec_state::ec_err_type::EC_STATE_ERROR as libc::c_int
+                    == ec_state::EC_STATE_SAFE_OP as libc::c_int
+                        + ec_state::EC_STATE_ERROR as libc::c_int
                 {
                     println!(
                         "* Slave {:} is in SAFE_OP+ERROR, attempting ACK",
                         i as libc::c_int
                     );
-                    (*slave).state = (EC_STATE_SAFE_OP as libc::c_int
-                        + ec_state::ec_err_type::EC_STATE_ACK as libc::c_int)
+                    (*slave).state = (ec_state::EC_STATE_SAFE_OP as libc::c_int
+                        + ethercattype::EC_STATE_ACK as libc::c_int)
                         as uint16;
                     ecx_writestate(context, i as uint16);
-                } else if (*slave).state as libc::c_int
-                    == ec_state::ec_err_type::EC_STATE_SAFE_OP as libc::c_int
+                } else if (*slave).state as libc::c_int == ec_state::EC_STATE_SAFE_OP as libc::c_int
                 {
                     println!(
                         "* Slave {:} is in SAFE_OP, change to OPERATIONAL",
                         i as libc::c_int
                     );
-                    (*slave).state = ec_state::ec_err_type::EC_STATE_OPERATIONAL as uint16;
+                    (*slave).state = ec_state::EC_STATE_OPERATIONAL as uint16;
                     ecx_writestate(context, i as uint16);
-                } else if (*slave).state as libc::c_int
-                    > ec_state::ec_err_type::EC_STATE_NONE as libc::c_int
-                {
+                } else if (*slave).state as libc::c_int > ec_state::EC_STATE_NONE as libc::c_int {
                     if ecx_reconfig_slave(context, i as uint16, 2000i32) != 0 {
                         (*slave).islost = 0u8;
                         println!("* Slave {:} reconfigured", i as libc::c_int);
@@ -353,20 +345,16 @@ unsafe extern "C" fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
                     ecx_statecheck(
                         context,
                         i as uint16,
-                        ec_state::ec_err_type::EC_STATE_OPERATIONAL as uint16,
+                        ec_state::EC_STATE_OPERATIONAL as uint16,
                         2000i32,
                     );
-                    if (*slave).state as libc::c_int
-                        == ec_state::ec_err_type::EC_STATE_NONE as libc::c_int
-                    {
+                    if (*slave).state as libc::c_int == ec_state::EC_STATE_NONE as libc::c_int {
                         (*slave).islost = 1u8;
                         println!("* Slave {:} lost", i as libc::c_int);
                     }
                 }
             } else if (*slave).islost != 0 {
-                if (*slave).state as libc::c_int
-                    != ec_state::ec_err_type::EC_STATE_NONE as libc::c_int
-                {
+                if (*slave).state as libc::c_int != ec_state::EC_STATE_NONE as libc::c_int {
                     (*slave).islost = 0u8;
                     println!("* Slave {:} found", i as libc::c_int);
                 } else if ecx_recover_slave(context, i as uint16, 2000i32) != 0 {
@@ -587,11 +575,11 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             tail: 0,
             Error: [ec_errort {
                 Time: ec_timet { sec: 0, usec: 0 },
-                Signal: 0,
+                Signal: false,
                 Slave: 0,
                 Index: 0,
                 SubIdx: 0,
-                Etype: ec_err_type::EC_CMD_SDO_ERROR,
+                Etype: ec_err_type::EC_ERR_TYPE_SDO_ERROR,
                 c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
             }; 65],
         },

@@ -112,7 +112,7 @@ pub unsafe extern "C" fn ecx_SDOerror(
         Slave: 0,
         Index: 0,
         SubIdx: 0,
-        Etype: ec_err_type::EC_CMD_SDO_ERROR,
+        Etype: ec_err_type::EC_ERR_TYPE_SDO_ERROR,
         c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
     };
     memset(
@@ -125,7 +125,7 @@ pub unsafe extern "C" fn ecx_SDOerror(
     Ec.Index = Index;
     Ec.SubIdx = SubIdx;
     *(*context).ecaterror = 1u8;
-    Ec.Etype = ec_err_type::EC_CMD_SDO_ERROR;
+    Ec.Etype = ec_err_type::EC_ERR_TYPE_SDO_ERROR;
     Ec.c2rust_unnamed.AbortCode = AbortCode;
     ecx_pusherror(context, &mut Ec);
 }
@@ -150,7 +150,7 @@ unsafe extern "C" fn ecx_SDOinfoerror(
         Slave: 0,
         Index: 0,
         SubIdx: 0,
-        Etype: ec_err_type::EC_CMD_SDO_ERROR,
+        Etype: ec_err_type::EC_ERR_TYPE_SDO_ERROR,
         c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
     };
     memset(
