@@ -161,7 +161,7 @@ pub unsafe  fn input_bin(
     }
     loop {
         c = fgetc(fp);
-        if !(c != -(1i32) && cc < 524288i32) {
+        if !(c != -1 && cc < 524288i32) {
             break;
         }
         let fresh1 = cc;
@@ -203,19 +203,19 @@ pub unsafe  fn input_intelhex(
         sc = 0i32;
         loop {
             c = fgetc(fp);
-            if !(c != -(1i32) && c != 0xai32 && sc < 256i32 - 1i32) {
+            if !(c != -1 && c != 0xai32 && sc < 256i32 - 1i32) {
                 break;
             }
             let fresh2 = sc;
             sc = sc + 1;
             sline[fresh2 as usize] = c as libc::c_char
         }
-        if c != -(1i32) && (sc < 11i32 || sline[0usize] as libc::c_int != ':' as i32) {
-            c = -(1i32);
+        if c != -1 && (sc < 11i32 || sline[0usize] as libc::c_int != ':' as i32) {
+            c = -1;
             retval = 0i32;
             println!("Invalid Intel Hex format.");
         }
-        if c != -(1i32) {
+        if c != -1 {
             sn = sscanf(
                 sline.as_mut_ptr(),
                 b":%2x%4x%2x\x00" as *const u8 as *const libc::c_char,
@@ -251,13 +251,13 @@ pub unsafe  fn input_intelhex(
                     &mut lval as *mut libc::c_int,
                 );
                 if sn == 0 || sum - lval != 0i32 {
-                    c = -(1i32);
+                    c = -1;
                     retval = 0i32;
                     println!("Invalid checksum.");
                 }
             }
         }
-        if !(c != -(1i32)) {
+        if !(c != -1) {
             break;
         }
     }

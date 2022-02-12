@@ -38,9 +38,9 @@ pub const EC_FIRSTDCDATAGRAM: i32 = 20;
 /** standard frame buffer size in bytes */
 pub const EC_BUFSIZE: usize = EC_MAXECATFRAME;
 /** datagram type EtherCAT */
-pub const EC_ECATTYPE: i32 = 0x1000;
+pub const EC_ECATTYPE: u16 = 0x1000;
 /** number of frame buffers per channel (tx, rx1 rx2) */
-pub const EC_MAXBUF: i32 = 16;
+pub const EC_MAXBUF: u8 = 16;
 /** timeout value in us for tx frame to return to rx */
 pub const EC_TIMEOUTRET: u32 = 2000;
 /** timeout value in us for safe data transfer, max. triple retry */

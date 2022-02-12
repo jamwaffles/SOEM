@@ -11,6 +11,7 @@
 
 mod datagram;
 
+use self::datagram::ecx_setupdatagram_new;
 pub use self::datagram::{ecx_adddatagram, ecx_setupdatagram};
 use crate::{
     main::ecx_port,
@@ -83,14 +84,13 @@ pub unsafe fn ecx_BRD(
     data: *mut libc::c_void,
     timeout: u32,
 ) -> libc::c_int {
-    let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
     /* get fresh index */
-    idx = ecx_getindex(port);
+    let idx = ecx_getindex(port);
     /* setup datagram */
-    ecx_setupdatagram(
+    ecx_setupdatagram_new(
         port,
-        &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
+        &mut (*port).txbuf[idx as usize],
         Command::Brd,
         idx,
         ADP,

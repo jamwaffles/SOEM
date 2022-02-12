@@ -2808,7 +2808,7 @@ unsafe fn ecx_pushindex(
  * @return Stack location, -1 if stack is empty.
  */
 unsafe fn ecx_pullindex(mut context: *mut ecx_contextt) -> libc::c_int {
-    let mut rval: libc::c_int = -(1i32);
+    let mut rval: libc::c_int = -1;
     if ((*(*context).idxstack).pulled as libc::c_int) < (*(*context).idxstack).pushed as libc::c_int
     {
         rval = (*(*context).idxstack).pulled as libc::c_int;
@@ -3177,7 +3177,7 @@ pub unsafe fn ecx_receive_processdata_group(
         idx = (*idxstack).idx[pos as usize];
         wkc2 = ecx_waitinframe((*context).port, idx, timeout);
         /* check if there is input data in frame */
-        if wkc2 > -(1i32) {
+        if wkc2 > -1 {
             if (*rxbuf.offset(idx as isize))[::core::mem::size_of::<u16>()] as libc::c_int
                 == Command::Lrd as libc::c_int
                 || (*rxbuf.offset(idx as isize))[::core::mem::size_of::<u16>()] as libc::c_int
@@ -3269,7 +3269,7 @@ pub unsafe fn ecx_receive_processdata_group(
     ecx_clearindex(context);
     /* if no frames has arrived */
     if valid_wkc == 0i32 {
-        return -(1i32);
+        return -1;
     }
     return wkc;
 }

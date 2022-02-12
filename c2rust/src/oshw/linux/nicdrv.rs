@@ -3,7 +3,10 @@ use std::mem;
 use crate::{
     main::ecx_port,
     osal::linux::osal::{ec_timet, osal_timer_is_expired, osal_timer_start, osal_timert},
-    types::{ec_bufT, ec_bufstate, htons, ntohs, EthercatHeader, EthernetHeader, EC_TIMEOUTRET},
+    types::{
+        ec_bufT, ec_bufstate, htons, ntohs, EthercatHeader, EthernetHeader, EC_MAXBUF,
+        EC_TIMEOUTRET,
+    },
 };
 use libc::{
     bind, close, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
@@ -91,10 +94,13 @@ pub struct ecx_portt {
     pub rx_mutex: pthread_mutex_t,
 }
 
-/* * No redundancy, single NIC mode */
-pub const ECT_RED_NONE: C2RustUnnamed_4 = 0;
-/* * Double redundant NIC connection */
-pub const ECT_RED_DOUBLE: C2RustUnnamed_4 = 1;
+enum NicMode {
+    /// No redundancy, single NIC mode
+    None = 0,
+    /// Double redundant NIC connection
+    Double = 1,
+}
+
 /*
  * Licensed under the GNU General Public License version 2 with exceptions. See
  * LICENSE file in the project root for full license information
@@ -192,8 +198,8 @@ pub unsafe fn ecx_setupnic(
         if !(*port).redport.is_null() {
             /* when using secondary socket it is automatically a redundant setup */
             psock = &mut (*(*port).redport).sockhandle;
-            *psock = -(1i32);
-            (*port).redstate = ECT_RED_DOUBLE as libc::c_int;
+            *psock = -1;
+            (*port).redstate = NicMode::Double as libc::c_int;
             (*(*port).redport).stack.sock = &mut (*(*port).redport).sockhandle;
             (*(*port).redport).stack.txbuf = &mut (*port).txbuf;
             (*(*port).redport).stack.txbuflength = &mut (*port).txbuflength;
@@ -213,9 +219,9 @@ pub unsafe fn ecx_setupnic(
         pthread_mutex_init(&mut (*port).getindex_mutex, &mut mutexattr);
         pthread_mutex_init(&mut (*port).tx_mutex, &mut mutexattr);
         pthread_mutex_init(&mut (*port).rx_mutex, &mut mutexattr);
-        (*port).sockhandle = -(1i32);
-        (*port).lastidx = 0u8;
-        (*port).redstate = ECT_RED_NONE as libc::c_int;
+        (*port).sockhandle = -1;
+        (*port).lastidx = 0;
+        (*port).redstate = NicMode::None as libc::c_int;
         (*port).stack.sock = &mut (*port).sockhandle;
         (*port).stack.txbuf = &mut (*port).txbuf;
         (*port).stack.txbuflength = &mut (*port).txbuflength;
@@ -320,9 +326,9 @@ pub unsafe fn ec_setupheader(p: *mut libc::c_void) {
     (*bp).da0 = htons(0xffffu16);
     (*bp).da1 = htons(0xffffu16);
     (*bp).da2 = htons(0xffffu16);
-    (*bp).sa0 = htons(priMAC[0usize]);
-    (*bp).sa1 = htons(priMAC[1usize]);
-    (*bp).sa2 = htons(priMAC[2usize]);
+    (*bp).sa0 = htons(priMAC[0]);
+    (*bp).sa1 = htons(priMAC[1]);
+    (*bp).sa2 = htons(priMAC[2]);
     (*bp).etype = htons(0x88a4u16);
 }
 /* * Get new frame identifier index and allocate corresponding rx buffer.
@@ -331,27 +337,25 @@ pub unsafe fn ec_setupheader(p: *mut libc::c_void) {
  */
 #[no_mangle]
 pub unsafe fn ecx_getindex(mut port: *mut ecx_portt) -> u8 {
-    let mut idx: u8 = 0;
-    let mut cnt: u8 = 0;
     pthread_mutex_lock(&mut (*port).getindex_mutex);
-    idx = ((*port).lastidx as libc::c_int + 1i32) as u8;
+    let mut idx = (*port).lastidx + 1;
     /* index can't be larger than buffer array */
-    if idx as libc::c_int >= 16i32 {
-        idx = 0u8
+    if idx >= EC_MAXBUF {
+        idx = 0
     }
-    cnt = 0u8;
+    let mut cnt = 0;
     /* try to find unused index */
     while (*port).rxbufstat[idx as usize] != ec_bufstate::EC_BUF_EMPTY as libc::c_int
-        && (cnt as libc::c_int) < 16i32
+        && cnt < EC_MAXBUF
     {
-        idx = idx.wrapping_add(1);
-        cnt = cnt.wrapping_add(1);
-        if idx as libc::c_int >= 16i32 {
-            idx = 0u8
+        idx += 1;
+        cnt += 1;
+        if idx >= EC_MAXBUF {
+            idx = 0
         }
     }
-    (*port).rxbufstat[idx as usize] = ec_bufstate::EC_BUF_ALLOC as libc::c_int;
-    if (*port).redstate != ECT_RED_NONE as libc::c_int {
+    (*port).rxbufstat[idx as usize] = ec_bufstate::EC_BUF_ALLOC as i32;
+    if (*port).redstate != NicMode::None as i32 {
         (*(*port).redport).rxbufstat[idx as usize] = ec_bufstate::EC_BUF_ALLOC as libc::c_int
     }
     (*port).lastidx = idx;
@@ -366,7 +370,7 @@ pub unsafe fn ecx_getindex(mut port: *mut ecx_portt) -> u8 {
 #[no_mangle]
 pub unsafe fn ecx_setbufstat(mut port: *mut ecx_portt, idx: u8, bufstat: libc::c_int) {
     (*port).rxbufstat[idx as usize] = bufstat;
-    if (*port).redstate != ECT_RED_NONE as libc::c_int {
+    if (*port).redstate != NicMode::None as libc::c_int {
         (*(*port).redport).rxbufstat[idx as usize] = bufstat
     };
 }
@@ -394,7 +398,7 @@ pub unsafe fn ecx_outframe(port: *mut ecx_portt, idx: u8, stacknumber: libc::c_i
         lp as usize,
         0i32,
     ) as libc::c_int;
-    if rval == -(1i32) {
+    if rval == -1 {
         (*(*stack).rxbufstat)[idx as usize] = ec_bufstate::EC_BUF_EMPTY as libc::c_int
     }
     return rval;
@@ -415,7 +419,7 @@ pub unsafe fn ecx_outframe_red(mut port: *mut ecx_portt, idx: u8) -> libc::c_int
     (*ehp).sa1 = htons(priMAC[1usize]);
     /* transmit over primary socket*/
     rval = ecx_outframe(port, idx, 0i32);
-    if (*port).redstate != ECT_RED_NONE as libc::c_int {
+    if (*port).redstate != NicMode::None as libc::c_int {
         pthread_mutex_lock(&mut (*port).tx_mutex);
         ehp = &mut (*port).txbuf2 as *mut ec_bufT as *mut EthernetHeader;
         /* use dummy frame for secondary socket transmit (BRD) */
@@ -497,7 +501,7 @@ pub unsafe fn ecx_inframe(port: *mut ecx_portt, idx: u8, stacknumber: libc::c_in
     } else {
         stack = &mut (*(*port).redport).stack
     }
-    rval = -(1i32);
+    rval = -1;
     rxbuf = &mut *(*(*stack).rxbuf).as_mut_ptr().offset(idx as isize) as *mut ec_bufT;
     /* check if requested index is already in buffer ? */
     if (idx as libc::c_int) < 16i32
@@ -592,41 +596,41 @@ unsafe fn ecx_waitinframe_red(
     let mut timer2: osal_timert = osal_timert {
         stop_time: ec_timet { sec: 0, usec: 0 },
     };
-    let mut wkc: libc::c_int = -(1i32);
-    let mut wkc2: libc::c_int = -(1i32);
+    let mut wkc: libc::c_int = -1;
+    let mut wkc2: libc::c_int = -1;
     let mut primrx: libc::c_int = 0;
     let mut secrx: libc::c_int = 0;
     /* if not in redundant mode then always assume secondary is OK */
-    if (*port).redstate == ECT_RED_NONE as libc::c_int {
+    if (*port).redstate == NicMode::None as libc::c_int {
         wkc2 = 0i32
     }
     loop {
         /* only read frame if not already in */
-        if wkc <= -(1i32) {
+        if wkc <= -1 {
             wkc = ecx_inframe(port, idx, 0i32)
         }
         /* wait for both frames to arrive or timeout */
-        if (*port).redstate != ECT_RED_NONE as libc::c_int {
+        if (*port).redstate != NicMode::None as libc::c_int {
             /* only try secondary if in redundant mode */
             /* only read frame if not already in */
-            if wkc2 <= -(1i32) {
+            if wkc2 <= -1 {
                 wkc2 = ecx_inframe(port, idx, 1i32)
             }
         }
-        if !((wkc <= -(1i32) || wkc2 <= -(1i32)) && osal_timer_is_expired(timer) == false) {
+        if !((wkc <= -1 || wkc2 <= -1) && osal_timer_is_expired(timer) == false) {
             break;
         }
     }
     /* only do redundant functions when in redundant mode */
-    if (*port).redstate != ECT_RED_NONE as libc::c_int {
+    if (*port).redstate != NicMode::None as libc::c_int {
         /* primrx if the received MAC source on primary socket */
         primrx = 0i32;
-        if wkc > -(1i32) {
+        if wkc > -1 {
             primrx = (*port).rxsa[idx as usize]
         }
         /* secrx if the received MAC source on psecondary socket */
         secrx = 0i32;
-        if wkc2 > -(1i32) {
+        if wkc2 > -1 {
             secrx = (*(*port).redport).rxsa[idx as usize]
         }
         /* primary socket got secondary frame and secondary socket got primary frame */
@@ -670,11 +674,11 @@ unsafe fn ecx_waitinframe_red(
             loop {
                 /* retrieve frame */
                 wkc2 = ecx_inframe(port, idx, 1i32);
-                if !(wkc2 <= -(1i32) && osal_timer_is_expired(&mut timer2) == false) {
+                if !(wkc2 <= -1 && osal_timer_is_expired(&mut timer2) == false) {
                     break;
                 }
             }
-            if wkc2 > -(1i32) {
+            if wkc2 > -1 {
                 /* copy secondary result to primary rx buffer */
                 memcpy(
                     &mut *(*port).rxbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
@@ -722,7 +726,7 @@ pub unsafe fn ecx_waitinframe(port: *mut ecx_portt, idx: u8, timeout: u32) -> li
  */
 #[no_mangle]
 pub unsafe fn ecx_srconfirm(port: *mut ecx_portt, idx: u8, timeout: u32) -> libc::c_int {
-    let mut wkc: libc::c_int = -(1i32);
+    let mut wkc: libc::c_int = -1;
     let mut timer1: osal_timert = osal_timert {
         stop_time: ec_timet { sec: 0, usec: 0 },
     };
@@ -741,7 +745,7 @@ pub unsafe fn ecx_srconfirm(port: *mut ecx_portt, idx: u8, timeout: u32) -> libc
             osal_timer_start(&mut timer2, EC_TIMEOUTRET);
         }
         wkc = ecx_waitinframe_red(port, idx, &mut timer2);
-        if !(wkc <= -(1i32) && osal_timer_is_expired(&mut timer1) == false) {
+        if !(wkc <= -1 && osal_timer_is_expired(&mut timer1) == false) {
             break;
         }
     }
