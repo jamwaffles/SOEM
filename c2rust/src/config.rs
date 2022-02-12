@@ -7,13 +7,13 @@ use crate::{
         ec_eepromPDOt, ec_fmmut, ec_groupt, ec_slavet, ec_smt, ecx_context, ecx_contextt,
         ecx_eeprom2master, ecx_eeprom2pdi, ecx_readeeprom, ecx_readeeprom1, ecx_readeeprom2,
         ecx_siiFMMU, ecx_siiPDO, ecx_siiSM, ecx_siiSMnext, ecx_siifind, ecx_siigetbyte,
-        ecx_siistring, ecx_statecheck,
+        ecx_siistring, ecx_statecheck, EC_MAXSLAVE,
     },
     osal::linux::osal::osal_usleep,
     soe::ecx_readIDNmap,
     types::{
-        self, EthercatRegister, SiiCategory, SiiGeneral, SlaveState, EC_TIMEOUTEEP, EC_TIMEOUTRET3,
-        EC_TIMEOUTSAFE, EC_TIMEOUTSTATE,
+        self, EthercatRegister, SiiCategory, SiiGeneral, SlaveState, EC_SLAVECOUNTEXCEEDED,
+        EC_TIMEOUTEEP, EC_TIMEOUTRET3, EC_TIMEOUTSAFE, EC_TIMEOUTSTATE,
     },
 };
 use libc::{memcpy, memset, sprintf, strcpy};
@@ -554,10 +554,16 @@ pub unsafe fn ecx_detect_slaves(context: *mut ecx_contextt) -> libc::c_int {
     ); /* detect number of slaves */
     if wkc > 0i32 {
         /* this is strictly "less than" since the master is "slave 0" */
-        if wkc < 200i32 {
+        if wkc < EC_MAXSLAVE as i32 {
             *(*context).slavecount = wkc
         } else {
-            return -(4i32);
+            // FIXME: Find other `EC_PRINT` and convert to eprintln. This should be a log::error in
+            // the future.
+            eprintln!(
+                "Error: too many slaves on network: num_slaves={}, EC_MAXSLAVE={}",
+                wkc, EC_MAXSLAVE,
+            );
+            return EC_SLAVECOUNTEXCEEDED;
         }
     } /* deact loop manual */
     return wkc; /* set IRQ mask */
