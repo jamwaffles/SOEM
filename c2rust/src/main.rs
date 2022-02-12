@@ -17,8 +17,8 @@ use crate::{
         oshw::{oshw_find_adapters, oshw_free_adapters, oshw_htons},
     },
     types::{
-        ec_bufT, ec_bufstate, ec_comt, ec_err_type, ec_errort, ec_etherheadert, ec_state,
-        C2RustUnnamed_0, Command, EepromCommand, EthercatRegister, MailboxType, SiiCategory,
+        ec_bufT, ec_bufstate, ec_comt, ec_err_type, ec_errort, ec_state, C2RustUnnamed_0, Command,
+        EepromCommand, EthercatRegister, EthernetHeader, MailboxType, SiiCategory,
         EC_DEFAULTRETRIES, EC_ESTAT_EMASK, EC_ESTAT_NACK, EC_ESTAT_R64, EC_TIMEOUTEEP,
         EC_TIMEOUTRET, EC_TIMEOUTRET3,
     },
@@ -891,12 +891,12 @@ pub unsafe fn ecx_init_redundant(
 ) -> libc::c_int {
     let mut rval: libc::c_int = 0;
     let mut zbuf: libc::c_int = 0;
-    let mut ehp: *mut ec_etherheadert = 0 as *mut ec_etherheadert;
+    let mut ehp: *mut EthernetHeader = 0 as *mut EthernetHeader;
     (*(*context).port).redport = redport;
     ecx_setupnic((*context).port, ifname, 0i32);
     rval = ecx_setupnic((*context).port, if2name, 1i32);
     /* prepare "dummy" BRD tx frame for redundant operation */
-    ehp = &mut (*(*context).port).txbuf2 as *mut ec_bufT as *mut ec_etherheadert;
+    ehp = &mut (*(*context).port).txbuf2 as *mut ec_bufT as *mut EthernetHeader;
     (*ehp).sa1 = oshw_htons(secMAC[0usize]);
     zbuf = 0i32;
     ecx_setupdatagram(
@@ -909,7 +909,7 @@ pub unsafe fn ecx_init_redundant(
         2,
         &mut zbuf as *mut libc::c_int as *mut libc::c_void,
     );
-    (*(*context).port).txbuflength2 = core::mem::size_of::<ec_etherheadert>()
+    (*(*context).port).txbuflength2 = core::mem::size_of::<EthernetHeader>()
         .wrapping_add(core::mem::size_of::<ec_comt>())
         .wrapping_add(core::mem::size_of::<u16>())
         .wrapping_add(2usize) as libc::c_int;

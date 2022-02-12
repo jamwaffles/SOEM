@@ -70,7 +70,7 @@ pub type ec_bufT = [u8; EC_BUFSIZE];
 /** ethernet header definition */
 #[derive(Copy, Clone)]
 #[repr(C, packed)]
-pub struct ec_etherheadert {
+pub struct EthernetHeader {
     /** destination MAC */
     pub da0: u16,
     pub da1: u16,
@@ -84,7 +84,7 @@ pub struct ec_etherheadert {
 }
 
 /** ethernet header size */
-pub const ETH_HEADERSIZE: usize = size_of::<ec_etherheadert>();
+pub const ETH_HEADERSIZE: usize = size_of::<EthernetHeader>();
 
 /** EtherCAT datagram header definition */
 #[derive(Copy, Clone)]

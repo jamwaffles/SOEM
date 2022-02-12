@@ -3,7 +3,7 @@ use std::mem;
 use crate::{
     main::ecx_port,
     osal::linux::osal::{ec_timet, osal_timer_is_expired, osal_timer_start, osal_timert},
-    types::{ec_bufT, ec_bufstate, ec_comt, ec_etherheadert, htons, ntohs, EC_TIMEOUTRET},
+    types::{ec_bufT, ec_bufstate, ec_comt, htons, ntohs, EthernetHeader, EC_TIMEOUTRET},
 };
 use libc::{
     bind, close, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
@@ -315,8 +315,8 @@ pub unsafe fn ecx_closenic(port: *mut ecx_portt) -> libc::c_int {
  */
 #[no_mangle]
 pub unsafe fn ec_setupheader(p: *mut libc::c_void) {
-    let mut bp: *mut ec_etherheadert = 0 as *mut ec_etherheadert;
-    bp = p as *mut ec_etherheadert;
+    let mut bp: *mut EthernetHeader = 0 as *mut EthernetHeader;
+    bp = p as *mut EthernetHeader;
     (*bp).da0 = htons(0xffffu16);
     (*bp).da1 = htons(0xffffu16);
     (*bp).da2 = htons(0xffffu16);
@@ -407,22 +407,22 @@ pub unsafe fn ecx_outframe(port: *mut ecx_portt, idx: u8, stacknumber: libc::c_i
 #[no_mangle]
 pub unsafe fn ecx_outframe_red(mut port: *mut ecx_portt, idx: u8) -> libc::c_int {
     let mut datagramP: *mut ec_comt = 0 as *mut ec_comt;
-    let mut ehp: *mut ec_etherheadert = 0 as *mut ec_etherheadert;
+    let mut ehp: *mut EthernetHeader = 0 as *mut EthernetHeader;
     let mut rval: libc::c_int = 0;
     ehp = &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
-        as *mut ec_etherheadert;
+        as *mut EthernetHeader;
     /* rewrite MAC source address 1 to primary */
     (*ehp).sa1 = htons(priMAC[1usize]);
     /* transmit over primary socket*/
     rval = ecx_outframe(port, idx, 0i32);
     if (*port).redstate != ECT_RED_NONE as libc::c_int {
         pthread_mutex_lock(&mut (*port).tx_mutex);
-        ehp = &mut (*port).txbuf2 as *mut ec_bufT as *mut ec_etherheadert;
+        ehp = &mut (*port).txbuf2 as *mut ec_bufT as *mut EthernetHeader;
         /* use dummy frame for secondary socket transmit (BRD) */
         datagramP = &mut *(*port)
             .txbuf2
             .as_mut_ptr()
-            .offset(::core::mem::size_of::<ec_etherheadert>() as isize)
+            .offset(::core::mem::size_of::<EthernetHeader>() as isize)
             as *mut u8 as *mut ec_comt;
         /* write index to frame */
         (*datagramP).index = idx;
@@ -488,7 +488,7 @@ pub unsafe fn ecx_inframe(port: *mut ecx_portt, idx: u8, stacknumber: libc::c_in
     let mut l: u16 = 0;
     let mut rval: libc::c_int = 0;
     let mut idxf: u8 = 0;
-    let mut ehp: *mut ec_etherheadert = 0 as *mut ec_etherheadert;
+    let mut ehp: *mut EthernetHeader = 0 as *mut EthernetHeader;
     let mut ecp: *mut ec_comt = 0 as *mut ec_comt;
     let mut stack: *mut ec_stackT = 0 as *mut ec_stackT;
     let mut rxbuf: *mut ec_bufT = 0 as *mut ec_bufT;
@@ -516,12 +516,12 @@ pub unsafe fn ecx_inframe(port: *mut ecx_portt, idx: u8, stacknumber: libc::c_in
         /* non blocking call to retrieve frame from socket */
         if ecx_recvpkt(port, stacknumber) != 0 {
             rval = -(2i32);
-            ehp = (*stack).tempbuf as *mut ec_etherheadert;
+            ehp = (*stack).tempbuf as *mut EthernetHeader;
             /* check if it is an EtherCAT frame */
             if (*ehp).etype as libc::c_int == htons(0x88a4u16) as libc::c_int {
                 ecp = &mut *(*(*stack).tempbuf)
                     .as_mut_ptr()
-                    .offset(::core::mem::size_of::<ec_etherheadert>() as isize)
+                    .offset(::core::mem::size_of::<EthernetHeader>() as isize)
                     as *mut u8 as *mut ec_comt;
                 l = ((*ecp).elength as libc::c_int & 0xfffi32) as u16;
                 idxf = (*ecp).index;
@@ -532,10 +532,10 @@ pub unsafe fn ecx_inframe(port: *mut ecx_portt, idx: u8, stacknumber: libc::c_in
                         rxbuf as *mut libc::c_void,
                         &mut *(*(*stack).tempbuf)
                             .as_mut_ptr()
-                            .offset(::core::mem::size_of::<ec_etherheadert>() as isize)
+                            .offset(::core::mem::size_of::<EthernetHeader>() as isize)
                             as *mut u8 as *const libc::c_void,
                         ((*(*stack).txbuflength)[idx as usize] as usize)
-                            .wrapping_sub(core::mem::size_of::<ec_etherheadert>()),
+                            .wrapping_sub(core::mem::size_of::<EthernetHeader>()),
                     );
                     /* return WKC */
                     rval = (*rxbuf)[l as usize] as libc::c_int
@@ -556,10 +556,10 @@ pub unsafe fn ecx_inframe(port: *mut ecx_portt, idx: u8, stacknumber: libc::c_in
                         rxbuf as *mut libc::c_void,
                         &mut *(*(*stack).tempbuf)
                             .as_mut_ptr()
-                            .offset(::core::mem::size_of::<ec_etherheadert>() as isize)
+                            .offset(::core::mem::size_of::<EthernetHeader>() as isize)
                             as *mut u8 as *const libc::c_void,
                         ((*(*stack).txbuflength)[idxf as usize] as usize)
-                            .wrapping_sub(core::mem::size_of::<ec_etherheadert>()),
+                            .wrapping_sub(core::mem::size_of::<EthernetHeader>()),
                     );
                     /* mark as received */
                     (*(*stack).rxbufstat)[idxf as usize] = ec_bufstate::EC_BUF_RCVD as libc::c_int;
@@ -639,7 +639,7 @@ unsafe fn ecx_waitinframe_red(
                 &mut *(*(*port).redport).rxbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                     as *const libc::c_void,
                 ((*port).txbuflength[idx as usize] as usize)
-                    .wrapping_sub(core::mem::size_of::<ec_etherheadert>()),
+                    .wrapping_sub(core::mem::size_of::<EthernetHeader>()),
             );
             wkc = wkc2
         }
@@ -656,12 +656,12 @@ unsafe fn ecx_waitinframe_red(
                 memcpy(
                     &mut *(*(*port).txbuf.as_mut_ptr().offset(idx as isize))
                         .as_mut_ptr()
-                        .offset(::core::mem::size_of::<ec_etherheadert>() as isize)
+                        .offset(::core::mem::size_of::<EthernetHeader>() as isize)
                         as *mut u8 as *mut libc::c_void,
                     &mut *(*port).rxbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                         as *const libc::c_void,
                     ((*port).txbuflength[idx as usize] as usize)
-                        .wrapping_sub(core::mem::size_of::<ec_etherheadert>()),
+                        .wrapping_sub(core::mem::size_of::<EthernetHeader>()),
                 );
             }
             osal_timer_start(&mut timer2, EC_TIMEOUTRET);
@@ -682,7 +682,7 @@ unsafe fn ecx_waitinframe_red(
                     &mut *(*(*port).redport).rxbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                         as *const libc::c_void,
                     ((*port).txbuflength[idx as usize] as usize)
-                        .wrapping_sub(core::mem::size_of::<ec_etherheadert>()),
+                        .wrapping_sub(core::mem::size_of::<EthernetHeader>()),
                 );
                 wkc = wkc2
             }
