@@ -142,6 +142,69 @@ mod tests {
             "data not written correctly"
         );
     }
+
+    #[test]
+    fn datagram_data_struct() {
+        #[repr(C, packed)]
+        #[derive(PartialEq, Debug, Copy, Clone)]
+        struct Data {
+            foo: u16,
+            bar: i32,
+            baz: u8,
+        }
+
+        let mut buf_old = [0u8; EC_BUFSIZE];
+        let mut buf_new = [0u8; EC_BUFSIZE];
+        let command = Command::Aprw;
+        let data = Data {
+            foo: 0x1234u16,
+            bar: -9999,
+            baz: 255,
+        };
+        let length = size_of::<Data>();
+
+        unsafe {
+            ecx_writedatagramdata_new(
+                &mut buf_new,
+                command,
+                length,
+                &data as *const _ as *const c_void,
+            )
+        };
+
+        unsafe {
+            ecx_writedatagramdata(
+                buf_old.as_mut_ptr() as *mut c_void,
+                command,
+                length,
+                &data as *const _ as *const c_void,
+            )
+        };
+
+        assert_eq!(
+            buf_old, buf_new,
+            "old and new styles don't do the same thing"
+        );
+        assert_eq!(
+            buf_old,
+            {
+                let mut buf = [0u8; EC_BUFSIZE];
+
+                buf[0] = 52;
+                buf[1] = 18;
+                buf[2] = 241;
+                buf[3] = 216;
+                buf[4] = 255;
+                buf[5] = 255;
+                buf[6] = 255;
+
+                buf
+            },
+            "data not written correctly"
+        );
+
+        unsafe { assert_eq!(*(buf_new[0..length].as_ptr() as *const Data), data) };
+    }
 }
 
 /* * Generate and set EtherCAT datagram in a standard ethernet frame.
