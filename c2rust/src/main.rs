@@ -17,7 +17,7 @@ use crate::{
         oshw::{oshw_find_adapters, oshw_free_adapters, oshw_htons},
     },
     types::{
-        ec_bufT, ec_bufstate, ec_err_type, ec_errort, C2RustUnnamed_0, Command, EepromCommand,
+        ec_bufT, ec_err_type, ec_errort, BufferState, C2RustUnnamed_0, Command, EepromCommand,
         EthercatHeader, EthercatRegister, EthernetHeader, MailboxType, SiiCategory, SlaveState,
         EC_DEFAULTRETRIES, EC_ESTAT_EMASK, EC_ESTAT_NACK, EC_ESTAT_R64, EC_TIMEOUTEEP,
         EC_TIMEOUTRET, EC_TIMEOUTRET3,
@@ -633,7 +633,6 @@ pub static mut ecx_port: ecx_portt = ecx_portt {
     txbuf2: [0; 1518],
     txbuflength2: 0,
     lastidx: 0,
-    redstate: 0,
     redport: None,
     getindex_mutex: unsafe { mem::transmute::<[u8; 40], pthread_mutex_t>([0u8; 40]) },
     tx_mutex: unsafe { mem::transmute::<[u8; 40], pthread_mutex_t>([0u8; 40]) },
@@ -1482,11 +1481,7 @@ pub unsafe fn ecx_FPRD_multi(
             slcnt += 1
         }
     }
-    ecx_setbufstat(
-        port.as_mut().unwrap(),
-        idx,
-        ec_bufstate::EC_BUF_EMPTY as libc::c_int,
-    );
+    ecx_setbufstat(port.as_mut().unwrap(), idx, BufferState::Empty);
     return wkc;
 }
 /* * Read all slave states in ec_slave.
@@ -3262,11 +3257,7 @@ pub unsafe fn ecx_receive_processdata_group(
             }
         }
         /* release buffer */
-        ecx_setbufstat(
-            (*context).port.as_mut().unwrap(),
-            idx,
-            ec_bufstate::EC_BUF_EMPTY as libc::c_int,
-        );
+        ecx_setbufstat((*context).port.as_mut().unwrap(), idx, BufferState::Empty);
         /* get next index */
         pos = ecx_pullindex(context)
     }

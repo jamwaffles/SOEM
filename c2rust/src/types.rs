@@ -159,17 +159,17 @@ pub const EC_STATE_ACK: isize = SlaveState::Error as isize;
 
 /** Possible buffer states */
 #[derive(strum::FromRepr, Copy, Clone, Debug)]
-pub enum ec_bufstate {
+pub enum BufferState {
     /** Empty */
-    EC_BUF_EMPTY = 0x00,
+    Empty = 0x00,
     /** Allocated, but not filled */
-    EC_BUF_ALLOC = 0x01,
+    Allocated = 0x01,
     /** Transmitted */
-    EC_BUF_TX = 0x02,
+    Transmitted = 0x02,
     /** Received, but not consumed */
-    EC_BUF_RCVD = 0x03,
+    Received = 0x03,
     /** Cycle completed */
-    EC_BUF_COMPLETE = 0x04,
+    Complete = 0x04,
 }
 
 /** Ethercat data types */

@@ -16,7 +16,7 @@ use self::datagram::{ecx_adddatagram_new, ecx_setupdatagram_new};
 use crate::{
     main::ecx_port,
     oshw::linux::nicdrv::{ecx_getindex, ecx_portt, ecx_setbufstat, ecx_srconfirm},
-    types::{ec_bufstate, Command, EthercatHeader, EthercatRegister},
+    types::{BufferState, Command, EthercatHeader, EthercatRegister},
 };
 use libc::memcpy;
 
@@ -62,7 +62,7 @@ pub unsafe fn ecx_BWR(
     /* send data and wait for answer */
     wkc = ecx_srconfirm(port, idx, timeout);
     /* clear buffer status */
-    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, BufferState::Empty);
     return wkc;
 }
 /* * BRD "broadcast read" primitive. Blocking.
@@ -112,7 +112,7 @@ pub unsafe fn ecx_BRD(
         );
     }
     /* clear buffer status */
-    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, BufferState::Empty);
     return wkc;
 }
 /* * APRD "auto increment address read" primitive. Blocking.
@@ -158,7 +158,7 @@ pub unsafe fn ecx_APRD(
             length as usize,
         );
     }
-    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, BufferState::Empty);
     return wkc;
 }
 /* * APRMW "auto increment address read, multiple write" primitive. Blocking.
@@ -205,7 +205,7 @@ pub unsafe fn ecx_ARMW(
             length as usize,
         );
     }
-    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, BufferState::Empty);
     return wkc;
 }
 /* * FPRMW "configured address read, multiple write" primitive. Blocking.
@@ -252,7 +252,7 @@ pub unsafe fn ecx_FRMW(
             length as usize,
         );
     }
-    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, BufferState::Empty);
     return wkc;
 }
 /* * APRDw "auto increment address read" word return primitive. Blocking.
@@ -320,7 +320,7 @@ pub unsafe fn ecx_FPRD(
             length as usize,
         );
     }
-    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, BufferState::Empty);
     return wkc;
 }
 /* * FPRDw "configured address read" word return primitive. Blocking.
@@ -378,7 +378,7 @@ pub unsafe fn ecx_APWR(
         data,
     );
     wkc = ecx_srconfirm(port, idx, timeout);
-    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, BufferState::Empty);
     return wkc;
 }
 /* * APWRw "auto increment address write" word primitive. Blocking.
@@ -440,7 +440,7 @@ pub unsafe fn ecx_FPWR(
         data,
     );
     wkc = ecx_srconfirm(port, idx, timeout);
-    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, BufferState::Empty);
     return wkc;
 }
 /* * FPWR "configured address write" primitive. Blocking.
@@ -513,7 +513,7 @@ pub unsafe fn ecx_LRW(
             length as usize,
         );
     }
-    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, BufferState::Empty);
     return wkc;
 }
 /* * LRD "logical memory read" primitive. Blocking.
@@ -560,7 +560,7 @@ pub unsafe fn ecx_LRD(
             length as usize,
         );
     }
-    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, BufferState::Empty);
     return wkc;
 }
 /* * LWR "logical memory write" primitive. Blocking.
@@ -594,7 +594,7 @@ pub unsafe fn ecx_LWR(
         data,
     );
     wkc = ecx_srconfirm(port, idx, timeout);
-    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, BufferState::Empty);
     return wkc;
 }
 /* * LRW "logical memory read / write" primitive plus Clock Distribution. Blocking.
@@ -679,7 +679,7 @@ pub unsafe fn ecx_LRWDC(
         );
         *DCtime = DCtE as i64
     }
-    ecx_setbufstat(port, idx, ec_bufstate::EC_BUF_EMPTY as libc::c_int);
+    ecx_setbufstat(port, idx, BufferState::Empty);
     return wkc;
 }
 #[no_mangle]
