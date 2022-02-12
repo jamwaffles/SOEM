@@ -543,11 +543,11 @@ pub static mut ec_group: [ec_groupt; 2] = [ec_groupt {
     IOsegment: [0; 64],
 }; 2];
 /* * cache for EEPROM read functions */
-static mut ec_esibuf: [u8; 4096] = [0; 4096];
+static mut EC_ESI_BUF: [u8; 4096] = [0; 4096];
 /* * bitmap for filled cache buffer bytes */
-static mut ec_esimap: [u32; 128] = [0; 128];
+static mut EC_ESI_MAP: [u32; 128] = [0; 128];
 /* * current slave for EEPROM cache buffer */
-static mut ec_elist: ec_eringt = ec_eringt {
+static mut EC_ELIST: ec_eringt = ec_eringt {
     head: 0,
     tail: 0,
     Error: [ec_errort {
@@ -560,7 +560,7 @@ static mut ec_elist: ec_eringt = ec_eringt {
         c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
     }; 65],
 };
-static mut ec_idxstack: ec_idxstackT = ec_idxstackT {
+static mut EC_IDX_STACK: ec_idxstackT = ec_idxstackT {
     pushed: 0,
     pulled: 0,
     idx: [0; 16],
@@ -569,25 +569,25 @@ static mut ec_idxstack: ec_idxstackT = ec_idxstackT {
     dcoffset: [0; 16],
 };
 /* * SyncManager Communication Type struct to store data of one slave */
-static mut ec_SMcommtype: [ec_SMcommtypet; 1] = [ec_SMcommtypet {
+static mut EC_SM_COMMTYPE: [ec_SMcommtypet; 1] = [ec_SMcommtypet {
     n: 0,
     nu1: 0,
     SMtype: [0; 8],
 }; 1];
 /* * PDO assign struct to store data of one slave */
-static mut ec_PDOassign: [ec_PDOassignt; 1] = [ec_PDOassignt {
+static mut EC_PDO_ASSIGN: [ec_PDOassignt; 1] = [ec_PDOassignt {
     n: 0,
     nu1: 0,
     index: [0; 256],
 }; 1];
 /* * PDO description struct to store data of one slave */
-static mut ec_PDOdesc: [ec_PDOdesct; 1] = [ec_PDOdesct {
+static mut EC_PDO_DESC: [ec_PDOdesct; 1] = [ec_PDOdesct {
     n: 0,
     nu1: 0,
     PDO: [0; 256],
 }; 1];
 /* * buffer for EEPROM SM data */
-static mut ec_SM: ec_eepromSMt = ec_eepromSMt {
+static mut EC_SM: ec_eepromSMt = ec_eepromSMt {
     Startpos: 0,
     nSM: 0,
     PhStart: 0,
@@ -598,7 +598,7 @@ static mut ec_SM: ec_eepromSMt = ec_eepromSMt {
     PDIctrl: 0,
 };
 /* * buffer for EEPROM FMMU data */
-static mut ec_FMMU: ec_eepromFMMUt = ec_eepromFMMUt {
+static mut EC_FMMU: ec_eepromFMMUt = ec_eepromFMMUt {
     Startpos: 0,
     nFMMU: 0,
     FMMU0: 0,
@@ -3659,18 +3659,18 @@ unsafe fn run_static_initializers() {
             maxslave: 200i32,
             grouplist: &mut *ec_group.as_mut_ptr().offset(0isize) as *mut ec_groupt,
             maxgroup: 2i32,
-            esibuf: &mut *ec_esibuf.as_mut_ptr().offset(0isize) as *mut u8,
-            esimap: &mut *ec_esimap.as_mut_ptr().offset(0isize) as *mut u32,
+            esibuf: &mut *EC_ESI_BUF.as_mut_ptr().offset(0isize) as *mut u8,
+            esimap: &mut *EC_ESI_MAP.as_mut_ptr().offset(0isize) as *mut u32,
             esislave: 0u16,
-            elist: &mut ec_elist,
-            idxstack: &mut ec_idxstack,
+            elist: &mut EC_ELIST,
+            idxstack: &mut EC_IDX_STACK,
             ecaterror: &mut EcatError,
             DCtime: &mut ec_DCtime,
-            SMcommtype: &mut *ec_SMcommtype.as_mut_ptr().offset(0isize) as *mut ec_SMcommtypet,
-            PDOassign: &mut *ec_PDOassign.as_mut_ptr().offset(0isize) as *mut ec_PDOassignt,
-            PDOdesc: &mut *ec_PDOdesc.as_mut_ptr().offset(0isize) as *mut ec_PDOdesct,
-            eepSM: &mut ec_SM,
-            eepFMMU: &mut ec_FMMU,
+            SMcommtype: &mut *EC_SM_COMMTYPE.as_mut_ptr().offset(0isize) as *mut ec_SMcommtypet,
+            PDOassign: &mut *EC_PDO_ASSIGN.as_mut_ptr().offset(0isize) as *mut ec_PDOassignt,
+            PDOdesc: &mut *EC_PDO_DESC.as_mut_ptr().offset(0isize) as *mut ec_PDOdesct,
+            eepSM: &mut EC_SM,
+            eepFMMU: &mut EC_FMMU,
             FOEhook: None,
             EOEhook: None,
             manualstatechange: 0i32,

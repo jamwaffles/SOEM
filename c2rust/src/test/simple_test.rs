@@ -14,7 +14,7 @@ use libc::{c_void, pthread_t};
 
 const EC_TIMEOUTMON: u32 = 500;
 
-static mut IOmap: [libc::c_char; 4096] = [0; 4096];
+static mut IO_MAP: [libc::c_char; 4096] = [0; 4096];
 #[no_mangle]
 pub static mut thread1: *mut pthread_t = 0 as *mut pthread_t;
 #[no_mangle]
@@ -22,7 +22,7 @@ pub static mut expectedWKC: libc::c_int = 0;
 #[no_mangle]
 pub static mut needlf: bool = false;
 
-static mut wkc: libc::c_int = 0;
+static mut WKC: libc::c_int = 0;
 #[no_mangle]
 pub static mut inOP: bool = false;
 #[no_mangle]
@@ -50,7 +50,7 @@ pub unsafe fn simpletest(ifname: *mut libc::c_char) {
                 "{:} slaves found and configured.",
                 ec_slavecount as libc::c_int
             );
-            ec_config_map(&mut IOmap as *mut [libc::c_char; 4096] as *mut libc::c_void);
+            ec_config_map(&mut IO_MAP as *mut [libc::c_char; 4096] as *mut libc::c_void);
             ec_configdc();
             println!("Slaves mapped, state to SAFE_OP.");
             /* wait for all slaves to reach SAFE_OP state */
@@ -114,13 +114,13 @@ pub unsafe fn simpletest(ifname: *mut libc::c_char) {
                 while i <= 10000i32 {
                     ec_send_processdata();
                     ::core::ptr::write_volatile(
-                        &mut wkc as *mut libc::c_int,
+                        &mut WKC as *mut libc::c_int,
                         ec_receive_processdata(EC_TIMEOUTRET),
                     );
-                    if wkc >= expectedWKC {
+                    if WKC >= expectedWKC {
                         print!(
                             "Processdata cycle {:4}, WKC {:} , O:",
-                            i as libc::c_int, wkc as libc::c_int
+                            i as libc::c_int, WKC as libc::c_int
                         );
                         j = 0i32;
                         while j < oloop {
@@ -198,7 +198,7 @@ pub unsafe fn ecatcheck(mut _ptr: *mut libc::c_void) {
 
     loop {
         if inOP == true
-            && (wkc < expectedWKC
+            && (WKC < expectedWKC
                 || ec_group[currentgroup as usize].docheckstate as libc::c_int != 0)
         {
             if needlf == true {

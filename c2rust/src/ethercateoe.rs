@@ -458,7 +458,7 @@ pub unsafe fn ecx_EOEsend(
     let mut txframesize: libc::c_int = 0;
     let mut txframeoffset: libc::c_int = 0;
     let buf: *const u8 = p as *const u8;
-    static mut txframeno: u8 = 0u8;
+    let mut txframeno: u8 = 0u8;
     ec_clearmbx(&mut MbxOut);
     EOEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_EOEt;
     (*EOEp).mbxheader.address = 0u16;

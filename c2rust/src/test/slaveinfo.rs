@@ -30,7 +30,7 @@ use libc::{memset, snprintf, sprintf, strcat, strcpy, strncmp};
  * (c)Arthur Ketels 2010 - 2011
  */
 
-static mut IOmap: [libc::c_char; 4096] = [0; 4096];
+static mut IO_MAP: [libc::c_char; 4096] = [0; 4096];
 #[no_mangle]
 pub static mut ODlist: ec_ODlistt = ec_ODlistt {
     Slave: 0,
@@ -60,7 +60,7 @@ pub static mut usdo: [libc::c_char; 128] = [0; 128];
 pub unsafe fn dtype2string(dtype: u16, bitlen: u16) -> *mut libc::c_char {
     let dtype = ec_datatype::from_repr(dtype as usize).expect("Unknown data type");
 
-    static mut str: [libc::c_char; 32] = [0; 32];
+    let mut str: [libc::c_char; 32] = [0; 32];
     match dtype {
         ec_datatype::ECT_BOOL => {
             sprintf(
@@ -215,7 +215,8 @@ pub unsafe fn dtype2string(dtype: u16, bitlen: u16) -> *mut libc::c_char {
 }
 #[no_mangle]
 pub unsafe fn otype2string(otype: u16) -> *mut libc::c_char {
-    static mut str: [libc::c_char; 32] = [0; 32];
+    let mut str: [libc::c_char; 32] = [0; 32];
+    // FIXME: Variants
     match otype as libc::c_int {
         7 => {
             sprintf(
@@ -247,7 +248,7 @@ pub unsafe fn otype2string(otype: u16) -> *mut libc::c_char {
 }
 #[no_mangle]
 pub unsafe fn access2string(access: u16) -> *mut libc::c_char {
-    static mut str: [libc::c_char; 32] = [0; 32];
+    let mut str: [libc::c_char; 32] = [0; 32];
     sprintf(
         str.as_mut_ptr(),
         b"%s%s%s%s%s%s\x00" as *const u8 as *const libc::c_char,
@@ -319,7 +320,7 @@ pub unsafe fn SDO2string(slave: u16, index: u16, subidx: u8, dtype: u16) -> *mut
     if EcatError == true {
         return ec_elist2string();
     } else {
-        static mut str: [libc::c_char; 64] = [0; 64];
+        let mut str: [libc::c_char; 64] = [0; 64];
         match dtype {
             ec_datatype::ECT_BOOL => {
                 u8 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut u8;
@@ -692,9 +693,11 @@ pub unsafe fn si_map_sdo(slave: libc::c_int) -> libc::c_int {
                     Tsize = si_PDOassign(
                         slave as u16,
                         ECT_SDO_PDOASSIGN + iSM as u16,
-                        ec_slave[slave as usize].outputs.offset_from(
-                            &mut *IOmap.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut u8,
-                        ) as libc::c_int,
+                        ec_slave[slave as usize]
+                            .outputs
+                            .offset_from(&mut *IO_MAP.as_mut_ptr().offset(0isize)
+                                as *mut libc::c_char
+                                as *mut u8) as libc::c_int,
                         outputs_bo,
                     );
                     outputs_bo += Tsize
@@ -709,9 +712,11 @@ pub unsafe fn si_map_sdo(slave: libc::c_int) -> libc::c_int {
                     Tsize = si_PDOassign(
                         slave as u16,
                         ECT_SDO_PDOASSIGN + iSM as u16,
-                        ec_slave[slave as usize].inputs.offset_from(
-                            &mut *IOmap.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut u8,
-                        ) as libc::c_int,
+                        ec_slave[slave as usize]
+                            .inputs
+                            .offset_from(&mut *IO_MAP.as_mut_ptr().offset(0isize)
+                                as *mut libc::c_char
+                                as *mut u8) as libc::c_int,
                         inputs_bo,
                     );
                     inputs_bo += Tsize
@@ -956,7 +961,8 @@ pub unsafe fn si_map_sii(slave: libc::c_int) -> libc::c_int {
         1u8,
         ec_slave[slave as usize]
             .outputs
-            .offset_from(&mut IOmap as *mut [libc::c_char; 4096] as *mut u8) as libc::c_int,
+            .offset_from(&mut IO_MAP as *mut [libc::c_char; 4096] as *mut u8)
+            as libc::c_int,
         outputs_bo,
     );
     outputs_bo += Tsize;
@@ -966,7 +972,8 @@ pub unsafe fn si_map_sii(slave: libc::c_int) -> libc::c_int {
         0u8,
         ec_slave[slave as usize]
             .inputs
-            .offset_from(&mut IOmap as *mut [libc::c_char; 4096] as *mut u8) as libc::c_int,
+            .offset_from(&mut IO_MAP as *mut [libc::c_char; 4096] as *mut u8)
+            as libc::c_int,
         inputs_bo,
     );
     inputs_bo += Tsize;
@@ -1155,7 +1162,7 @@ pub unsafe fn slaveinfo(ifname: *mut libc::c_char) {
         /* find and auto-config slaves */
         if ec_config(
             0u8,
-            &mut IOmap as *mut [libc::c_char; 4096] as *mut libc::c_void,
+            &mut IO_MAP as *mut [libc::c_char; 4096] as *mut libc::c_void,
         ) > 0i32
         {
             ec_configdc();
