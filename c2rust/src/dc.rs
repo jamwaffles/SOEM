@@ -35,7 +35,7 @@ pub unsafe fn ecx_dcsync0(
     RA = 0u8;
     /* stop cyclic operation, ready for next trigger */
     ecx_FPWR(
-        (*context).port,
+        (*context).port.as_mut().unwrap(),
         slaveh,
         EthercatRegister::ECT_REG_DCSYNCACT as u16,
         ::core::mem::size_of::<u8>(),
@@ -47,7 +47,7 @@ pub unsafe fn ecx_dcsync0(
     } /* write access to ethercat */
     h = 0u8; /* read local time of slave */
     ecx_FPWR(
-        (*context).port,
+        (*context).port.as_mut().unwrap(),
         slaveh,
         EthercatRegister::ECT_REG_DCCUC as u16,
         ::core::mem::size_of::<u8>(),
@@ -56,7 +56,7 @@ pub unsafe fn ecx_dcsync0(
     );
     t1 = 0i64;
     ecx_FPRD(
-        (*context).port,
+        (*context).port.as_mut().unwrap(),
         slaveh,
         EthercatRegister::ECT_REG_DCSYSTIME as u16,
         ::core::mem::size_of::<i64>(),
@@ -78,7 +78,7 @@ pub unsafe fn ecx_dcsync0(
     } /* SYNC0 start time */
     t = t; /* SYNC0 cycle time */
     ecx_FPWR(
-        (*context).port,
+        (*context).port.as_mut().unwrap(),
         slaveh,
         EthercatRegister::ECT_REG_DCSTART0 as u16,
         ::core::mem::size_of::<i64>(),
@@ -87,7 +87,7 @@ pub unsafe fn ecx_dcsync0(
     ); /* activate cyclic operation */
     tc = CyclTime as i32;
     ecx_FPWR(
-        (*context).port,
+        (*context).port.as_mut().unwrap(),
         slaveh,
         EthercatRegister::ECT_REG_DCCYCLE0 as u16,
         ::core::mem::size_of::<i32>(),
@@ -95,7 +95,7 @@ pub unsafe fn ecx_dcsync0(
         EC_TIMEOUTRET,
     );
     ecx_FPWR(
-        (*context).port,
+        (*context).port.as_mut().unwrap(),
         slaveh,
         EthercatRegister::ECT_REG_DCSYNCACT as u16,
         ::core::mem::size_of::<u8>(),
@@ -144,7 +144,7 @@ pub unsafe fn ecx_dcsync01(
     RA = 0u8;
     /* stop cyclic operation, ready for next trigger */
     ecx_FPWR(
-        (*context).port,
+        (*context).port.as_mut().unwrap(),
         slaveh,
         EthercatRegister::ECT_REG_DCSYNCACT as u16,
         ::core::mem::size_of::<u8>(),
@@ -156,7 +156,7 @@ pub unsafe fn ecx_dcsync01(
     } /* write access to ethercat */
     h = 0u8; /* read local time of slave */
     ecx_FPWR(
-        (*context).port,
+        (*context).port.as_mut().unwrap(),
         slaveh,
         EthercatRegister::ECT_REG_DCCUC as u16,
         ::core::mem::size_of::<u8>(),
@@ -165,7 +165,7 @@ pub unsafe fn ecx_dcsync01(
     );
     t1 = 0i64;
     ecx_FPRD(
-        (*context).port,
+        (*context).port.as_mut().unwrap(),
         slaveh,
         EthercatRegister::ECT_REG_DCSYSTIME as u16,
         ::core::mem::size_of::<i64>(),
@@ -187,7 +187,7 @@ pub unsafe fn ecx_dcsync01(
     } /* SYNC0 start time */
     t = t; /* SYNC0 cycle time */
     ecx_FPWR(
-        (*context).port,
+        (*context).port.as_mut().unwrap(),
         slaveh,
         EthercatRegister::ECT_REG_DCSTART0 as u16,
         ::core::mem::size_of::<i64>(),
@@ -196,7 +196,7 @@ pub unsafe fn ecx_dcsync01(
     ); /* SYNC1 cycle time */
     tc = CyclTime0 as i32; /* activate cyclic operation */
     ecx_FPWR(
-        (*context).port,
+        (*context).port.as_mut().unwrap(),
         slaveh,
         EthercatRegister::ECT_REG_DCCYCLE0 as u16,
         ::core::mem::size_of::<i32>(),
@@ -205,7 +205,7 @@ pub unsafe fn ecx_dcsync01(
     );
     tc = CyclTime1 as i32;
     ecx_FPWR(
-        (*context).port,
+        (*context).port.as_mut().unwrap(),
         slaveh,
         EthercatRegister::ECT_REG_DCCYCLE1 as u16,
         ::core::mem::size_of::<i32>(),
@@ -213,7 +213,7 @@ pub unsafe fn ecx_dcsync01(
         EC_TIMEOUTRET,
     );
     ecx_FPWR(
-        (*context).port,
+        (*context).port.as_mut().unwrap(),
         slaveh,
         EthercatRegister::ECT_REG_DCSYNCACT as u16,
         ::core::mem::size_of::<u8>(),
@@ -333,7 +333,7 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
     (*(*context).grouplist.offset(0isize)).hasdc = false;
     ht = 0i32;
     ecx_BWR(
-        (*context).port,
+        (*context).port.as_mut().unwrap(),
         0u16,
         EthercatRegister::ECT_REG_DCTIME0 as u16,
         ::core::mem::size_of::<i32>(),
@@ -373,7 +373,7 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
             prevDCslave = i;
             slaveh = (*(*context).slavelist.offset(i as isize)).configadr;
             ecx_FPRD(
-                (*context).port,
+                (*context).port.as_mut().unwrap(),
                 slaveh,
                 EthercatRegister::ECT_REG_DCTIME0 as u16,
                 ::core::mem::size_of::<i32>(),
@@ -383,7 +383,7 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
             (*(*context).slavelist.offset(i as isize)).DCrtA = ht;
             /* 64bit latched DCrecvTimeA of each specific slave */
             ecx_FPRD(
-                (*context).port,
+                (*context).port.as_mut().unwrap(),
                 slaveh,
                 EthercatRegister::ECT_REG_DCSOF as u16,
                 ::core::mem::size_of::<i64>(),
@@ -394,7 +394,7 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
             hrt = (-hrt as libc::c_ulong).wrapping_add(mastertime64) as i64;
             /* save it in the offset register */
             ecx_FPWR(
-                (*context).port,
+                (*context).port.as_mut().unwrap(),
                 slaveh,
                 EthercatRegister::ECT_REG_DCSYSOFFSET as u16,
                 ::core::mem::size_of::<i64>(),
@@ -402,7 +402,7 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
                 EC_TIMEOUTRET,
             );
             ecx_FPRD(
-                (*context).port,
+                (*context).port.as_mut().unwrap(),
                 slaveh,
                 EthercatRegister::ECT_REG_DCTIME1 as u16,
                 ::core::mem::size_of::<i32>(),
@@ -411,7 +411,7 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
             );
             (*(*context).slavelist.offset(i as isize)).DCrtB = ht;
             ecx_FPRD(
-                (*context).port,
+                (*context).port.as_mut().unwrap(),
                 slaveh,
                 EthercatRegister::ECT_REG_DCTIME2 as u16,
                 ::core::mem::size_of::<i32>(),
@@ -420,7 +420,7 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
             );
             (*(*context).slavelist.offset(i as isize)).DCrtC = ht;
             ecx_FPRD(
-                (*context).port,
+                (*context).port.as_mut().unwrap(),
                 slaveh,
                 EthercatRegister::ECT_REG_DCTIME3 as u16,
                 ::core::mem::size_of::<i32>(),
@@ -555,7 +555,7 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
                 ht = (*(*context).slavelist.offset(i as isize)).pdelay;
                 /* write propagation delay*/
                 ecx_FPWR(
-                    (*context).port,
+                    (*context).port.as_mut().unwrap(),
                     slaveh,
                     EthercatRegister::ECT_REG_DCSYSDELAY as u16,
                     ::core::mem::size_of::<i32>(),

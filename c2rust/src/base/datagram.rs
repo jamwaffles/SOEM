@@ -352,7 +352,7 @@ pub unsafe fn ecx_adddatagram_new(
 mod tests {
     use super::*;
     use crate::{
-        oshw::linux::nicdrv::{ec_stackT, ecx_redportt},
+        oshw::linux::nicdrv::ec_stackT,
         types::{EC_BUFSIZE, EC_MAXBUF},
     };
     use libc::pthread_mutex_t;
@@ -520,7 +520,7 @@ mod tests {
             txbuflength2: 0,
             lastidx: 0,
             redstate: 0,
-            redport: 0 as *mut ecx_redportt,
+            redport: None,
             getindex_mutex: unsafe { mem::transmute::<[u8; 40], pthread_mutex_t>([0u8; 40]) },
             tx_mutex: unsafe { mem::transmute::<[u8; 40], pthread_mutex_t>([0u8; 40]) },
             rx_mutex: unsafe { mem::transmute::<[u8; 40], pthread_mutex_t>([0u8; 40]) },
@@ -599,7 +599,7 @@ mod tests {
             txbuflength2: 0,
             lastidx: 0,
             redstate: 0,
-            redport: 0 as *mut ecx_redportt,
+            redport: None,
             getindex_mutex: unsafe { mem::transmute::<[u8; 40], pthread_mutex_t>([0u8; 40]) },
             tx_mutex: unsafe { mem::transmute::<[u8; 40], pthread_mutex_t>([0u8; 40]) },
             rx_mutex: unsafe { mem::transmute::<[u8; 40], pthread_mutex_t>([0u8; 40]) },
