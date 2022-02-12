@@ -16,9 +16,9 @@ use self::datagram::{ecx_adddatagram_new, ecx_setupdatagram_new};
 use crate::{
     main::ecx_port,
     oshw::linux::nicdrv::{ecx_getindex, ecx_portt, ecx_setbufstat, ecx_srconfirm},
-    types::{BufferState, Command, EthercatHeader, EthercatRegister},
+    types::{BufferState, Command, EthercatHeader, EthercatRegister, EC_HEADERSIZE},
 };
-use libc::memcpy;
+use libc::{c_void, memcpy};
 
 /*
  * Licensed under the GNU General Public License version 2 with exceptions. See
@@ -627,7 +627,7 @@ pub unsafe fn ecx_LRWDC(
     /* LRW in first datagram */
     ecx_setupdatagram_new(
         port,
-        &mut (*port).txbuf[idx as usize],
+        &mut port.txbuf[idx as usize],
         Command::Lrw,
         idx,
         (LogAdr & 0xffffu32) as u16,
@@ -655,26 +655,17 @@ pub unsafe fn ecx_LRWDC(
     {
         memcpy(
             data,
-            &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
-                .as_mut_ptr()
-                .offset(::core::mem::size_of::<EthercatHeader>() as isize) as *mut u8
-                as *const libc::c_void,
+            port.rxbuf[idx as usize][EC_HEADERSIZE] as *const u8 as *const c_void,
             length as usize,
         );
         memcpy(
             &mut wkc as *mut libc::c_int as *mut libc::c_void,
-            &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
-                .as_mut_ptr()
-                .offset(
-                    core::mem::size_of::<EthercatHeader>().wrapping_add(length as usize) as isize,
-                ) as *mut u8 as *const libc::c_void,
+            port.rxbuf[idx as usize][EC_HEADERSIZE + length] as *const u8 as *const c_void,
             core::mem::size_of::<u16>(),
         );
         memcpy(
             &mut DCtE as *mut u64 as *mut libc::c_void,
-            &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
-                .as_mut_ptr()
-                .offset(DCtO as isize) as *mut u8 as *const libc::c_void,
+            port.rxbuf[idx as usize][DCtO as usize] as *const u8 as *const c_void,
             core::mem::size_of::<i64>(),
         );
         *DCtime = DCtE as i64
