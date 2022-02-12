@@ -1,9 +1,9 @@
-/*
+/*!
  * Licensed under the GNU General Public License version 2 with exceptions. See
  * LICENSE file in the project root for full license information
  */
 
-/** \file
+/*! \file
  * \brief
  * General typedefs and defines for EtherCAT.
  *
@@ -14,6 +14,9 @@
  * increasing. For fast systems running Xenomai and RT-net or alike the
  * timeouts need to be shorter.
  */
+
+use crate::osal::linux::osal::ec_timet;
+use std::mem::size_of;
 
 /** return value no frame returned */
 pub const EC_NOFRAME: i32 = -1;
@@ -201,51 +204,51 @@ pub enum ec_datatype {
     ECT_BIT8 = 0x0037,
 }
 
-/** Ethercat command types */
+/// Ethercat command types
 #[derive(strum::FromRepr, Copy, Clone, Debug)]
-pub enum ec_cmdtype {
-    /** No operation */
-    EC_CMD_NOP = 0x00,
-    /** Auto Increment Read */
-    EC_CMD_APRD,
-    /** Auto Increment Write */
-    EC_CMD_APWR,
-    /** Auto Increment Read Write */
-    EC_CMD_APRW,
-    /** Configured Address Read */
-    EC_CMD_FPRD,
-    /** Configured Address Write */
-    EC_CMD_FPWR,
-    /** Configured Address Read Write */
-    EC_CMD_FPRW,
-    /** Broadcast Read */
-    EC_CMD_BRD,
-    /** Broadcast Write */
-    EC_CMD_BWR,
-    /** Broadcast Read Write */
-    EC_CMD_BRW,
-    /** Logical Memory Read */
-    EC_CMD_LRD,
-    /** Logical Memory Write */
-    EC_CMD_LWR,
-    /** Logical Memory Read Write */
-    EC_CMD_LRW,
-    /** Auto Increment Read Multiple Write */
-    EC_CMD_ARMW,
-    /** Configured Read Multiple Write */
-    EC_CMD_FRMW,
+pub enum Command {
+    /// No operation
+    Nop = 0x00,
+    /// Auto Increment Read
+    Aprd,
+    /// Auto Increment Write
+    Apwr,
+    /// Auto Increment Read Write
+    Aprw,
+    /// Configured Address Read
+    Fprd,
+    /// Configured Address Write
+    Fpwr,
+    /// Configured Address Read Write
+    Fprw,
+    /// Broadcast Read
+    Brd,
+    /// Broadcast Write
+    Bwr,
+    /// Broadcast Read Write
+    Brw,
+    /// Logical Memory Read
+    Lrd,
+    /// Logical Memory Write
+    Lwr,
+    /// Logical Memory Read Write
+    Lrw,
+    /// Auto Increment Read Multiple Write
+    Armw,
+    /// Configured Read Multiple Write
+    Frmw,
 }
-/** Ethercat EEprom command types */
+/// Ethercat EEprom command types
 #[derive(strum::FromRepr, Copy, Clone, Debug)]
-pub enum ec_ecmdtype {
-    /** No operation */
-    EC_ECMD_NOP = 0x0000,
-    /** Read */
-    EC_ECMD_READ = 0x0100,
-    /** Write */
-    EC_ECMD_WRITE = 0x0201,
-    /** Reload */
-    EC_ECMD_RELOAD = 0x0300,
+pub enum EepromCommand {
+    /// No operation
+    Nop = 0x0000,
+    /// Read
+    Read = 0x0100,
+    /// Write
+    Write = 0x0201,
+    /// Reload
+    Reload = 0x0300,
 }
 
 /** EEprom state machine read size */
@@ -257,85 +260,80 @@ pub const EC_ESTAT_EMASK: i32 = 0x7800;
 /** EEprom state machine error acknowledge */
 pub const EC_ESTAT_NACK: i32 = 0x2000;
 
-/* Ethercat SSI (Slave Information Interface) */
-
-use std::mem::size_of;
-
-use crate::osal::linux::osal::ec_timet;
-
 /** Start address SII sections in Eeprom */
 pub const ECT_SII_START: i32 = 0x0040;
 
+/* Ethercat SSI (Slave Information Interface) */
 #[derive(strum::FromRepr, Copy, Clone, Debug)]
-pub enum SIICategory {
+pub enum SiiCategory {
     /** SII category strings */
-    ECT_SII_STRING = 10,
+    String = 10,
     /** SII category general */
-    ECT_SII_GENERAL = 30,
+    General = 30,
     /** SII category FMMU */
-    ECT_SII_FMMU = 40,
+    Fmmu = 40,
     /** SII category SM */
-    ECT_SII_SM = 41,
+    Sm = 41,
     /** SII category PDO */
-    ECT_SII_PDO = 50,
+    Pdo = 50,
 }
 
-/** Item offsets in SII general section */
+/// Item offsets in SII general section
 #[derive(strum::FromRepr, Copy, Clone, Debug)]
-pub enum SIIGeneral {
-    ECT_SII_MANUF = 0x0008,
-    ECT_SII_ID = 0x000a,
-    ECT_SII_REV = 0x000c,
-    ECT_SII_BOOTRXMBX = 0x0014,
-    ECT_SII_BOOTTXMBX = 0x0016,
-    ECT_SII_MBXSIZE = 0x0019,
-    ECT_SII_TXMBXADR = 0x001a,
-    ECT_SII_RXMBXADR = 0x0018,
-    ECT_SII_MBXPROTO = 0x001c,
+pub enum SiiGeneral {
+    Manufacturer = 0x0008,
+    Id = 0x000a,
+    Revision = 0x000c,
+    BootRcMailbox = 0x0014,
+    BootTxMailbox = 0x0016,
+    MailboxSize = 0x0019,
+    TxMailboxAddress = 0x001a,
+    RxMailboxAddress = 0x0018,
+    MailboxProtocol = 0x001c,
 }
 
-/** Mailbox types definitions */
+/// Mailbox types definitions
 #[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum MailboxType {
-    /** Error mailbox type */
-    ECT_MBXT_ERR = 0x00,
-    /** ADS over EtherCAT mailbox type */
-    ECT_MBXT_AOE = 0x01,
-    /** Ethernet over EtherCAT mailbox type */
-    ECT_MBXT_EOE = 0x02,
-    /** CANopen over EtherCAT mailbox type */
-    ECT_MBXT_COE = 0x03,
-    /** File over EtherCAT mailbox type */
-    ECT_MBXT_FOE = 0x04,
-    /** Servo over EtherCAT mailbox type */
-    ECT_MBXT_SOE = 0x05,
-    /** Vendor over EtherCAT mailbox type */
-    ECT_MBXT_VOE = 0x0f,
+    /// Error mailbox type
+    Err = 0x00,
+    /// ADS over EtherCAT mailbox type
+    Aoe = 0x01,
+    /// Ethernet over EtherCAT mailbox type
+    Eoe = 0x02,
+    /// CANopen over EtherCAT mailbox type
+    Coe = 0x03,
+    /// File over EtherCAT mailbox type
+    Foe = 0x04,
+    /// Servo over EtherCAT mailbox type
+    Soe = 0x05,
+    /// Vendor over EtherCAT mailbox type
+    Voe = 0x0f,
 }
 
-/** CoE mailbox types */
+/// CoE mailbox types
 #[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum CoEMailboxType {
-    ECT_COES_EMERGENCY = 0x01,
-    ECT_COES_SDOREQ,
-    ECT_COES_SDORES,
-    ECT_COES_TXPDO,
-    ECT_COES_RXPDO,
-    ECT_COES_TXPDO_RR,
-    ECT_COES_RXPDO_RR,
-    ECT_COES_SDOINFO,
+    Emergency = 0x01,
+    SdoReq,
+    SdoRes,
+    TxPdo,
+    RxPdo,
+    TxPdoRr,
+    RxPdoRr,
+    SdoInfo,
 }
 
-/** CoE SDO commands */
+/// CoE SDO commands
 #[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum CoESDOCommand {
-    ECT_SDO_DOWN_INIT = 0x21,
-    ECT_SDO_DOWN_EXP = 0x23,
-    ECT_SDO_DOWN_INIT_CA = 0x31,
-    ECT_SDO_UP_REQ = 0x40,
-    ECT_SDO_UP_REQ_CA = 0x50,
-    ECT_SDO_SEG_UP_REQ = 0x60,
-    ECT_SDO_ABORT = 0x80,
+    DownInit = 0x21,
+    DownExp = 0x23,
+    DownInitCa = 0x31,
+    UpReq = 0x40,
+    UpReqCa = 0x50,
+    SegUpReq = 0x60,
+    Abort = 0x80,
 }
 
 /** CoE Object Description commands */

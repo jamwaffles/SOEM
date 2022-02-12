@@ -6,8 +6,8 @@ use crate::{
         ecx_setupdatagram,
     },
     ethercattype::{
-        ec_bufT, ec_bufstate, ec_cmdtype, ec_comt, ec_ecmdtype, ec_err_type, ec_errort,
-        ec_etherheadert, ec_state, C2RustUnnamed_0, EthercatRegister, MailboxType, SIICategory,
+        ec_bufT, ec_bufstate, ec_comt, ec_err_type, ec_errort, ec_etherheadert, ec_state,
+        C2RustUnnamed_0, Command, EepromCommand, EthercatRegister, MailboxType, SiiCategory,
         EC_DEFAULTRETRIES, EC_ESTAT_EMASK, EC_ESTAT_NACK, EC_ESTAT_R64, EC_TIMEOUTEEP,
         EC_TIMEOUTRET, EC_TIMEOUTRET3,
     },
@@ -902,7 +902,7 @@ pub unsafe fn ecx_init_redundant(
     ecx_setupdatagram(
         (*context).port,
         &mut (*(*context).port).txbuf2 as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_BRD,
+        Command::Brd,
         0u8,
         0u16,
         0u16,
@@ -1081,7 +1081,7 @@ pub unsafe fn ecx_siistring(
     let mut ptr: *mut libc::c_char = 0 as *mut libc::c_char;
     let eectl: u8 = (*(*context).slavelist.offset(slave as isize)).eep_pdi;
     ptr = str;
-    a = ecx_siifind(context, slave, SIICategory::ECT_SII_STRING as u16) as u16;
+    a = ecx_siifind(context, slave, SiiCategory::String as u16) as u16;
     if a as libc::c_int > 0i32 {
         ba = (a as libc::c_int + 2i32) as u16;
         let fresh7 = ba;
@@ -1147,7 +1147,7 @@ pub unsafe fn ecx_siiFMMU(
     (*FMMU).FMMU1 = 0u8;
     (*FMMU).FMMU2 = 0u8;
     (*FMMU).FMMU3 = 0u8;
-    (*FMMU).Startpos = ecx_siifind(context, slave, SIICategory::ECT_SII_FMMU as u16) as u16;
+    (*FMMU).Startpos = ecx_siifind(context, slave, SiiCategory::Fmmu as u16) as u16;
     if (*FMMU).Startpos as libc::c_int > 0i32 {
         a = (*FMMU).Startpos;
         let fresh10 = a;
@@ -1192,7 +1192,7 @@ pub unsafe fn ecx_siiSM(context: *mut ecx_contextt, slave: u16, mut SM: *mut ec_
     let mut w: u16 = 0;
     let eectl: u8 = (*(*context).slavelist.offset(slave as isize)).eep_pdi;
     (*SM).nSM = 0u8;
-    (*SM).Startpos = ecx_siifind(context, slave, SIICategory::ECT_SII_SM as u16) as u16;
+    (*SM).Startpos = ecx_siifind(context, slave, SiiCategory::Sm as u16) as u16;
     if (*SM).Startpos as libc::c_int > 0i32 {
         a = (*SM).Startpos;
         let fresh16 = a;
@@ -1329,7 +1329,7 @@ pub unsafe fn ecx_siiPDO(
     (*PDO).Startpos = ecx_siifind(
         context,
         slave,
-        (SIICategory::ECT_SII_PDO as libc::c_int + t as libc::c_int) as u16,
+        (SiiCategory::Pdo as libc::c_int + t as libc::c_int) as u16,
     ) as u16;
     if (*PDO).Startpos as libc::c_int > 0i32 {
         a = (*PDO).Startpos;
@@ -1427,7 +1427,7 @@ pub unsafe fn ecx_FPRD_multi(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_FPRD,
+        Command::Fprd,
         idx,
         *configlst.offset(slcnt as isize),
         EthercatRegister::ECT_REG_ALSTAT as u16,
@@ -1444,7 +1444,7 @@ pub unsafe fn ecx_FPRD_multi(
             port,
             &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                 as *mut libc::c_void,
-            ec_cmdtype::EC_CMD_FPRD,
+            Command::Fprd,
             idx,
             true,
             *configlst.offset(slcnt as isize),
@@ -1458,7 +1458,7 @@ pub unsafe fn ecx_FPRD_multi(
             port,
             &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                 as *mut libc::c_void,
-            ec_cmdtype::EC_CMD_FPRD,
+            Command::Fprd,
             idx,
             false,
             *configlst.offset(slcnt as isize),
@@ -1894,8 +1894,7 @@ pub unsafe fn ecx_mbxreceive(
                     wkc = 0i32
                 /* prevent emergency to cascade up, it is already handled. */
                 } else if wkc > 0i32
-                    && (*mbxh).mbxtype as libc::c_int & 0xfi32
-                        == MailboxType::ECT_MBXT_COE as libc::c_int
+                    && (*mbxh).mbxtype as libc::c_int & 0xfi32 == MailboxType::Coe as libc::c_int
                 {
                     /* CoE response? */
                     EMp = mbx as *mut ec_emcyt;
@@ -1914,8 +1913,7 @@ pub unsafe fn ecx_mbxreceive(
                         /* prevent emergency to cascade up, it is already handled. */
                     }
                 } else if wkc > 0i32
-                    && (*mbxh).mbxtype as libc::c_int & 0xfi32
-                        == MailboxType::ECT_MBXT_EOE as libc::c_int
+                    && (*mbxh).mbxtype as libc::c_int & 0xfi32 == MailboxType::Eoe as libc::c_int
                 {
                     /* EoE response? */
                     let eoembx: *mut ec_EOEt = mbx as *mut ec_EOEt;
@@ -2240,7 +2238,7 @@ pub unsafe fn ecx_readeepromAP(
     if ecx_eeprom_waitnotbusyAP(context, aiadr, &mut estat, timeout) != 0 {
         if estat as libc::c_int & EC_ESTAT_EMASK != 0 {
             /* error bits are set */
-            estat = ec_ecmdtype::EC_ECMD_NOP as u16; /* clear error bits */
+            estat = EepromCommand::Nop as u16; /* clear error bits */
             wkc = ecx_APWR(
                 (*context).port,
                 aiadr,
@@ -2251,7 +2249,7 @@ pub unsafe fn ecx_readeepromAP(
             )
         }
         loop {
-            ed.comm = ec_ecmdtype::EC_ECMD_READ as u16;
+            ed.comm = EepromCommand::Read as u16;
             ed.addr = eeproma;
             ed.d2 = 0u16;
             cnt = 0i32;
@@ -2360,7 +2358,7 @@ pub unsafe fn ecx_writeeepromAP(
     if ecx_eeprom_waitnotbusyAP(context, aiadr, &mut estat, timeout) != 0 {
         if estat as libc::c_int & EC_ESTAT_EMASK != 0 {
             /* error bits are set */
-            estat = ec_ecmdtype::EC_ECMD_NOP as u16; /* clear error bits */
+            estat = EepromCommand::Nop as u16; /* clear error bits */
             wkc = ecx_APWR(
                 (*context).port,
                 aiadr,
@@ -2389,7 +2387,7 @@ pub unsafe fn ecx_writeeepromAP(
                     break;
                 }
             }
-            ed.comm = ec_ecmdtype::EC_ECMD_WRITE as u16;
+            ed.comm = EepromCommand::Write as u16;
             ed.addr = eeproma;
             ed.d2 = 0u16;
             cnt = 0i32;
@@ -2501,7 +2499,7 @@ pub unsafe fn ecx_readeepromFP(
     if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, timeout) != 0 {
         if estat as libc::c_int & EC_ESTAT_EMASK != 0 {
             /* error bits are set */
-            estat = ec_ecmdtype::EC_ECMD_NOP as u16; /* clear error bits */
+            estat = EepromCommand::Nop as u16; /* clear error bits */
             wkc = ecx_FPWR(
                 (*context).port,
                 configadr,
@@ -2512,7 +2510,7 @@ pub unsafe fn ecx_readeepromFP(
             )
         }
         loop {
-            ed.comm = ec_ecmdtype::EC_ECMD_READ as u16;
+            ed.comm = EepromCommand::Read as u16;
             ed.addr = eeproma;
             ed.d2 = 0u16;
             cnt = 0i32;
@@ -2621,7 +2619,7 @@ pub unsafe fn ecx_writeeepromFP(
     if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, timeout) != 0 {
         if estat as libc::c_int & EC_ESTAT_EMASK != 0 {
             /* error bits are set */
-            estat = ec_ecmdtype::EC_ECMD_NOP as u16; /* clear error bits */
+            estat = EepromCommand::Nop as u16; /* clear error bits */
             wkc = ecx_FPWR(
                 (*context).port,
                 configadr,
@@ -2650,7 +2648,7 @@ pub unsafe fn ecx_writeeepromFP(
                     break;
                 }
             }
-            ed.comm = ec_ecmdtype::EC_ECMD_WRITE as u16;
+            ed.comm = EepromCommand::Write as u16;
             ed.addr = eeproma;
             ed.d2 = 0u16;
             cnt = 0i32;
@@ -2713,7 +2711,7 @@ pub unsafe fn ecx_readeeprom1(context: *mut ecx_contextt, slave: u16, eeproma: u
     if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, EC_TIMEOUTEEP) != 0 {
         if estat as libc::c_int & EC_ESTAT_EMASK != 0 {
             /* error bits are set */
-            estat = ec_ecmdtype::EC_ECMD_NOP as u16; /* clear error bits */
+            estat = EepromCommand::Nop as u16; /* clear error bits */
             wkc = ecx_FPWR(
                 (*context).port,
                 configadr,
@@ -2723,7 +2721,7 @@ pub unsafe fn ecx_readeeprom1(context: *mut ecx_contextt, slave: u16, eeproma: u
                 EC_TIMEOUTRET3,
             )
         }
-        ed.comm = ec_ecmdtype::EC_ECMD_READ as u16;
+        ed.comm = EepromCommand::Read as u16;
         ed.addr = eeproma;
         ed.d2 = 0u16;
         loop {
@@ -2921,7 +2919,7 @@ unsafe fn ecx_main_send_processdata(
                         (*context).port,
                         &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize)
                             as *mut ec_bufT as *mut libc::c_void,
-                        ec_cmdtype::EC_CMD_LRD,
+                        Command::Lrd,
                         idx,
                         w1,
                         w2,
@@ -2934,7 +2932,7 @@ unsafe fn ecx_main_send_processdata(
                             (*context).port,
                             &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize)
                                 as *mut ec_bufT as *mut libc::c_void,
-                            ec_cmdtype::EC_CMD_FRMW,
+                            Command::Frmw,
                             idx,
                             false,
                             (*(*context).slavelist.offset(
@@ -2988,7 +2986,7 @@ unsafe fn ecx_main_send_processdata(
                         (*context).port,
                         &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize)
                             as *mut ec_bufT as *mut libc::c_void,
-                        ec_cmdtype::EC_CMD_LWR,
+                        Command::Lwr,
                         idx,
                         w1,
                         w2,
@@ -3001,7 +2999,7 @@ unsafe fn ecx_main_send_processdata(
                             (*context).port,
                             &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize)
                                 as *mut ec_bufT as *mut libc::c_void,
-                            ec_cmdtype::EC_CMD_FRMW,
+                            Command::Frmw,
                             idx,
                             false,
                             (*(*context).slavelist.offset(
@@ -3055,7 +3053,7 @@ unsafe fn ecx_main_send_processdata(
                     (*context).port,
                     &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                         as *mut libc::c_void,
-                    ec_cmdtype::EC_CMD_LRW,
+                    Command::Lrw,
                     idx,
                     w1,
                     w2,
@@ -3068,7 +3066,7 @@ unsafe fn ecx_main_send_processdata(
                         (*context).port,
                         &mut *(*(*context).port).txbuf.as_mut_ptr().offset(idx as isize)
                             as *mut ec_bufT as *mut libc::c_void,
-                        ec_cmdtype::EC_CMD_FRMW,
+                        Command::Frmw,
                         idx,
                         false,
                         (*(*context).slavelist.offset(
@@ -3181,9 +3179,9 @@ pub unsafe fn ecx_receive_processdata_group(
         /* check if there is input data in frame */
         if wkc2 > -(1i32) {
             if (*rxbuf.offset(idx as isize))[::core::mem::size_of::<u16>()] as libc::c_int
-                == ec_cmdtype::EC_CMD_LRD as libc::c_int
+                == Command::Lrd as libc::c_int
                 || (*rxbuf.offset(idx as isize))[::core::mem::size_of::<u16>()] as libc::c_int
-                    == ec_cmdtype::EC_CMD_LRW as libc::c_int
+                    == Command::Lrw as libc::c_int
             {
                 if (*idxstack).dcoffset[pos as usize] as libc::c_int > 0i32 {
                     memcpy(
@@ -3228,7 +3226,7 @@ pub unsafe fn ecx_receive_processdata_group(
                 }
                 valid_wkc = 1i32
             } else if (*rxbuf.offset(idx as isize))[::core::mem::size_of::<u16>()] as libc::c_int
-                == ec_cmdtype::EC_CMD_LWR as libc::c_int
+                == Command::Lwr as libc::c_int
             {
                 if (*idxstack).dcoffset[pos as usize] as libc::c_int > 0i32 {
                     memcpy(

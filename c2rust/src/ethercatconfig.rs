@@ -11,7 +11,7 @@ use crate::{
     },
     ethercatsoe::ecx_readIDNmap,
     ethercattype::{
-        self, ec_state, EthercatRegister, SIICategory, SIIGeneral, EC_TIMEOUTEEP, EC_TIMEOUTRET3,
+        self, ec_state, EthercatRegister, SiiCategory, SiiGeneral, EC_TIMEOUTEEP, EC_TIMEOUTRET3,
         EC_TIMEOUTSAFE, EC_TIMEOUTSTATE,
     },
     osal::linux::osal::osal_usleep,
@@ -904,14 +904,14 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
                 /* check if slave can read 8 byte chunks */
                 (*(*context).slavelist.offset(slave as isize)).eep_8byte = 1u8
             } /* Manuf */
-            ecx_readeeprom1(context, slave, SIIGeneral::ECT_SII_MANUF as u16);
+            ecx_readeeprom1(context, slave, SiiGeneral::Manufacturer as u16);
             slave = slave.wrapping_add(1)
         }
         slave = 1u16;
         while slave as libc::c_int <= *(*context).slavecount {
             eedat = ecx_readeeprom2(context, slave, EC_TIMEOUTEEP);
             (*(*context).slavelist.offset(slave as isize)).eep_man = eedat;
-            ecx_readeeprom1(context, slave, SIIGeneral::ECT_SII_ID as u16);
+            ecx_readeeprom1(context, slave, SiiGeneral::Id as u16);
             slave = slave.wrapping_add(1)
             /* ID */
         } /* ID */
@@ -919,7 +919,7 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
         while slave as libc::c_int <= *(*context).slavecount {
             eedat = ecx_readeeprom2(context, slave, EC_TIMEOUTEEP);
             (*(*context).slavelist.offset(slave as isize)).eep_id = eedat;
-            ecx_readeeprom1(context, slave, SIIGeneral::ECT_SII_REV as u16);
+            ecx_readeeprom1(context, slave, SiiGeneral::Revision as u16);
             slave = slave.wrapping_add(1)
             /* revision */
         } /* revision */
@@ -927,7 +927,7 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
         while slave as libc::c_int <= *(*context).slavecount {
             eedat = ecx_readeeprom2(context, slave, EC_TIMEOUTEEP);
             (*(*context).slavelist.offset(slave as isize)).eep_rev = eedat;
-            ecx_readeeprom1(context, slave, SIIGeneral::ECT_SII_RXMBXADR as u16);
+            ecx_readeeprom1(context, slave, SiiGeneral::RxMailboxAddress as u16);
             slave = slave.wrapping_add(1)
             /* write mailbox address + mailboxsize */
         } /* write mailbox address and mailboxsize */
@@ -937,7 +937,7 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
             (*(*context).slavelist.offset(slave as isize)).mbx_wo = (eedat & 0xffffu32) as u16;
             (*(*context).slavelist.offset(slave as isize)).mbx_l = (eedat >> 16i32) as u16;
             if (*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int > 0i32 {
-                ecx_readeeprom1(context, slave, SIIGeneral::ECT_SII_TXMBXADR as u16);
+                ecx_readeeprom1(context, slave, SiiGeneral::TxMailboxAddress as u16);
                 /* read mailbox offset */
             } /* read mailbox offset */
             slave = slave.wrapping_add(1)
@@ -952,7 +952,7 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
                     (*(*context).slavelist.offset(slave as isize)).mbx_rl =
                         (*(*context).slavelist.offset(slave as isize)).mbx_l
                 }
-                ecx_readeeprom1(context, slave, SIIGeneral::ECT_SII_MBXPROTO as u16);
+                ecx_readeeprom1(context, slave, SiiGeneral::MailboxProtocol as u16);
             }
             configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
             val16 = ecx_FPRDw(
@@ -1076,7 +1076,7 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
             }
             /* slave not in configuration table, find out via SII */
             if cindex == 0 && ecx_lookup_prev_sii(context, slave) == 0 {
-                ssigen = ecx_siifind(context, slave, SIICategory::ECT_SII_GENERAL as u16) as u16;
+                ssigen = ecx_siifind(context, slave, SiiCategory::General as u16) as u16;
                 /* SII general section */
                 if ssigen != 0 {
                     (*(*context).slavelist.offset(slave as isize)).CoEdetails =
@@ -1110,9 +1110,7 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
                         as i16
                 }
                 /* SII strings section */
-                if ecx_siifind(context, slave, SIICategory::ECT_SII_STRING as u16) as libc::c_int
-                    > 0i32
-                {
+                if ecx_siifind(context, slave, SiiCategory::String as u16) as libc::c_int > 0i32 {
                     ecx_siistring(
                         context,
                         (*(*context).slavelist.offset(slave as isize))
@@ -2313,20 +2311,16 @@ pub unsafe fn ecx_recover_slave(
             timeout,
         ) as libc::c_int
             == (*(*context).slavelist.offset(slave as isize)).aliasadr as libc::c_int
-            && ecx_readeeprom(context, slave, SIIGeneral::ECT_SII_ID as u16, EC_TIMEOUTEEP)
+            && ecx_readeeprom(context, slave, SiiGeneral::Id as u16, EC_TIMEOUTEEP)
                 == (*(*context).slavelist.offset(slave as isize)).eep_id
             && ecx_readeeprom(
                 context,
                 slave,
-                SIIGeneral::ECT_SII_MANUF as u16,
+                SiiGeneral::Manufacturer as u16,
                 EC_TIMEOUTEEP,
             ) == (*(*context).slavelist.offset(slave as isize)).eep_man
-            && ecx_readeeprom(
-                context,
-                slave,
-                SIIGeneral::ECT_SII_REV as u16,
-                EC_TIMEOUTEEP,
-            ) == (*(*context).slavelist.offset(slave as isize)).eep_rev
+            && ecx_readeeprom(context, slave, SiiGeneral::Revision as u16, EC_TIMEOUTEEP)
+                == (*(*context).slavelist.offset(slave as isize)).eep_rev
         {
             rval = ecx_FPWRw(
                 (*context).port,

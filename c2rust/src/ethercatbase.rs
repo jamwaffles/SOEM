@@ -1,6 +1,6 @@
 use crate::{
     ethercatmain::ecx_port,
-    ethercattype::{ec_bufT, ec_bufstate, ec_cmdtype, ec_comt, ec_etherheadert, EthercatRegister},
+    ethercattype::{ec_bufT, ec_bufstate, ec_comt, ec_etherheadert, Command, EthercatRegister},
     oshw::linux::nicdrv::{ecx_getindex, ecx_portt, ecx_setbufstat, ecx_srconfirm},
 };
 use libc::{memcpy, memset};
@@ -28,17 +28,13 @@ use libc::{memcpy, memset};
  */
 unsafe fn ecx_writedatagramdata(
     datagramdata: *mut libc::c_void,
-    com: ec_cmdtype,
+    com: Command,
     length: usize,
     data: *const libc::c_void,
 ) {
     if length as libc::c_int > 0i32 {
         match com {
-            ec_cmdtype::EC_CMD_NOP
-            | ec_cmdtype::EC_CMD_APRD
-            | ec_cmdtype::EC_CMD_FPRD
-            | ec_cmdtype::EC_CMD_BRD
-            | ec_cmdtype::EC_CMD_LRD => {
+            Command::Nop | Command::Aprd | Command::Fprd | Command::Brd | Command::Lrd => {
                 /* no data to write. initialise data so frame is in a known state */
                 memset(datagramdata, 0i32, length as usize);
             }
@@ -64,7 +60,7 @@ unsafe fn ecx_writedatagramdata(
 pub unsafe fn ecx_setupdatagram(
     mut port: *mut ecx_portt,
     frame: *mut libc::c_void,
-    com: ec_cmdtype,
+    com: Command,
     idx: u8,
     ADP: u16,
     ADO: u16,
@@ -131,7 +127,7 @@ pub unsafe fn ecx_setupdatagram(
 pub unsafe fn ecx_adddatagram(
     mut port: *mut ecx_portt,
     frame: *mut libc::c_void,
-    com: ec_cmdtype,
+    com: Command,
     idx: u8,
     more: bool,
     ADP: u16,
@@ -232,7 +228,7 @@ pub unsafe fn ecx_BWR(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_BWR,
+        Command::Bwr,
         idx,
         ADP,
         ADO,
@@ -272,7 +268,7 @@ pub unsafe fn ecx_BRD(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_BRD,
+        Command::Brd,
         idx,
         ADP,
         ADO,
@@ -321,7 +317,7 @@ pub unsafe fn ecx_APRD(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_APRD,
+        Command::Aprd,
         idx,
         ADP,
         ADO,
@@ -368,7 +364,7 @@ pub unsafe fn ecx_ARMW(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_ARMW,
+        Command::Armw,
         idx,
         ADP,
         ADO,
@@ -415,7 +411,7 @@ pub unsafe fn ecx_FRMW(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_FRMW,
+        Command::Frmw,
         idx,
         ADP,
         ADO,
@@ -483,7 +479,7 @@ pub unsafe fn ecx_FPRD(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_FPRD,
+        Command::Fprd,
         idx,
         ADP,
         ADO,
@@ -551,7 +547,7 @@ pub unsafe fn ecx_APWR(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_APWR,
+        Command::Apwr,
         idx,
         ADP,
         ADO,
@@ -613,7 +609,7 @@ pub unsafe fn ecx_FPWR(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_FPWR,
+        Command::Fpwr,
         idx,
         ADP,
         ADO,
@@ -673,7 +669,7 @@ pub unsafe fn ecx_LRW(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_LRW,
+        Command::Lrw,
         idx,
         (LogAdr & 0xffffu32) as u16,
         (LogAdr >> 16i32) as u16,
@@ -683,7 +679,7 @@ pub unsafe fn ecx_LRW(
     wkc = ecx_srconfirm(port, idx, timeout);
     if wkc > 0i32
         && (*port).rxbuf[idx as usize][::core::mem::size_of::<u16>()] as libc::c_int
-            == ec_cmdtype::EC_CMD_LRW as libc::c_int
+            == Command::Lrw as libc::c_int
     {
         memcpy(
             data,
@@ -720,7 +716,7 @@ pub unsafe fn ecx_LRD(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_LRD,
+        Command::Lrd,
         idx,
         (LogAdr & 0xffffu32) as u16,
         (LogAdr >> 16i32) as u16,
@@ -730,7 +726,7 @@ pub unsafe fn ecx_LRD(
     wkc = ecx_srconfirm(port, idx, timeout);
     if wkc > 0i32
         && (*port).rxbuf[idx as usize][::core::mem::size_of::<u16>()] as libc::c_int
-            == ec_cmdtype::EC_CMD_LRD as libc::c_int
+            == Command::Lrd as libc::c_int
     {
         memcpy(
             data,
@@ -767,7 +763,7 @@ pub unsafe fn ecx_LWR(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_LWR,
+        Command::Lwr,
         idx,
         (LogAdr & 0xffffu32) as u16,
         (LogAdr >> 16i32) as u16,
@@ -809,7 +805,7 @@ pub unsafe fn ecx_LRWDC(
     ecx_setupdatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_LRW,
+        Command::Lrw,
         idx,
         (LogAdr & 0xffffu32) as u16,
         (LogAdr >> 16i32) as u16,
@@ -821,7 +817,7 @@ pub unsafe fn ecx_LRWDC(
     DCtO = ecx_adddatagram(
         port,
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
-        ec_cmdtype::EC_CMD_FRMW,
+        Command::Frmw,
         idx,
         false,
         DCrs,
@@ -832,7 +828,7 @@ pub unsafe fn ecx_LRWDC(
     wkc = ecx_srconfirm(port, idx, timeout);
     if wkc > 0i32
         && (*port).rxbuf[idx as usize][::core::mem::size_of::<u16>()] as libc::c_int
-            == ec_cmdtype::EC_CMD_LRW as libc::c_int
+            == Command::Lrw as libc::c_int
     {
         memcpy(
             data,
@@ -865,7 +861,7 @@ pub unsafe fn ecx_LRWDC(
 #[no_mangle]
 pub unsafe fn ec_setupdatagram(
     frame: *mut libc::c_void,
-    com: ec_cmdtype,
+    com: Command,
     idx: u8,
     ADP: u16,
     ADO: u16,
@@ -877,7 +873,7 @@ pub unsafe fn ec_setupdatagram(
 #[no_mangle]
 pub unsafe fn ec_adddatagram(
     frame: *mut libc::c_void,
-    com: ec_cmdtype,
+    com: Command,
     idx: u8,
     more: bool,
     ADP: u16,

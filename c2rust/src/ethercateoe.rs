@@ -170,7 +170,7 @@ pub unsafe fn ecx_EOEsetIp(
     /* get new mailbox count value, used as session handle */
     cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* EoE */
     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-    (*EOEp).mbxheader.mbxtype = (MailboxType::ECT_MBXT_EOE as libc::c_int
+    (*EOEp).mbxheader.mbxtype = (MailboxType::Eoe as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as u8 as libc::c_int)
         as u8;
     (*EOEp).frameinfo1 = ((2i32 & 0xfi32) << 0i32
@@ -252,8 +252,7 @@ pub unsafe fn ecx_EOEsetIp(
             /* read slave response */
             /* succeeded to read slave response ? */
             /* slave response should be FoE */
-            if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32
-                == MailboxType::ECT_MBXT_EOE as libc::c_int
+            if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32 == MailboxType::Eoe as libc::c_int
             {
                 frameinfo1 = (*aEOEp).frameinfo1;
                 result = (*aEOEp).c2rust_unnamed.result;
@@ -308,7 +307,7 @@ pub unsafe fn ecx_EOEgetIp(
     /* get new mailbox count value, used as session handle */
     cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* EoE */
     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-    (*EOEp).mbxheader.mbxtype = (MailboxType::ECT_MBXT_EOE as libc::c_int
+    (*EOEp).mbxheader.mbxtype = (MailboxType::Eoe as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as u8 as libc::c_int)
         as u8;
     (*EOEp).frameinfo1 = ((6i32 & 0xfi32) << 0i32
@@ -333,8 +332,7 @@ pub unsafe fn ecx_EOEgetIp(
             /* read slave response */
             /* succeeded to read slave response ? */
             /* slave response should be FoE */
-            if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32
-                == MailboxType::ECT_MBXT_EOE as libc::c_int
+            if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32 == MailboxType::Eoe as libc::c_int
             {
                 frameinfo1 = (*aEOEp).frameinfo1;
                 eoedatasize = ((*aEOEp).mbxheader.length as libc::c_int - 0x4i32) as u16;
@@ -501,7 +499,7 @@ pub unsafe fn ecx_EOEsend(
         cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* no timestamp */
         (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt; /* EoE */
         (*EOEp).mbxheader.length = (4i32 + txframesize) as u16;
-        (*EOEp).mbxheader.mbxtype = (MailboxType::ECT_MBXT_EOE as libc::c_int
+        (*EOEp).mbxheader.mbxtype = (MailboxType::Eoe as libc::c_int
             + ((cnt as libc::c_int) << 4i32) as u8 as libc::c_int)
             as u8;
         (*EOEp).frameinfo1 = frameinfo1;
@@ -568,9 +566,7 @@ pub unsafe fn ecx_EOErecv(
     wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, timeout);
     while wkc > 0i32 && NotLast as libc::c_int == 1i32 {
         /* slave response should be FoE */
-        if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32
-            == MailboxType::ECT_MBXT_EOE as libc::c_int
-        {
+        if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32 == MailboxType::Eoe as libc::c_int {
             eoedatasize = (*aEOEp).mbxheader.length as libc::c_int - 0x4i32;
             frameinfo1 = (*aEOEp).frameinfo1;
             frameinfo2 = (*aEOEp).c2rust_unnamed.frameinfo2;
@@ -663,9 +659,7 @@ pub unsafe fn ecx_EOEreadfragment(
     buf = p as *mut u8;
     wkc = 0i32;
     /* slave response should be EoE */
-    if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32
-        == MailboxType::ECT_MBXT_EOE as libc::c_int
-    {
+    if (*aEOEp).mbxheader.mbxtype as libc::c_int & 0xfi32 == MailboxType::Eoe as libc::c_int {
         eoedatasize = ((*aEOEp).mbxheader.length as libc::c_int - 0x4i32) as u16;
         frameinfo1 = (*aEOEp).frameinfo1;
         frameinfo2 = (*aEOEp).c2rust_unnamed.frameinfo2;

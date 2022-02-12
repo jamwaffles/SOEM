@@ -100,7 +100,7 @@ pub unsafe fn ecx_FOEread(
     /* get new mailbox count value, used as session handle */
     cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* FoE */
     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-    (*FOEp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_FOE as libc::c_int
+    (*FOEp).MbxHeader.mbxtype = (MailboxType::Foe as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as u8 as libc::c_int)
         as u8;
     (*FOEp).OpCode = FoEOpCode::ECT_FOE_READ as u8;
@@ -134,7 +134,7 @@ pub unsafe fn ecx_FOEread(
                 /* succeeded to read slave response ? */
                 /* slave response should be FoE */
                 if (*aFOEp).MbxHeader.mbxtype as libc::c_int & 0xfi32
-                    == MailboxType::ECT_MBXT_FOE as libc::c_int
+                    == MailboxType::Foe as libc::c_int
                 {
                     if (*aFOEp).OpCode as libc::c_int == FoEOpCode::ECT_FOE_DATA as libc::c_int {
                         segmentdata = ((*aFOEp).MbxHeader.length as libc::c_int - 0x6i32) as u16;
@@ -164,7 +164,7 @@ pub unsafe fn ecx_FOEread(
                                 (*(*context).slavelist.offset(slave as isize)).mbx_cnt,
                             ); /* FoE */
                             (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-                            (*FOEp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_FOE as libc::c_int
+                            (*FOEp).MbxHeader.mbxtype = (MailboxType::Foe as libc::c_int
                                 + ((cnt as libc::c_int) << 4i32) as u8 as libc::c_int)
                                 as u8;
                             (*FOEp).OpCode = FoEOpCode::ECT_FOE_ACK as u8;
@@ -265,7 +265,7 @@ pub unsafe fn ecx_FOEwrite(
     /* get new mailbox count value, used as session handle */
     cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* FoE */
     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-    (*FOEp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_FOE as libc::c_int
+    (*FOEp).MbxHeader.mbxtype = (MailboxType::Foe as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as u8 as libc::c_int)
         as u8;
     (*FOEp).OpCode = FoEOpCode::ECT_FOE_WRITE as u8;
@@ -299,7 +299,7 @@ pub unsafe fn ecx_FOEwrite(
                 /* succeeded to read slave response ? */
                 /* slave response should be FoE */
                 if (*aFOEp).MbxHeader.mbxtype as libc::c_int & 0xfi32
-                    == MailboxType::ECT_MBXT_FOE as libc::c_int
+                    == MailboxType::Foe as libc::c_int
                 {
                     match FoEOpCode::from_repr((*aFOEp).OpCode as usize).unwrap() {
                         FoEOpCode::ECT_FOE_ACK => {
@@ -334,8 +334,7 @@ pub unsafe fn ecx_FOEwrite(
                                         (*(*context).slavelist.offset(slave as isize)).mbx_cnt,
                                     ); /* FoE */
                                     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
-                                    (*FOEp).MbxHeader.mbxtype = (MailboxType::ECT_MBXT_FOE
-                                        as libc::c_int
+                                    (*FOEp).MbxHeader.mbxtype = (MailboxType::Foe as libc::c_int
                                         + ((cnt as libc::c_int) << 4i32) as u8 as libc::c_int)
                                         as u8;
                                     (*FOEp).OpCode = FoEOpCode::ECT_FOE_DATA as u8;

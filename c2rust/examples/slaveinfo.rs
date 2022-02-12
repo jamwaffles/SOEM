@@ -13,7 +13,7 @@ use soem::{
     },
     ethercatprint::{ec_ALstatuscode2string, ec_elist2string},
     ethercattype::{
-        ec_datatype, ec_state, SIICategory, ECT_SDO_PDOASSIGN, EC_TIMEOUTRXM, EC_TIMEOUTSTATE,
+        ec_datatype, ec_state, SiiCategory, ECT_SDO_PDOASSIGN, EC_TIMEOUTRXM, EC_TIMEOUTSTATE,
     },
 };
 
@@ -781,7 +781,7 @@ pub unsafe fn si_siiPDO(
     }
     (*PDO).Startpos = ec_siifind(
         slave,
-        (SIICategory::ECT_SII_PDO as libc::c_int + t as libc::c_int) as u16,
+        (SiiCategory::Pdo as libc::c_int + t as libc::c_int) as u16,
     ) as u16;
     if (*PDO).Startpos as libc::c_int > 0i32 {
         a = (*PDO).Startpos;
@@ -1302,7 +1302,7 @@ pub unsafe fn slaveinfo(ifname: *mut libc::c_char) {
                     ec_slave[cnt as usize].mbx_rl as libc::c_int as libc::c_int,
                     ec_slave[cnt as usize].mbx_proto as libc::c_int as libc::c_uint
                 );
-                ssigen = ec_siifind(cnt as u16, SIICategory::ECT_SII_GENERAL as u16) as u16;
+                ssigen = ec_siifind(cnt as u16, SiiCategory::General as u16) as u16;
                 /* SII general section */
                 if ssigen != 0 {
                     ec_slave[cnt as usize].CoEdetails =
