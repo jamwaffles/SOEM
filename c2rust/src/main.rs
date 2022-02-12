@@ -1422,7 +1422,7 @@ pub unsafe fn ecx_FPRD_multi(
     let mut sldatapos: [u16; 64] = [0; 64];
     let mut slcnt: libc::c_int = 0;
     port = (*context).port;
-    idx = ecx_getindex(port);
+    idx = ecx_getindex(port.as_mut().unwrap());
     slcnt = 0i32;
     ecx_setupdatagram(
         port,
@@ -2911,7 +2911,7 @@ unsafe fn ecx_main_send_processdata(
                             [fresh60 as usize] as usize
                     }
                     /* get new index */
-                    idx = ecx_getindex((*context).port);
+                    idx = ecx_getindex((*context).port.as_mut().unwrap());
                     w1 = (LogAdr & 0xffffu32) as u16;
                     w2 = (LogAdr >> 16i32) as u16;
                     DCO = 0u16;
@@ -2978,7 +2978,7 @@ unsafe fn ecx_main_send_processdata(
                         sublength = length as usize
                     }
                     /* get new index */
-                    idx = ecx_getindex((*context).port);
+                    idx = ecx_getindex((*context).port.as_mut().unwrap());
                     w1 = (LogAdr & 0xffffu32) as u16;
                     w2 = (LogAdr >> 16i32) as u16;
                     DCO = 0u16;
@@ -3045,7 +3045,7 @@ unsafe fn ecx_main_send_processdata(
                 sublength = (*(*context).grouplist.offset(group as isize)).IOsegment
                     [fresh62 as usize] as usize;
                 /* get new index */
-                idx = ecx_getindex((*context).port);
+                idx = ecx_getindex((*context).port.as_mut().unwrap());
                 w1 = (LogAdr & 0xffffu32) as u16;
                 w2 = (LogAdr >> 16i32) as u16;
                 DCO = 0u16;

@@ -11,12 +11,12 @@
 
 mod datagram;
 
-use self::datagram::ecx_setupdatagram_new;
 pub use self::datagram::{ecx_adddatagram, ecx_setupdatagram};
+use self::datagram::{ecx_adddatagram_new, ecx_setupdatagram_new};
 use crate::{
     main::ecx_port,
     oshw::linux::nicdrv::{ecx_getindex, ecx_portt, ecx_setbufstat, ecx_srconfirm},
-    types::{ec_bufT, ec_bufstate, Command, EthercatHeader, EthercatRegister},
+    types::{ec_bufstate, Command, EthercatHeader, EthercatRegister},
 };
 use libc::memcpy;
 
@@ -47,11 +47,11 @@ pub unsafe fn ecx_BWR(
     let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
     /* get fresh index */
-    idx = ecx_getindex(port);
+    idx = ecx_getindex(&mut *port);
     /* setup datagram */
-    ecx_setupdatagram(
+    ecx_setupdatagram_new(
         port,
-        &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
+        &mut (*port).txbuf[idx as usize],
         Command::Bwr,
         idx,
         ADP,
@@ -86,7 +86,7 @@ pub unsafe fn ecx_BRD(
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     /* get fresh index */
-    let idx = ecx_getindex(port);
+    let idx = ecx_getindex(port.as_mut().unwrap());
     /* setup datagram */
     ecx_setupdatagram_new(
         port,
@@ -136,10 +136,10 @@ pub unsafe fn ecx_APRD(
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut idx: u8 = 0;
-    idx = ecx_getindex(port);
-    ecx_setupdatagram(
+    idx = ecx_getindex(port.as_mut().unwrap());
+    ecx_setupdatagram_new(
         port,
-        &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
+        &mut (*port).txbuf[idx as usize],
         Command::Aprd,
         idx,
         ADP,
@@ -183,10 +183,10 @@ pub unsafe fn ecx_ARMW(
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut idx: u8 = 0;
-    idx = ecx_getindex(port);
-    ecx_setupdatagram(
+    idx = ecx_getindex(port.as_mut().unwrap());
+    ecx_setupdatagram_new(
         port,
-        &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
+        &mut (*port).txbuf[idx as usize],
         Command::Armw,
         idx,
         ADP,
@@ -230,10 +230,10 @@ pub unsafe fn ecx_FRMW(
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut idx: u8 = 0;
-    idx = ecx_getindex(port);
-    ecx_setupdatagram(
+    idx = ecx_getindex(port.as_mut().unwrap());
+    ecx_setupdatagram_new(
         port,
-        &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
+        &mut (*port).txbuf[idx as usize],
         Command::Frmw,
         idx,
         ADP,
@@ -298,10 +298,10 @@ pub unsafe fn ecx_FPRD(
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut idx: u8 = 0;
-    idx = ecx_getindex(port);
-    ecx_setupdatagram(
+    idx = ecx_getindex(port.as_mut().unwrap());
+    ecx_setupdatagram_new(
         port,
-        &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
+        &mut (*port).txbuf[idx as usize],
         Command::Fprd,
         idx,
         ADP,
@@ -366,10 +366,10 @@ pub unsafe fn ecx_APWR(
 ) -> libc::c_int {
     let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
-    idx = ecx_getindex(port);
-    ecx_setupdatagram(
+    idx = ecx_getindex(port.as_mut().unwrap());
+    ecx_setupdatagram_new(
         port,
-        &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
+        &mut (*port).txbuf[idx as usize],
         Command::Apwr,
         idx,
         ADP,
@@ -428,10 +428,10 @@ pub unsafe fn ecx_FPWR(
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut idx: u8 = 0;
-    idx = ecx_getindex(port);
-    ecx_setupdatagram(
+    idx = ecx_getindex(port.as_mut().unwrap());
+    ecx_setupdatagram_new(
         port,
-        &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
+        &mut (*port).txbuf[idx as usize],
         Command::Fpwr,
         idx,
         ADP,
@@ -488,10 +488,10 @@ pub unsafe fn ecx_LRW(
 ) -> libc::c_int {
     let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
-    idx = ecx_getindex(port);
-    ecx_setupdatagram(
+    idx = ecx_getindex(port.as_mut().unwrap());
+    ecx_setupdatagram_new(
         port,
-        &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
+        &mut (*port).txbuf[idx as usize],
         Command::Lrw,
         idx,
         (LogAdr & 0xffffu32) as u16,
@@ -535,10 +535,10 @@ pub unsafe fn ecx_LRD(
 ) -> libc::c_int {
     let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
-    idx = ecx_getindex(port);
-    ecx_setupdatagram(
+    idx = ecx_getindex(port.as_mut().unwrap());
+    ecx_setupdatagram_new(
         port,
-        &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
+        &mut (*port).txbuf[idx as usize],
         Command::Lrd,
         idx,
         (LogAdr & 0xffffu32) as u16,
@@ -582,10 +582,10 @@ pub unsafe fn ecx_LWR(
 ) -> libc::c_int {
     let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
-    idx = ecx_getindex(port);
-    ecx_setupdatagram(
+    idx = ecx_getindex(port.as_mut().unwrap());
+    ecx_setupdatagram_new(
         port,
-        &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
+        &mut (*port).txbuf[idx as usize],
         Command::Lwr,
         idx,
         (LogAdr & 0xffffu32) as u16,
@@ -623,11 +623,11 @@ pub unsafe fn ecx_LRWDC(
     let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
     let mut DCtE: u64 = 0;
-    idx = ecx_getindex(port);
+    idx = ecx_getindex(port.as_mut().unwrap());
     /* LRW in first datagram */
-    ecx_setupdatagram(
+    ecx_setupdatagram_new(
         port,
-        &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
+        &mut (*port).txbuf[idx as usize],
         Command::Lrw,
         idx,
         (LogAdr & 0xffffu32) as u16,
@@ -637,9 +637,9 @@ pub unsafe fn ecx_LRWDC(
     );
     /* FPRMW in second datagram */
     DCtE = *DCtime as u64;
-    DCtO = ecx_adddatagram(
-        port,
-        &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
+    DCtO = ecx_adddatagram_new(
+        port.as_mut().unwrap(),
+        &mut (*port).txbuf[idx as usize],
         Command::Frmw,
         idx,
         false,

@@ -336,16 +336,16 @@ pub unsafe fn ec_setupheader(p: *mut libc::c_void) {
  * @return new index.
  */
 #[no_mangle]
-pub unsafe fn ecx_getindex(mut port: *mut ecx_portt) -> u8 {
-    pthread_mutex_lock(&mut (*port).getindex_mutex);
-    let mut idx = (*port).lastidx + 1;
+pub unsafe fn ecx_getindex(port: &mut ecx_portt) -> u8 {
+    pthread_mutex_lock(&mut port.getindex_mutex);
+    let mut idx = port.lastidx + 1;
     /* index can't be larger than buffer array */
     if idx >= EC_MAXBUF {
         idx = 0
     }
     let mut cnt = 0;
     /* try to find unused index */
-    while (*port).rxbufstat[idx as usize] != ec_bufstate::EC_BUF_EMPTY as libc::c_int
+    while port.rxbufstat[idx as usize] != ec_bufstate::EC_BUF_EMPTY as libc::c_int
         && cnt < EC_MAXBUF
     {
         idx += 1;
@@ -354,12 +354,12 @@ pub unsafe fn ecx_getindex(mut port: *mut ecx_portt) -> u8 {
             idx = 0
         }
     }
-    (*port).rxbufstat[idx as usize] = ec_bufstate::EC_BUF_ALLOC as i32;
-    if (*port).redstate != NicMode::None as i32 {
+    port.rxbufstat[idx as usize] = ec_bufstate::EC_BUF_ALLOC as i32;
+    if port.redstate != NicMode::None as i32 {
         (*(*port).redport).rxbufstat[idx as usize] = ec_bufstate::EC_BUF_ALLOC as libc::c_int
     }
-    (*port).lastidx = idx;
-    pthread_mutex_unlock(&mut (*port).getindex_mutex);
+    port.lastidx = idx;
+    pthread_mutex_unlock(&mut port.getindex_mutex);
     return idx;
 }
 /* * Set rx buffer status.
