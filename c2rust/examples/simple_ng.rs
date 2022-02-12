@@ -1,6 +1,7 @@
 use std::mem;
 
-use crate::{
+use libc::memset;
+use soem::{
     ethercatconfig::{
         ecx_config_init, ecx_config_map_group, ecx_reconfig_slave, ecx_recover_slave,
     },
@@ -19,7 +20,6 @@ use crate::{
     osal::linux::osal::{ec_timet, osal_current_time, osal_time_diff, osal_usleep},
     oshw::linux::nicdrv::{ec_stackT, ecx_portt, ecx_redportt},
 };
-use libc::memset;
 
 #[derive(Clone)]
 pub struct Fieldbus {
@@ -37,12 +37,12 @@ pub struct Fieldbus {
     pub elist: ec_eringt,
     pub idxstack: ec_idxstackT,
     pub ecaterror: bool,
-    pub DCtime: i64,
-    pub SMcommtype: [ec_SMcommtypet; 1],
-    pub PDOassign: [ec_PDOassignt; 1],
-    pub PDOdesc: [ec_PDOdesct; 1],
-    pub eepSM: ec_eepromSMt,
-    pub eepFMMU: ec_eepromFMMUt,
+    pub dc_time: i64,
+    pub sm_commtype: [ec_SMcommtypet; 1],
+    pub pdo_assign: [ec_PDOassignt; 1],
+    pub pdo_desc: [ec_PDOdesct; 1],
+    pub eep_sm: ec_eepromSMt,
+    pub eep_fmmu: ec_eepromFMMUt,
 }
 unsafe fn fieldbus_initialize(mut fieldbus: *mut Fieldbus, iface: *mut libc::c_char) {
     let mut context: *mut ecx_contextt = 0 as *mut ecx_contextt;
@@ -70,12 +70,12 @@ unsafe fn fieldbus_initialize(mut fieldbus: *mut Fieldbus, iface: *mut libc::c_c
     (*context).elist = &mut (*fieldbus).elist;
     (*context).idxstack = &mut (*fieldbus).idxstack;
     (*context).ecaterror = &mut (*fieldbus).ecaterror;
-    (*context).DCtime = &mut (*fieldbus).DCtime;
-    (*context).SMcommtype = (*fieldbus).SMcommtype.as_mut_ptr();
-    (*context).PDOassign = (*fieldbus).PDOassign.as_mut_ptr();
-    (*context).PDOdesc = (*fieldbus).PDOdesc.as_mut_ptr();
-    (*context).eepSM = &mut (*fieldbus).eepSM;
-    (*context).eepFMMU = &mut (*fieldbus).eepFMMU;
+    (*context).DCtime = &mut (*fieldbus).dc_time;
+    (*context).SMcommtype = (*fieldbus).sm_commtype.as_mut_ptr();
+    (*context).PDOassign = (*fieldbus).pdo_assign.as_mut_ptr();
+    (*context).PDOdesc = (*fieldbus).pdo_desc.as_mut_ptr();
+    (*context).eepSM = &mut (*fieldbus).eep_sm;
+    (*context).eepFMMU = &mut (*fieldbus).eep_fmmu;
     (*context).FOEhook = None;
     (*context).EOEhook = None;
     (*context).manualstatechange = 0i32;
@@ -276,7 +276,7 @@ unsafe fn fieldbus_dump(fieldbus: *mut Fieldbus) -> bool {
         );
         n = n.wrapping_add(1)
     }
-    print!("  T: {:}\r", (*fieldbus).DCtime as libc::c_longlong);
+    print!("  T: {:}\r", (*fieldbus).dc_time as libc::c_longlong);
     return true;
 }
 unsafe fn fieldbus_check_state(fieldbus: *mut Fieldbus) {
@@ -530,23 +530,23 @@ unsafe fn main_0(argc: libc::c_int, argv: *mut *mut libc::c_char) -> libc::c_int
             dcoffset: [0; 16],
         },
         ecaterror: false,
-        DCtime: 0,
-        SMcommtype: [ec_SMcommtypet {
+        dc_time: 0,
+        sm_commtype: [ec_SMcommtypet {
             n: 0,
             nu1: 0,
             SMtype: [0; 8],
         }; 1],
-        PDOassign: [ec_PDOassignt {
+        pdo_assign: [ec_PDOassignt {
             n: 0,
             nu1: 0,
             index: [0; 256],
         }; 1],
-        PDOdesc: [ec_PDOdesct {
+        pdo_desc: [ec_PDOdesct {
             n: 0,
             nu1: 0,
             PDO: [0; 256],
         }; 1],
-        eepSM: ec_eepromSMt {
+        eep_sm: ec_eepromSMt {
             Startpos: 0,
             nSM: 0,
             PhStart: 0,
@@ -556,7 +556,7 @@ unsafe fn main_0(argc: libc::c_int, argv: *mut *mut libc::c_char) -> libc::c_int
             Activate: 0,
             PDIctrl: 0,
         },
-        eepFMMU: ec_eepromFMMUt {
+        eep_fmmu: ec_eepromFMMUt {
             Startpos: 0,
             nFMMU: 0,
             FMMU0: 0,

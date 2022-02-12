@@ -1,4 +1,5 @@
-use crate::{
+use libc::{c_void, pthread_t};
+use soem::{
     ethercatconfig::{ec_config_init, ec_config_map, ec_reconfig_slave, ec_recover_slave},
     ethercatdc::ec_configdc,
     ethercatmain::{
@@ -10,7 +11,6 @@ use crate::{
     ethercattype::{self, ec_state, EC_TIMEOUTRET, EC_TIMEOUTSTATE},
     osal::linux::osal::{osal_thread_create, osal_usleep},
 };
-use libc::{c_void, pthread_t};
 
 const EC_TIMEOUTMON: u32 = 500;
 

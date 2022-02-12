@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![allow(unused_assignments)]
@@ -29,5 +28,3 @@ pub mod ethercatmain;
 pub mod ethercatprint;
 pub mod ethercatsoe;
 pub mod ethercattype;
-
-pub mod test;

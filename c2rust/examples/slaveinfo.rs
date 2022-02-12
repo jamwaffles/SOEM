@@ -1,4 +1,5 @@
-use crate::{
+use libc::{memset, snprintf, sprintf, strcat, strcpy, strncmp};
+use soem::{
     ethercatcoe::{
         ec_ODlistt, ec_OElistt, ec_SDOread, ec_readODdescription, ec_readODlist, ec_readOE,
         ec_readOEsingle, EC_MAXODLIST, EC_MAXOELIST,
@@ -15,7 +16,6 @@ use crate::{
         ec_datatype, ec_state, SIICategory, ECT_SDO_PDOASSIGN, EC_TIMEOUTRXM, EC_TIMEOUTSTATE,
     },
 };
-use libc::{memset, snprintf, sprintf, strcat, strcpy, strncmp};
 
 /* * \file
  * \brief Example code for Simple Open EtherCAT master
