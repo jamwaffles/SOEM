@@ -19,10 +19,10 @@ use crate::{
 use libc::{memcpy, memset, sprintf, strcpy};
 
 #[derive(Copy, Clone)]
-pub struct ec_configlist_t {
+struct ec_configlist_t {
     pub man: u32,
     pub id: u32,
-    pub name: [libc::c_char; 41],
+    pub name: &'static str,
     pub Dtype: u8,
     pub Ibits: u16,
     pub Obits: u16,
@@ -49,438 +49,414 @@ pub static mut ecx_mapt: [ecx_mapt_t; 1] = [ecx_mapt_t {
     slave: 0,
 }; 1];
 #[no_mangle]
-pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
+static mut ec_configlist: [ec_configlist_t; 24] = {
     [
         {
-            let init =
-                 ec_configlist_t{man: 0u32,
-                                 id: 0u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 0u8,
-                                 Ibits: 0u16,
-                                 Obits: 0u16,
-                                 SM2a: 0u16,
-                                 SM2f: 0u32,
-                                 SM3a: 0u16,
-                                 SM3f: 0u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 0u8,};
+            let init = ec_configlist_t {
+                man: 0u32,
+                id: 0u32,
+                name: "",
+                Dtype: 0u8,
+                Ibits: 0u16,
+                Obits: 0u16,
+                SM2a: 0u16,
+                SM2f: 0u32,
+                SM3a: 0u16,
+                SM3f: 0u32,
+                FM0ac: 0u8,
+                FM1ac: 0u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0x44c2c52u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EK1100\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 1u8,
-                                 Ibits: 0u16,
-                                 Obits: 0u16,
-                                 SM2a: 0u16,
-                                 SM2f: 0u32,
-                                 SM3a: 0u16,
-                                 SM3f: 0u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 0u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0x44c2c52u32,
+                name: "EK1100",
+                Dtype: 1u8,
+                Ibits: 0u16,
+                Obits: 0u16,
+                SM2a: 0u16,
+                SM2f: 0u32,
+                SM3a: 0u16,
+                SM3f: 0u32,
+                FM0ac: 0u8,
+                FM1ac: 0u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0x3ea3052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL1002\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 2u8,
-                                 Ibits: 2u16,
-                                 Obits: 0u16,
-                                 SM2a: 0u16,
-                                 SM2f: 0u32,
-                                 SM3a: 0u16,
-                                 SM3f: 0u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 0u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0x3ea3052u32,
+                name: "EL1002",
+                Dtype: 2u8,
+                Ibits: 2u16,
+                Obits: 0u16,
+                SM2a: 0u16,
+                SM2f: 0u32,
+                SM3a: 0u16,
+                SM3f: 0u32,
+                FM0ac: 0u8,
+                FM1ac: 0u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0x3ec3052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL1004\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 2u8,
-                                 Ibits: 4u16,
-                                 Obits: 0u16,
-                                 SM2a: 0u16,
-                                 SM2f: 0u32,
-                                 SM3a: 0u16,
-                                 SM3f: 0u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 0u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0x3ec3052u32,
+                name: "EL1004",
+                Dtype: 2u8,
+                Ibits: 4u16,
+                Obits: 0u16,
+                SM2a: 0u16,
+                SM2f: 0u32,
+                SM3a: 0u16,
+                SM3f: 0u32,
+                FM0ac: 0u8,
+                FM1ac: 0u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0x3f43052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL1012\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 2u8,
-                                 Ibits: 2u16,
-                                 Obits: 0u16,
-                                 SM2a: 0u16,
-                                 SM2f: 0u32,
-                                 SM3a: 0u16,
-                                 SM3f: 0u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 0u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0x3f43052u32,
+                name: "EL1012",
+                Dtype: 2u8,
+                Ibits: 2u16,
+                Obits: 0u16,
+                SM2a: 0u16,
+                SM2f: 0u32,
+                SM3a: 0u16,
+                SM3f: 0u32,
+                FM0ac: 0u8,
+                FM1ac: 0u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0x3f63052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL1014\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 2u8,
-                                 Ibits: 4u16,
-                                 Obits: 0u16,
-                                 SM2a: 0u16,
-                                 SM2f: 0u32,
-                                 SM3a: 0u16,
-                                 SM3f: 0u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 0u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0x3f63052u32,
+                name: "EL1014",
+                Dtype: 2u8,
+                Ibits: 4u16,
+                Obits: 0u16,
+                SM2a: 0u16,
+                SM2f: 0u32,
+                SM3a: 0u16,
+                SM3f: 0u32,
+                FM0ac: 0u8,
+                FM1ac: 0u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0x3fa3052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL1018\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 2u8,
-                                 Ibits: 8u16,
-                                 Obits: 0u16,
-                                 SM2a: 0u16,
-                                 SM2f: 0u32,
-                                 SM3a: 0u16,
-                                 SM3f: 0u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 0u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0x3fa3052u32,
+                name: "EL1018",
+                Dtype: 2u8,
+                Ibits: 8u16,
+                Obits: 0u16,
+                SM2a: 0u16,
+                SM2f: 0u32,
+                SM3a: 0u16,
+                SM3f: 0u32,
+                FM0ac: 0u8,
+                FM1ac: 0u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0x7d23052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL2002\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 3u8,
-                                 Ibits: 0u16,
-                                 Obits: 2u16,
-                                 SM2a: 0u16,
-                                 SM2f: 0u32,
-                                 SM3a: 0u16,
-                                 SM3f: 0u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 0u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0x7d23052u32,
+                name: "EL2002",
+                Dtype: 3u8,
+                Ibits: 0u16,
+                Obits: 2u16,
+                SM2a: 0u16,
+                SM2f: 0u32,
+                SM3a: 0u16,
+                SM3f: 0u32,
+                FM0ac: 0u8,
+                FM1ac: 0u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0x7d43052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL2004\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 3u8,
-                                 Ibits: 0u16,
-                                 Obits: 4u16,
-                                 SM2a: 0u16,
-                                 SM2f: 0u32,
-                                 SM3a: 0u16,
-                                 SM3f: 0u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 0u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0x7d43052u32,
+                name: "EL2004",
+                Dtype: 3u8,
+                Ibits: 0u16,
+                Obits: 4u16,
+                SM2a: 0u16,
+                SM2f: 0u32,
+                SM3a: 0u16,
+                SM3f: 0u32,
+                FM0ac: 0u8,
+                FM1ac: 0u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0x7d83052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL2008\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 3u8,
-                                 Ibits: 0u16,
-                                 Obits: 8u16,
-                                 SM2a: 0u16,
-                                 SM2f: 0u32,
-                                 SM3a: 0u16,
-                                 SM3f: 0u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 0u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0x7d83052u32,
+                name: "EL2008",
+                Dtype: 3u8,
+                Ibits: 0u16,
+                Obits: 8u16,
+                SM2a: 0u16,
+                SM2f: 0u32,
+                SM3a: 0u16,
+                SM3f: 0u32,
+                FM0ac: 0u8,
+                FM1ac: 0u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0x7f03052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL2032\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 6u8,
-                                 Ibits: 2u16,
-                                 Obits: 2u16,
-                                 SM2a: 0u16,
-                                 SM2f: 0u32,
-                                 SM3a: 0u16,
-                                 SM3f: 0u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 0u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0x7f03052u32,
+                name: "EL2032",
+                Dtype: 6u8,
+                Ibits: 2u16,
+                Obits: 2u16,
+                SM2a: 0u16,
+                SM2f: 0u32,
+                SM3a: 0u16,
+                SM3f: 0u32,
+                FM0ac: 0u8,
+                FM1ac: 0u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0xc1e3052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL3102\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 4u8,
-                                 Ibits: 48u16,
-                                 Obits: 0u16,
-                                 SM2a: 0x1000u16,
-                                 SM2f: 0x24u32,
-                                 SM3a: 0x1100u16,
-                                 SM3f: 0x10020u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 1u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0xc1e3052u32,
+                name: "EL3102",
+                Dtype: 4u8,
+                Ibits: 48u16,
+                Obits: 0u16,
+                SM2a: 0x1000u16,
+                SM2f: 0x24u32,
+                SM3a: 0x1100u16,
+                SM3f: 0x10020u32,
+                FM0ac: 0u8,
+                FM1ac: 1u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0xc283052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL3112\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 4u8,
-                                 Ibits: 48u16,
-                                 Obits: 0u16,
-                                 SM2a: 0x1000u16,
-                                 SM2f: 0x24u32,
-                                 SM3a: 0x1100u16,
-                                 SM3f: 0x10020u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 1u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0xc283052u32,
+                name: "EL3112",
+                Dtype: 4u8,
+                Ibits: 48u16,
+                Obits: 0u16,
+                SM2a: 0x1000u16,
+                SM2f: 0x24u32,
+                SM3a: 0x1100u16,
+                SM3f: 0x10020u32,
+                FM0ac: 0u8,
+                FM1ac: 1u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0xc323052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL3122\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 4u8,
-                                 Ibits: 48u16,
-                                 Obits: 0u16,
-                                 SM2a: 0x1000u16,
-                                 SM2f: 0x24u32,
-                                 SM3a: 0x1100u16,
-                                 SM3f: 0x10020u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 1u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0xc323052u32,
+                name: "EL3122",
+                Dtype: 4u8,
+                Ibits: 48u16,
+                Obits: 0u16,
+                SM2a: 0x1000u16,
+                SM2f: 0x24u32,
+                SM3a: 0x1100u16,
+                SM3f: 0x10020u32,
+                FM0ac: 0u8,
+                FM1ac: 1u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0xc463052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL3142\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 4u8,
-                                 Ibits: 48u16,
-                                 Obits: 0u16,
-                                 SM2a: 0x1000u16,
-                                 SM2f: 0x24u32,
-                                 SM3a: 0x1100u16,
-                                 SM3f: 0x10020u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 1u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0xc463052u32,
+                name: "EL3142",
+                Dtype: 4u8,
+                Ibits: 48u16,
+                Obits: 0u16,
+                SM2a: 0x1000u16,
+                SM2f: 0x24u32,
+                SM3a: 0x1100u16,
+                SM3f: 0x10020u32,
+                FM0ac: 0u8,
+                FM1ac: 1u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0xc503052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL3152\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 4u8,
-                                 Ibits: 48u16,
-                                 Obits: 0u16,
-                                 SM2a: 0x1000u16,
-                                 SM2f: 0x24u32,
-                                 SM3a: 0x1100u16,
-                                 SM3f: 0x10020u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 1u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0xc503052u32,
+                name: "EL3152",
+                Dtype: 4u8,
+                Ibits: 48u16,
+                Obits: 0u16,
+                SM2a: 0x1000u16,
+                SM2f: 0x24u32,
+                SM3a: 0x1100u16,
+                SM3f: 0x10020u32,
+                FM0ac: 0u8,
+                FM1ac: 1u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0xc5a3052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL3162\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 4u8,
-                                 Ibits: 48u16,
-                                 Obits: 0u16,
-                                 SM2a: 0x1000u16,
-                                 SM2f: 0x24u32,
-                                 SM3a: 0x1100u16,
-                                 SM3f: 0x10020u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 1u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0xc5a3052u32,
+                name: "EL3162",
+                Dtype: 4u8,
+                Ibits: 48u16,
+                Obits: 0u16,
+                SM2a: 0x1000u16,
+                SM2f: 0x24u32,
+                SM3a: 0x1100u16,
+                SM3f: 0x10020u32,
+                FM0ac: 0u8,
+                FM1ac: 1u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0xfc03052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL4032\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 5u8,
-                                 Ibits: 0u16,
-                                 Obits: 32u16,
-                                 SM2a: 0x1100u16,
-                                 SM2f: 0x10024u32,
-                                 SM3a: 0x1180u16,
-                                 SM3f: 0x22u32,
-                                 FM0ac: 1u8,
-                                 FM1ac: 0u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0xfc03052u32,
+                name: "EL4032",
+                Dtype: 5u8,
+                Ibits: 0u16,
+                Obits: 32u16,
+                SM2a: 0x1100u16,
+                SM2f: 0x10024u32,
+                SM3a: 0x1180u16,
+                SM3f: 0x22u32,
+                FM0ac: 1u8,
+                FM1ac: 0u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0x10063052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL4102\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 5u8,
-                                 Ibits: 0u16,
-                                 Obits: 32u16,
-                                 SM2a: 0x1000u16,
-                                 SM2f: 0x10024u32,
-                                 SM3a: 0x1100u16,
-                                 SM3f: 0x22u32,
-                                 FM0ac: 1u8,
-                                 FM1ac: 0u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0x10063052u32,
+                name: "EL4102",
+                Dtype: 5u8,
+                Ibits: 0u16,
+                Obits: 32u16,
+                SM2a: 0x1000u16,
+                SM2f: 0x10024u32,
+                SM3a: 0x1100u16,
+                SM3f: 0x22u32,
+                FM0ac: 1u8,
+                FM1ac: 0u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0x10103052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL4112\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 5u8,
-                                 Ibits: 0u16,
-                                 Obits: 32u16,
-                                 SM2a: 0x1000u16,
-                                 SM2f: 0x10024u32,
-                                 SM3a: 0x1100u16,
-                                 SM3f: 0x22u32,
-                                 FM0ac: 1u8,
-                                 FM1ac: 0u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0x10103052u32,
+                name: "EL4112",
+                Dtype: 5u8,
+                Ibits: 0u16,
+                Obits: 32u16,
+                SM2a: 0x1000u16,
+                SM2f: 0x10024u32,
+                SM3a: 0x1100u16,
+                SM3f: 0x22u32,
+                FM0ac: 1u8,
+                FM1ac: 0u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0x101a3052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL4122\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 5u8,
-                                 Ibits: 0u16,
-                                 Obits: 32u16,
-                                 SM2a: 0x1000u16,
-                                 SM2f: 0x10024u32,
-                                 SM3a: 0x1100u16,
-                                 SM3f: 0x22u32,
-                                 FM0ac: 1u8,
-                                 FM1ac: 0u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0x101a3052u32,
+                name: "EL4122",
+                Dtype: 5u8,
+                Ibits: 0u16,
+                Obits: 32u16,
+                SM2a: 0x1000u16,
+                SM2f: 0x10024u32,
+                SM3a: 0x1100u16,
+                SM3f: 0x22u32,
+                FM0ac: 1u8,
+                FM1ac: 0u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0x10243052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL4132\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 5u8,
-                                 Ibits: 0u16,
-                                 Obits: 32u16,
-                                 SM2a: 0x1000u16,
-                                 SM2f: 0x10024u32,
-                                 SM3a: 0x1100u16,
-                                 SM3f: 0x22u32,
-                                 FM0ac: 1u8,
-                                 FM1ac: 0u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0x10243052u32,
+                name: "EL4132",
+                Dtype: 5u8,
+                Ibits: 0u16,
+                Obits: 32u16,
+                SM2a: 0x1000u16,
+                SM2f: 0x10024u32,
+                SM3a: 0x1100u16,
+                SM3f: 0x22u32,
+                FM0ac: 1u8,
+                FM1ac: 0u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0x2u32,
-                                 id: 0x13ed3052u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"EL5101\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 7u8,
-                                 Ibits: 40u16,
-                                 Obits: 24u16,
-                                 SM2a: 0x1000u16,
-                                 SM2f: 0x10024u32,
-                                 SM3a: 0x1100u16,
-                                 SM3f: 0x10020u32,
-                                 FM0ac: 1u8,
-                                 FM1ac: 1u8,};
+            let init = ec_configlist_t {
+                man: 0x2u32,
+                id: 0x13ed3052u32,
+                name: "EL5101",
+                Dtype: 7u8,
+                Ibits: 40u16,
+                Obits: 24u16,
+                SM2a: 0x1000u16,
+                SM2f: 0x10024u32,
+                SM3a: 0x1100u16,
+                SM3f: 0x10020u32,
+                FM0ac: 1u8,
+                FM1ac: 1u8,
+            };
             init
         },
         {
-            let init =
-                 ec_configlist_t{man: 0xffffffffu32,
-                                 id: 0u32,
-                                 name:
-                                     *::core::mem::transmute::<&[u8; 41],
-                                                               &mut [libc::c_char; 41]>(b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"),
-                                 Dtype: 0u8,
-                                 Ibits: 0u16,
-                                 Obits: 0u16,
-                                 SM2a: 0u16,
-                                 SM2f: 0u32,
-                                 SM3a: 0u16,
-                                 SM3f: 0u32,
-                                 FM0ac: 0u8,
-                                 FM1ac: 0u8,};
+            let init = ec_configlist_t {
+                man: 0xffffffffu32,
+                id: 0u32,
+                name: "",
+                Dtype: 0u8,
+                Ibits: 0u16,
+                Obits: 0u16,
+                SM2a: 0u16,
+                SM2f: 0u32,
+                SM3a: 0u16,
+                SM3f: 0u32,
+                FM0ac: 0u8,
+                FM1ac: 0u8,
+            };
             init
         },
     ]
@@ -721,7 +697,7 @@ unsafe fn ecx_config_from_table(context: *mut ecx_contextt, slave: u16) -> libc:
         (*csl).Dtype = ec_configlist[cindex as usize].Dtype as u16;
         strcpy(
             (*csl).name.as_mut_ptr(),
-            ec_configlist[cindex as usize].name.as_ptr(),
+            ec_configlist[cindex as usize].name.as_ptr() as *const i8,
         );
         (*csl).Ibits = ec_configlist[cindex as usize].Ibits;
         (*csl).Obits = ec_configlist[cindex as usize].Obits;
@@ -1151,7 +1127,7 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
                         (*(*context).slavelist.offset(slave as isize))
                             .name
                             .as_mut_ptr(),
-                        b"? M:%8.8x I:%8.8x\x00" as *const u8 as *const libc::c_char,
+                        b"? M:%8.8x I:%8.8x" as *const u8 as *const libc::c_char,
                         (*(*context).slavelist.offset(slave as isize)).eep_man,
                         (*(*context).slavelist.offset(slave as isize)).eep_id,
                     );
