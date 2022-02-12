@@ -4,12 +4,13 @@
  */
 
 use core::slice;
+use std::mem::size_of;
 
 use crate::{
     oshw::linux::nicdrv::ecx_portt,
     types::{
-        ec_bufT, Command, EthercatHeader, EthernetHeader, EC_ECATTYPE, EC_ELENGTHSIZE,
-        EC_HEADERSIZE, EC_WKCSIZE, ETH_HEADERSIZE,
+        ec_bufT, Command, EthercatHeader, EthernetHeader, EC_DATAGRAMFOLLOWS, EC_ECATTYPE,
+        EC_ELENGTHSIZE, EC_HEADERSIZE, EC_WKCSIZE, ETH_HEADERSIZE,
     },
 };
 use libc::{c_void, memcpy, memset};
@@ -216,6 +217,7 @@ pub unsafe fn ecx_adddatagram(
     frameP = frame as *mut u8;
     /* copy previous frame size */
     prevlength = (*port).txbuflength[idx as usize] as u16;
+    // Load ethercat header that's after ethernet frame header
     datagramP = &mut *frameP.offset(::core::mem::size_of::<EthernetHeader>() as isize) as *mut u8
         as *mut EthercatHeader;
     /* add new datagram to ethernet frame size */
@@ -273,6 +275,76 @@ pub unsafe fn ecx_adddatagram(
         .wrapping_add(length as usize) as libc::c_int;
     /* return offset to data in rx frame
     14 bytes smaller than tx frame due to stripping of ethernet header */
+    return prevlength + EC_HEADERSIZE as u16 - EC_ELENGTHSIZE as u16 - ETH_HEADERSIZE as u16;
+}
+
+/* * Add EtherCAT datagram to a standard ethernet frame with existing datagram(s).
+ *
+ * @param[in] port        = port context struct
+ * @param[out] frame      = framebuffer
+ * @param[in]  com        = command
+ * @param[in]  idx        = index used for TX and RX buffers
+ * @param[in]  more       = TRUE if still more datagrams to follow
+ * @param[in]  ADP        = Address Position
+ * @param[in]  ADO        = Address Offset
+ * @param[in]  length     = length of datagram excluding EtherCAT header
+ * @param[in]  data       = databuffer to be copied in datagram
+ * @return Offset to data in rx frame, usefull to retrieve data after RX.
+ */
+#[no_mangle]
+pub unsafe fn ecx_adddatagram_new(
+    mut port: *mut ecx_portt,
+    frame: &mut ec_bufT,
+    com: Command,
+    idx: u8,
+    more: bool,
+    address_position: u16,
+    address_offset: u16,
+    length: usize,
+    data: *const libc::c_void,
+) -> u16 {
+    // copy previous frame size
+    let prevlength = (*port).txbuflength[idx as usize] as u16;
+
+    // Load ethercat header that's after ethernet frame header
+    let mut first_header = &mut *(&mut frame[ETH_HEADERSIZE..(ETH_HEADERSIZE + EC_HEADERSIZE)]
+        as *mut _ as *mut EthercatHeader);
+
+    // add new datagram to ethernet frame size
+    first_header.elength += (EC_HEADERSIZE + length) as u16;
+
+    // add "datagram follows" flag to previous subframe dlength
+    first_header.dlength |= EC_DATAGRAMFOLLOWS;
+
+    let next_header = EthercatHeader {
+        elength: EC_ECATTYPE + EC_HEADERSIZE as u16 + length as u16,
+        command: com as u8,
+        index: idx,
+        ADP: address_position,
+        ADO: address_offset,
+        dlength: if more {
+            length as u16 | EC_DATAGRAMFOLLOWS
+        } else {
+            length as u16
+        },
+        ..EthercatHeader::default()
+    };
+
+    // Add new ethercat header to end of frame, overwriting the current work counter
+    let next_header_start = prevlength as usize - size_of::<u16>();
+    let next_header = slice::from_raw_parts(&next_header as *const _ as *const u8, EC_HEADERSIZE);
+    frame[next_header_start..(next_header_start + EC_HEADERSIZE)].copy_from_slice(next_header);
+
+    let data_start = prevlength as usize + EC_HEADERSIZE - EC_ELENGTHSIZE;
+
+    ecx_writedatagramdata_new(&mut frame[data_start..], com, length, data);
+    // set WKC to zero
+    frame[data_start + length] = 0x00;
+    frame[data_start + length + 1] = 0x00;
+    // set size of frame in buffer array
+    (*port).txbuflength[idx as usize] = (data_start + EC_WKCSIZE + length) as i32;
+    // return offset to data in rx frame 14 bytes smaller than tx frame due to stripping of ethernet
+    // header
     return prevlength + EC_HEADERSIZE as u16 - EC_ELENGTHSIZE as u16 - ETH_HEADERSIZE as u16;
 }
 

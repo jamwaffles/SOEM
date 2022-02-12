@@ -115,7 +115,7 @@ pub const EC_CMDOFFSET: usize = EC_ELENGTHSIZE;
 /** size of workcounter item in EtherCAT datagram */
 pub const EC_WKCSIZE: usize = size_of::<u16>();
 /** definition of datagram follows bit in ec_comt.dlength */
-pub const EC_DATAGRAMFOLLOWS: i32 = 1 << 15;
+pub const EC_DATAGRAMFOLLOWS: u16 = 1 << 15;
 
 /** Possible error codes returned. */
 #[derive(strum::FromRepr, Copy, Clone, Debug)]
