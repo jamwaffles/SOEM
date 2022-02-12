@@ -13,7 +13,7 @@ use soem::{
     },
     print::{ec_ALstatuscode2string, ec_elist2string},
     types::{
-        ec_datatype, ec_state, SiiCategory, ECT_SDO_PDOASSIGN, EC_TIMEOUTRXM, EC_TIMEOUTSTATE,
+        ec_datatype, SiiCategory, SlaveState, ECT_SDO_PDOASSIGN, EC_TIMEOUTRXM, EC_TIMEOUTSTATE,
     },
 };
 
@@ -1181,14 +1181,14 @@ pub unsafe fn slaveinfo(ifname: *mut libc::c_char) {
                 + ec_group[0usize].inputsWKC as libc::c_int;
             println!("Calculated workcounter {:}", expectedWKC as libc::c_int);
             /* wait for all slaves to reach SAFE_OP state */
-            ec_statecheck(0u16, ec_state::EC_STATE_SAFE_OP as u16, EC_TIMEOUTSTATE * 3);
-            if ec_slave[0usize].state as libc::c_int != ec_state::EC_STATE_SAFE_OP as libc::c_int {
+            ec_statecheck(0u16, SlaveState::SafeOp as u16, EC_TIMEOUTSTATE * 3);
+            if ec_slave[0usize].state as libc::c_int != SlaveState::SafeOp as libc::c_int {
                 println!("Not all slaves reached safe operational state.");
                 ec_readstate();
                 i = 1i32;
                 while i <= ec_slavecount {
                     if ec_slave[i as usize].state as libc::c_int
-                        != ec_state::EC_STATE_SAFE_OP as libc::c_int
+                        != SlaveState::SafeOp as libc::c_int
                     {
                         println!(
                             "Slave {:} State={:2x} StatusCode={:4x} : {:}",

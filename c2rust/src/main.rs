@@ -17,8 +17,8 @@ use crate::{
         oshw::{oshw_find_adapters, oshw_free_adapters, oshw_htons},
     },
     types::{
-        ec_bufT, ec_bufstate, ec_comt, ec_err_type, ec_errort, ec_state, C2RustUnnamed_0, Command,
-        EepromCommand, EthercatRegister, EthernetHeader, MailboxType, SiiCategory,
+        ec_bufT, ec_bufstate, ec_err_type, ec_errort, C2RustUnnamed_0, Command, EepromCommand,
+        EthercatHeader, EthercatRegister, EthernetHeader, MailboxType, SiiCategory, SlaveState,
         EC_DEFAULTRETRIES, EC_ESTAT_EMASK, EC_ESTAT_NACK, EC_ESTAT_R64, EC_TIMEOUTEEP,
         EC_TIMEOUTRET, EC_TIMEOUTRET3,
     },
@@ -910,7 +910,7 @@ pub unsafe fn ecx_init_redundant(
         &mut zbuf as *mut libc::c_int as *mut libc::c_void,
     );
     (*(*context).port).txbuflength2 = core::mem::size_of::<EthernetHeader>()
-        .wrapping_add(core::mem::size_of::<ec_comt>())
+        .wrapping_add(core::mem::size_of::<EthercatHeader>())
         .wrapping_add(core::mem::size_of::<u16>())
         .wrapping_add(2usize) as libc::c_int;
     return rval;
@@ -1434,7 +1434,7 @@ pub unsafe fn ecx_FPRD_multi(
         ::core::mem::size_of::<ec_alstatust>(),
         slstatlst.offset(slcnt as isize) as *mut libc::c_void,
     );
-    sldatapos[slcnt as usize] = ::core::mem::size_of::<ec_comt>() as u16;
+    sldatapos[slcnt as usize] = ::core::mem::size_of::<EthercatHeader>() as u16;
     loop {
         slcnt += 1;
         if !(slcnt < n - 1i32) {
@@ -1524,18 +1524,18 @@ pub unsafe fn ecx_readstate(context: *mut ecx_contextt) -> libc::c_int {
     }
     rval = rval;
     bitwisestate = (rval as libc::c_int & 0xfi32) as u16;
-    if rval as libc::c_int & ec_state::EC_STATE_ERROR as libc::c_int == 0i32 {
+    if rval as libc::c_int & SlaveState::Error as libc::c_int == 0i32 {
         noerrorflag = true;
         (*(*context).slavelist.offset(0isize)).ALstatuscode = 0u16
     } else {
         noerrorflag = false;
     }
-    match ec_state::from_repr(bitwisestate as usize).unwrap() {
-        ec_state::EC_STATE_INIT
-        | ec_state::EC_STATE_PRE_OP
-        | ec_state::EC_STATE_BOOT
-        | ec_state::EC_STATE_SAFE_OP
-        | ec_state::EC_STATE_OPERATIONAL => {
+    match SlaveState::from_repr(bitwisestate as usize).unwrap() {
+        SlaveState::Init
+        | SlaveState::PreOp
+        | SlaveState::Boot
+        | SlaveState::SafeOp
+        | SlaveState::Op => {
             allslavessamestate = true;
             (*(*context).slavelist.offset(0isize)).state = bitwisestate
         }
@@ -3188,14 +3188,14 @@ pub unsafe fn ecx_receive_processdata_group(
                         (*idxstack).data[pos as usize],
                         &mut *(*rxbuf.offset(idx as isize))
                             .as_mut_ptr()
-                            .offset(::core::mem::size_of::<ec_comt>() as isize)
+                            .offset(::core::mem::size_of::<EthercatHeader>() as isize)
                             as *mut u8 as *const libc::c_void,
                         (*idxstack).length[pos as usize] as usize,
                     );
                     memcpy(
                         &mut le_wkc as *mut u16 as *mut libc::c_void,
                         &mut *(*rxbuf.offset(idx as isize)).as_mut_ptr().offset(
-                            core::mem::size_of::<ec_comt>().wrapping_add(
+                            core::mem::size_of::<EthercatHeader>().wrapping_add(
                                 *(*idxstack).length.as_mut_ptr().offset(pos as isize) as usize,
                             ) as isize,
                         ) as *mut u8 as *const libc::c_void,
@@ -3218,7 +3218,7 @@ pub unsafe fn ecx_receive_processdata_group(
                         (*idxstack).data[pos as usize],
                         &mut *(*rxbuf.offset(idx as isize))
                             .as_mut_ptr()
-                            .offset(::core::mem::size_of::<ec_comt>() as isize)
+                            .offset(::core::mem::size_of::<EthercatHeader>() as isize)
                             as *mut u8 as *const libc::c_void,
                         (*idxstack).length[pos as usize] as usize,
                     );
@@ -3232,7 +3232,7 @@ pub unsafe fn ecx_receive_processdata_group(
                     memcpy(
                         &mut le_wkc as *mut u16 as *mut libc::c_void,
                         &mut *(*rxbuf.offset(idx as isize)).as_mut_ptr().offset(
-                            core::mem::size_of::<ec_comt>().wrapping_add(
+                            core::mem::size_of::<EthercatHeader>().wrapping_add(
                                 *(*idxstack).length.as_mut_ptr().offset(pos as isize) as usize,
                             ) as isize,
                         ) as *mut u8 as *const libc::c_void,

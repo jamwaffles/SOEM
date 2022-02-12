@@ -5,7 +5,7 @@
 
 use crate::{
     oshw::linux::nicdrv::ecx_portt,
-    types::{Command, DatagramHeader, EthernetHeader},
+    types::{Command, EthercatHeader, EthernetHeader},
 };
 use libc::{memcpy, memset};
 
@@ -57,15 +57,15 @@ pub unsafe fn ecx_setupdatagram(
     length: usize,
     data: *mut libc::c_void,
 ) -> libc::c_int {
-    let mut datagramP: *mut DatagramHeader = 0 as *mut DatagramHeader;
+    let mut datagramP: *mut EthercatHeader = 0 as *mut EthercatHeader;
     let mut frameP: *mut u8 = 0 as *mut u8;
     frameP = frame as *mut u8;
     /* Ethernet header is preset and fixed in frame buffers
     EtherCAT header needs to be added after that */
     datagramP = &mut *frameP.offset(::core::mem::size_of::<EthernetHeader>() as isize) as *mut u8
-        as *mut DatagramHeader;
+        as *mut EthercatHeader;
     (*datagramP).elength = (0x1000u64)
-        .wrapping_add(core::mem::size_of::<DatagramHeader>() as u64)
+        .wrapping_add(core::mem::size_of::<EthercatHeader>() as u64)
         .wrapping_add(length as u64) as u16;
     (*datagramP).command = com as u8;
     (*datagramP).index = idx;
@@ -75,7 +75,7 @@ pub unsafe fn ecx_setupdatagram(
     ecx_writedatagramdata(
         &mut *frameP.offset(
             core::mem::size_of::<EthernetHeader>()
-                .wrapping_add(core::mem::size_of::<DatagramHeader>()) as isize,
+                .wrapping_add(core::mem::size_of::<EthercatHeader>()) as isize,
         ) as *mut u8 as *mut libc::c_void,
         com,
         length,
@@ -84,18 +84,18 @@ pub unsafe fn ecx_setupdatagram(
     /* set WKC to zero */
     *frameP.offset(
         core::mem::size_of::<EthernetHeader>()
-            .wrapping_add(core::mem::size_of::<DatagramHeader>())
+            .wrapping_add(core::mem::size_of::<EthercatHeader>())
             .wrapping_add(length as usize) as isize,
     ) = 0u8;
     *frameP.offset(
         core::mem::size_of::<EthernetHeader>()
-            .wrapping_add(core::mem::size_of::<DatagramHeader>())
+            .wrapping_add(core::mem::size_of::<EthercatHeader>())
             .wrapping_add(length as usize)
             .wrapping_add(1usize) as isize,
     ) = 0u8;
     /* set size of frame in buffer array */
     (*port).txbuflength[idx as usize] = core::mem::size_of::<EthernetHeader>()
-        .wrapping_add(core::mem::size_of::<DatagramHeader>())
+        .wrapping_add(core::mem::size_of::<EthercatHeader>())
         .wrapping_add(core::mem::size_of::<u16>())
         .wrapping_add(length as usize) as libc::c_int;
     return 0i32;
@@ -125,24 +125,24 @@ pub unsafe fn ecx_adddatagram(
     length: usize,
     data: *mut libc::c_void,
 ) -> u16 {
-    let mut datagramP: *mut DatagramHeader = 0 as *mut DatagramHeader;
+    let mut datagramP: *mut EthercatHeader = 0 as *mut EthercatHeader;
     let mut frameP: *mut u8 = 0 as *mut u8;
     let mut prevlength: u16 = 0;
     frameP = frame as *mut u8;
     /* copy previous frame size */
     prevlength = (*port).txbuflength[idx as usize] as u16;
     datagramP = &mut *frameP.offset(::core::mem::size_of::<EthernetHeader>() as isize) as *mut u8
-        as *mut DatagramHeader;
+        as *mut EthercatHeader;
     /* add new datagram to ethernet frame size */
     (*datagramP).elength = ((*datagramP).elength as usize)
-        .wrapping_add(core::mem::size_of::<DatagramHeader>())
+        .wrapping_add(core::mem::size_of::<EthercatHeader>())
         .wrapping_add(length as usize) as u16;
     /* add "datagram follows" flag to previous subframe dlength */
     (*datagramP).dlength = ((*datagramP).dlength as libc::c_int | (1i32) << 15i32) as u16;
     /* set new EtherCAT header position */
     datagramP = &mut *frameP
         .offset((prevlength as usize).wrapping_sub(core::mem::size_of::<u16>()) as isize)
-        as *mut u8 as *mut DatagramHeader;
+        as *mut u8 as *mut EthercatHeader;
     (*datagramP).command = com as u8;
     (*datagramP).index = idx;
     (*datagramP).ADP = ADP;
@@ -157,7 +157,7 @@ pub unsafe fn ecx_adddatagram(
     ecx_writedatagramdata(
         &mut *frameP.offset(
             (prevlength as usize)
-                .wrapping_add(core::mem::size_of::<DatagramHeader>())
+                .wrapping_add(core::mem::size_of::<EthercatHeader>())
                 .wrapping_sub(core::mem::size_of::<u16>()) as isize,
         ) as *mut u8 as *mut libc::c_void,
         com,
@@ -167,27 +167,27 @@ pub unsafe fn ecx_adddatagram(
     /* set WKC to zero */
     *frameP.offset(
         (prevlength as usize)
-            .wrapping_add(core::mem::size_of::<DatagramHeader>())
+            .wrapping_add(core::mem::size_of::<EthercatHeader>())
             .wrapping_sub(core::mem::size_of::<u16>())
             .wrapping_add(length as usize) as isize,
     ) = 0u8;
     *frameP.offset(
         (prevlength as usize)
-            .wrapping_add(core::mem::size_of::<DatagramHeader>())
+            .wrapping_add(core::mem::size_of::<EthercatHeader>())
             .wrapping_sub(core::mem::size_of::<u16>())
             .wrapping_add(length as usize)
             .wrapping_add(1usize) as isize,
     ) = 0u8;
     /* set size of frame in buffer array */
     (*port).txbuflength[idx as usize] = (prevlength as usize)
-        .wrapping_add(core::mem::size_of::<DatagramHeader>())
+        .wrapping_add(core::mem::size_of::<EthercatHeader>())
         .wrapping_sub(core::mem::size_of::<u16>())
         .wrapping_add(core::mem::size_of::<u16>())
         .wrapping_add(length as usize) as libc::c_int;
     /* return offset to data in rx frame
     14 bytes smaller than tx frame due to stripping of ethernet header */
     return (prevlength as usize)
-        .wrapping_add(core::mem::size_of::<DatagramHeader>())
+        .wrapping_add(core::mem::size_of::<EthercatHeader>())
         .wrapping_sub(core::mem::size_of::<u16>())
         .wrapping_sub(core::mem::size_of::<EthernetHeader>()) as u16;
 }

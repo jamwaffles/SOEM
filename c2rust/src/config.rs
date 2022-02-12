@@ -12,7 +12,7 @@ use crate::{
     osal::linux::osal::osal_usleep,
     soe::ecx_readIDNmap,
     types::{
-        self, ec_state, EthercatRegister, SiiCategory, SiiGeneral, EC_TIMEOUTEEP, EC_TIMEOUTRET3,
+        self, EthercatRegister, SiiCategory, SiiGeneral, SlaveState, EC_TIMEOUTEEP, EC_TIMEOUTRET3,
         EC_TIMEOUTSAFE, EC_TIMEOUTSTATE,
     },
 };
@@ -526,7 +526,7 @@ pub unsafe fn ecx_detect_slaves(context: *mut ecx_contextt) -> libc::c_int {
         &mut b as *mut u8 as *mut libc::c_void,
         EC_TIMEOUTRET3,
     ); /* Reset all slaves to Init */
-    b = (ec_state::EC_STATE_INIT as libc::c_int | types::EC_STATE_ACK as libc::c_int) as u8;
+    b = (SlaveState::Init as libc::c_int | types::EC_STATE_ACK as libc::c_int) as u8;
     ecx_BWR(
         (*context).port,
         0u16,
@@ -657,7 +657,7 @@ unsafe fn ecx_set_slaves_to_default(context: *mut ecx_contextt) {
         &mut b as *mut u8 as *mut libc::c_void,
         EC_TIMEOUTRET3,
     );
-    b = (ec_state::EC_STATE_INIT as libc::c_int | types::EC_STATE_ACK as libc::c_int) as u8;
+    b = (SlaveState::Init as libc::c_int | types::EC_STATE_ACK as libc::c_int) as u8;
     ecx_BWR(
         (*context).port,
         0u16,
@@ -1044,12 +1044,7 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
                     }
                 }
             }
-            ecx_statecheck(
-                context,
-                slave,
-                ec_state::EC_STATE_INIT as u16,
-                EC_TIMEOUTSTATE,
-            );
+            ecx_statecheck(context, slave, SlaveState::Init as u16, EC_TIMEOUTSTATE);
             /* set default mailbox configuration if slave has mailbox */
             if (*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int > 0i32 {
                 (*(*context).slavelist.offset(slave as isize)).SMtype[0usize] = 1u8;
@@ -1222,8 +1217,7 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
                     (*context).port,
                     configadr,
                     EthercatRegister::ECT_REG_ALCTL as u16,
-                    (ec_state::EC_STATE_PRE_OP as libc::c_int | types::EC_STATE_ACK as libc::c_int)
-                        as u16,
+                    (SlaveState::PreOp as libc::c_int | types::EC_STATE_ACK as libc::c_int) as u16,
                     EC_TIMEOUTRET3,
                 );
                 /* set preop status */
@@ -1282,12 +1276,7 @@ unsafe fn ecx_map_coe_soe(
     let mut Isize: u32 = 0;
     let mut Osize: u32 = 0;
     let mut rval: libc::c_int = 0;
-    ecx_statecheck(
-        context,
-        slave,
-        ec_state::EC_STATE_PRE_OP as u16,
-        EC_TIMEOUTSTATE,
-    );
+    ecx_statecheck(context, slave, SlaveState::PreOp as u16, EC_TIMEOUTSTATE);
     /* execute special slave configuration hook Pre-Op to Safe-OP */
     if (*(*context).slavelist.offset(slave as isize))
         .PO2SOconfig
@@ -2015,7 +2004,7 @@ pub unsafe fn ecx_config_map_group(
                         (*context).port,
                         configadr,
                         EthercatRegister::ECT_REG_ALCTL as u16,
-                        ec_state::EC_STATE_SAFE_OP as u16,
+                        SlaveState::SafeOp as u16,
                         EC_TIMEOUTRET3,
                     );
                     /* set safeop status */
@@ -2173,7 +2162,7 @@ pub unsafe fn ecx_config_overlap_map_group(
                         (*context).port,
                         configadr,
                         EthercatRegister::ECT_REG_ALCTL as u16,
-                        ec_state::EC_STATE_SAFE_OP as u16,
+                        SlaveState::SafeOp as u16,
                         EC_TIMEOUTRET3,
                     );
                 }
@@ -2366,7 +2355,7 @@ pub unsafe fn ecx_reconfig_slave(
         (*context).port,
         configadr,
         EthercatRegister::ECT_REG_ALCTL as u16,
-        ec_state::EC_STATE_INIT as u16,
+        SlaveState::Init as u16,
         timeout,
     ) <= 0i32
     {
@@ -2375,13 +2364,8 @@ pub unsafe fn ecx_reconfig_slave(
     state = 0i32;
     ecx_eeprom2pdi(context, slave);
     /* check state change init */
-    state = ecx_statecheck(
-        context,
-        slave,
-        ec_state::EC_STATE_INIT as u16,
-        EC_TIMEOUTSTATE,
-    ) as libc::c_int;
-    if state == ec_state::EC_STATE_INIT as libc::c_int {
+    state = ecx_statecheck(context, slave, SlaveState::Init as u16, EC_TIMEOUTSTATE) as libc::c_int;
+    if state == SlaveState::Init as libc::c_int {
         /* program all enabled SM */
         nSM = 0i32; /* check state change pre-op */
         while nSM < 8i32 {
@@ -2408,16 +2392,12 @@ pub unsafe fn ecx_reconfig_slave(
             (*context).port,
             configadr,
             EthercatRegister::ECT_REG_ALCTL as u16,
-            ec_state::EC_STATE_PRE_OP as u16,
+            SlaveState::PreOp as u16,
             timeout,
         );
-        state = ecx_statecheck(
-            context,
-            slave,
-            ec_state::EC_STATE_PRE_OP as u16,
-            EC_TIMEOUTSTATE,
-        ) as libc::c_int;
-        if state == ec_state::EC_STATE_PRE_OP as libc::c_int {
+        state = ecx_statecheck(context, slave, SlaveState::PreOp as u16, EC_TIMEOUTSTATE)
+            as libc::c_int;
+        if state == SlaveState::PreOp as libc::c_int {
             /* execute special slave configuration hook Pre-Op to Safe-OP */
             if (*(*context).slavelist.offset(slave as isize))
                 .PO2SOconfig
@@ -2441,15 +2421,11 @@ pub unsafe fn ecx_reconfig_slave(
                 (*context).port,
                 configadr,
                 EthercatRegister::ECT_REG_ALCTL as u16,
-                ec_state::EC_STATE_SAFE_OP as u16,
+                SlaveState::SafeOp as u16,
                 timeout,
             );
-            state = ecx_statecheck(
-                context,
-                slave,
-                ec_state::EC_STATE_SAFE_OP as u16,
-                EC_TIMEOUTSTATE,
-            ) as libc::c_int;
+            state = ecx_statecheck(context, slave, SlaveState::SafeOp as u16, EC_TIMEOUTSTATE)
+                as libc::c_int;
             /* program configured FMMU */
             FMMUc = 0i32;
             while FMMUc < (*(*context).slavelist.offset(slave as isize)).FMMUunused as libc::c_int {

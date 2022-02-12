@@ -3,7 +3,7 @@ use std::mem;
 use crate::{
     main::ecx_port,
     osal::linux::osal::{ec_timet, osal_timer_is_expired, osal_timer_start, osal_timert},
-    types::{ec_bufT, ec_bufstate, ec_comt, htons, ntohs, EthernetHeader, EC_TIMEOUTRET},
+    types::{ec_bufT, ec_bufstate, htons, ntohs, EthercatHeader, EthernetHeader, EC_TIMEOUTRET},
 };
 use libc::{
     bind, close, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,
@@ -406,7 +406,7 @@ pub unsafe fn ecx_outframe(port: *mut ecx_portt, idx: u8, stacknumber: libc::c_i
  */
 #[no_mangle]
 pub unsafe fn ecx_outframe_red(mut port: *mut ecx_portt, idx: u8) -> libc::c_int {
-    let mut datagramP: *mut ec_comt = 0 as *mut ec_comt;
+    let mut datagramP: *mut EthercatHeader = 0 as *mut EthercatHeader;
     let mut ehp: *mut EthernetHeader = 0 as *mut EthernetHeader;
     let mut rval: libc::c_int = 0;
     ehp = &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
@@ -423,7 +423,7 @@ pub unsafe fn ecx_outframe_red(mut port: *mut ecx_portt, idx: u8) -> libc::c_int
             .txbuf2
             .as_mut_ptr()
             .offset(::core::mem::size_of::<EthernetHeader>() as isize)
-            as *mut u8 as *mut ec_comt;
+            as *mut u8 as *mut EthercatHeader;
         /* write index to frame */
         (*datagramP).index = idx;
         /* rewrite MAC source address 1 to secondary */
@@ -489,7 +489,7 @@ pub unsafe fn ecx_inframe(port: *mut ecx_portt, idx: u8, stacknumber: libc::c_in
     let mut rval: libc::c_int = 0;
     let mut idxf: u8 = 0;
     let mut ehp: *mut EthernetHeader = 0 as *mut EthernetHeader;
-    let mut ecp: *mut ec_comt = 0 as *mut ec_comt;
+    let mut ecp: *mut EthercatHeader = 0 as *mut EthercatHeader;
     let mut stack: *mut ec_stackT = 0 as *mut ec_stackT;
     let mut rxbuf: *mut ec_bufT = 0 as *mut ec_bufT;
     if stacknumber == 0 {
@@ -522,7 +522,7 @@ pub unsafe fn ecx_inframe(port: *mut ecx_portt, idx: u8, stacknumber: libc::c_in
                 ecp = &mut *(*(*stack).tempbuf)
                     .as_mut_ptr()
                     .offset(::core::mem::size_of::<EthernetHeader>() as isize)
-                    as *mut u8 as *mut ec_comt;
+                    as *mut u8 as *mut EthercatHeader;
                 l = ((*ecp).elength as libc::c_int & 0xfffi32) as u16;
                 idxf = (*ecp).index;
                 /* found index equals requested index ? */

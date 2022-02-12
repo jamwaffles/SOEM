@@ -87,9 +87,9 @@ pub struct EthernetHeader {
 pub const ETH_HEADERSIZE: usize = size_of::<EthernetHeader>();
 
 /** EtherCAT datagram header definition */
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 #[repr(C, packed)]
-pub struct ec_comt {
+pub struct EthercatHeader {
     /** length of EtherCAT datagram */
     pub elength: u16,
     /** EtherCAT command, see ec_cmdtype */
@@ -107,7 +107,7 @@ pub struct ec_comt {
 }
 
 /** EtherCAT header size */
-pub const EC_HEADERSIZE: usize = size_of::<ec_comt>();
+pub const EC_HEADERSIZE: usize = size_of::<EthercatHeader>();
 /** size of ec_comt.elength item in EtherCAT header */
 pub const EC_ELENGTHSIZE: usize = size_of::<u16>();
 /** offset position of command in EtherCAT header */
@@ -119,43 +119,43 @@ pub const EC_DATAGRAMFOLLOWS: i32 = 1 << 15;
 
 /** Possible error codes returned. */
 #[derive(strum::FromRepr, Copy, Clone, Debug)]
-pub enum ec_err {
+pub enum EthercatError {
     /** No error */
-    EC_ERR_OK = 0,
+    Ok = 0,
     /** Library already initialized. */
-    EC_ERR_ALREADY_INITIALIZED,
+    AlreadyInitialized,
     /** Library not initialized. */
-    EC_ERR_NOT_INITIALIZED,
+    NotInitialized,
     /** Timeout occurred during execution of the function. */
-    EC_ERR_TIMEOUT,
+    Timeout,
     /** No slaves were found. */
-    EC_ERR_NO_SLAVES,
+    NoSlaves,
     /** Function failed. */
-    EC_ERR_NOK,
+    Nok,
 }
 
 /** Possible EtherCAT slave states */
 #[derive(strum::FromRepr, Copy, Clone, Debug)]
-pub enum ec_state {
+pub enum SlaveState {
     /** No valid state. */
     EC_STATE_NONE = 0x00,
     /** Init state*/
-    EC_STATE_INIT = 0x01,
+    Init = 0x01,
     /** Pre-operational. */
-    EC_STATE_PRE_OP = 0x02,
+    PreOp = 0x02,
     /** Boot state*/
-    EC_STATE_BOOT = 0x03,
+    Boot = 0x03,
     /** Safe-operational. */
-    EC_STATE_SAFE_OP = 0x04,
+    SafeOp = 0x04,
     /** Operational */
-    EC_STATE_OPERATIONAL = 0x08,
+    Op = 0x08,
     /** Error or ACK error */
     // EC_STATE_ACK = 0x10,
-    EC_STATE_ERROR = 0x10,
+    Error = 0x10,
 }
 
 /// ACK is the same value as ERROR so we'll kludge a new enum "variant" here
-pub const EC_STATE_ACK: isize = ec_state::EC_STATE_ERROR as isize;
+pub const EC_STATE_ACK: isize = SlaveState::Error as isize;
 
 /** Possible buffer states */
 #[derive(strum::FromRepr, Copy, Clone, Debug)]

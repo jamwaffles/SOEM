@@ -15,7 +15,7 @@ pub use self::datagram::{ecx_adddatagram, ecx_setupdatagram};
 use crate::{
     main::ecx_port,
     oshw::linux::nicdrv::{ecx_getindex, ecx_portt, ecx_setbufstat, ecx_srconfirm},
-    types::{ec_bufT, ec_bufstate, Command, DatagramHeader, EthercatRegister},
+    types::{ec_bufT, ec_bufstate, Command, EthercatHeader, EthercatRegister},
 };
 use libc::memcpy;
 
@@ -106,7 +106,7 @@ pub unsafe fn ecx_BRD(
             data,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(::core::mem::size_of::<DatagramHeader>() as isize) as *mut u8
+                .offset(::core::mem::size_of::<EthercatHeader>() as isize) as *mut u8
                 as *const libc::c_void,
             length as usize,
         );
@@ -153,7 +153,7 @@ pub unsafe fn ecx_APRD(
             data,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(::core::mem::size_of::<DatagramHeader>() as isize) as *mut u8
+                .offset(::core::mem::size_of::<EthercatHeader>() as isize) as *mut u8
                 as *const libc::c_void,
             length as usize,
         );
@@ -200,7 +200,7 @@ pub unsafe fn ecx_ARMW(
             data,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(::core::mem::size_of::<DatagramHeader>() as isize) as *mut u8
+                .offset(::core::mem::size_of::<EthercatHeader>() as isize) as *mut u8
                 as *const libc::c_void,
             length as usize,
         );
@@ -247,7 +247,7 @@ pub unsafe fn ecx_FRMW(
             data,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(::core::mem::size_of::<DatagramHeader>() as isize) as *mut u8
+                .offset(::core::mem::size_of::<EthercatHeader>() as isize) as *mut u8
                 as *const libc::c_void,
             length as usize,
         );
@@ -315,7 +315,7 @@ pub unsafe fn ecx_FPRD(
             data,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(::core::mem::size_of::<DatagramHeader>() as isize) as *mut u8
+                .offset(::core::mem::size_of::<EthercatHeader>() as isize) as *mut u8
                 as *const libc::c_void,
             length as usize,
         );
@@ -508,7 +508,7 @@ pub unsafe fn ecx_LRW(
             data,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(::core::mem::size_of::<DatagramHeader>() as isize) as *mut u8
+                .offset(::core::mem::size_of::<EthercatHeader>() as isize) as *mut u8
                 as *const libc::c_void,
             length as usize,
         );
@@ -555,7 +555,7 @@ pub unsafe fn ecx_LRD(
             data,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(::core::mem::size_of::<DatagramHeader>() as isize) as *mut u8
+                .offset(::core::mem::size_of::<EthercatHeader>() as isize) as *mut u8
                 as *const libc::c_void,
             length as usize,
         );
@@ -657,7 +657,7 @@ pub unsafe fn ecx_LRWDC(
             data,
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
-                .offset(::core::mem::size_of::<DatagramHeader>() as isize) as *mut u8
+                .offset(::core::mem::size_of::<EthercatHeader>() as isize) as *mut u8
                 as *const libc::c_void,
             length as usize,
         );
@@ -666,7 +666,7 @@ pub unsafe fn ecx_LRWDC(
             &mut *(*(*port).rxbuf.as_mut_ptr().offset(idx as isize))
                 .as_mut_ptr()
                 .offset(
-                    core::mem::size_of::<DatagramHeader>().wrapping_add(length as usize) as isize,
+                    core::mem::size_of::<EthercatHeader>().wrapping_add(length as usize) as isize,
                 ) as *mut u8 as *const libc::c_void,
             core::mem::size_of::<u16>(),
         );

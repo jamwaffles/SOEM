@@ -14,7 +14,7 @@ use soem::{
     oshw::linux::nicdrv::{ec_stackT, ecx_portt, ecx_redportt},
     print::ec_ALstatuscode2string,
     types::{
-        self, ec_bufT, ec_err_type, ec_errort, ec_state, C2RustUnnamed_0, EC_TIMEOUTRET,
+        self, ec_bufT, ec_err_type, ec_errort, C2RustUnnamed_0, SlaveState, EC_TIMEOUTRET,
         EC_TIMEOUTSTATE,
     },
 };
@@ -165,7 +165,7 @@ unsafe fn fieldbus_start(fieldbus: *mut Fieldbus) -> bool {
     ecx_statecheck(
         context,
         0u16,
-        ec_state::EC_STATE_SAFE_OP as u16,
+        SlaveState::SafeOp as u16,
         EC_TIMEOUTSTATE * 4,
     );
 
@@ -177,20 +177,15 @@ unsafe fn fieldbus_start(fieldbus: *mut Fieldbus) -> bool {
     print!("Setting operational state..");
     /* Act on slave 0 (a virtual slave used for broadcasting) */
     slave = (*fieldbus).slavelist.as_mut_ptr();
-    (*slave).state = ec_state::EC_STATE_OPERATIONAL as u16;
+    (*slave).state = SlaveState::Op as u16;
     ecx_writestate(context, 0u16);
     /* Poll the result ten times before giving up */
     i = 0i32;
     while i < 10i32 {
         print!(".");
         fieldbus_roundtrip(fieldbus);
-        ecx_statecheck(
-            context,
-            0u16,
-            ec_state::EC_STATE_OPERATIONAL as u16,
-            EC_TIMEOUTSTATE / 10,
-        );
-        if (*slave).state as libc::c_int == ec_state::EC_STATE_OPERATIONAL as libc::c_int {
+        ecx_statecheck(context, 0u16, SlaveState::Op as u16, EC_TIMEOUTSTATE / 10);
+        if (*slave).state as libc::c_int == SlaveState::Op as libc::c_int {
             println!(" all slaves are now operational");
             return true;
         }
@@ -201,7 +196,7 @@ unsafe fn fieldbus_start(fieldbus: *mut Fieldbus) -> bool {
     i = 1i32;
     while i <= (*fieldbus).slavecount {
         slave = (*fieldbus).slavelist.as_mut_ptr().offset(i as isize);
-        if (*slave).state as libc::c_int != ec_state::EC_STATE_OPERATIONAL as libc::c_int {
+        if (*slave).state as libc::c_int != SlaveState::Op as libc::c_int {
             print!(
                 " slave {:} is 0x{:4X} (AL-status=0x{:4X} {:})",
                 i as libc::c_int,
@@ -228,7 +223,7 @@ unsafe fn fieldbus_stop(fieldbus: *mut Fieldbus) {
     /* Act on slave 0 (a virtual slave used for broadcasting) */
     slave = (*fieldbus).slavelist.as_mut_ptr();
     print!("Requesting init state on all slaves... ");
-    (*slave).state = ec_state::EC_STATE_INIT as u16;
+    (*slave).state = SlaveState::Init as u16;
     ecx_writestate(context, 0u16);
 
     println!("done");
@@ -292,47 +287,40 @@ unsafe fn fieldbus_check_state(fieldbus: *mut Fieldbus) {
     while i <= (*fieldbus).slavecount {
         slave = (*context).slavelist.offset(i as isize);
         if !((*slave).group as libc::c_int != (*fieldbus).group as libc::c_int) {
-            if (*slave).state as libc::c_int != ec_state::EC_STATE_OPERATIONAL as libc::c_int {
+            if (*slave).state as libc::c_int != SlaveState::Op as libc::c_int {
                 (*grp).docheckstate = true;
                 if (*slave).state as libc::c_int
-                    == ec_state::EC_STATE_SAFE_OP as libc::c_int
-                        + ec_state::EC_STATE_ERROR as libc::c_int
+                    == SlaveState::SafeOp as libc::c_int + SlaveState::Error as libc::c_int
                 {
                     println!(
                         "* Slave {:} is in SAFE_OP+ERROR, attempting ACK",
                         i as libc::c_int
                     );
-                    (*slave).state = (ec_state::EC_STATE_SAFE_OP as libc::c_int
+                    (*slave).state = (SlaveState::SafeOp as libc::c_int
                         + types::EC_STATE_ACK as libc::c_int)
                         as u16;
                     ecx_writestate(context, i as u16);
-                } else if (*slave).state as libc::c_int == ec_state::EC_STATE_SAFE_OP as libc::c_int
-                {
+                } else if (*slave).state as libc::c_int == SlaveState::SafeOp as libc::c_int {
                     println!(
                         "* Slave {:} is in SAFE_OP, change to OPERATIONAL",
                         i as libc::c_int
                     );
-                    (*slave).state = ec_state::EC_STATE_OPERATIONAL as u16;
+                    (*slave).state = SlaveState::Op as u16;
                     ecx_writestate(context, i as u16);
-                } else if (*slave).state as libc::c_int > ec_state::EC_STATE_NONE as libc::c_int {
+                } else if (*slave).state as libc::c_int > SlaveState::EC_STATE_NONE as libc::c_int {
                     if ecx_reconfig_slave(context, i as u16, EC_TIMEOUTRET) != 0 {
                         (*slave).islost = false;
                         println!("* Slave {:} reconfigured", i as libc::c_int);
                     }
                 } else if (*slave).islost == false {
-                    ecx_statecheck(
-                        context,
-                        i as u16,
-                        ec_state::EC_STATE_OPERATIONAL as u16,
-                        EC_TIMEOUTRET,
-                    );
-                    if (*slave).state as libc::c_int == ec_state::EC_STATE_NONE as libc::c_int {
+                    ecx_statecheck(context, i as u16, SlaveState::Op as u16, EC_TIMEOUTRET);
+                    if (*slave).state as libc::c_int == SlaveState::EC_STATE_NONE as libc::c_int {
                         (*slave).islost = true;
                         println!("* Slave {:} lost", i as libc::c_int);
                     }
                 }
             } else if (*slave).islost == true {
-                if (*slave).state as libc::c_int != ec_state::EC_STATE_NONE as libc::c_int {
+                if (*slave).state as libc::c_int != SlaveState::EC_STATE_NONE as libc::c_int {
                     (*slave).islost = false;
                     println!("* Slave {:} found", i as libc::c_int);
                 } else if ecx_recover_slave(context, i as u16, EC_TIMEOUTRET) != 0 {
