@@ -1,15 +1,9 @@
 use std::mem;
 
 use crate::{
-    ethercatbase::{
+    base::{
         ecx_APRD, ecx_APWR, ecx_BRD, ecx_BWR, ecx_FPRD, ecx_FPWR, ecx_FPWRw, ecx_adddatagram,
         ecx_setupdatagram,
-    },
-    ethercattype::{
-        ec_bufT, ec_bufstate, ec_comt, ec_err_type, ec_errort, ec_etherheadert, ec_state,
-        C2RustUnnamed_0, Command, EepromCommand, EthercatRegister, MailboxType, SiiCategory,
-        EC_DEFAULTRETRIES, EC_ESTAT_EMASK, EC_ESTAT_NACK, EC_ESTAT_R64, EC_TIMEOUTEEP,
-        EC_TIMEOUTRET, EC_TIMEOUTRET3,
     },
     osal::linux::osal::{
         ec_timet, osal_current_time, osal_timer_is_expired, osal_timer_start, osal_timert,
@@ -21,6 +15,12 @@ use crate::{
             ecx_setbufstat, ecx_setupnic, ecx_srconfirm, ecx_waitinframe, secMAC,
         },
         oshw::{oshw_find_adapters, oshw_free_adapters, oshw_htons},
+    },
+    types::{
+        ec_bufT, ec_bufstate, ec_comt, ec_err_type, ec_errort, ec_etherheadert, ec_state,
+        C2RustUnnamed_0, Command, EepromCommand, EthercatRegister, MailboxType, SiiCategory,
+        EC_DEFAULTRETRIES, EC_ESTAT_EMASK, EC_ESTAT_NACK, EC_ESTAT_R64, EC_TIMEOUTEEP,
+        EC_TIMEOUTRET, EC_TIMEOUTRET3,
     },
 };
 use libc::{memcpy, memset, pthread_mutex_t};

@@ -1,15 +1,15 @@
 use crate::{
-    ethercatmain::{
+    main::{
         ec_PDOassignt, ec_PDOdesct, ec_SMcommtypet, ec_clearmbx, ec_mbxbuft, ec_mbxheadert,
         ec_nextmbxcnt, ecx_context, ecx_contextt, ecx_mbxreceive, ecx_mbxsend, ecx_packeterror,
         ecx_pusherror, EC_MAXNAME, EC_MAXSM, EC_SMENABLEMASK,
     },
-    ethercattype::{
+    osal::linux::osal::{ec_timet, osal_current_time},
+    types::{
         ec_err_type, ec_errort, C2RustUnnamed_0, CoEMailboxType, CoEObjectDescription,
         CoESDOCommand, MailboxType, ECT_SDO_PDOASSIGN, ECT_SDO_SMCOMMTYPE, EC_TIMEOUTRXM,
         EC_TIMEOUTTXM,
     },
-    osal::linux::osal::{ec_timet, osal_current_time},
 };
 use libc::{memcpy, memset, strncpy};
 

@@ -1,8 +1,8 @@
 use crate::{
-    ethercatbase::{ecx_BWR, ecx_FPRD, ecx_FPWR},
-    ethercatmain::{ecx_context, ecx_contextt},
-    ethercattype::{EthercatRegister, EC_TIMEOUTRET},
+    base::{ecx_BWR, ecx_FPRD, ecx_FPWR},
+    main::{ecx_context, ecx_contextt},
     osal::linux::osal::{ec_timet, osal_current_time},
+    types::{EthercatRegister, EC_TIMEOUTRET},
 };
 
 /** 1st sync pulse delay in ns here 100ms */

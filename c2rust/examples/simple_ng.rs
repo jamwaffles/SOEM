@@ -2,23 +2,21 @@ use std::mem;
 
 use libc::memset;
 use soem::{
-    ethercatconfig::{
-        ecx_config_init, ecx_config_map_group, ecx_reconfig_slave, ecx_recover_slave,
-    },
-    ethercatdc::ecx_configdc,
-    ethercatmain::{
+    config::{ecx_config_init, ecx_config_map_group, ecx_reconfig_slave, ecx_recover_slave},
+    dc::ecx_configdc,
+    main::{
         ec_PDOassignt, ec_PDOdesct, ec_SMcommtypet, ec_adaptert, ec_eepromFMMUt, ec_eepromSMt,
         ec_eringt, ec_find_adapters, ec_fmmut, ec_free_adapters, ec_groupt, ec_idxstackT,
         ec_slavet, ec_smt, ecx_close, ecx_contextt, ecx_init, ecx_readstate,
         ecx_receive_processdata, ecx_send_processdata, ecx_statecheck, ecx_writestate,
     },
-    ethercatprint::ec_ALstatuscode2string,
-    ethercattype::{
+    osal::linux::osal::{ec_timet, osal_current_time, osal_time_diff, osal_usleep},
+    oshw::linux::nicdrv::{ec_stackT, ecx_portt, ecx_redportt},
+    print::ec_ALstatuscode2string,
+    types::{
         self, ec_bufT, ec_err_type, ec_errort, ec_state, C2RustUnnamed_0, EC_TIMEOUTRET,
         EC_TIMEOUTSTATE,
     },
-    osal::linux::osal::{ec_timet, osal_current_time, osal_time_diff, osal_usleep},
-    oshw::linux::nicdrv::{ec_stackT, ecx_portt, ecx_redportt},
 };
 
 #[derive(Clone)]
@@ -305,7 +303,7 @@ unsafe fn fieldbus_check_state(fieldbus: *mut Fieldbus) {
                         i as libc::c_int
                     );
                     (*slave).state = (ec_state::EC_STATE_SAFE_OP as libc::c_int
-                        + ethercattype::EC_STATE_ACK as libc::c_int)
+                        + types::EC_STATE_ACK as libc::c_int)
                         as u16;
                     ecx_writestate(context, i as u16);
                 } else if (*slave).state as libc::c_int == ec_state::EC_STATE_SAFE_OP as libc::c_int

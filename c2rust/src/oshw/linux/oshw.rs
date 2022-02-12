@@ -1,6 +1,6 @@
 use crate::{
-    ethercatmain::ec_adaptert,
-    ethercattype::{htons, ntohs},
+    main::ec_adaptert,
+    types::{htons, ntohs},
 };
 use libc::{free, if_freenameindex, if_nameindex, malloc, strncpy};
 

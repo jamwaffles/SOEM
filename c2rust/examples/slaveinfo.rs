@@ -1,18 +1,18 @@
 use libc::{memset, snprintf, sprintf, strcat, strcpy, strncmp};
 use soem::{
-    ethercatcoe::{
+    coe::{
         ec_ODlistt, ec_OElistt, ec_SDOread, ec_readODdescription, ec_readODlist, ec_readOE,
         ec_readOEsingle, EC_MAXODLIST, EC_MAXOELIST,
     },
-    ethercatconfig::ec_config,
-    ethercatdc::ec_configdc,
-    ethercatmain::{
+    config::ec_config,
+    dc::ec_configdc,
+    main::{
         ec_adaptert, ec_close, ec_eeprom2pdi, ec_eepromPDOt, ec_find_adapters, ec_free_adapters,
         ec_group, ec_init, ec_readstate, ec_siifind, ec_siigetbyte, ec_siistring, ec_slave,
         ec_slavecount, ec_statecheck, EcatError,
     },
-    ethercatprint::{ec_ALstatuscode2string, ec_elist2string},
-    ethercattype::{
+    print::{ec_ALstatuscode2string, ec_elist2string},
+    types::{
         ec_datatype, ec_state, SiiCategory, ECT_SDO_PDOASSIGN, EC_TIMEOUTRXM, EC_TIMEOUTSTATE,
     },
 };

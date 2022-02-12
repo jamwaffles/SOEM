@@ -1,7 +1,7 @@
 use crate::{
-    ethercatmain::ecx_port,
-    ethercattype::{ec_bufT, ec_bufstate, ec_comt, ec_etherheadert, Command, EthercatRegister},
+    main::ecx_port,
     oshw::linux::nicdrv::{ecx_getindex, ecx_portt, ecx_setbufstat, ecx_srconfirm},
+    types::{ec_bufT, ec_bufstate, ec_comt, ec_etherheadert, Command, EthercatRegister},
 };
 use libc::{memcpy, memset};
 

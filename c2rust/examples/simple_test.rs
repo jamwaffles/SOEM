@@ -1,15 +1,15 @@
 use libc::{c_void, pthread_t};
 use soem::{
-    ethercatconfig::{ec_config_init, ec_config_map, ec_reconfig_slave, ec_recover_slave},
-    ethercatdc::ec_configdc,
-    ethercatmain::{
+    config::{ec_config_init, ec_config_map, ec_reconfig_slave, ec_recover_slave},
+    dc::ec_configdc,
+    main::{
         ec_DCtime, ec_adaptert, ec_close, ec_find_adapters, ec_free_adapters, ec_group, ec_init,
         ec_readstate, ec_receive_processdata, ec_send_processdata, ec_slave, ec_slavecount,
         ec_statecheck, ec_writestate,
     },
-    ethercatprint::ec_ALstatuscode2string,
-    ethercattype::{self, ec_state, EC_TIMEOUTRET, EC_TIMEOUTSTATE},
     osal::linux::osal::{osal_thread_create, osal_usleep},
+    print::ec_ALstatuscode2string,
+    types::{self, ec_state, EC_TIMEOUTRET, EC_TIMEOUTSTATE},
 };
 
 const EC_TIMEOUTMON: u32 = 500;
@@ -224,7 +224,7 @@ pub unsafe fn ecatcheck(mut _ptr: *mut libc::c_void) {
                             slave as libc::c_int
                         );
                         ec_slave[slave as usize].state = (ec_state::EC_STATE_SAFE_OP as libc::c_int
-                            + ethercattype::EC_STATE_ACK as libc::c_int)
+                            + types::EC_STATE_ACK as libc::c_int)
                             as u16;
                         ec_writestate(slave as u16);
                     } else if ec_slave[slave as usize].state as libc::c_int

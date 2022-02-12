@@ -1,9 +1,9 @@
 use crate::{
-    ethercatmain::{
+    main::{
         ec_clearmbx, ec_mbxbuft, ec_mbxheadert, ec_nextmbxcnt, ecx_contextt, ecx_mbxreceive,
         ecx_mbxsend,
     },
-    ethercattype::{ec_err_type, MailboxType, EC_TIMEOUTTXM},
+    types::{ec_err_type, MailboxType, EC_TIMEOUTTXM},
 };
 use c2rust_bitfields;
 use libc::memcpy;

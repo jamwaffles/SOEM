@@ -1,7 +1,7 @@
 use crate::{
-    ethercatmain::{ecx_context, ecx_contextt, ecx_poperror},
-    ethercattype::{ec_err_type, ec_errort, C2RustUnnamed_0},
+    main::{ecx_context, ecx_contextt, ecx_poperror},
     osal::linux::osal::ec_timet,
+    types::{ec_err_type, ec_errort, C2RustUnnamed_0},
 };
 use libc::sprintf;
 

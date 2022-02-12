@@ -1,9 +1,9 @@
 use std::mem;
 
 use crate::{
-    ethercatmain::ecx_port,
-    ethercattype::{ec_bufT, ec_bufstate, ec_comt, ec_etherheadert, htons, ntohs, EC_TIMEOUTRET},
+    main::ecx_port,
     osal::linux::osal::{ec_timet, osal_timer_is_expired, osal_timer_start, osal_timert},
+    types::{ec_bufT, ec_bufstate, ec_comt, ec_etherheadert, htons, ntohs, EC_TIMEOUTRET},
 };
 use libc::{
     bind, close, ioctl, memcpy, pthread_mutex_init, pthread_mutex_lock, pthread_mutex_t,

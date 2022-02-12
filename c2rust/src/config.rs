@@ -1,20 +1,20 @@
 use crate::{
-    ethercatbase::{
+    base::{
         ecx_APRD, ecx_APRDw, ecx_APWRw, ecx_BRD, ecx_BWR, ecx_FPRD, ecx_FPRDw, ecx_FPWR, ecx_FPWRw,
     },
-    ethercatcoe::{ecx_readPDOmap, ecx_readPDOmapCA},
-    ethercatmain::{
+    coe::{ecx_readPDOmap, ecx_readPDOmapCA},
+    main::{
         ec_eepromPDOt, ec_fmmut, ec_groupt, ec_slavet, ec_smt, ecx_context, ecx_contextt,
         ecx_eeprom2master, ecx_eeprom2pdi, ecx_readeeprom, ecx_readeeprom1, ecx_readeeprom2,
         ecx_siiFMMU, ecx_siiPDO, ecx_siiSM, ecx_siiSMnext, ecx_siifind, ecx_siigetbyte,
         ecx_siistring, ecx_statecheck,
     },
-    ethercatsoe::ecx_readIDNmap,
-    ethercattype::{
+    osal::linux::osal::osal_usleep,
+    soe::ecx_readIDNmap,
+    types::{
         self, ec_state, EthercatRegister, SiiCategory, SiiGeneral, EC_TIMEOUTEEP, EC_TIMEOUTRET3,
         EC_TIMEOUTSAFE, EC_TIMEOUTSTATE,
     },
-    osal::linux::osal::osal_usleep,
 };
 use libc::{memcpy, memset, sprintf, strcpy};
 
@@ -526,7 +526,7 @@ pub unsafe fn ecx_detect_slaves(context: *mut ecx_contextt) -> libc::c_int {
         &mut b as *mut u8 as *mut libc::c_void,
         EC_TIMEOUTRET3,
     ); /* Reset all slaves to Init */
-    b = (ec_state::EC_STATE_INIT as libc::c_int | ethercattype::EC_STATE_ACK as libc::c_int) as u8;
+    b = (ec_state::EC_STATE_INIT as libc::c_int | types::EC_STATE_ACK as libc::c_int) as u8;
     ecx_BWR(
         (*context).port,
         0u16,
@@ -657,7 +657,7 @@ unsafe fn ecx_set_slaves_to_default(context: *mut ecx_contextt) {
         &mut b as *mut u8 as *mut libc::c_void,
         EC_TIMEOUTRET3,
     );
-    b = (ec_state::EC_STATE_INIT as libc::c_int | ethercattype::EC_STATE_ACK as libc::c_int) as u8;
+    b = (ec_state::EC_STATE_INIT as libc::c_int | types::EC_STATE_ACK as libc::c_int) as u8;
     ecx_BWR(
         (*context).port,
         0u16,
@@ -1222,8 +1222,8 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
                     (*context).port,
                     configadr,
                     EthercatRegister::ECT_REG_ALCTL as u16,
-                    (ec_state::EC_STATE_PRE_OP as libc::c_int
-                        | ethercattype::EC_STATE_ACK as libc::c_int) as u16,
+                    (ec_state::EC_STATE_PRE_OP as libc::c_int | types::EC_STATE_ACK as libc::c_int)
+                        as u16,
                     EC_TIMEOUTRET3,
                 );
                 /* set preop status */

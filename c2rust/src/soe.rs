@@ -1,13 +1,13 @@
 use crate::{
-    ethercatmain::{
+    main::{
         ec_clearmbx, ec_mbxbuft, ec_mbxheadert, ec_nextmbxcnt, ecx_context, ecx_contextt,
         ecx_mbxempty, ecx_mbxreceive, ecx_mbxsend, ecx_packeterror, ecx_pusherror,
     },
-    ethercattype::{
+    osal::linux::osal::{ec_timet, osal_current_time},
+    types::{
         ec_err_type, ec_errort, C2RustUnnamed_0, MailboxType, SoEOpCode, EC_TIMEOUTRXM,
         EC_TIMEOUTTXM,
     },
-    osal::linux::osal::{ec_timet, osal_current_time},
 };
 use libc::{memcpy, memset};
 
