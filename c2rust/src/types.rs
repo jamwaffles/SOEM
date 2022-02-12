@@ -68,7 +68,7 @@ pub const EC_LOGGROUPOFFSET: i32 = 16;
 pub type ec_bufT = [u8; EC_BUFSIZE];
 
 /** ethernet header definition */
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C, packed)]
 pub struct EthernetHeader {
     /** destination MAC */
@@ -87,7 +87,7 @@ pub struct EthernetHeader {
 pub const ETH_HEADERSIZE: usize = size_of::<EthernetHeader>();
 
 /** EtherCAT datagram header definition */
-#[derive(Copy, Clone, Default)]
+#[derive(Copy, Clone, Default, Debug)]
 #[repr(C, packed)]
 pub struct EthercatHeader {
     /** length of EtherCAT datagram */
