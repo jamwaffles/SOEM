@@ -35,7 +35,7 @@ pub static mut estring: [libc::c_char; 127] = [0; 127];
 pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
     [
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode: 0u32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -43,7 +43,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x5030000u32,
                                    errordescription:
@@ -52,7 +52,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x5040000u32,
                                    errordescription:
@@ -61,7 +61,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x5040001u32,
                                    errordescription:
@@ -70,7 +70,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x5040005u32,
                                    errordescription:
@@ -79,7 +79,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6010000u32,
                                    errordescription:
@@ -88,7 +88,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6010001u32,
                                    errordescription:
@@ -97,7 +97,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6010002u32,
                                    errordescription:
@@ -106,7 +106,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6010003u32,
                                    errordescription:
@@ -115,7 +115,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6010004u32,
                                    errordescription:
@@ -124,7 +124,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6010005u32,
                                    errordescription:
@@ -133,7 +133,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6010006u32,
                                    errordescription:
@@ -142,7 +142,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6020000u32,
                                    errordescription:
@@ -151,7 +151,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6040041u32,
                                    errordescription:
@@ -160,7 +160,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6040042u32,
                                    errordescription:
@@ -169,7 +169,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6040043u32,
                                    errordescription:
@@ -178,7 +178,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6040047u32,
                                    errordescription:
@@ -187,7 +187,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6060000u32,
                                    errordescription:
@@ -196,7 +196,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6070010u32,
                                    errordescription:
@@ -205,7 +205,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6070012u32,
                                    errordescription:
@@ -214,7 +214,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6070013u32,
                                    errordescription:
@@ -223,7 +223,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6090011u32,
                                    errordescription:
@@ -232,7 +232,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6090030u32,
                                    errordescription:
@@ -241,7 +241,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6090031u32,
                                    errordescription:
@@ -250,7 +250,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6090032u32,
                                    errordescription:
@@ -259,7 +259,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x6090036u32,
                                    errordescription:
@@ -268,7 +268,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x8000000u32,
                                    errordescription:
@@ -277,7 +277,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x8000020u32,
                                    errordescription:
@@ -286,7 +286,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x8000021u32,
                                    errordescription:
@@ -295,7 +295,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x8000022u32,
                                    errordescription:
@@ -304,7 +304,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode:
                                        0x8000023u32,
                                    errordescription:
@@ -313,7 +313,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_sdoerrorlist_t{errorcode: 0xffffffffu32,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -327,7 +327,7 @@ pub static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = unsafe {
 pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
     [
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0u16,
                                        ALstatuscodedescription:
@@ -336,7 +336,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x1u16,
                                        ALstatuscodedescription:
@@ -345,7 +345,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x2u16,
                                        ALstatuscodedescription:
@@ -354,7 +354,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x11u16,
                                        ALstatuscodedescription:
@@ -363,7 +363,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x12u16,
                                        ALstatuscodedescription:
@@ -372,7 +372,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x13u16,
                                        ALstatuscodedescription:
@@ -381,7 +381,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x14u16,
                                        ALstatuscodedescription:
@@ -390,7 +390,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x15u16,
                                        ALstatuscodedescription:
@@ -399,7 +399,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x16u16,
                                        ALstatuscodedescription:
@@ -408,7 +408,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x17u16,
                                        ALstatuscodedescription:
@@ -417,7 +417,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x18u16,
                                        ALstatuscodedescription:
@@ -426,7 +426,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x19u16,
                                        ALstatuscodedescription:
@@ -435,7 +435,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x1au16,
                                        ALstatuscodedescription:
@@ -444,7 +444,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x1bu16,
                                        ALstatuscodedescription:
@@ -453,7 +453,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x1cu16,
                                        ALstatuscodedescription:
@@ -462,7 +462,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x1du16,
                                        ALstatuscodedescription:
@@ -471,7 +471,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x1eu16,
                                        ALstatuscodedescription:
@@ -480,7 +480,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x1fu16,
                                        ALstatuscodedescription:
@@ -489,7 +489,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x20u16,
                                        ALstatuscodedescription:
@@ -498,7 +498,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x21u16,
                                        ALstatuscodedescription:
@@ -507,7 +507,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x22u16,
                                        ALstatuscodedescription:
@@ -516,7 +516,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x23u16,
                                        ALstatuscodedescription:
@@ -525,7 +525,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x24u16,
                                        ALstatuscodedescription:
@@ -534,7 +534,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x25u16,
                                        ALstatuscodedescription:
@@ -543,7 +543,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x26u16,
                                        ALstatuscodedescription:
@@ -552,7 +552,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x27u16,
                                        ALstatuscodedescription:
@@ -561,7 +561,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x28u16,
                                        ALstatuscodedescription:
@@ -570,7 +570,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x29u16,
                                        ALstatuscodedescription:
@@ -579,7 +579,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x2au16,
                                        ALstatuscodedescription:
@@ -588,7 +588,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x2bu16,
                                        ALstatuscodedescription:
@@ -597,7 +597,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x2cu16,
                                        ALstatuscodedescription:
@@ -606,7 +606,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x2du16,
                                        ALstatuscodedescription:
@@ -615,7 +615,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x2eu16,
                                        ALstatuscodedescription:
@@ -624,7 +624,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x30u16,
                                        ALstatuscodedescription:
@@ -633,7 +633,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x31u16,
                                        ALstatuscodedescription:
@@ -642,7 +642,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x32u16,
                                        ALstatuscodedescription:
@@ -651,7 +651,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x33u16,
                                        ALstatuscodedescription:
@@ -660,7 +660,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x34u16,
                                        ALstatuscodedescription:
@@ -669,7 +669,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x35u16,
                                        ALstatuscodedescription:
@@ -678,7 +678,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x36u16,
                                        ALstatuscodedescription:
@@ -687,7 +687,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x37u16,
                                        ALstatuscodedescription:
@@ -696,7 +696,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x41u16,
                                        ALstatuscodedescription:
@@ -705,7 +705,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x42u16,
                                        ALstatuscodedescription:
@@ -714,7 +714,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x43u16,
                                        ALstatuscodedescription:
@@ -723,7 +723,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x44u16,
                                        ALstatuscodedescription:
@@ -732,7 +732,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x45u16,
                                        ALstatuscodedescription:
@@ -741,7 +741,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x4fu16,
                                        ALstatuscodedescription:
@@ -750,7 +750,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x50u16,
                                        ALstatuscodedescription:
@@ -759,7 +759,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x51u16,
                                        ALstatuscodedescription:
@@ -768,7 +768,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x60u16,
                                        ALstatuscodedescription:
@@ -777,7 +777,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0x61u16,
                                        ALstatuscodedescription:
@@ -786,7 +786,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0xf0u16,
                                        ALstatuscodedescription:
@@ -795,7 +795,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_ALstatuscodelist_t{ALstatuscode:
                                            0xffffu16,
                                        ALstatuscodedescription:
@@ -810,7 +810,7 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = unsafe {
 pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
     [
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -818,7 +818,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x1001u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -826,7 +826,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x1009u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -834,7 +834,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x2001u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -842,7 +842,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x2002u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -850,7 +850,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x2003u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -858,7 +858,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x2004u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -866,7 +866,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x2005u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -874,7 +874,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x3002u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -882,7 +882,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x3003u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -890,7 +890,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x3004u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -898,7 +898,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x3005u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -906,7 +906,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x4001u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -914,7 +914,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x4002u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -922,7 +922,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x4003u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -930,7 +930,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x4004u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -938,7 +938,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x4005u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -946,7 +946,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x5001u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -954,7 +954,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x5002u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -962,7 +962,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x5003u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -970,7 +970,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x5004u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -978,7 +978,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x5005u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -986,7 +986,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x6001u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -994,7 +994,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x6002u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1002,7 +1002,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x6003u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1010,7 +1010,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x6004u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1018,7 +1018,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x6005u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1026,7 +1026,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x7002u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1034,7 +1034,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x7003u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1042,7 +1042,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x7004u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1050,7 +1050,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x7005u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1058,7 +1058,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x7006u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1066,7 +1066,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x7007u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1074,7 +1074,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x7008u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1082,7 +1082,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x7009u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1090,7 +1090,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x700au16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1098,7 +1098,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x700bu16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1106,7 +1106,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x700cu16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1114,7 +1114,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x700du16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1122,7 +1122,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x7010u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1130,7 +1130,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x7011u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1138,7 +1138,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x7012u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1146,7 +1146,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x7013u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1154,7 +1154,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x7014u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1162,7 +1162,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x8001u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1170,7 +1170,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x8002u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1178,7 +1178,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x8004u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1186,7 +1186,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x800au16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1194,7 +1194,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x800au16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1202,7 +1202,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0x800au16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1210,7 +1210,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_soeerrorlist_t{errorcode: 0xffffu16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1224,7 +1224,7 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = unsafe {
 pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] = unsafe {
     [
         {
-            let mut init =
+            let init =
                  ec_mbxerrorlist_t{errorcode: 0u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1232,7 +1232,7 @@ pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_mbxerrorlist_t{errorcode: 0x1u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1240,7 +1240,7 @@ pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_mbxerrorlist_t{errorcode: 0x2u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1248,7 +1248,7 @@ pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_mbxerrorlist_t{errorcode: 0x3u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1256,7 +1256,7 @@ pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_mbxerrorlist_t{errorcode: 0x4u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1264,7 +1264,7 @@ pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_mbxerrorlist_t{errorcode: 0x5u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1272,7 +1272,7 @@ pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_mbxerrorlist_t{errorcode: 0x6u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1280,7 +1280,7 @@ pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_mbxerrorlist_t{errorcode: 0x7u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1288,7 +1288,7 @@ pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_mbxerrorlist_t{errorcode: 0x8u16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1296,7 +1296,7 @@ pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_mbxerrorlist_t{errorcode: 0xffffu16,
                                    errordescription:
                                        *::core::mem::transmute::<&[u8; 128],
@@ -1311,7 +1311,7 @@ pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] = unsafe {
  * @return readable string
  */
 #[no_mangle]
-pub unsafe fn ec_sdoerror2string(mut sdoerrorcode: u32) -> *const libc::c_char {
+pub unsafe fn ec_sdoerror2string(sdoerrorcode: u32) -> *const libc::c_char {
     let mut i: libc::c_int = 0i32;
     while ec_sdoerrorlist[i as usize].errorcode as libc::c_ulong != 0xffffffffu64
         && ec_sdoerrorlist[i as usize].errorcode != sdoerrorcode
@@ -1326,7 +1326,7 @@ pub unsafe fn ec_sdoerror2string(mut sdoerrorcode: u32) -> *const libc::c_char {
  * @return readable string
  */
 #[no_mangle]
-pub unsafe fn ec_ALstatuscode2string(mut ALstatuscode: u16) -> *mut libc::c_char {
+pub unsafe fn ec_ALstatuscode2string(ALstatuscode: u16) -> *mut libc::c_char {
     let mut i: libc::c_int = 0i32;
     while ec_ALstatuscodelist[i as usize].ALstatuscode as libc::c_int != 0xffffi32
         && ec_ALstatuscodelist[i as usize].ALstatuscode as libc::c_int
@@ -1344,7 +1344,7 @@ pub unsafe fn ec_ALstatuscode2string(mut ALstatuscode: u16) -> *mut libc::c_char
  * @return readable string
  */
 #[no_mangle]
-pub unsafe fn ec_soeerror2string(mut errorcode: u16) -> *mut libc::c_char {
+pub unsafe fn ec_soeerror2string(errorcode: u16) -> *mut libc::c_char {
     let mut i: libc::c_int = 0i32;
     while ec_soeerrorlist[i as usize].errorcode as libc::c_int != 0xffffi32
         && ec_soeerrorlist[i as usize].errorcode as libc::c_int != errorcode as libc::c_int
@@ -1359,7 +1359,7 @@ pub unsafe fn ec_soeerror2string(mut errorcode: u16) -> *mut libc::c_char {
  * @return readable string
  */
 #[no_mangle]
-pub unsafe fn ec_mbxerror2string(mut errorcode: u16) -> *mut libc::c_char {
+pub unsafe fn ec_mbxerror2string(errorcode: u16) -> *mut libc::c_char {
     let mut i: libc::c_int = 0i32;
     while ec_mbxerrorlist[i as usize].errorcode as libc::c_int != 0xffffi32
         && ec_mbxerrorlist[i as usize].errorcode as libc::c_int != errorcode as libc::c_int
@@ -1468,7 +1468,7 @@ pub unsafe fn ecx_err2string(Ec: ec_errort) -> *mut libc::c_char {
  * @return readable string
  */
 #[no_mangle]
-pub unsafe fn ecx_elist2string(mut context: *mut ecx_contextt) -> *mut libc::c_char {
+pub unsafe fn ecx_elist2string(context: *mut ecx_contextt) -> *mut libc::c_char {
     let mut Ec: ec_errort = ec_errort {
         Time: ec_timet { sec: 0, usec: 0 },
         Signal: false,

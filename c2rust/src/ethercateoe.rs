@@ -8,6 +8,8 @@ use crate::{
 use c2rust_bitfields;
 use libc::memcpy;
 
+pub const EOE_PARAM_OFFSET: u8 = 4;
+
 #[derive(Copy, Clone)]
 pub struct eoe_ip4_addr {
     pub addr: u32,
@@ -69,7 +71,7 @@ pub union C2RustUnnamed_2 {
  * @param[in] ip       = ip in u32
  * @param[out] byte_ip = eoe ip 4th octet, 3ed octet, 2nd octet, 1st octet
  */
-unsafe fn EOE_ip_uint32_to_byte(mut ip: *mut eoe_ip4_addr_t, mut byte_ip: *mut u8) {
+unsafe fn EOE_ip_uint32_to_byte(ip: *mut eoe_ip4_addr_t, byte_ip: *mut u8) {
     *byte_ip.offset(3isize) = *(&mut (*ip).addr as *mut u32 as *const u8).offset(0isize); /* 1st octet */
     *byte_ip.offset(2isize) = *(&mut (*ip).addr as *mut u32 as *const u8).offset(1isize); /* 2nd octet */
     *byte_ip.offset(1isize) = *(&mut (*ip).addr as *mut u32 as *const u8).offset(2isize); /* 3ed octet */
@@ -80,7 +82,7 @@ unsafe fn EOE_ip_uint32_to_byte(mut ip: *mut eoe_ip4_addr_t, mut byte_ip: *mut u
 * @param[in] byte_ip = eoe ip 4th octet, 3ed octet, 2nd octet, 1st octet
 * @param[out] ip     = ip in u32
 */
-unsafe fn EOE_ip_byte_to_uint32(mut byte_ip: *mut u8, mut ip: *mut eoe_ip4_addr_t) {
+unsafe fn EOE_ip_byte_to_uint32(byte_ip: *mut u8, mut ip: *mut eoe_ip4_addr_t) {
     (*ip).addr = (((((*byte_ip.offset(3isize) as libc::c_int & 0xffi32) as u32) << 24i32
         | ((*byte_ip.offset(2isize) as libc::c_int & 0xffi32) as u32) << 16i32
         | ((*byte_ip.offset(1isize) as libc::c_int & 0xffi32) as u32) << 8i32
@@ -120,7 +122,7 @@ unsafe fn EOE_ip_byte_to_uint32(mut byte_ip: *mut u8, mut ip: *mut eoe_ip4_addr_
 #[no_mangle]
 pub unsafe fn ecx_EOEdefinehook(
     mut context: *mut ecx_contextt,
-    mut hook: *mut libc::c_void,
+    hook: *mut libc::c_void,
 ) -> libc::c_int {
     (*context).EOEhook = ::core::mem::transmute::<
         *mut libc::c_void,
@@ -139,11 +141,11 @@ pub unsafe fn ecx_EOEdefinehook(
 */
 #[no_mangle]
 pub unsafe fn ecx_EOEsetIp(
-    mut context: *mut ecx_contextt,
-    mut slave: u16,
-    mut port: u8,
-    mut ipparam: *mut eoe_param_t,
-    mut timeout: u32,
+    context: *mut ecx_contextt,
+    slave: u16,
+    port: u8,
+    ipparam: *mut eoe_param_t,
+    timeout: u32,
 ) -> libc::c_int {
     let mut EOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
     let mut aEOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
@@ -163,7 +165,8 @@ pub unsafe fn ecx_EOEsetIp(
     EOEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_EOEt;
     (*EOEp).mbxheader.address = 0u16;
     (*EOEp).mbxheader.priority = 0u8;
-    data_offset = 4u8;
+    data_offset = EOE_PARAM_OFFSET;
+    // FIXME: Lots of magic constants below
     /* get new mailbox count value, used as session handle */
     cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* EoE */
     (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
@@ -278,11 +281,11 @@ pub unsafe fn ecx_EOEsetIp(
 */
 #[no_mangle]
 pub unsafe fn ecx_EOEgetIp(
-    mut context: *mut ecx_contextt,
-    mut slave: u16,
-    mut port: u8,
-    mut ipparam: *mut eoe_param_t,
-    mut timeout: u32,
+    context: *mut ecx_contextt,
+    slave: u16,
+    port: u8,
+    ipparam: *mut eoe_param_t,
+    timeout: u32,
 ) -> libc::c_int {
     let mut EOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
     let mut aEOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
@@ -436,12 +439,12 @@ pub unsafe fn ecx_EOEgetIp(
 */
 #[no_mangle]
 pub unsafe fn ecx_EOEsend(
-    mut context: *mut ecx_contextt,
-    mut slave: u16,
-    mut port: u8,
-    mut psize: libc::c_int,
-    mut p: *mut libc::c_void,
-    mut timeout: u32,
+    context: *mut ecx_contextt,
+    slave: u16,
+    port: u8,
+    psize: libc::c_int,
+    p: *mut libc::c_void,
+    timeout: u32,
 ) -> libc::c_int {
     let mut EOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
     let mut MbxOut: ec_mbxbuft = [0; 1487];
@@ -454,7 +457,7 @@ pub unsafe fn ecx_EOEsend(
     let mut maxdata: libc::c_int = 0;
     let mut txframesize: libc::c_int = 0;
     let mut txframeoffset: libc::c_int = 0;
-    let mut buf: *const u8 = p as *const u8;
+    let buf: *const u8 = p as *const u8;
     static mut txframeno: u8 = 0u8;
     ec_clearmbx(&mut MbxOut);
     EOEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_EOEt;
@@ -536,12 +539,12 @@ pub unsafe fn ecx_EOEsend(
 */
 #[no_mangle]
 pub unsafe fn ecx_EOErecv(
-    mut context: *mut ecx_contextt,
-    mut slave: u16,
-    mut port: u8,
-    mut psize: *mut libc::c_int,
-    mut p: *mut libc::c_void,
-    mut timeout: u32,
+    context: *mut ecx_contextt,
+    slave: u16,
+    port: u8,
+    psize: *mut libc::c_int,
+    p: *mut libc::c_void,
+    timeout: u32,
 ) -> libc::c_int {
     let mut aEOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
     let mut MbxIn: ec_mbxbuft = [0; 1487];
@@ -555,7 +558,7 @@ pub unsafe fn ecx_EOErecv(
     let mut rxframesize: libc::c_int = 0;
     let mut rxframeoffset: libc::c_int = 0;
     let mut eoedatasize: libc::c_int = 0;
-    let mut buf: *mut u8 = p as *mut u8;
+    let buf: *mut u8 = p as *mut u8;
     ec_clearmbx(&mut MbxIn);
     aEOEp = &mut MbxIn as *mut ec_mbxbuft as *mut ec_EOEt;
     NotLast = true;
@@ -642,13 +645,13 @@ pub unsafe fn ecx_EOErecv(
 */
 #[no_mangle]
 pub unsafe fn ecx_EOEreadfragment(
-    mut MbxIn: *mut ec_mbxbuft,
-    mut rxfragmentno: *mut u8,
-    mut rxframesize: *mut u16,
-    mut rxframeoffset: *mut u16,
-    mut rxframeno: *mut u16,
-    mut psize: *mut libc::c_int,
-    mut p: *mut libc::c_void,
+    MbxIn: *mut ec_mbxbuft,
+    rxfragmentno: *mut u8,
+    rxframesize: *mut u16,
+    rxframeoffset: *mut u16,
+    rxframeno: *mut u16,
+    psize: *mut libc::c_int,
+    p: *mut libc::c_void,
 ) -> libc::c_int {
     let mut frameinfo1: u16 = 0;
     let mut frameinfo2: u16 = 0;

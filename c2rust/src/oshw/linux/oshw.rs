@@ -15,8 +15,8 @@ use libc::{free, if_freenameindex, if_nameindex, malloc, strncpy};
  * header which is big endian as usual.
  */
 #[no_mangle]
-pub unsafe fn oshw_htons(mut host: u16) -> u16 {
-    let mut network: u16 = htons(host);
+pub unsafe fn oshw_htons(host: u16) -> u16 {
+    let network: u16 = htons(host);
     return network;
 }
 /* *
@@ -26,8 +26,8 @@ pub unsafe fn oshw_htons(mut host: u16) -> u16 {
  * header which is big endian as usual.
  */
 #[no_mangle]
-pub unsafe fn oshw_ntohs(mut network: u16) -> u16 {
-    let mut host: u16 = ntohs(network);
+pub unsafe fn oshw_ntohs(network: u16) -> u16 {
+    let host: u16 = ntohs(network);
     return host;
 }
 /* * Create list over available network adapters.

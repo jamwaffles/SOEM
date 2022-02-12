@@ -52,7 +52,7 @@ pub static mut ecx_mapt: [ecx_mapt_t; 1] = [ecx_mapt_t {
 pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
     [
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0u32,
                                  id: 0u32,
                                  name:
@@ -70,7 +70,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0x44c2c52u32,
                                  name:
@@ -88,7 +88,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0x3ea3052u32,
                                  name:
@@ -106,7 +106,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0x3ec3052u32,
                                  name:
@@ -124,7 +124,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0x3f43052u32,
                                  name:
@@ -142,7 +142,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0x3f63052u32,
                                  name:
@@ -160,7 +160,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0x3fa3052u32,
                                  name:
@@ -178,7 +178,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0x7d23052u32,
                                  name:
@@ -196,7 +196,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0x7d43052u32,
                                  name:
@@ -214,7 +214,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0x7d83052u32,
                                  name:
@@ -232,7 +232,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0x7f03052u32,
                                  name:
@@ -250,7 +250,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0xc1e3052u32,
                                  name:
@@ -268,7 +268,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0xc283052u32,
                                  name:
@@ -286,7 +286,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0xc323052u32,
                                  name:
@@ -304,7 +304,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0xc463052u32,
                                  name:
@@ -322,7 +322,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0xc503052u32,
                                  name:
@@ -340,7 +340,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0xc5a3052u32,
                                  name:
@@ -358,7 +358,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0xfc03052u32,
                                  name:
@@ -376,7 +376,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0x10063052u32,
                                  name:
@@ -394,7 +394,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0x10103052u32,
                                  name:
@@ -412,7 +412,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0x101a3052u32,
                                  name:
@@ -430,7 +430,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0x10243052u32,
                                  name:
@@ -448,7 +448,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0x2u32,
                                  id: 0x13ed3052u32,
                                  name:
@@ -466,7 +466,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
             init
         },
         {
-            let mut init =
+            let init =
                  ec_configlist_t{man: 0xffffffffu32,
                                  id: 0u32,
                                  name:
@@ -495,7 +495,7 @@ pub static mut ec_configlist: [ec_configlist_t; 24] = unsafe {
  * @return index in ec_configlist[] when found, otherwise 0
  */
 #[no_mangle]
-pub unsafe fn ec_findconfig(mut man: u32, mut id: u32) -> libc::c_int {
+pub unsafe fn ec_findconfig(man: u32, id: u32) -> libc::c_int {
     let mut i: libc::c_int = 0i32;
     loop {
         i += 1;
@@ -511,7 +511,7 @@ pub unsafe fn ec_findconfig(mut man: u32, mut id: u32) -> libc::c_int {
     return i;
 }
 #[no_mangle]
-pub unsafe fn ecx_init_context(mut context: *mut ecx_contextt) {
+pub unsafe fn ecx_init_context(context: *mut ecx_contextt) {
     let mut lp: libc::c_int = 0;
     *(*context).slavecount = 0i32;
     /* clean ec_slave array */
@@ -535,7 +535,7 @@ pub unsafe fn ecx_init_context(mut context: *mut ecx_contextt) {
     }
 }
 #[no_mangle]
-pub unsafe fn ecx_detect_slaves(mut context: *mut ecx_contextt) -> libc::c_int {
+pub unsafe fn ecx_detect_slaves(context: *mut ecx_contextt) -> libc::c_int {
     let mut b: u8 = 0;
     let mut w: u16 = 0;
     let mut wkc: libc::c_int = 0;
@@ -586,7 +586,7 @@ pub unsafe fn ecx_detect_slaves(mut context: *mut ecx_contextt) -> libc::c_int {
     } /* deact loop manual */
     return wkc; /* set IRQ mask */
 }
-unsafe fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
+unsafe fn ecx_set_slaves_to_default(context: *mut ecx_contextt) {
     let mut b: u8 = 0; /* reset CRC counters */
     let mut w: u16 = 0; /* reset FMMU's */
     let mut zbuf: [u8; 64] = [0; 64]; /* reset SyncM */
@@ -710,7 +710,7 @@ unsafe fn ecx_set_slaves_to_default(mut context: *mut ecx_contextt) {
     );
     /* set Eeprom to master */
 }
-unsafe fn ecx_config_from_table(mut context: *mut ecx_contextt, mut slave: u16) -> libc::c_int {
+unsafe fn ecx_config_from_table(context: *mut ecx_contextt, slave: u16) -> libc::c_int {
     let mut cindex: libc::c_int = 0;
     let mut csl: *mut ec_slavet = 0 as *mut ec_slavet;
     csl = &mut *(*context).slavelist.offset(slave as isize) as *mut ec_slavet;
@@ -769,7 +769,7 @@ unsafe fn ecx_config_from_table(mut context: *mut ecx_contextt, mut slave: u16) 
 /* If slave has SII and same slave ID done before, use previous data.
  * This is safe because SII is constant for same slave ID.
  */
-unsafe fn ecx_lookup_prev_sii(mut context: *mut ecx_contextt, mut slave: u16) -> libc::c_int {
+unsafe fn ecx_lookup_prev_sii(context: *mut ecx_contextt, slave: u16) -> libc::c_int {
     let mut i: libc::c_int = 0;
     let mut nSM: libc::c_int = 0;
     if slave as libc::c_int > 1i32 && *(*context).slavecount > 0i32 {
@@ -841,7 +841,7 @@ unsafe fn ecx_lookup_prev_sii(mut context: *mut ecx_contextt, mut slave: u16) ->
  * @return Workcounter of slave discover datagram = number of slaves found
  */
 #[no_mangle]
-pub unsafe fn ecx_config_init(mut context: *mut ecx_contextt, mut usetable: u8) -> libc::c_int {
+pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc::c_int {
     let mut slave: u16 = 0;
     let mut ADPh: u16 = 0;
     let mut configadr: u16 = 0;
@@ -1263,10 +1263,10 @@ pub unsafe fn ecx_config_init(mut context: *mut ecx_contextt, mut usetable: u8) 
  * This is safe because SII mapping is constant for same slave ID.
  */
 unsafe fn ecx_lookup_mapping(
-    mut context: *mut ecx_contextt,
-    mut slave: u16,
-    mut Osize: *mut u32,
-    mut Isize: *mut u32,
+    context: *mut ecx_contextt,
+    slave: u16,
+    Osize: *mut u32,
+    Isize: *mut u32,
 ) -> libc::c_int {
     let mut i: libc::c_int = 0; /* check state change pre-op */
     let mut nSM: libc::c_int = 0;
@@ -1301,9 +1301,9 @@ unsafe fn ecx_lookup_mapping(
     return 0i32;
 }
 unsafe fn ecx_map_coe_soe(
-    mut context: *mut ecx_contextt,
-    mut slave: u16,
-    mut thread_n: libc::c_int,
+    context: *mut ecx_contextt,
+    slave: u16,
+    thread_n: libc::c_int,
 ) -> libc::c_int {
     let mut Isize: u32 = 0;
     let mut Osize: u32 = 0;
@@ -1371,7 +1371,7 @@ unsafe fn ecx_map_coe_soe(
     }
     return 1i32;
 }
-unsafe fn ecx_map_sii(mut context: *mut ecx_contextt, mut slave: u16) -> libc::c_int {
+unsafe fn ecx_map_sii(context: *mut ecx_contextt, slave: u16) -> libc::c_int {
     let mut Isize: u32 = 0;
     let mut Osize: u32 = 0;
     let mut nSM: libc::c_int = 0;
@@ -1422,7 +1422,7 @@ unsafe fn ecx_map_sii(mut context: *mut ecx_contextt, mut slave: u16) -> libc::c
     (*(*context).slavelist.offset(slave as isize)).Ibits = Isize as u16;
     return 1i32;
 }
-unsafe fn ecx_map_sm(mut context: *mut ecx_contextt, mut slave: u16) -> libc::c_int {
+unsafe fn ecx_map_sm(context: *mut ecx_contextt, slave: u16) -> libc::c_int {
     let mut configadr: u16 = 0;
     let mut nSM: libc::c_int = 0;
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
@@ -1513,7 +1513,7 @@ unsafe fn ecx_get_threadcount() -> libc::c_int {
     }
     return thrc;
 }
-unsafe fn ecx_config_find_mappings(mut context: *mut ecx_contextt, mut group: u8) {
+unsafe fn ecx_config_find_mappings(context: *mut ecx_contextt, group: u8) {
     let mut thrn: libc::c_int = 0;
     let mut thrc: libc::c_int = 0;
     let mut slave: u16 = 0;
@@ -1559,12 +1559,12 @@ unsafe fn ecx_config_find_mappings(mut context: *mut ecx_contextt, mut group: u8
     }
 }
 unsafe fn ecx_config_create_input_mappings(
-    mut context: *mut ecx_contextt,
-    mut pIOmap: *mut libc::c_void,
-    mut group: u8,
-    mut slave: i16,
-    mut LogAddr: *mut u32,
-    mut BitPos: *mut u8,
+    context: *mut ecx_contextt,
+    pIOmap: *mut libc::c_void,
+    group: u8,
+    slave: i16,
+    LogAddr: *mut u32,
+    BitPos: *mut u8,
 ) {
     let mut BitCount: libc::c_int = 0i32;
     let mut FMMUdone: libc::c_int = 0i32;
@@ -1733,12 +1733,12 @@ unsafe fn ecx_config_create_input_mappings(
     };
 }
 unsafe fn ecx_config_create_output_mappings(
-    mut context: *mut ecx_contextt,
-    mut pIOmap: *mut libc::c_void,
-    mut group: u8,
-    mut slave: i16,
-    mut LogAddr: *mut u32,
-    mut BitPos: *mut u8,
+    context: *mut ecx_contextt,
+    pIOmap: *mut libc::c_void,
+    group: u8,
+    slave: i16,
+    LogAddr: *mut u32,
+    BitPos: *mut u8,
 ) {
     let mut BitCount: libc::c_int = 0i32;
     let mut FMMUdone: libc::c_int = 0i32;
@@ -1911,9 +1911,9 @@ unsafe fn ecx_config_create_output_mappings(
  */
 #[no_mangle]
 pub unsafe fn ecx_config_map_group(
-    mut context: *mut ecx_contextt,
-    mut pIOmap: *mut libc::c_void,
-    mut group: u8,
+    context: *mut ecx_contextt,
+    pIOmap: *mut libc::c_void,
+    group: u8,
 ) -> libc::c_int {
     let mut slave: u16 = 0;
     let mut configadr: u16 = 0;
@@ -2108,9 +2108,9 @@ pub unsafe fn ecx_config_map_group(
  */
 #[no_mangle]
 pub unsafe fn ecx_config_overlap_map_group(
-    mut context: *mut ecx_contextt,
-    mut pIOmap: *mut libc::c_void,
-    mut group: u8,
+    context: *mut ecx_contextt,
+    pIOmap: *mut libc::c_void,
+    group: u8,
 ) -> libc::c_int {
     let mut slave: u16 = 0;
     let mut configadr: u16 = 0;
@@ -2272,9 +2272,9 @@ pub unsafe fn ecx_config_overlap_map_group(
  */
 #[no_mangle]
 pub unsafe fn ecx_recover_slave(
-    mut context: *mut ecx_contextt,
-    mut slave: u16,
-    mut timeout: u32,
+    context: *mut ecx_contextt,
+    slave: u16,
+    timeout: u32,
 ) -> libc::c_int {
     let mut rval: libc::c_int = 0;
     let mut wkc: libc::c_int = 0;
@@ -2383,9 +2383,9 @@ pub unsafe fn ecx_recover_slave(
  */
 #[no_mangle]
 pub unsafe fn ecx_reconfig_slave(
-    mut context: *mut ecx_contextt,
-    mut slave: u16,
-    mut timeout: u32,
+    context: *mut ecx_contextt,
+    slave: u16,
+    timeout: u32,
 ) -> libc::c_int {
     let mut state: libc::c_int = 0; /* set Eeprom control to PDI */
     let mut nSM: libc::c_int = 0;
@@ -2510,7 +2510,7 @@ pub unsafe fn ecx_reconfig_slave(
  * @see ecx_config_init
  */
 #[no_mangle]
-pub unsafe fn ec_config_init(mut usetable: u8) -> libc::c_int {
+pub unsafe fn ec_config_init(usetable: u8) -> libc::c_int {
     return ecx_config_init(&mut ecx_context, usetable);
 }
 /* * Map all PDOs in one group of slaves to IOmap with Outputs/Inputs
@@ -2522,7 +2522,7 @@ pub unsafe fn ec_config_init(mut usetable: u8) -> libc::c_int {
  * @see ecx_config_map_group
  */
 #[no_mangle]
-pub unsafe fn ec_config_map_group(mut pIOmap: *mut libc::c_void, mut group: u8) -> libc::c_int {
+pub unsafe fn ec_config_map_group(pIOmap: *mut libc::c_void, group: u8) -> libc::c_int {
     return ecx_config_map_group(&mut ecx_context, pIOmap, group);
 }
 /* * Map all PDOs in one group of slaves to IOmap with Outputs/Inputs
@@ -2534,10 +2534,7 @@ pub unsafe fn ec_config_map_group(mut pIOmap: *mut libc::c_void, mut group: u8) 
 * @see ecx_config_overlap_map_group
 */
 #[no_mangle]
-pub unsafe fn ec_config_overlap_map_group(
-    mut pIOmap: *mut libc::c_void,
-    mut group: u8,
-) -> libc::c_int {
+pub unsafe fn ec_config_overlap_map_group(pIOmap: *mut libc::c_void, group: u8) -> libc::c_int {
     return ecx_config_overlap_map_group(&mut ecx_context, pIOmap, group);
 }
 /* * Map all PDOs from slaves to IOmap with Outputs/Inputs
@@ -2547,7 +2544,7 @@ pub unsafe fn ec_config_overlap_map_group(
  * @return IOmap size
  */
 #[no_mangle]
-pub unsafe fn ec_config_map(mut pIOmap: *mut libc::c_void) -> libc::c_int {
+pub unsafe fn ec_config_map(pIOmap: *mut libc::c_void) -> libc::c_int {
     return ec_config_map_group(pIOmap, 0u8);
 }
 /* * Map all PDOs from slaves to IOmap with Outputs/Inputs
@@ -2557,7 +2554,7 @@ pub unsafe fn ec_config_map(mut pIOmap: *mut libc::c_void) -> libc::c_int {
 * @return IOmap size
 */
 #[no_mangle]
-pub unsafe fn ec_config_overlap_map(mut pIOmap: *mut libc::c_void) -> libc::c_int {
+pub unsafe fn ec_config_overlap_map(pIOmap: *mut libc::c_void) -> libc::c_int {
     return ec_config_overlap_map_group(pIOmap, 0u8);
 }
 /* * Enumerate / map and init all slaves.
@@ -2567,7 +2564,7 @@ pub unsafe fn ec_config_overlap_map(mut pIOmap: *mut libc::c_void) -> libc::c_in
  * @return Workcounter of slave discover datagram = number of slaves found
  */
 #[no_mangle]
-pub unsafe fn ec_config(mut usetable: u8, mut pIOmap: *mut libc::c_void) -> libc::c_int {
+pub unsafe fn ec_config(usetable: u8, pIOmap: *mut libc::c_void) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     wkc = ec_config_init(usetable);
     if wkc != 0 {
@@ -2582,7 +2579,7 @@ pub unsafe fn ec_config(mut usetable: u8, mut pIOmap: *mut libc::c_void) -> libc
 * @return Workcounter of slave discover datagram = number of slaves found
 */
 #[no_mangle]
-pub unsafe fn ec_config_overlap(mut usetable: u8, mut pIOmap: *mut libc::c_void) -> libc::c_int {
+pub unsafe fn ec_config_overlap(usetable: u8, pIOmap: *mut libc::c_void) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     wkc = ec_config_init(usetable);
     if wkc != 0 {
@@ -2598,7 +2595,7 @@ pub unsafe fn ec_config_overlap(mut usetable: u8, mut pIOmap: *mut libc::c_void)
  * @see ecx_recover_slave
  */
 #[no_mangle]
-pub unsafe fn ec_recover_slave(mut slave: u16, mut timeout: u32) -> libc::c_int {
+pub unsafe fn ec_recover_slave(slave: u16, timeout: u32) -> libc::c_int {
     return ecx_recover_slave(&mut ecx_context, slave, timeout);
 }
 /* * Reconfigure slave.
@@ -2609,6 +2606,6 @@ pub unsafe fn ec_recover_slave(mut slave: u16, mut timeout: u32) -> libc::c_int 
  * @see ecx_reconfig_slave
  */
 #[no_mangle]
-pub unsafe fn ec_reconfig_slave(mut slave: u16, mut timeout: u32) -> libc::c_int {
+pub unsafe fn ec_reconfig_slave(slave: u16, timeout: u32) -> libc::c_int {
     return ecx_reconfig_slave(&mut ecx_context, slave, timeout);
 }

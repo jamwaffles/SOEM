@@ -20,7 +20,7 @@ pub struct osal_timer {
 pub type osal_timert = osal_timer;
 
 #[no_mangle]
-pub unsafe fn osal_usleep(mut usec: u32) -> libc::c_int {
+pub unsafe fn osal_usleep(usec: u32) -> libc::c_int {
     let mut ts: timespec = timespec {
         tv_sec: 0,
         tv_nsec: 0,
@@ -43,11 +43,7 @@ pub unsafe fn osal_current_time() -> ec_timet {
     return return_value;
 }
 #[no_mangle]
-pub unsafe fn osal_time_diff(
-    mut start: *mut ec_timet,
-    mut end: *mut ec_timet,
-    mut diff: *mut ec_timet,
-) {
+pub unsafe fn osal_time_diff(start: *mut ec_timet, end: *mut ec_timet, mut diff: *mut ec_timet) {
     if (*end).usec < (*start).usec {
         (*diff).sec = (*end).sec.wrapping_sub((*start).sec).wrapping_sub(1u32);
         (*diff).usec = (*end)
@@ -75,7 +71,7 @@ unsafe fn osal_getrelativetime(mut tv: *mut timeval) {
     (*tv).tv_usec = ts.tv_nsec / 1000;
 }
 #[no_mangle]
-pub unsafe fn osal_timer_start(mut self_0: *mut osal_timert, mut timeout_usec: u32) {
+pub unsafe fn osal_timer_start(mut self_0: *mut osal_timert, timeout_usec: u32) {
     let mut start_time: timeval = timeval {
         tv_sec: 0,
         tv_usec: 0,
@@ -101,7 +97,7 @@ pub unsafe fn osal_timer_start(mut self_0: *mut osal_timert, mut timeout_usec: u
     (*self_0).stop_time.usec = stop_time.tv_usec as u32;
 }
 #[no_mangle]
-pub unsafe fn osal_timer_is_expired(mut self_0: *mut osal_timert) -> bool {
+pub unsafe fn osal_timer_is_expired(self_0: *mut osal_timert) -> bool {
     let mut current_time: timeval = timeval {
         tv_sec: 0,
         tv_usec: 0,
@@ -122,19 +118,19 @@ pub unsafe fn osal_timer_is_expired(mut self_0: *mut osal_timert) -> bool {
     return (is_not_yet_expired == 0i32) as bool;
 }
 #[no_mangle]
-pub unsafe fn osal_malloc(mut size: usize) -> *mut libc::c_void {
+pub unsafe fn osal_malloc(size: usize) -> *mut libc::c_void {
     return malloc(size);
 }
 #[no_mangle]
-pub unsafe fn osal_free(mut ptr: *mut libc::c_void) {
+pub unsafe fn osal_free(ptr: *mut libc::c_void) {
     free(ptr);
 }
 #[no_mangle]
 pub unsafe fn osal_thread_create(
-    mut thandle: *mut libc::c_void,
-    mut stacksize: libc::c_int,
-    mut func: *mut libc::c_void,
-    mut param: *mut libc::c_void,
+    thandle: *mut libc::c_void,
+    stacksize: libc::c_int,
+    func: *mut libc::c_void,
+    param: *mut libc::c_void,
 ) -> libc::c_int {
     let mut ret: libc::c_int = 0;
     let mut attr: pthread_attr_t = mem::zeroed();
@@ -158,10 +154,10 @@ pub unsafe fn osal_thread_create(
 }
 #[no_mangle]
 pub unsafe fn osal_thread_create_rt(
-    mut thandle: *mut libc::c_void,
-    mut stacksize: libc::c_int,
-    mut func: *mut libc::c_void,
-    mut param: *mut libc::c_void,
+    thandle: *mut libc::c_void,
+    stacksize: libc::c_int,
+    func: *mut libc::c_void,
+    param: *mut libc::c_void,
 ) -> libc::c_int {
     let mut ret: libc::c_int = 0;
     let mut attr: pthread_attr_t = mem::zeroed();

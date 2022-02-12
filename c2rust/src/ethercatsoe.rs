@@ -63,12 +63,7 @@ pub union C2RustUnnamed_3 {
  * @param[in]  Error      = Error code, see EtherCAT documentation for list
  */
 #[no_mangle]
-pub unsafe fn ecx_SoEerror(
-    mut context: *mut ecx_contextt,
-    mut Slave: u16,
-    mut idn: u16,
-    mut Error: u16,
-) {
+pub unsafe fn ecx_SoEerror(context: *mut ecx_contextt, Slave: u16, idn: u16, Error: u16) {
     let mut Ec: ec_errort = ec_errort {
         Time: ec_timet { sec: 0, usec: 0 },
         Signal: false,
@@ -110,14 +105,14 @@ pub unsafe fn ecx_SoEerror(
  */
 #[no_mangle]
 pub unsafe fn ecx_SoEread(
-    mut context: *mut ecx_contextt,
-    mut slave: u16,
-    mut driveNo: u8,
-    mut elementflags: u8,
-    mut idn: u16,
-    mut psize: *mut libc::c_int,
-    mut p: *mut libc::c_void,
-    mut timeout: u32,
+    context: *mut ecx_contextt,
+    slave: u16,
+    driveNo: u8,
+    elementflags: u8,
+    idn: u16,
+    psize: *mut libc::c_int,
+    p: *mut libc::c_void,
+    timeout: u32,
 ) -> libc::c_int {
     let mut SoEp: *mut ec_SoEt = 0 as *mut ec_SoEt;
     let mut aSoEp: *mut ec_SoEt = 0 as *mut ec_SoEt;
@@ -262,14 +257,14 @@ pub unsafe fn ecx_SoEread(
  */
 #[no_mangle]
 pub unsafe fn ecx_SoEwrite(
-    mut context: *mut ecx_contextt,
-    mut slave: u16,
-    mut driveNo: u8,
-    mut elementflags: u8,
-    mut idn: u16,
+    context: *mut ecx_contextt,
+    slave: u16,
+    driveNo: u8,
+    elementflags: u8,
+    idn: u16,
     mut psize: libc::c_int,
-    mut p: *mut libc::c_void,
-    mut timeout: u32,
+    p: *mut libc::c_void,
+    timeout: u32,
 ) -> libc::c_int {
     let mut SoEp: *mut ec_SoEt = 0 as *mut ec_SoEt;
     let mut aSoEp: *mut ec_SoEt = 0 as *mut ec_SoEt;
@@ -399,10 +394,10 @@ pub unsafe fn ecx_SoEwrite(
  */
 #[no_mangle]
 pub unsafe fn ecx_readIDNmap(
-    mut context: *mut ecx_contextt,
-    mut slave: u16,
-    mut Osize: *mut u32,
-    mut Isize: *mut u32,
+    context: *mut ecx_contextt,
+    slave: u16,
+    Osize: *mut u32,
+    Isize: *mut u32,
 ) -> libc::c_int {
     let mut retVal: libc::c_int = 0i32;
     let mut wkc: libc::c_int = 0;
@@ -523,13 +518,13 @@ pub unsafe fn ecx_readIDNmap(
 }
 #[no_mangle]
 pub unsafe fn ec_SoEread(
-    mut slave: u16,
-    mut driveNo: u8,
-    mut elementflags: u8,
-    mut idn: u16,
-    mut psize: *mut libc::c_int,
-    mut p: *mut libc::c_void,
-    mut timeout: u32,
+    slave: u16,
+    driveNo: u8,
+    elementflags: u8,
+    idn: u16,
+    psize: *mut libc::c_int,
+    p: *mut libc::c_void,
+    timeout: u32,
 ) -> libc::c_int {
     return ecx_SoEread(
         &mut ecx_context,
@@ -544,13 +539,13 @@ pub unsafe fn ec_SoEread(
 }
 #[no_mangle]
 pub unsafe fn ec_SoEwrite(
-    mut slave: u16,
-    mut driveNo: u8,
-    mut elementflags: u8,
-    mut idn: u16,
-    mut psize: libc::c_int,
-    mut p: *mut libc::c_void,
-    mut timeout: u32,
+    slave: u16,
+    driveNo: u8,
+    elementflags: u8,
+    idn: u16,
+    psize: libc::c_int,
+    p: *mut libc::c_void,
+    timeout: u32,
 ) -> libc::c_int {
     return ecx_SoEwrite(
         &mut ecx_context,
@@ -564,10 +559,6 @@ pub unsafe fn ec_SoEwrite(
     );
 }
 #[no_mangle]
-pub unsafe fn ec_readIDNmap(
-    mut slave: u16,
-    mut Osize: *mut u32,
-    mut Isize: *mut u32,
-) -> libc::c_int {
+pub unsafe fn ec_readIDNmap(slave: u16, Osize: *mut u32, Isize: *mut u32) -> libc::c_int {
     return ecx_readIDNmap(&mut ecx_context, slave, Osize, Isize);
 }

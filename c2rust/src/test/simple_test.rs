@@ -28,7 +28,7 @@ pub static mut inOP: bool = false;
 #[no_mangle]
 pub static mut currentgroup: u8 = 0u8;
 #[no_mangle]
-pub unsafe fn simpletest(mut ifname: *mut libc::c_char) {
+pub unsafe fn simpletest(ifname: *mut libc::c_char) {
     let mut i: libc::c_int = 0;
     let mut j: libc::c_int = 0;
     let mut oloop: libc::c_int = 0;
@@ -280,7 +280,7 @@ pub unsafe fn ecatcheck(mut _ptr: *mut libc::c_void) {
         osal_usleep(10000u32);
     }
 }
-unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> libc::c_int {
+unsafe fn main_0(argc: libc::c_int, argv: *mut *mut libc::c_char) -> libc::c_int {
     println!("SOEM (Simple Open EtherCAT Master)\nSimple test");
     if argc > 1i32 {
         /* create thread to handle slave error handling in OP */

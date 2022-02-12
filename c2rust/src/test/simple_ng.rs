@@ -44,7 +44,7 @@ pub struct Fieldbus {
     pub eepSM: ec_eepromSMt,
     pub eepFMMU: ec_eepromFMMUt,
 }
-unsafe fn fieldbus_initialize(mut fieldbus: *mut Fieldbus, mut iface: *mut libc::c_char) {
+unsafe fn fieldbus_initialize(mut fieldbus: *mut Fieldbus, iface: *mut libc::c_char) {
     let mut context: *mut ecx_contextt = 0 as *mut ecx_contextt;
     /* Let's start by 0-filling `fieldbus` to avoid surprises */
     memset(
@@ -96,7 +96,7 @@ unsafe fn fieldbus_roundtrip(mut fieldbus: *mut Fieldbus) -> libc::c_int {
         diff.sec.wrapping_mul(1000000u32).wrapping_add(diff.usec) as libc::c_int;
     return wkc;
 }
-unsafe fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> bool {
+unsafe fn fieldbus_start(fieldbus: *mut Fieldbus) -> bool {
     let mut context: *mut ecx_contextt = 0 as *mut ecx_contextt;
     let mut grp: *mut ec_groupt = 0 as *mut ec_groupt;
     let mut slave: *mut ec_slavet = 0 as *mut ec_slavet;
@@ -223,7 +223,7 @@ unsafe fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> bool {
     println!("");
     return false;
 }
-unsafe fn fieldbus_stop(mut fieldbus: *mut Fieldbus) {
+unsafe fn fieldbus_stop(fieldbus: *mut Fieldbus) {
     let mut context: *mut ecx_contextt = 0 as *mut ecx_contextt;
     let mut slave: *mut ec_slavet = 0 as *mut ec_slavet;
     context = &mut (*fieldbus).context;
@@ -238,7 +238,7 @@ unsafe fn fieldbus_stop(mut fieldbus: *mut Fieldbus) {
     ecx_close(context);
     println!("done");
 }
-unsafe fn fieldbus_dump(mut fieldbus: *mut Fieldbus) -> bool {
+unsafe fn fieldbus_dump(fieldbus: *mut Fieldbus) -> bool {
     let mut grp: *mut ec_groupt = 0 as *mut ec_groupt;
     let mut n: u32 = 0;
     let mut wkc: libc::c_int = 0;
@@ -279,7 +279,7 @@ unsafe fn fieldbus_dump(mut fieldbus: *mut Fieldbus) -> bool {
     print!("  T: {:}\r", (*fieldbus).DCtime as libc::c_longlong);
     return true;
 }
-unsafe fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
+unsafe fn fieldbus_check_state(fieldbus: *mut Fieldbus) {
     let mut context: *mut ecx_contextt = 0 as *mut ecx_contextt;
     let mut grp: *mut ec_groupt = 0 as *mut ec_groupt;
     let mut slave: *mut ec_slavet = 0 as *mut ec_slavet;
@@ -349,7 +349,7 @@ unsafe fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
         println!("All slaves resumed OPERATIONAL");
     };
 }
-unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> libc::c_int {
+unsafe fn main_0(argc: libc::c_int, argv: *mut *mut libc::c_char) -> libc::c_int {
     let mut fieldbus: Fieldbus = Fieldbus {
         context: ecx_contextt {
             port: 0 as *mut ecx_portt,

@@ -115,7 +115,7 @@ pub const EC_WKCSIZE: usize = size_of::<u16>();
 pub const EC_DATAGRAMFOLLOWS: i32 = 1 << 15;
 
 /** Possible error codes returned. */
-#[derive(Copy, Clone, Debug)]
+#[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum ec_err {
     /** No error */
     EC_ERR_OK = 0,
@@ -132,7 +132,7 @@ pub enum ec_err {
 }
 
 /** Possible EtherCAT slave states */
-#[derive(Copy, Clone, Debug)]
+#[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum ec_state {
     /** No valid state. */
     EC_STATE_NONE = 0x00,
@@ -155,7 +155,7 @@ pub enum ec_state {
 pub const EC_STATE_ACK: isize = ec_state::EC_STATE_ERROR as isize;
 
 /** Possible buffer states */
-#[derive(Copy, Clone, Debug)]
+#[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum ec_bufstate {
     /** Empty */
     EC_BUF_EMPTY = 0x00,
@@ -236,7 +236,7 @@ pub enum ec_cmdtype {
     EC_CMD_FRMW,
 }
 /** Ethercat EEprom command types */
-#[derive(Copy, Clone, Debug)]
+#[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum ec_ecmdtype {
     /** No operation */
     EC_ECMD_NOP = 0x0000,
@@ -266,7 +266,7 @@ use crate::osal::linux::osal::ec_timet;
 /** Start address SII sections in Eeprom */
 pub const ECT_SII_START: i32 = 0x0040;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum SIICategory {
     /** SII category strings */
     ECT_SII_STRING = 10,
@@ -281,7 +281,7 @@ pub enum SIICategory {
 }
 
 /** Item offsets in SII general section */
-#[derive(Copy, Clone, Debug)]
+#[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum SIIGeneral {
     ECT_SII_MANUF = 0x0008,
     ECT_SII_ID = 0x000a,
@@ -295,7 +295,7 @@ pub enum SIIGeneral {
 }
 
 /** Mailbox types definitions */
-#[derive(Copy, Clone, Debug)]
+#[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum MailboxType {
     /** Error mailbox type */
     ECT_MBXT_ERR = 0x00,
@@ -314,7 +314,7 @@ pub enum MailboxType {
 }
 
 /** CoE mailbox types */
-#[derive(Copy, Clone, Debug)]
+#[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum CoEMailboxType {
     ECT_COES_EMERGENCY = 0x01,
     ECT_COES_SDOREQ,
@@ -327,7 +327,7 @@ pub enum CoEMailboxType {
 }
 
 /** CoE SDO commands */
-#[derive(Copy, Clone, Debug)]
+#[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum CoESDOCommand {
     ECT_SDO_DOWN_INIT = 0x21,
     ECT_SDO_DOWN_EXP = 0x23,
@@ -339,7 +339,7 @@ pub enum CoESDOCommand {
 }
 
 /** CoE Object Description commands */
-#[derive(Copy, Clone, Debug)]
+#[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum CoEObjectDescription {
     ECT_GET_ODLIST_REQ = 0x01,
     ECT_GET_ODLIST_RES = 0x02,
@@ -362,7 +362,7 @@ pub enum FoEOpCode {
 }
 
 /** SoE opcodes */
-#[derive(Copy, Clone, Debug)]
+#[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum SoEOpCode {
     ECT_SOE_READREQ = 0x01,
     ECT_SOE_READRES = 0x02,
@@ -373,7 +373,8 @@ pub enum SoEOpCode {
 }
 
 /** Ethercat registers */
-#[derive(Copy, Clone, Debug)]
+#[derive(strum::FromRepr, Copy, Clone, Debug)]
+#[repr(isize)]
 pub enum EthercatRegister {
     ECT_REG_TYPE = 0x0000,
     ECT_REG_PORTDES = 0x0007,

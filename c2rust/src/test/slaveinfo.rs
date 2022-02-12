@@ -57,7 +57,7 @@ pub static mut printMAP: bool = false;
 #[no_mangle]
 pub static mut usdo: [libc::c_char; 128] = [0; 128];
 #[no_mangle]
-pub unsafe fn dtype2string(mut dtype: u16, mut bitlen: u16) -> *mut libc::c_char {
+pub unsafe fn dtype2string(dtype: u16, bitlen: u16) -> *mut libc::c_char {
     let dtype = ec_datatype::from_repr(dtype as usize).expect("Unknown data type");
 
     static mut str: [libc::c_char; 32] = [0; 32];
@@ -214,7 +214,7 @@ pub unsafe fn dtype2string(mut dtype: u16, mut bitlen: u16) -> *mut libc::c_char
     return str.as_mut_ptr();
 }
 #[no_mangle]
-pub unsafe fn otype2string(mut otype: u16) -> *mut libc::c_char {
+pub unsafe fn otype2string(otype: u16) -> *mut libc::c_char {
     static mut str: [libc::c_char; 32] = [0; 32];
     match otype as libc::c_int {
         7 => {
@@ -246,7 +246,7 @@ pub unsafe fn otype2string(mut otype: u16) -> *mut libc::c_char {
     return str.as_mut_ptr();
 }
 #[no_mangle]
-pub unsafe fn access2string(mut access: u16) -> *mut libc::c_char {
+pub unsafe fn access2string(access: u16) -> *mut libc::c_char {
     static mut str: [libc::c_char; 32] = [0; 32];
     sprintf(
         str.as_mut_ptr(),
@@ -285,12 +285,7 @@ pub unsafe fn access2string(mut access: u16) -> *mut libc::c_char {
     return str.as_mut_ptr();
 }
 #[no_mangle]
-pub unsafe fn SDO2string(
-    mut slave: u16,
-    mut index: u16,
-    mut subidx: u8,
-    mut dtype: u16,
-) -> *mut libc::c_char {
+pub unsafe fn SDO2string(slave: u16, index: u16, subidx: u8, dtype: u16) -> *mut libc::c_char {
     let dtype = ec_datatype::from_repr(dtype as usize).expect("Unknown data type");
 
     let mut l: libc::c_int =
@@ -483,9 +478,9 @@ pub unsafe fn SDO2string(
 /* * Read PDO assign structure */
 #[no_mangle]
 pub unsafe fn si_PDOassign(
-    mut slave: u16,
-    mut PDOassign: u16,
-    mut mapoffset: libc::c_int,
+    slave: u16,
+    PDOassign: u16,
+    mapoffset: libc::c_int,
     mut bitoffset: libc::c_int,
 ) -> libc::c_int {
     let mut idxloop: u16 = 0;
@@ -627,7 +622,7 @@ pub unsafe fn si_PDOassign(
     return bsize;
 }
 #[no_mangle]
-pub unsafe fn si_map_sdo(mut slave: libc::c_int) -> libc::c_int {
+pub unsafe fn si_map_sdo(slave: libc::c_int) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut rdl: libc::c_int = 0;
     let mut retVal: libc::c_int = 0i32;
@@ -733,9 +728,9 @@ pub unsafe fn si_map_sdo(mut slave: libc::c_int) -> libc::c_int {
 }
 #[no_mangle]
 pub unsafe fn si_siiPDO(
-    mut slave: u16,
+    slave: u16,
     mut t: u8,
-    mut mapoffset: libc::c_int,
+    mapoffset: libc::c_int,
     mut bitoffset: libc::c_int,
 ) -> libc::c_int {
     let mut a: u16 = 0;
@@ -947,7 +942,7 @@ pub unsafe fn si_siiPDO(
     return totalsize;
 }
 #[no_mangle]
-pub unsafe fn si_map_sii(mut slave: libc::c_int) -> libc::c_int {
+pub unsafe fn si_map_sii(slave: libc::c_int) -> libc::c_int {
     let mut retVal: libc::c_int = 0i32;
     let mut Tsize: libc::c_int = 0;
     let mut outputs_bo: libc::c_int = 0;
@@ -982,7 +977,7 @@ pub unsafe fn si_map_sii(mut slave: libc::c_int) -> libc::c_int {
     return retVal;
 }
 #[no_mangle]
-pub unsafe fn si_sdo(mut cnt: libc::c_int) {
+pub unsafe fn si_sdo(cnt: libc::c_int) {
     let mut i: libc::c_int = 0;
     let mut j: libc::c_int = 0;
     ODlist.Entries = 0u16;
@@ -1142,7 +1137,7 @@ pub unsafe fn si_sdo(mut cnt: libc::c_int) {
     };
 }
 #[no_mangle]
-pub unsafe fn slaveinfo(mut ifname: *mut libc::c_char) {
+pub unsafe fn slaveinfo(ifname: *mut libc::c_char) {
     let mut cnt: libc::c_int = 0;
     let mut i: libc::c_int = 0;
     let mut j: libc::c_int = 0;
@@ -1371,7 +1366,7 @@ pub unsafe fn slaveinfo(mut ifname: *mut libc::c_char) {
 }
 #[no_mangle]
 pub static mut ifbuf: [libc::c_char; 1024] = [0; 1024];
-unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> libc::c_int {
+unsafe fn main_0(argc: libc::c_int, argv: *mut *mut libc::c_char) -> libc::c_int {
     let mut adapter: *mut ec_adaptert = 0 as *mut ec_adaptert;
     println!("SOEM (Simple Open EtherCAT Master)\nSlaveinfo");
     if argc > 1i32 {

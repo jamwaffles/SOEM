@@ -4,7 +4,6 @@
 #![allow(non_snake_case)]
 #![allow(non_upper_case_globals)]
 #![allow(unused_assignments)]
-#![allow(unused_mut)]
 
 #[macro_use]
 extern crate c2rust_bitfields;

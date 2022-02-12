@@ -39,7 +39,7 @@ pub union C2RustUnnamed_4 {
 #[no_mangle]
 pub unsafe fn ecx_FOEdefinehook(
     mut context: *mut ecx_contextt,
-    mut hook: *mut libc::c_void,
+    hook: *mut libc::c_void,
 ) -> libc::c_int {
     (*context).FOEhook = ::core::mem::transmute::<
         *mut libc::c_void,
@@ -60,13 +60,13 @@ pub unsafe fn ecx_FOEdefinehook(
  */
 #[no_mangle]
 pub unsafe fn ecx_FOEread(
-    mut context: *mut ecx_contextt,
-    mut slave: u16,
-    mut filename: *mut libc::c_char,
-    mut password: u32,
-    mut psize: *mut libc::c_int,
+    context: *mut ecx_contextt,
+    slave: u16,
+    filename: *mut libc::c_char,
+    password: u32,
+    psize: *mut libc::c_int,
     mut p: *mut libc::c_void,
-    mut timeout: u32,
+    timeout: u32,
 ) -> libc::c_int {
     let mut FOEp: *mut ec_FOEt = 0 as *mut ec_FOEt;
     let mut aFOEp: *mut ec_FOEt = 0 as *mut ec_FOEt;
@@ -225,13 +225,13 @@ pub unsafe fn ecx_FOEread(
  */
 #[no_mangle]
 pub unsafe fn ecx_FOEwrite(
-    mut context: *mut ecx_contextt,
-    mut slave: u16,
-    mut filename: *mut libc::c_char,
-    mut password: u32,
+    context: *mut ecx_contextt,
+    slave: u16,
+    filename: *mut libc::c_char,
+    password: u32,
     mut psize: libc::c_int,
     mut p: *mut libc::c_void,
-    mut timeout: u32,
+    timeout: u32,
 ) -> libc::c_int {
     let mut FOEp: *mut ec_FOEt = 0 as *mut ec_FOEt;
     let mut aFOEp: *mut ec_FOEt = 0 as *mut ec_FOEt;
@@ -409,17 +409,17 @@ pub unsafe fn ecx_FOEwrite(
     return wkc;
 }
 #[no_mangle]
-pub unsafe fn ec_FOEdefinehook(mut hook: *mut libc::c_void) -> libc::c_int {
+pub unsafe fn ec_FOEdefinehook(hook: *mut libc::c_void) -> libc::c_int {
     return ecx_FOEdefinehook(&mut ecx_context, hook);
 }
 #[no_mangle]
 pub unsafe fn ec_FOEread(
-    mut slave: u16,
-    mut filename: *mut libc::c_char,
-    mut password: u32,
-    mut psize: *mut libc::c_int,
-    mut p: *mut libc::c_void,
-    mut timeout: u32,
+    slave: u16,
+    filename: *mut libc::c_char,
+    password: u32,
+    psize: *mut libc::c_int,
+    p: *mut libc::c_void,
+    timeout: u32,
 ) -> libc::c_int {
     return ecx_FOEread(
         &mut ecx_context,
@@ -433,12 +433,12 @@ pub unsafe fn ec_FOEread(
 }
 #[no_mangle]
 pub unsafe fn ec_FOEwrite(
-    mut slave: u16,
-    mut filename: *mut libc::c_char,
-    mut password: u32,
-    mut psize: libc::c_int,
-    mut p: *mut libc::c_void,
-    mut timeout: u32,
+    slave: u16,
+    filename: *mut libc::c_char,
+    password: u32,
+    psize: libc::c_int,
+    p: *mut libc::c_void,
+    timeout: u32,
 ) -> libc::c_int {
     return ecx_FOEwrite(
         &mut ecx_context,

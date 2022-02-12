@@ -85,11 +85,11 @@ pub struct ec_SDOservicet {
  */
 #[no_mangle]
 pub unsafe fn ecx_SDOerror(
-    mut context: *mut ecx_contextt,
-    mut Slave: u16,
-    mut Index: u16,
-    mut SubIdx: u8,
-    mut AbortCode: i32,
+    context: *mut ecx_contextt,
+    Slave: u16,
+    Index: u16,
+    SubIdx: u8,
+    AbortCode: i32,
 ) {
     let mut Ec: ec_errort = ec_errort {
         Time: ec_timet { sec: 0, usec: 0 },
@@ -123,11 +123,11 @@ pub unsafe fn ecx_SDOerror(
  * @param[in]  AbortCode  = Abortcode, see EtherCAT documentation for list
  */
 unsafe fn ecx_SDOinfoerror(
-    mut context: *mut ecx_contextt,
-    mut Slave: u16,
-    mut Index: u16,
-    mut SubIdx: u8,
-    mut AbortCode: i32,
+    context: *mut ecx_contextt,
+    Slave: u16,
+    Index: u16,
+    SubIdx: u8,
+    AbortCode: i32,
 ) {
     let mut Ec: ec_errort = ec_errort {
         Time: ec_timet { sec: 0, usec: 0 },
@@ -170,14 +170,14 @@ unsafe fn ecx_SDOinfoerror(
  */
 #[no_mangle]
 pub unsafe fn ecx_SDOread(
-    mut context: *mut ecx_contextt,
-    mut slave: u16,
-    mut index: u16,
+    context: *mut ecx_contextt,
+    slave: u16,
+    index: u16,
     mut subindex: u8,
-    mut CA: bool,
-    mut psize: *mut libc::c_int,
-    mut p: *mut libc::c_void,
-    mut timeout: u32,
+    CA: bool,
+    psize: *mut libc::c_int,
+    p: *mut libc::c_void,
+    timeout: u32,
 ) -> libc::c_int {
     let mut SDOp: *mut ec_SDOt = 0 as *mut ec_SDOt;
     let mut aSDOp: *mut ec_SDOt = 0 as *mut ec_SDOt;
@@ -457,14 +457,14 @@ pub unsafe fn ecx_SDOread(
  */
 #[no_mangle]
 pub unsafe fn ecx_SDOwrite(
-    mut context: *mut ecx_contextt,
-    mut Slave: u16,
-    mut Index: u16,
-    mut SubIndex: u8,
-    mut CA: bool,
+    context: *mut ecx_contextt,
+    Slave: u16,
+    Index: u16,
+    SubIndex: u8,
+    CA: bool,
     mut psize: libc::c_int,
-    mut p: *mut libc::c_void,
-    mut timeout: u32,
+    p: *mut libc::c_void,
+    timeout: u32,
 ) -> libc::c_int {
     let mut SDOp: *mut ec_SDOt = 0 as *mut ec_SDOt;
     let mut aSDOp: *mut ec_SDOt = 0 as *mut ec_SDOt;
@@ -740,11 +740,11 @@ pub unsafe fn ecx_SDOwrite(
  */
 #[no_mangle]
 pub unsafe fn ecx_RxPDO(
-    mut context: *mut ecx_contextt,
-    mut Slave: u16,
-    mut RxPDOnumber: u16,
-    mut psize: libc::c_int,
-    mut p: *mut libc::c_void,
+    context: *mut ecx_contextt,
+    Slave: u16,
+    RxPDOnumber: u16,
+    psize: libc::c_int,
+    p: *mut libc::c_void,
 ) -> libc::c_int {
     let mut SDOp: *mut ec_SDOt = 0 as *mut ec_SDOt;
     let mut wkc: libc::c_int = 0;
@@ -804,12 +804,12 @@ pub unsafe fn ecx_RxPDO(
  */
 #[no_mangle]
 pub unsafe fn ecx_TxPDO(
-    mut context: *mut ecx_contextt,
-    mut slave: u16,
-    mut TxPDOnumber: u16,
-    mut psize: *mut libc::c_int,
-    mut p: *mut libc::c_void,
-    mut timeout: u32,
+    context: *mut ecx_contextt,
+    slave: u16,
+    TxPDOnumber: u16,
+    psize: *mut libc::c_int,
+    p: *mut libc::c_void,
+    timeout: u32,
 ) -> libc::c_int {
     let mut SDOp: *mut ec_SDOt = 0 as *mut ec_SDOt;
     let mut aSDOp: *mut ec_SDOt = 0 as *mut ec_SDOt;
@@ -901,11 +901,7 @@ pub unsafe fn ecx_TxPDO(
  * @return total bitlength of PDO assign
  */
 #[no_mangle]
-pub unsafe fn ecx_readPDOassign(
-    mut context: *mut ecx_contextt,
-    mut Slave: u16,
-    mut PDOassign: u16,
-) -> u32 {
+pub unsafe fn ecx_readPDOassign(context: *mut ecx_contextt, Slave: u16, PDOassign: u16) -> u32 {
     let mut idxloop: u16 = 0;
     let mut nidx: u16 = 0;
     let mut subidxloop: u16 = 0;
@@ -1014,10 +1010,10 @@ pub unsafe fn ecx_readPDOassign(
  */
 #[no_mangle]
 pub unsafe fn ecx_readPDOassignCA(
-    mut context: *mut ecx_contextt,
-    mut Slave: u16,
-    mut Thread_n: libc::c_int,
-    mut PDOassign: u16,
+    context: *mut ecx_contextt,
+    Slave: u16,
+    Thread_n: libc::c_int,
+    PDOassign: u16,
 ) -> u32 {
     let mut idxloop: u16 = 0;
     let mut nidx: u16 = 0;
@@ -1115,10 +1111,10 @@ pub unsafe fn ecx_readPDOassignCA(
  */
 #[no_mangle]
 pub unsafe fn ecx_readPDOmap(
-    mut context: *mut ecx_contextt,
-    mut Slave: u16,
-    mut Osize: *mut u32,
-    mut Isize: *mut u32,
+    context: *mut ecx_contextt,
+    Slave: u16,
+    Osize: *mut u32,
+    Isize: *mut u32,
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut rdl: libc::c_int = 0;
@@ -1234,11 +1230,11 @@ pub unsafe fn ecx_readPDOmap(
  */
 #[no_mangle]
 pub unsafe fn ecx_readPDOmapCA(
-    mut context: *mut ecx_contextt,
-    mut Slave: u16,
-    mut Thread_n: libc::c_int,
-    mut Osize: *mut u32,
-    mut Isize: *mut u32,
+    context: *mut ecx_contextt,
+    Slave: u16,
+    Thread_n: libc::c_int,
+    Osize: *mut u32,
+    Isize: *mut u32,
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut rdl: libc::c_int = 0;
@@ -1331,8 +1327,8 @@ pub unsafe fn ecx_readPDOmapCA(
  */
 #[no_mangle]
 pub unsafe fn ecx_readODlist(
-    mut context: *mut ecx_contextt,
-    mut Slave: u16,
+    context: *mut ecx_contextt,
+    Slave: u16,
     mut pODlist: *mut ec_ODlistt,
 ) -> libc::c_int {
     let mut SDOp: *mut ec_SDOservicet = 0 as *mut ec_SDOservicet;
@@ -1465,8 +1461,8 @@ pub unsafe fn ecx_readODlist(
  */
 #[no_mangle]
 pub unsafe fn ecx_readODdescription(
-    mut context: *mut ecx_contextt,
-    mut Item: u16,
+    context: *mut ecx_contextt,
+    Item: u16,
     mut pODlist: *mut ec_ODlistt,
 ) -> libc::c_int {
     let mut SDOp: *mut ec_SDOservicet = 0 as *mut ec_SDOservicet;
@@ -1567,10 +1563,10 @@ pub unsafe fn ecx_readODdescription(
  */
 #[no_mangle]
 pub unsafe fn ecx_readOEsingle(
-    mut context: *mut ecx_contextt,
-    mut Item: u16,
-    mut SubI: u8,
-    mut pODlist: *mut ec_ODlistt,
+    context: *mut ecx_contextt,
+    Item: u16,
+    SubI: u8,
+    pODlist: *mut ec_ODlistt,
     mut pOElist: *mut ec_OElistt,
 ) -> libc::c_int {
     let mut SDOp: *mut ec_SDOservicet = 0 as *mut ec_SDOservicet;
@@ -1675,9 +1671,9 @@ pub unsafe fn ecx_readOEsingle(
  */
 #[no_mangle]
 pub unsafe fn ecx_readOE(
-    mut context: *mut ecx_contextt,
-    mut Item: u16,
-    mut pODlist: *mut ec_ODlistt,
+    context: *mut ecx_contextt,
+    Item: u16,
+    pODlist: *mut ec_ODlistt,
     mut pOElist: *mut ec_OElistt,
 ) -> libc::c_int {
     let mut SubCount: u16 = 0;
@@ -1704,7 +1700,7 @@ pub unsafe fn ecx_readOE(
  * @see ecx_SDOerror
  */
 #[no_mangle]
-pub unsafe fn ec_SDOerror(mut Slave: u16, mut Index: u16, mut SubIdx: u8, mut AbortCode: i32) {
+pub unsafe fn ec_SDOerror(Slave: u16, Index: u16, SubIdx: u8, AbortCode: i32) {
     ecx_SDOerror(&mut ecx_context, Slave, Index, SubIdx, AbortCode);
 }
 /* * CoE SDO read, blocking. Single subindex or Complete Access.
@@ -1726,13 +1722,13 @@ pub unsafe fn ec_SDOerror(mut Slave: u16, mut Index: u16, mut SubIdx: u8, mut Ab
  */
 #[no_mangle]
 pub unsafe fn ec_SDOread(
-    mut slave: u16,
-    mut index: u16,
-    mut subindex: u8,
-    mut CA: bool,
-    mut psize: *mut libc::c_int,
-    mut p: *mut libc::c_void,
-    mut timeout: u32,
+    slave: u16,
+    index: u16,
+    subindex: u8,
+    CA: bool,
+    psize: *mut libc::c_int,
+    p: *mut libc::c_void,
+    timeout: u32,
 ) -> libc::c_int {
     return ecx_SDOread(
         &mut ecx_context,
@@ -1764,13 +1760,13 @@ pub unsafe fn ec_SDOread(
  */
 #[no_mangle]
 pub unsafe fn ec_SDOwrite(
-    mut Slave: u16,
-    mut Index: u16,
-    mut SubIndex: u8,
-    mut CA: bool,
-    mut psize: libc::c_int,
-    mut p: *mut libc::c_void,
-    mut timeout: u32,
+    Slave: u16,
+    Index: u16,
+    SubIndex: u8,
+    CA: bool,
+    psize: libc::c_int,
+    p: *mut libc::c_void,
+    timeout: u32,
 ) -> libc::c_int {
     return ecx_SDOwrite(
         &mut ecx_context,
@@ -1796,10 +1792,10 @@ pub unsafe fn ec_SDOwrite(
  */
 #[no_mangle]
 pub unsafe fn ec_RxPDO(
-    mut Slave: u16,
-    mut RxPDOnumber: u16,
-    mut psize: libc::c_int,
-    mut p: *mut libc::c_void,
+    Slave: u16,
+    RxPDOnumber: u16,
+    psize: libc::c_int,
+    p: *mut libc::c_void,
 ) -> libc::c_int {
     return ecx_RxPDO(&mut ecx_context, Slave, RxPDOnumber, psize, p);
 }
@@ -1817,11 +1813,11 @@ pub unsafe fn ec_RxPDO(
  */
 #[no_mangle]
 pub unsafe fn ec_TxPDO(
-    mut slave: u16,
-    mut TxPDOnumber: u16,
-    mut psize: *mut libc::c_int,
-    mut p: *mut libc::c_void,
-    mut timeout: u32,
+    slave: u16,
+    TxPDOnumber: u16,
+    psize: *mut libc::c_int,
+    p: *mut libc::c_void,
+    timeout: u32,
 ) -> libc::c_int {
     return ecx_TxPDO(&mut ecx_context, slave, TxPDOnumber, psize, p, timeout);
 }
@@ -1831,7 +1827,7 @@ pub unsafe fn ec_TxPDO(
  * @return total bitlength of PDO assign
  */
 #[no_mangle]
-pub unsafe fn ec_readPDOassign(mut Slave: u16, mut PDOassign: u16) -> u32 {
+pub unsafe fn ec_readPDOassign(Slave: u16, PDOassign: u16) -> u32 {
     return ecx_readPDOassign(&mut ecx_context, Slave, PDOassign);
 }
 /* * Read PDO assign structure in Complete Access mode
@@ -1842,11 +1838,7 @@ pub unsafe fn ec_readPDOassign(mut Slave: u16, mut PDOassign: u16) -> u32 {
  * @see ecx_readPDOmap
  */
 #[no_mangle]
-pub unsafe fn ec_readPDOassignCA(
-    mut Slave: u16,
-    mut PDOassign: u16,
-    mut Thread_n: libc::c_int,
-) -> u32 {
+pub unsafe fn ec_readPDOassignCA(Slave: u16, PDOassign: u16, Thread_n: libc::c_int) -> u32 {
     return ecx_readPDOassignCA(&mut ecx_context, Slave, Thread_n, PDOassign);
 }
 /* * CoE read PDO mapping.
@@ -1863,11 +1855,7 @@ pub unsafe fn ec_readPDOassignCA(
  * @return >0 if mapping succesful.
  */
 #[no_mangle]
-pub unsafe fn ec_readPDOmap(
-    mut Slave: u16,
-    mut Osize: *mut u32,
-    mut Isize: *mut u32,
-) -> libc::c_int {
+pub unsafe fn ec_readPDOmap(Slave: u16, Osize: *mut u32, Isize: *mut u32) -> libc::c_int {
     return ecx_readPDOmap(&mut ecx_context, Slave, Osize, Isize);
 }
 /* * CoE read PDO mapping in Complete Access mode (CA).
@@ -1885,10 +1873,10 @@ pub unsafe fn ec_readPDOmap(
  */
 #[no_mangle]
 pub unsafe fn ec_readPDOmapCA(
-    mut Slave: u16,
-    mut Thread_n: libc::c_int,
-    mut Osize: *mut u32,
-    mut Isize: *mut u32,
+    Slave: u16,
+    Thread_n: libc::c_int,
+    Osize: *mut u32,
+    Isize: *mut u32,
 ) -> libc::c_int {
     return ecx_readPDOmapCA(&mut ecx_context, Slave, Thread_n, Osize, Isize);
 }
@@ -1900,7 +1888,7 @@ pub unsafe fn ec_readPDOmapCA(
  * @see ecx_readODlist
  */
 #[no_mangle]
-pub unsafe fn ec_readODlist(mut Slave: u16, mut pODlist: *mut ec_ODlistt) -> libc::c_int {
+pub unsafe fn ec_readODlist(Slave: u16, pODlist: *mut ec_ODlistt) -> libc::c_int {
     return ecx_readODlist(&mut ecx_context, Slave, pODlist);
 }
 /* * CoE read Object Description. Adds textual description to object indexes.
@@ -1911,15 +1899,15 @@ pub unsafe fn ec_readODlist(mut Slave: u16, mut pODlist: *mut ec_ODlistt) -> lib
  * @see ecx_readODdescription
  */
 #[no_mangle]
-pub unsafe fn ec_readODdescription(mut Item: u16, mut pODlist: *mut ec_ODlistt) -> libc::c_int {
+pub unsafe fn ec_readODdescription(Item: u16, pODlist: *mut ec_ODlistt) -> libc::c_int {
     return ecx_readODdescription(&mut ecx_context, Item, pODlist);
 }
 #[no_mangle]
 pub unsafe fn ec_readOEsingle(
-    mut Item: u16,
-    mut SubI: u8,
-    mut pODlist: *mut ec_ODlistt,
-    mut pOElist: *mut ec_OElistt,
+    Item: u16,
+    SubI: u8,
+    pODlist: *mut ec_ODlistt,
+    pOElist: *mut ec_OElistt,
 ) -> libc::c_int {
     return ecx_readOEsingle(&mut ecx_context, Item, SubI, pODlist, pOElist);
 }
@@ -1933,9 +1921,9 @@ pub unsafe fn ec_readOEsingle(
  */
 #[no_mangle]
 pub unsafe fn ec_readOE(
-    mut Item: u16,
-    mut pODlist: *mut ec_ODlistt,
-    mut pOElist: *mut ec_OElistt,
+    Item: u16,
+    pODlist: *mut ec_ODlistt,
+    pOElist: *mut ec_OElistt,
 ) -> libc::c_int {
     return ecx_readOE(&mut ecx_context, Item, pODlist, pOElist);
 }

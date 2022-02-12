@@ -19,11 +19,11 @@ pub const SYNC_DELAY: i32 = 100_000_000;
  */
 #[no_mangle]
 pub unsafe fn ecx_dcsync0(
-    mut context: *mut ecx_contextt,
-    mut slave: u16,
-    mut act: bool,
-    mut CyclTime: u32,
-    mut CyclShift: i32,
+    context: *mut ecx_contextt,
+    slave: u16,
+    act: bool,
+    CyclTime: u32,
+    CyclShift: i32,
 ) {
     let mut h: u8 = 0;
     let mut RA: u8 = 0;
@@ -121,12 +121,12 @@ pub unsafe fn ecx_dcsync0(
 */
 #[no_mangle]
 pub unsafe fn ecx_dcsync01(
-    mut context: *mut ecx_contextt,
-    mut slave: u16,
-    mut act: bool,
-    mut CyclTime0: u32,
-    mut CyclTime1: u32,
-    mut CyclShift: i32,
+    context: *mut ecx_contextt,
+    slave: u16,
+    act: bool,
+    CyclTime0: u32,
+    CyclTime1: u32,
+    CyclShift: i32,
 ) {
     let mut h: u8 = 0;
     let mut RA: u8 = 0;
@@ -226,7 +226,7 @@ pub unsafe fn ecx_dcsync01(
     (*(*context).slavelist.offset(slave as isize)).DCcycle = CyclTime0 as i32;
 }
 /* latched port time of slave */
-unsafe fn ecx_porttime(mut context: *mut ecx_contextt, mut slave: u16, mut port: u8) -> i32 {
+unsafe fn ecx_porttime(context: *mut ecx_contextt, slave: u16, port: u8) -> i32 {
     let mut ts: i32 = 0;
     match port as libc::c_int {
         0 => ts = (*(*context).slavelist.offset(slave as isize)).DCrtA,
@@ -238,9 +238,9 @@ unsafe fn ecx_porttime(mut context: *mut ecx_contextt, mut slave: u16, mut port:
     return ts;
 }
 /* calculate previous active port of a slave */
-unsafe fn ecx_prevport(mut context: *mut ecx_contextt, mut slave: u16, mut port: u8) -> u8 {
+unsafe fn ecx_prevport(context: *mut ecx_contextt, slave: u16, port: u8) -> u8 {
     let mut pport: u8 = port;
-    let mut aport: u8 = (*(*context).slavelist.offset(slave as isize)).activeports;
+    let aport: u8 = (*(*context).slavelist.offset(slave as isize)).activeports;
     match port as libc::c_int {
         0 => {
             if aport as libc::c_int & 0x4i32 != 0 {
@@ -283,7 +283,7 @@ unsafe fn ecx_prevport(mut context: *mut ecx_contextt, mut slave: u16, mut port:
     return pport;
 }
 /* search unconsumed ports in parent, consume and return first open port */
-unsafe fn ecx_parentport(mut context: *mut ecx_contextt, mut parent: u16) -> u8 {
+unsafe fn ecx_parentport(context: *mut ecx_contextt, parent: u16) -> u8 {
     let mut parentport: u8 = 0u8;
     let mut b: u8 = 0;
     /* search order is important, here 3 - 1 - 2 - 0 */
@@ -311,7 +311,7 @@ unsafe fn ecx_parentport(mut context: *mut ecx_contextt, mut parent: u16) -> u8 
  * @return bool if slaves are found with DC
  */
 #[no_mangle]
-pub unsafe fn ecx_configdc(mut context: *mut ecx_contextt) -> bool {
+pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
     let mut i: u16 = 0; /* latch DCrecvTimeA of all slaves */
     let mut slaveh: u16 = 0; /* EtherCAT uses 2000-01-01 as epoch start instead of 1970-01-01 */
     let mut parent: u16 = 0;
@@ -341,6 +341,7 @@ pub unsafe fn ecx_configdc(mut context: *mut ecx_contextt) -> bool {
         EC_TIMEOUTRET,
     );
     mastertime = osal_current_time();
+    /* EtherCAT uses 2000-01-01 as epoch start instead of 1970-01-01 */
     mastertime.sec = (mastertime.sec as libc::c_ulong).wrapping_sub(946684800u64) as u32;
     mastertime64 = (mastertime.sec as u64)
         .wrapping_mul(1000000u64)
@@ -587,17 +588,11 @@ pub unsafe fn ecx_configdc(mut context: *mut ecx_contextt) -> bool {
     return (*(*context).slavelist.offset(0isize)).hasdc;
 }
 #[no_mangle]
-pub unsafe fn ec_dcsync0(mut slave: u16, mut act: bool, mut CyclTime: u32, mut CyclShift: i32) {
+pub unsafe fn ec_dcsync0(slave: u16, act: bool, CyclTime: u32, CyclShift: i32) {
     ecx_dcsync0(&mut ecx_context, slave, act, CyclTime, CyclShift);
 }
 #[no_mangle]
-pub unsafe fn ec_dcsync01(
-    mut slave: u16,
-    mut act: bool,
-    mut CyclTime0: u32,
-    mut CyclTime1: u32,
-    mut CyclShift: i32,
-) {
+pub unsafe fn ec_dcsync01(slave: u16, act: bool, CyclTime0: u32, CyclTime1: u32, CyclShift: i32) {
     ecx_dcsync01(
         &mut ecx_context,
         slave,
