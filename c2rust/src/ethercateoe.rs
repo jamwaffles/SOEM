@@ -143,7 +143,7 @@ pub unsafe fn ecx_EOEsetIp(
     mut slave: u16,
     mut port: u8,
     mut ipparam: *mut eoe_param_t,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut EOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
     let mut aEOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
@@ -157,7 +157,7 @@ pub unsafe fn ecx_EOEsetIp(
     let mut wkc: libc::c_int = 0;
     ec_clearmbx(&mut MbxIn);
     /* Empty slave out mailbox if something is in. Timout set to 0 */
-    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0i32);
+    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0);
     ec_clearmbx(&mut MbxOut);
     aEOEp = &mut MbxIn as *mut ec_mbxbuft as *mut ec_EOEt;
     EOEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_EOEt;
@@ -282,7 +282,7 @@ pub unsafe fn ecx_EOEgetIp(
     mut slave: u16,
     mut port: u8,
     mut ipparam: *mut eoe_param_t,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut EOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
     let mut aEOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
@@ -295,7 +295,7 @@ pub unsafe fn ecx_EOEgetIp(
     let mut flags: u8 = 0u8;
     let mut wkc: libc::c_int = 0;
     /* Empty slave out mailbox if something is in. Timout set to 0 */
-    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0i32);
+    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0);
     ec_clearmbx(&mut MbxOut);
     aEOEp = &mut MbxIn as *mut ec_mbxbuft as *mut ec_EOEt;
     EOEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_EOEt;
@@ -441,7 +441,7 @@ pub unsafe fn ecx_EOEsend(
     mut port: u8,
     mut psize: libc::c_int,
     mut p: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut EOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
     let mut MbxOut: ec_mbxbuft = [0; 1487];
@@ -541,7 +541,7 @@ pub unsafe fn ecx_EOErecv(
     mut port: u8,
     mut psize: *mut libc::c_int,
     mut p: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut aEOEp: *mut ec_EOEt = 0 as *mut ec_EOEt;
     let mut MbxIn: ec_mbxbuft = [0; 1487];

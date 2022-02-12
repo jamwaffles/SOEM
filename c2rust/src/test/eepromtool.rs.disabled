@@ -353,26 +353,26 @@ pub unsafe  fn eeprom_read(
         ec_APWR(
             aiadr,
             EthercatRegister::ECT_REG_EEPCFG as u16,
-            ::core::mem::size_of::<u8>() as u16,
+            ::core::mem::size_of::<u8>(),
             &mut eepctl as *mut u8 as *mut libc::c_void,
-            2000i32,
+            EC_TIMEOUTRET
         );
         eepctl = 0u8;
         ec_APWR(
             aiadr,
             EthercatRegister::ECT_REG_EEPCFG as u16,
-            ::core::mem::size_of::<u8>() as u16,
+            ::core::mem::size_of::<u8>(),
             &mut eepctl as *mut u8 as *mut libc::c_void,
-            2000i32,
+            EC_TIMEOUTRET
         );
         estat = 0u16;
         aiadr = (1i32 - slave_0) as u16;
         ec_APRD(
             aiadr,
             EthercatRegister::ECT_REG_EEPSTAT as u16,
-            ::core::mem::size_of::<u16>() as u16,
+            ::core::mem::size_of::<u16>(),
             &mut estat as *mut u16 as *mut libc::c_void,
-            2000i32,
+            EC_TIMEOUTRET
         );
         estat = estat;
         if estat as libc::c_int & 0x40i32 != 0 {
@@ -423,17 +423,17 @@ pub unsafe  fn eeprom_write(
         ec_APWR(
             aiadr,
             EthercatRegister::ECT_REG_EEPCFG as u16,
-            ::core::mem::size_of::<u8>() as u16,
+            ::core::mem::size_of::<u8>(),
             &mut eepctl as *mut u8 as *mut libc::c_void,
-            2000i32,
+            EC_TIMEOUTRET
         );
         eepctl = 0u8;
         ec_APWR(
             aiadr,
             EthercatRegister::ECT_REG_EEPCFG as u16,
-            ::core::mem::size_of::<u8>() as u16,
+            ::core::mem::size_of::<u8>(),
             &mut eepctl as *mut u8 as *mut libc::c_void,
-            2000i32,
+            EC_TIMEOUTRET
         );
         aiadr = (1i32 - slave_0) as u16;
         wbuf = &mut *ebuf.as_mut_ptr().offset(0isize) as *mut u8 as *mut u16;
@@ -472,17 +472,17 @@ pub unsafe  fn eeprom_writealias(
         ec_APWR(
             aiadr,
             EthercatRegister::ECT_REG_EEPCFG as u16,
-            ::core::mem::size_of::<u8>() as u16,
+            ::core::mem::size_of::<u8>(),
             &mut eepctl as *mut u8 as *mut libc::c_void,
-            2000i32,
+            EC_TIMEOUTRET
         );
         eepctl = 0u8;
         ec_APWR(
             aiadr,
             EthercatRegister::ECT_REG_EEPCFG as u16,
-            ::core::mem::size_of::<u8>() as u16,
+            ::core::mem::size_of::<u8>(),
             &mut eepctl as *mut u8 as *mut libc::c_void,
-            2000i32,
+            EC_TIMEOUTRET
         );
         ret = ec_writeeepromAP(aiadr, 0x4u16, alias_0 as u16, EC_TIMEOUTEEP);
         if ret != 0 {
@@ -515,7 +515,7 @@ pub unsafe  fn eepromtool(
         wkc = ec_BRD(
             0u16,
             EthercatRegister::ECT_REG_TYPE as u16,
-            ::core::mem::size_of::<libc::c_int>() as u16,
+            ::core::mem::size_of::<libc::c_int>(),
             &mut w as *mut libc::c_int as *mut libc::c_void,
             EC_TIMEOUTTXM,
         ); // read reminder

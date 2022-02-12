@@ -1478,7 +1478,7 @@ pub unsafe fn ecx_elist2string(mut context: *mut ecx_contextt) -> *mut libc::c_c
         Etype: ec_err_type::EC_ERR_TYPE_SDO_ERROR,
         c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
     };
-    if ecx_poperror(context, &mut Ec) != 0 {
+    if ecx_poperror(context, &mut Ec) != false {
         return ecx_err2string(Ec);
     } else {
         return b"\x00" as *const u8 as *mut libc::c_char;

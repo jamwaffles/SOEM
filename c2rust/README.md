@@ -1,7 +1,7 @@
 # C2Rust conversion
 
 ```bash
-c2rust transpile compile_commands.json --emit-no-std --output-dir c2rust --emit-modules --emit-build-files
+c2rust transpile compile_commands.json --emit-no-std --output-dir c2rust-gen --emit-modules --emit-build-files
 ```
 
 ```bash

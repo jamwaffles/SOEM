@@ -39,19 +39,19 @@ pub const EC_ECATTYPE: i32 = 0x1000;
 /** number of frame buffers per channel (tx, rx1 rx2) */
 pub const EC_MAXBUF: i32 = 16;
 /** timeout value in us for tx frame to return to rx */
-pub const EC_TIMEOUTRET: i32 = 2000;
+pub const EC_TIMEOUTRET: u32 = 2000;
 /** timeout value in us for safe data transfer, max. triple retry */
-pub const EC_TIMEOUTRET3: i32 = EC_TIMEOUTRET * 3;
+pub const EC_TIMEOUTRET3: u32 = EC_TIMEOUTRET * 3;
 /** timeout value in us for return "safe" variant (f.e. wireless) */
-pub const EC_TIMEOUTSAFE: i32 = 20000;
+pub const EC_TIMEOUTSAFE: u32 = 20000;
 /** timeout value in us for EEPROM access */
-pub const EC_TIMEOUTEEP: i32 = 20000;
+pub const EC_TIMEOUTEEP: u32 = 20000;
 /** timeout value in us for tx mailbox cycle */
-pub const EC_TIMEOUTTXM: i32 = 20000;
+pub const EC_TIMEOUTTXM: u32 = 20000;
 /** timeout value in us for rx mailbox cycle */
-pub const EC_TIMEOUTRXM: i32 = 700000;
+pub const EC_TIMEOUTRXM: u32 = 700000;
 /** timeout value in us for check statechange */
-pub const EC_TIMEOUTSTATE: i32 = 2000000;
+pub const EC_TIMEOUTSTATE: u32 = 2000000;
 /** size of EEPROM bitmap cache */
 pub const EC_MAXEEPBITMAP: i32 = 128;
 /** size of EEPROM cache buffer */
@@ -351,7 +351,7 @@ pub enum CoEObjectDescription {
 }
 
 /** FoE opcodes */
-#[derive(Copy, Clone, Debug)]
+#[derive(strum::FromRepr, Copy, Clone, Debug)]
 pub enum FoEOpCode {
     ECT_FOE_READ = 0x01,
     ECT_FOE_WRITE,

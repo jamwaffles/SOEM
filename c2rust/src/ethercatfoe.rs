@@ -66,7 +66,7 @@ pub unsafe fn ecx_FOEread(
     mut password: u32,
     mut psize: *mut libc::c_int,
     mut p: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut FOEp: *mut ec_FOEt = 0 as *mut ec_FOEt;
     let mut aFOEp: *mut ec_FOEt = 0 as *mut ec_FOEt;
@@ -85,7 +85,7 @@ pub unsafe fn ecx_FOEread(
     buffersize = *psize;
     ec_clearmbx(&mut MbxIn);
     /* Empty slave out mailbox if something is in. Timeout set to 0 */
-    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0i32);
+    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0);
     ec_clearmbx(&mut MbxOut);
     aFOEp = &mut MbxIn as *mut ec_mbxbuft as *mut ec_FOEt;
     FOEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_FOEt;
@@ -125,7 +125,7 @@ pub unsafe fn ecx_FOEread(
     if wkc > 0i32 {
         /* succeeded to place mailbox in slave ? */
         loop {
-            worktodo = 0u8;
+            worktodo = false;
             /* clean mailboxbuffer */
             ec_clearmbx(&mut MbxIn);
             /* read slave response */
@@ -154,7 +154,7 @@ pub unsafe fn ecx_FOEread(
                             p = (p as *mut u8).offset(segmentdata as libc::c_int as isize)
                                 as *mut libc::c_void;
                             if segmentdata as libc::c_int == maxdata as libc::c_int {
-                                worktodo = 1u8
+                                worktodo = true;
                             }
                             (*FOEp).MbxHeader.length = 0x6u16;
                             (*FOEp).MbxHeader.address = 0u16;
@@ -177,7 +177,7 @@ pub unsafe fn ecx_FOEread(
                                 EC_TIMEOUTTXM,
                             );
                             if wkc <= 0i32 {
-                                worktodo = 0u8
+                                worktodo = false;
                             }
                             if (*context).FOEhook.is_some() {
                                 (*context).FOEhook.expect("non-null function pointer")(
@@ -205,7 +205,7 @@ pub unsafe fn ecx_FOEread(
                 }
                 *psize = dataread
             }
-            if !(worktodo != 0) {
+            if !(worktodo != false) {
                 break;
             }
         }
@@ -231,7 +231,7 @@ pub unsafe fn ecx_FOEwrite(
     mut password: u32,
     mut psize: libc::c_int,
     mut p: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut FOEp: *mut ec_FOEt = 0 as *mut ec_FOEt;
     let mut aFOEp: *mut ec_FOEt = 0 as *mut ec_FOEt;
@@ -249,11 +249,11 @@ pub unsafe fn ecx_FOEwrite(
     let mut tsize: libc::c_int = 0;
     ec_clearmbx(&mut MbxIn);
     /* Empty slave out mailbox if something is in. Timeout set to 0 */
-    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0i32);
+    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0);
     ec_clearmbx(&mut MbxOut);
     aFOEp = &mut MbxIn as *mut ec_mbxbuft as *mut ec_FOEt;
     FOEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_FOEt;
-    dofinalzero = 0u8;
+    dofinalzero = false;
     fnsize = strlen(filename) as u16;
     maxdata = ((*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int - 12i32) as u16;
     if fnsize as libc::c_int > maxdata as libc::c_int {
@@ -290,7 +290,7 @@ pub unsafe fn ecx_FOEwrite(
     if wkc > 0i32 {
         /* succeeded to place mailbox in slave ? */
         loop {
-            worktodo = 0u8;
+            worktodo = false;
             /* clean mailboxbuffer */
             ec_clearmbx(&mut MbxIn);
             /* read slave response */
@@ -301,8 +301,8 @@ pub unsafe fn ecx_FOEwrite(
                 if (*aFOEp).MbxHeader.mbxtype as libc::c_int & 0xfi32
                     == MailboxType::ECT_MBXT_FOE as libc::c_int
                 {
-                    match (*aFOEp).OpCode as libc::c_int {
-                        4 => {
+                    match FoEOpCode::from_repr((*aFOEp).OpCode as usize).unwrap() {
+                        FoEOpCode::ECT_FOE_ACK => {
                             packetnumber = (*aFOEp).c2rust_unnamed.PacketNumber as i32;
                             if packetnumber == sendpacket {
                                 if (*context).FOEhook.is_some() {
@@ -317,14 +317,14 @@ pub unsafe fn ecx_FOEwrite(
                                     tsize = maxdata as libc::c_int
                                 }
                                 if tsize != 0 || dofinalzero as libc::c_int != 0 {
-                                    worktodo = 1u8;
-                                    dofinalzero = 0u8;
+                                    worktodo = true;
+                                    dofinalzero = false;
                                     segmentdata = tsize;
                                     psize -= segmentdata;
                                     /* if last packet was full size, add a zero size packet as final */
                                     /* EOF is defined as packetsize < full packetsize */
                                     if psize == 0 && segmentdata == maxdata as libc::c_int {
-                                        dofinalzero = 1u8
+                                        dofinalzero = true
                                     }
                                     (*FOEp).MbxHeader.length = (0x6i32 + segmentdata) as u16;
                                     (*FOEp).MbxHeader.address = 0u16;
@@ -362,7 +362,7 @@ pub unsafe fn ecx_FOEwrite(
                                         EC_TIMEOUTTXM,
                                     );
                                     if wkc <= 0i32 {
-                                        worktodo = 0u8
+                                        worktodo = false
                                     }
                                 }
                             } else {
@@ -370,12 +370,12 @@ pub unsafe fn ecx_FOEwrite(
                                 wkc = -(ec_err_type::EC_ERR_TYPE_FOE_PACKETNUMBER as libc::c_int)
                             }
                         }
-                        6 => {
+                        FoEOpCode::ECT_FOE_BUSY => {
                             /* resend if data has been send before */
                             /* otherwise ignore */
                             if sendpacket != 0 {
                                 if psize == 0 {
-                                    dofinalzero = 1u8
+                                    dofinalzero = true
                                 }
                                 psize += segmentdata;
                                 p = (p as *mut u8).offset(-(segmentdata as isize))
@@ -383,7 +383,7 @@ pub unsafe fn ecx_FOEwrite(
                                 sendpacket -= 1
                             }
                         }
-                        5 => {
+                        FoEOpCode::ECT_FOE_ERROR => {
                             /* FoE error */
                             if (*aFOEp).c2rust_unnamed.ErrorCode == 0x8001u32 {
                                 wkc = -(ec_err_type::EC_ERR_TYPE_FOE_FILE_NOTFOUND as libc::c_int)
@@ -401,7 +401,7 @@ pub unsafe fn ecx_FOEwrite(
                     wkc = -(ec_err_type::EC_ERR_TYPE_PACKET_ERROR as libc::c_int)
                 }
             }
-            if !(worktodo != 0) {
+            if !(worktodo != false) {
                 break;
             }
         }
@@ -419,7 +419,7 @@ pub unsafe fn ec_FOEread(
     mut password: u32,
     mut psize: *mut libc::c_int,
     mut p: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_FOEread(
         &mut ecx_context,
@@ -438,7 +438,7 @@ pub unsafe fn ec_FOEwrite(
     mut password: u32,
     mut psize: libc::c_int,
     mut p: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_FOEwrite(
         &mut ecx_context,

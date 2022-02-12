@@ -60,9 +60,9 @@ pub static mut usdo: [libc::c_char; 128] = [0; 128];
 pub unsafe fn dtype2string(mut dtype: u16, mut bitlen: u16) -> *mut libc::c_char {
     let dtype = ec_datatype::from_repr(dtype as usize).expect("Unknown data type");
 
-    static mut str: [libc::c_char; 32] = [0u8; 32];
+    static mut str: [libc::c_char; 32] = [0; 32];
     match dtype {
-        ec_datatype::ECT_bool => {
+        ec_datatype::ECT_BOOL => {
             sprintf(
                 str.as_mut_ptr(),
                 b"bool\x00" as *const u8 as *const libc::c_char,
@@ -215,7 +215,7 @@ pub unsafe fn dtype2string(mut dtype: u16, mut bitlen: u16) -> *mut libc::c_char
 }
 #[no_mangle]
 pub unsafe fn otype2string(mut otype: u16) -> *mut libc::c_char {
-    static mut str: [libc::c_char; 32] = [0u8; 32];
+    static mut str: [libc::c_char; 32] = [0; 32];
     match otype as libc::c_int {
         7 => {
             sprintf(
@@ -247,7 +247,7 @@ pub unsafe fn otype2string(mut otype: u16) -> *mut libc::c_char {
 }
 #[no_mangle]
 pub unsafe fn access2string(mut access: u16) -> *mut libc::c_char {
-    static mut str: [libc::c_char; 32] = [0u8; 32];
+    static mut str: [libc::c_char; 32] = [0; 32];
     sprintf(
         str.as_mut_ptr(),
         b"%s%s%s%s%s%s\x00" as *const u8 as *const libc::c_char,
@@ -316,17 +316,17 @@ pub unsafe fn SDO2string(
         slave,
         index,
         subidx,
-        0u8,
+        false,
         &mut l,
         &mut usdo as *mut [libc::c_char; 128] as *mut libc::c_void,
         EC_TIMEOUTRXM,
     );
-    if EcatError != 0 {
+    if EcatError == true {
         return ec_elist2string();
     } else {
-        static mut str: [libc::c_char; 64] = [0u8; 64];
+        static mut str: [libc::c_char; 64] = [0; 64];
         match dtype {
-            ec_datatype::ECT_bool => {
+            ec_datatype::ECT_BOOL => {
                 u8 = &mut *usdo.as_mut_ptr().offset(0isize) as *mut libc::c_char as *mut u8;
                 if *u8 != 0 {
                     sprintf(
@@ -458,7 +458,7 @@ pub unsafe fn SDO2string(
                 );
             }
             ec_datatype::ECT_OCTET_STRING => {
-                str[0usize] = 0u8;
+                str[0usize] = 0;
                 i = 0i32;
                 while i < l {
                     sprintf(
@@ -511,7 +511,7 @@ pub unsafe fn si_PDOassign(
         slave,
         PDOassign,
         0u8,
-        0u8,
+        false,
         &mut rdl,
         &mut rdat as *mut u16 as *mut libc::c_void,
         EC_TIMEOUTRXM,
@@ -532,7 +532,7 @@ pub unsafe fn si_PDOassign(
                 slave,
                 PDOassign,
                 idxloop as u8,
-                0u8,
+                false,
                 &mut rdl,
                 &mut rdat as *mut u16 as *mut libc::c_void,
                 EC_TIMEOUTRXM,
@@ -547,7 +547,7 @@ pub unsafe fn si_PDOassign(
                     slave,
                     idx,
                     0u8,
-                    0u8,
+                    false,
                     &mut rdl,
                     &mut subcnt as *mut u8 as *mut libc::c_void,
                     EC_TIMEOUTRXM,
@@ -563,7 +563,7 @@ pub unsafe fn si_PDOassign(
                         slave,
                         idx,
                         subidxloop as u8,
-                        0u8,
+                        false,
                         &mut rdl,
                         &mut rdat2 as *mut i32 as *mut libc::c_void,
                         EC_TIMEOUTRXM,
@@ -649,7 +649,7 @@ pub unsafe fn si_map_sdo(mut slave: libc::c_int) -> libc::c_int {
         slave as u16,
         0x1c00u16,
         0u8,
-        0u8,
+        false,
         &mut rdl,
         &mut nSM as *mut u8 as *mut libc::c_void,
         EC_TIMEOUTRXM,
@@ -672,7 +672,7 @@ pub unsafe fn si_map_sdo(mut slave: libc::c_int) -> libc::c_int {
                 slave as u16,
                 0x1c00u16,
                 (iSM as libc::c_int + 1i32) as u8,
-                0u8,
+                false,
                 &mut rdl,
                 &mut tSM as *mut u8 as *mut libc::c_void,
                 EC_TIMEOUTRXM,
@@ -823,7 +823,7 @@ pub unsafe fn si_siiPDO(
             if ((*PDO).SyncM[(*PDO).nPDO as usize] as libc::c_int) < 8i32 {
                 /* number of entries in PDO */
                 /* active and in range SM? */
-                str_name[0usize] = 0u8;
+                str_name[0usize] = 0;
                 if obj_name != 0 {
                     ec_siistring(str_name.as_mut_ptr(), slave, obj_name as u16);
                 }
@@ -883,7 +883,7 @@ pub unsafe fn si_siiPDO(
                     a = (a as libc::c_int + 2i32) as u16;
                     /* skip entry if filler (0x0000:0x00) */
                     if obj_idx as libc::c_int != 0 || obj_subidx as libc::c_int != 0 {
-                        str_name[0usize] = 0u8;
+                        str_name[0usize] = 0;
                         if obj_name != 0 {
                             ec_siistring(str_name.as_mut_ptr(), slave, obj_name as u16);
                         }
@@ -999,9 +999,9 @@ pub unsafe fn si_sdo(mut cnt: libc::c_int) {
         i = 0i32;
         while i < ODlist.Entries as libc::c_int {
             let mut max_sub: u8 = 0;
-            let mut name: [libc::c_char; 128] = [0u8; 128];
+            let mut name: [libc::c_char; 128] = [0; 128];
             ec_readODdescription(i as u16, &mut ODlist);
-            while EcatError != 0 {
+            while EcatError == true {
                 println!(" - {:}", {
                     std::ffi::CStr::from_ptr(ec_elist2string() as *const libc::c_char)
                         .to_str()
@@ -1055,7 +1055,7 @@ pub unsafe fn si_sdo(mut cnt: libc::c_int) {
                 core::mem::size_of::<ec_OElistt>(),
             );
             ec_readOE(i as u16, &mut ODlist, &mut OElist);
-            while EcatError != 0 {
+            while EcatError == true {
                 println!("- {:}", {
                     std::ffi::CStr::from_ptr(ec_elist2string() as *const libc::c_char)
                         .to_str()
@@ -1068,7 +1068,7 @@ pub unsafe fn si_sdo(mut cnt: libc::c_int) {
                     cnt as u16,
                     ODlist.Index[i as usize],
                     0u8,
-                    0u8,
+                    false,
                     &mut l,
                     &mut max_sub as *mut u8 as *mut libc::c_void,
                     EC_TIMEOUTRXM,
@@ -1132,7 +1132,7 @@ pub unsafe fn si_sdo(mut cnt: libc::c_int) {
             i += 1
         }
     } else {
-        while EcatError != 0 {
+        while EcatError == true {
             print!("{:}", {
                 std::ffi::CStr::from_ptr(ec_elist2string() as *const libc::c_char)
                     .to_str()
@@ -1164,7 +1164,7 @@ pub unsafe fn slaveinfo(mut ifname: *mut libc::c_char) {
         ) > 0i32
         {
             ec_configdc();
-            while EcatError != 0 {
+            while EcatError == true {
                 print!("{:}", {
                     std::ffi::CStr::from_ptr(ec_elist2string() as *const libc::c_char)
                         .to_str()
@@ -1179,11 +1179,7 @@ pub unsafe fn slaveinfo(mut ifname: *mut libc::c_char) {
                 + ec_group[0usize].inputsWKC as libc::c_int;
             println!("Calculated workcounter {:}", expectedWKC as libc::c_int);
             /* wait for all slaves to reach SAFE_OP state */
-            ec_statecheck(
-                0u16,
-                ec_state::EC_STATE_SAFE_OP as u16,
-                EC_TIMEOUTSTATE * 3i32,
-            );
+            ec_statecheck(0u16, ec_state::EC_STATE_SAFE_OP as u16, EC_TIMEOUTSTATE * 3);
             if ec_slave[0usize].state as libc::c_int != ec_state::EC_STATE_SAFE_OP as libc::c_int {
                 println!("Not all slaves reached safe operational state.");
                 ec_readstate();
@@ -1224,7 +1220,7 @@ pub unsafe fn slaveinfo(mut ifname: *mut libc::c_char) {
          ec_slave[cnt as usize].state as libc::c_int as libc::c_int,
          ec_slave[cnt as usize].pdelay as libc::c_int,
          ec_slave[cnt as usize].hasdc as libc::c_int as libc::c_int);
-                if ec_slave[cnt as usize].hasdc != 0 {
+                if ec_slave[cnt as usize].hasdc != false {
                     println!(
                         " DCParentport:{:}",
                         ec_slave[cnt as usize].parentport as libc::c_int as libc::c_int
@@ -1350,7 +1346,7 @@ pub unsafe fn slaveinfo(mut ifname: *mut libc::c_char) {
                 {
                     si_sdo(cnt);
                 }
-                if printMAP != 0 {
+                if printMAP != false {
                     if ec_slave[cnt as usize].mbx_proto as libc::c_int & 0x4i32 != 0 {
                         si_map_sdo(cnt);
                     } else {
@@ -1386,7 +1382,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
                 core::mem::size_of::<[libc::c_char; 5]>(),
             ) == 0i32
         {
-            printSDO = 1u8
+            printSDO = true;
         }
         if argc > 2i32
             && strncmp(
@@ -1395,7 +1391,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
                 core::mem::size_of::<[libc::c_char; 5]>(),
             ) == 0i32
         {
-            printMAP = 1u8
+            printMAP = true;
         }
         /* start slaveinfo */
         strcpy(ifbuf.as_mut_ptr(), *argv.offset(1isize));

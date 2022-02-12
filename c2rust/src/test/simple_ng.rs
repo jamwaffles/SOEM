@@ -13,7 +13,8 @@ use crate::{
     },
     ethercatprint::ec_ALstatuscode2string,
     ethercattype::{
-        self, ec_bufT, ec_err_type, ec_errort, ec_state, C2RustUnnamed_0, EC_TIMEOUTSTATE,
+        self, ec_bufT, ec_err_type, ec_errort, ec_state, C2RustUnnamed_0, EC_TIMEOUTRET,
+        EC_TIMEOUTSTATE,
     },
     osal::linux::osal::{ec_timet, osal_current_time, osal_time_diff, osal_usleep},
     oshw::linux::nicdrv::{ec_stackT, ecx_portt, ecx_redportt},
@@ -54,7 +55,7 @@ unsafe fn fieldbus_initialize(mut fieldbus: *mut Fieldbus, mut iface: *mut libc:
     (*fieldbus).iface = iface;
     (*fieldbus).group = 0u8;
     (*fieldbus).roundtrip_time = 0i32;
-    (*fieldbus).ecaterror = 0u8;
+    (*fieldbus).ecaterror = false;
     /* Initialize the ecx_contextt data structure */
     context = &mut (*fieldbus).context;
     (*context).port = &mut (*fieldbus).port;
@@ -88,7 +89,7 @@ unsafe fn fieldbus_roundtrip(mut fieldbus: *mut Fieldbus) -> libc::c_int {
     context = &mut (*fieldbus).context;
     start = osal_current_time();
     ecx_send_processdata(context);
-    wkc = ecx_receive_processdata(context, 2000i32);
+    wkc = ecx_receive_processdata(context, EC_TIMEOUTRET);
     end = osal_current_time();
     osal_time_diff(&mut start, &mut end, &mut diff);
     (*fieldbus).roundtrip_time =
@@ -112,14 +113,14 @@ unsafe fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> bool {
     });
     if ecx_init(context, (*fieldbus).iface) == 0 {
         println!("no socket connection");
-        return 0u8;
+        return false;
     }
 
     println!("done");
     print!("Finding autoconfig slaves... ");
     if ecx_config_init(context, 0u8) <= 0i32 {
         println!("no slaves found");
-        return 0u8;
+        return false;
     }
 
     println!("{:} slaves found", (*fieldbus).slavecount as libc::c_int);
@@ -167,7 +168,7 @@ unsafe fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> bool {
         context,
         0u16,
         ec_state::EC_STATE_SAFE_OP as u16,
-        EC_TIMEOUTSTATE * 4i32,
+        EC_TIMEOUTSTATE * 4,
     );
 
     println!("done");
@@ -189,11 +190,11 @@ unsafe fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> bool {
             context,
             0u16,
             ec_state::EC_STATE_OPERATIONAL as u16,
-            EC_TIMEOUTSTATE / 10i32,
+            EC_TIMEOUTSTATE / 10,
         );
         if (*slave).state as libc::c_int == ec_state::EC_STATE_OPERATIONAL as libc::c_int {
             println!(" all slaves are now operational");
-            return 1u8;
+            return true;
         }
         i += 1
     }
@@ -220,7 +221,7 @@ unsafe fn fieldbus_start(mut fieldbus: *mut Fieldbus) -> bool {
         i += 1
     }
     println!("");
-    return 0u8;
+    return false;
 }
 unsafe fn fieldbus_stop(mut fieldbus: *mut Fieldbus) {
     let mut context: *mut ecx_contextt = 0 as *mut ecx_contextt;
@@ -255,7 +256,7 @@ unsafe fn fieldbus_dump(mut fieldbus: *mut Fieldbus) -> bool {
     );
     if wkc < expected_wkc {
         println!(" wrong (expected {:})", expected_wkc as libc::c_int);
-        return 0u8;
+        return false;
     }
     print!("  O:");
     n = 0u32;
@@ -276,7 +277,7 @@ unsafe fn fieldbus_dump(mut fieldbus: *mut Fieldbus) -> bool {
         n = n.wrapping_add(1)
     }
     print!("  T: {:}\r", (*fieldbus).DCtime as libc::c_longlong);
-    return 1u8;
+    return true;
 }
 unsafe fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
     let mut context: *mut ecx_contextt = 0 as *mut ecx_contextt;
@@ -287,14 +288,14 @@ unsafe fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
     grp = (*context)
         .grouplist
         .offset((*fieldbus).group as libc::c_int as isize);
-    (*grp).docheckstate = 0u8;
+    (*grp).docheckstate = false;
     ecx_readstate(context);
     i = 1i32;
     while i <= (*fieldbus).slavecount {
         slave = (*context).slavelist.offset(i as isize);
         if !((*slave).group as libc::c_int != (*fieldbus).group as libc::c_int) {
             if (*slave).state as libc::c_int != ec_state::EC_STATE_OPERATIONAL as libc::c_int {
-                (*grp).docheckstate = 1u8;
+                (*grp).docheckstate = true;
                 if (*slave).state as libc::c_int
                     == ec_state::EC_STATE_SAFE_OP as libc::c_int
                         + ec_state::EC_STATE_ERROR as libc::c_int
@@ -316,35 +317,35 @@ unsafe fn fieldbus_check_state(mut fieldbus: *mut Fieldbus) {
                     (*slave).state = ec_state::EC_STATE_OPERATIONAL as u16;
                     ecx_writestate(context, i as u16);
                 } else if (*slave).state as libc::c_int > ec_state::EC_STATE_NONE as libc::c_int {
-                    if ecx_reconfig_slave(context, i as u16, 2000i32) != 0 {
-                        (*slave).islost = 0u8;
+                    if ecx_reconfig_slave(context, i as u16, EC_TIMEOUTRET) != 0 {
+                        (*slave).islost = false;
                         println!("* Slave {:} reconfigured", i as libc::c_int);
                     }
-                } else if (*slave).islost == 0 {
+                } else if (*slave).islost == false {
                     ecx_statecheck(
                         context,
                         i as u16,
                         ec_state::EC_STATE_OPERATIONAL as u16,
-                        2000i32,
+                        EC_TIMEOUTRET,
                     );
                     if (*slave).state as libc::c_int == ec_state::EC_STATE_NONE as libc::c_int {
-                        (*slave).islost = 1u8;
+                        (*slave).islost = true;
                         println!("* Slave {:} lost", i as libc::c_int);
                     }
                 }
-            } else if (*slave).islost != 0 {
+            } else if (*slave).islost == true {
                 if (*slave).state as libc::c_int != ec_state::EC_STATE_NONE as libc::c_int {
-                    (*slave).islost = 0u8;
+                    (*slave).islost = false;
                     println!("* Slave {:} found", i as libc::c_int);
-                } else if ecx_recover_slave(context, i as u16, 2000i32) != 0 {
-                    (*slave).islost = 0u8;
+                } else if ecx_recover_slave(context, i as u16, EC_TIMEOUTRET) != 0 {
+                    (*slave).islost = false;
                     println!("* Slave {:} recovered", i as libc::c_int);
                 }
             }
         }
         i += 1
     }
-    if (*grp).docheckstate == 0 {
+    if (*grp).docheckstate == false {
         println!("All slaves resumed OPERATIONAL");
     };
 }
@@ -451,7 +452,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             mbx_ro: 0,
             mbx_proto: 0,
             mbx_cnt: 0,
-            hasdc: 0,
+            hasdc: false,
             ptype: 0,
             topology: 0,
             activeports: 0,
@@ -468,7 +469,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             DCprevious: 0,
             DCcycle: 0,
             DCshift: 0,
-            DCactive: 0,
+            DCactive: false,
             configindex: 0,
             SIIindex: 0,
             eep_8byte: 0,
@@ -481,7 +482,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             blockLRW: 0,
             group: 0,
             FMMUunused: 0,
-            islost: 0,
+            islost: false,
             PO2SOconfig: None,
             PO2SOconfigx: None,
             name: [0; 41],
@@ -493,7 +494,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             outputs: 0 as *mut u8,
             Ibytes: 0,
             inputs: 0 as *mut u8,
-            hasdc: 0,
+            hasdc: false,
             DCnext: 0,
             Ebuscurrent: 0,
             blockLRW: 0,
@@ -502,7 +503,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             Ioffset: 0,
             outputsWKC: 0,
             inputsWKC: 0,
-            docheckstate: 0,
+            docheckstate: false,
             IOsegment: [0; 64],
         }; 2],
         esibuf: [0; 4096],
@@ -528,7 +529,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
             length: [0; 16],
             dcoffset: [0; 16],
         },
-        ecaterror: 0,
+        ecaterror: false,
         DCtime: 0,
         SMcommtype: [ec_SMcommtypet {
             n: 0,
@@ -590,7 +591,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
         return 1i32;
     }
     fieldbus_initialize(&mut fieldbus, *argv.offset(1isize));
-    if fieldbus_start(&mut fieldbus) != 0 {
+    if fieldbus_start(&mut fieldbus) != false {
         let mut i: libc::c_int = 0;
         let mut min_time: libc::c_int = 0;
         let mut max_time: libc::c_int = 0;
@@ -599,7 +600,7 @@ unsafe fn main_0(mut argc: libc::c_int, mut argv: *mut *mut libc::c_char) -> lib
         i = 1i32;
         while i <= 10000i32 {
             print!("Iteration {:4}:", i as libc::c_int);
-            if fieldbus_dump(&mut fieldbus) == 0 {
+            if fieldbus_dump(&mut fieldbus) == false {
                 fieldbus_check_state(&mut fieldbus);
             } else if i == 1i32 {
                 max_time = fieldbus.roundtrip_time;

@@ -1,10 +1,11 @@
-use std::mem;
-
 use libc::{
     clock_gettime, free, malloc, memset, nanosleep, pthread_attr_destroy, pthread_attr_init,
     pthread_attr_setstacksize, pthread_attr_t, pthread_create, pthread_setschedparam, pthread_t,
-    sched_param, suseconds_t, time_t, timespec, timeval,
+    sched_param, suseconds_t, time_t, timespec, timeval, CLOCK_MONOTONIC, CLOCK_REALTIME,
 };
+use std::mem;
+
+const USECS_PER_SEC: u32 = 1_000_000;
 
 #[derive(Copy, Clone)]
 pub struct ec_timet {
@@ -24,8 +25,8 @@ pub unsafe fn osal_usleep(mut usec: u32) -> libc::c_int {
         tv_sec: 0,
         tv_nsec: 0,
     };
-    ts.tv_sec = usec.wrapping_div(1000000u32) as time_t;
-    ts.tv_nsec = usec.wrapping_rem(1000000u32).wrapping_mul(1000u32) as syscall_slong_t;
+    ts.tv_sec = usec.wrapping_div(USECS_PER_SEC) as time_t;
+    ts.tv_nsec = usec.wrapping_rem(USECS_PER_SEC).wrapping_mul(1000) as i64;
     /* usleep is deprecated, use nanosleep instead */
     return nanosleep(&mut ts, 0 as *mut timespec);
 }
@@ -36,7 +37,7 @@ pub unsafe fn osal_current_time() -> ec_timet {
         tv_nsec: 0,
     };
     let mut return_value: ec_timet = ec_timet { sec: 0, usec: 0 };
-    clock_gettime(0i32, &mut current_time);
+    clock_gettime(CLOCK_REALTIME, &mut current_time);
     return_value.sec = current_time.tv_sec as u32;
     return_value.usec = (current_time.tv_nsec / 1000i64) as u32;
     return return_value;
@@ -51,7 +52,7 @@ pub unsafe fn osal_time_diff(
         (*diff).sec = (*end).sec.wrapping_sub((*start).sec).wrapping_sub(1u32);
         (*diff).usec = (*end)
             .usec
-            .wrapping_add(1000000u32)
+            .wrapping_add(USECS_PER_SEC)
             .wrapping_sub((*start).usec)
     } else {
         (*diff).sec = (*end).sec.wrapping_sub((*start).sec);
@@ -69,9 +70,9 @@ unsafe fn osal_getrelativetime(mut tv: *mut timeval) {
      * Gettimeofday uses CLOCK_REALTIME that can get NTP timeadjust.
      * If this function preempts timeadjust and it uses vpage it live-locks.
      * Also when using XENOMAI, only clock_gettime is RT safe */
-    clock_gettime(1i32, &mut ts);
+    clock_gettime(CLOCK_MONOTONIC, &mut ts);
     (*tv).tv_sec = ts.tv_sec;
-    (*tv).tv_usec = ts.tv_nsec / 1000i64;
+    (*tv).tv_usec = ts.tv_nsec / 1000;
 }
 #[no_mangle]
 pub unsafe fn osal_timer_start(mut self_0: *mut osal_timert, mut timeout_usec: u32) {
@@ -88,13 +89,13 @@ pub unsafe fn osal_timer_start(mut self_0: *mut osal_timert, mut timeout_usec: u
         tv_usec: 0,
     };
     osal_getrelativetime(&mut start_time);
-    timeout.tv_sec = timeout_usec.wrapping_div(1000000u32) as time_t;
-    timeout.tv_usec = timeout_usec.wrapping_rem(1000000u32) as suseconds_t;
+    timeout.tv_sec = timeout_usec.wrapping_div(USECS_PER_SEC) as time_t;
+    timeout.tv_usec = timeout_usec.wrapping_rem(USECS_PER_SEC) as suseconds_t;
     stop_time.tv_sec = start_time.tv_sec + timeout.tv_sec;
     stop_time.tv_usec = start_time.tv_usec + timeout.tv_usec;
-    if stop_time.tv_usec >= 1000000i64 {
+    if stop_time.tv_usec >= USECS_PER_SEC as i64 {
         stop_time.tv_sec += 1;
-        stop_time.tv_usec -= 1000000i64
+        stop_time.tv_usec -= USECS_PER_SEC as i64
     }
     (*self_0).stop_time.sec = stop_time.tv_sec as u32;
     (*self_0).stop_time.usec = stop_time.tv_usec as u32;
@@ -121,7 +122,7 @@ pub unsafe fn osal_timer_is_expired(mut self_0: *mut osal_timert) -> bool {
     return (is_not_yet_expired == 0i32) as bool;
 }
 #[no_mangle]
-pub unsafe fn osal_malloc(mut size: size_t) -> *mut libc::c_void {
+pub unsafe fn osal_malloc(mut size: usize) -> *mut libc::c_void {
     return malloc(size);
 }
 #[no_mangle]
@@ -140,7 +141,7 @@ pub unsafe fn osal_thread_create(
     let mut threadp: *mut pthread_t = 0 as *mut pthread_t;
     threadp = thandle as *mut pthread_t;
     pthread_attr_init(&mut attr);
-    pthread_attr_setstacksize(&mut attr, stacksize as size_t);
+    pthread_attr_setstacksize(&mut attr, stacksize as usize);
     ret = pthread_create(
         threadp,
         &mut attr,
@@ -168,7 +169,7 @@ pub unsafe fn osal_thread_create_rt(
     let mut threadp: *mut pthread_t = 0 as *mut pthread_t;
     threadp = thandle as *mut pthread_t;
     pthread_attr_init(&mut attr);
-    pthread_attr_setstacksize(&mut attr, stacksize as size_t);
+    pthread_attr_setstacksize(&mut attr, stacksize as usize);
     ret = pthread_create(
         threadp,
         &mut attr,

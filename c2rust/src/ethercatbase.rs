@@ -29,7 +29,7 @@ use libc::{memcpy, memset};
 unsafe fn ecx_writedatagramdata(
     mut datagramdata: *mut libc::c_void,
     mut com: ec_cmdtype,
-    mut length: u16,
+    mut length: usize,
     mut data: *const libc::c_void,
 ) {
     if length as libc::c_int > 0i32 {
@@ -68,7 +68,7 @@ pub unsafe fn ecx_setupdatagram(
     mut idx: u8,
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
 ) -> libc::c_int {
     let mut datagramP: *mut ec_comt = 0 as *mut ec_comt;
@@ -85,7 +85,7 @@ pub unsafe fn ecx_setupdatagram(
     (*datagramP).index = idx;
     (*datagramP).ADP = ADP;
     (*datagramP).ADO = ADO;
-    (*datagramP).dlength = length;
+    (*datagramP).dlength = length as u16;
     ecx_writedatagramdata(
         &mut *frameP.offset(
             core::mem::size_of::<ec_etherheadert>().wrapping_add(core::mem::size_of::<ec_comt>())
@@ -136,7 +136,7 @@ pub unsafe fn ecx_adddatagram(
     mut more: bool,
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
 ) -> u16 {
     let mut datagramP: *mut ec_comt = 0 as *mut ec_comt;
@@ -161,12 +161,12 @@ pub unsafe fn ecx_adddatagram(
     (*datagramP).index = idx;
     (*datagramP).ADP = ADP;
     (*datagramP).ADO = ADO;
-    if more != 0 {
+    if more == true {
         /* this is not the last datagram to add */
         (*datagramP).dlength = (length as libc::c_int | (1i32) << 15i32) as u16
     } else {
         /* this is the last datagram in the frame */
-        (*datagramP).dlength = length
+        (*datagramP).dlength = length as u16
     }
     ecx_writedatagramdata(
         &mut *frameP.offset(
@@ -220,9 +220,9 @@ pub unsafe fn ecx_BWR(
     mut port: *mut ecx_portt,
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
@@ -260,9 +260,9 @@ pub unsafe fn ecx_BRD(
     mut port: *mut ecx_portt,
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
@@ -311,9 +311,9 @@ pub unsafe fn ecx_APRD(
     mut port: *mut ecx_portt,
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut idx: u8 = 0;
@@ -358,9 +358,9 @@ pub unsafe fn ecx_ARMW(
     mut port: *mut ecx_portt,
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut idx: u8 = 0;
@@ -405,9 +405,9 @@ pub unsafe fn ecx_FRMW(
     mut port: *mut ecx_portt,
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut idx: u8 = 0;
@@ -449,7 +449,7 @@ pub unsafe fn ecx_APRDw(
     mut port: *mut ecx_portt,
     mut ADP: u16,
     mut ADO: u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> u16 {
     let mut w: u16 = 0;
     w = 0u16;
@@ -457,7 +457,7 @@ pub unsafe fn ecx_APRDw(
         port,
         ADP,
         ADO,
-        ::core::mem::size_of::<u16>() as u16,
+        ::core::mem::size_of::<u16>(),
         &mut w as *mut u16 as *mut libc::c_void,
         timeout,
     );
@@ -478,9 +478,9 @@ pub unsafe fn ecx_FPRD(
     mut port: *mut ecx_portt,
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut idx: u8 = 0;
@@ -522,7 +522,7 @@ pub unsafe fn ecx_FPRDw(
     mut port: *mut ecx_portt,
     mut ADP: u16,
     mut ADO: u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> u16 {
     let mut w: u16 = 0;
     w = 0u16;
@@ -530,7 +530,7 @@ pub unsafe fn ecx_FPRDw(
         port,
         ADP,
         ADO,
-        ::core::mem::size_of::<u16>() as u16,
+        ::core::mem::size_of::<u16>(),
         &mut w as *mut u16 as *mut libc::c_void,
         timeout,
     );
@@ -551,9 +551,9 @@ pub unsafe fn ecx_APWR(
     mut port: *mut ecx_portt,
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
@@ -587,13 +587,13 @@ pub unsafe fn ecx_APWRw(
     mut ADP: u16,
     mut ADO: u16,
     mut data: u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_APWR(
         port,
         ADP,
         ADO,
-        ::core::mem::size_of::<u16>() as u16,
+        ::core::mem::size_of::<u16>(),
         &mut data as *mut u16 as *mut libc::c_void,
         timeout,
     );
@@ -613,9 +613,9 @@ pub unsafe fn ecx_FPWR(
     mut port: *mut ecx_portt,
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut idx: u8 = 0;
@@ -649,13 +649,13 @@ pub unsafe fn ecx_FPWRw(
     mut ADP: u16,
     mut ADO: u16,
     mut data: u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_FPWR(
         port,
         ADP,
         ADO,
-        ::core::mem::size_of::<u16>() as u16,
+        ::core::mem::size_of::<u16>(),
         &mut data as *mut u16 as *mut libc::c_void,
         timeout,
     );
@@ -673,9 +673,9 @@ pub unsafe fn ecx_FPWRw(
 pub unsafe fn ecx_LRW(
     mut port: *mut ecx_portt,
     mut LogAdr: u32,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
@@ -720,9 +720,9 @@ pub unsafe fn ecx_LRW(
 pub unsafe fn ecx_LRD(
     mut port: *mut ecx_portt,
     mut LogAdr: u32,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
@@ -767,9 +767,9 @@ pub unsafe fn ecx_LRD(
 pub unsafe fn ecx_LWR(
     mut port: *mut ecx_portt,
     mut LogAdr: u32,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
@@ -804,11 +804,11 @@ pub unsafe fn ecx_LWR(
 pub unsafe fn ecx_LRWDC(
     mut port: *mut ecx_portt,
     mut LogAdr: u32,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
     mut DCrs: u16,
     mut DCtime: *mut i64,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut DCtO: u16 = 0;
     let mut idx: u8 = 0;
@@ -833,10 +833,10 @@ pub unsafe fn ecx_LRWDC(
         &mut *(*port).txbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT as *mut libc::c_void,
         ec_cmdtype::EC_CMD_FRMW,
         idx,
-        0u8,
+        false,
         DCrs,
         EthercatRegister::ECT_REG_DCSYSTIME as u16,
-        ::core::mem::size_of::<*mut i64>() as u16,
+        ::core::mem::size_of::<*mut i64>(),
         &mut DCtE as *mut u64 as *mut libc::c_void,
     );
     wkc = ecx_srconfirm(port, idx, timeout);
@@ -879,7 +879,7 @@ pub unsafe fn ec_setupdatagram(
     mut idx: u8,
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
 ) -> libc::c_int {
     return ecx_setupdatagram(&mut ecx_port, frame, com, idx, ADP, ADO, length, data);
@@ -892,7 +892,7 @@ pub unsafe fn ec_adddatagram(
     mut more: bool,
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
 ) -> u16 {
     return ecx_adddatagram(&mut ecx_port, frame, com, idx, more, ADP, ADO, length, data);
@@ -901,9 +901,9 @@ pub unsafe fn ec_adddatagram(
 pub unsafe fn ec_BWR(
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_BWR(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
@@ -911,9 +911,9 @@ pub unsafe fn ec_BWR(
 pub unsafe fn ec_BRD(
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_BRD(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
@@ -921,9 +921,9 @@ pub unsafe fn ec_BRD(
 pub unsafe fn ec_APRD(
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_APRD(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
@@ -931,9 +931,9 @@ pub unsafe fn ec_APRD(
 pub unsafe fn ec_ARMW(
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_ARMW(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
@@ -941,20 +941,20 @@ pub unsafe fn ec_ARMW(
 pub unsafe fn ec_FRMW(
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_FRMW(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
 #[no_mangle]
-pub unsafe fn ec_APRDw(mut ADP: u16, mut ADO: u16, mut timeout: libc::c_int) -> u16 {
+pub unsafe fn ec_APRDw(mut ADP: u16, mut ADO: u16, mut timeout: u32) -> u16 {
     let mut w: u16 = 0;
     w = 0u16;
     ec_APRD(
         ADP,
         ADO,
-        ::core::mem::size_of::<u16>() as u16,
+        ::core::mem::size_of::<u16>(),
         &mut w as *mut u16 as *mut libc::c_void,
         timeout,
     );
@@ -964,20 +964,20 @@ pub unsafe fn ec_APRDw(mut ADP: u16, mut ADO: u16, mut timeout: libc::c_int) -> 
 pub unsafe fn ec_FPRD(
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_FPRD(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
 #[no_mangle]
-pub unsafe fn ec_FPRDw(mut ADP: u16, mut ADO: u16, mut timeout: libc::c_int) -> u16 {
+pub unsafe fn ec_FPRDw(mut ADP: u16, mut ADO: u16, mut timeout: u32) -> u16 {
     let mut w: u16 = 0;
     w = 0u16;
     ec_FPRD(
         ADP,
         ADO,
-        ::core::mem::size_of::<u16>() as u16,
+        ::core::mem::size_of::<u16>(),
         &mut w as *mut u16 as *mut libc::c_void,
         timeout,
     );
@@ -987,23 +987,18 @@ pub unsafe fn ec_FPRDw(mut ADP: u16, mut ADO: u16, mut timeout: libc::c_int) -> 
 pub unsafe fn ec_APWR(
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_APWR(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
 #[no_mangle]
-pub unsafe fn ec_APWRw(
-    mut ADP: u16,
-    mut ADO: u16,
-    mut data: u16,
-    mut timeout: libc::c_int,
-) -> libc::c_int {
+pub unsafe fn ec_APWRw(mut ADP: u16, mut ADO: u16, mut data: u16, mut timeout: u32) -> libc::c_int {
     return ec_APWR(
         ADP,
         ADO,
-        ::core::mem::size_of::<u16>() as u16,
+        ::core::mem::size_of::<u16>(),
         &mut data as *mut u16 as *mut libc::c_void,
         timeout,
     );
@@ -1012,23 +1007,18 @@ pub unsafe fn ec_APWRw(
 pub unsafe fn ec_FPWR(
     mut ADP: u16,
     mut ADO: u16,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_FPWR(&mut ecx_port, ADP, ADO, length, data, timeout);
 }
 #[no_mangle]
-pub unsafe fn ec_FPWRw(
-    mut ADP: u16,
-    mut ADO: u16,
-    mut data: u16,
-    mut timeout: libc::c_int,
-) -> libc::c_int {
+pub unsafe fn ec_FPWRw(mut ADP: u16, mut ADO: u16, mut data: u16, mut timeout: u32) -> libc::c_int {
     return ec_FPWR(
         ADP,
         ADO,
-        ::core::mem::size_of::<u16>() as u16,
+        ::core::mem::size_of::<u16>(),
         &mut data as *mut u16 as *mut libc::c_void,
         timeout,
     );
@@ -1036,38 +1026,38 @@ pub unsafe fn ec_FPWRw(
 #[no_mangle]
 pub unsafe fn ec_LRW(
     mut LogAdr: u32,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_LRW(&mut ecx_port, LogAdr, length, data, timeout);
 }
 #[no_mangle]
 pub unsafe fn ec_LRD(
     mut LogAdr: u32,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_LRD(&mut ecx_port, LogAdr, length, data, timeout);
 }
 #[no_mangle]
 pub unsafe fn ec_LWR(
     mut LogAdr: u32,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_LWR(&mut ecx_port, LogAdr, length, data, timeout);
 }
 #[no_mangle]
 pub unsafe fn ec_LRWDC(
     mut LogAdr: u32,
-    mut length: u16,
+    mut length: usize,
     mut data: *mut libc::c_void,
     mut DCrs: u16,
     mut DCtime: *mut i64,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_LRWDC(&mut ecx_port, LogAdr, length, data, DCrs, DCtime, timeout);
 }

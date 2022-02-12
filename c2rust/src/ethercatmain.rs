@@ -8,7 +8,8 @@ use crate::{
     ethercattype::{
         ec_bufT, ec_bufstate, ec_cmdtype, ec_comt, ec_ecmdtype, ec_err_type, ec_errort,
         ec_etherheadert, ec_state, C2RustUnnamed_0, EthercatRegister, MailboxType, SIICategory,
-        EC_TIMEOUTEEP, EC_TIMEOUTRET3,
+        EC_DEFAULTRETRIES, EC_ESTAT_EMASK, EC_ESTAT_NACK, EC_ESTAT_R64, EC_TIMEOUTEEP,
+        EC_TIMEOUTRET, EC_TIMEOUTRET3,
     },
     osal::linux::osal::{
         ec_timet, osal_current_time, osal_timer_is_expired, osal_timer_start, osal_timert,
@@ -35,17 +36,19 @@ pub const EC_MAXGROUP: u16 = 2;
 /** max. number of IO segments per group */
 pub const EC_MAXIOSEGMENTS: u16 = 64;
 /** max. mailbox size */
-pub const EC_MAXMBX: u16 = 1486;
+pub const EC_MAXMBX: usize = 1486;
 /** max. eeprom PDO entries */
 pub const EC_MAXEEPDO: u16 = 0x200;
 /** max. SM used */
 pub const EC_MAXSM: usize = 8;
 /** max. FMMU used */
-pub const EC_MAXFMMU: u16 = 4;
+pub const EC_MAXFMMU: usize = 4;
 /** max. Adapter */
 pub const EC_MAXLEN_ADAPTERNAME: u16 = 128;
 /** define maximum number of concurrent threads in mapping */
 pub const EC_MAX_MAPT: u16 = 1;
+/** delay in us for eeprom ready loop */
+pub const EC_LOCALDELAY: u32 = 200;
 
 pub const ECT_MBXPROT_AOE: i32 = 0x0001;
 pub const ECT_MBXPROT_EOE: i32 = 0x0002;
@@ -225,70 +228,134 @@ pub type ec_slavet = ec_slave;
 
 #[derive(Copy, Clone)]
 pub struct ec_slave {
+    /// state of slave
     pub state: u16,
+    /// AL status code
     pub ALstatuscode: u16,
+    /// Configured address
     pub configadr: u16,
+    /// Alias address
     pub aliasadr: u16,
+    /// Manufacturer from EEprom
     pub eep_man: u32,
+    /// ID from EEprom
     pub eep_id: u32,
+    /// revision from EEprom
     pub eep_rev: u32,
+    /// Interface type
     pub Itype: u16,
+    /// Device type
     pub Dtype: u16,
+    /// output bits
     pub Obits: u16,
+    /// output bytes, if Obits < 8 then Obytes = 0
     pub Obytes: u32,
+    /// output pointer in IOmap buffer
     pub outputs: *mut u8,
+    /// startbit in first output byte
     pub Ostartbit: u8,
+    /// input bits
     pub Ibits: u16,
+    /// input bytes, if Ibits < 8 then Ibytes = 0
     pub Ibytes: u32,
+    /// input pointer in IOmap buffer
     pub inputs: *mut u8,
+    /// startbit in first input byte
     pub Istartbit: u8,
-    pub SM: [ec_smt; 8],
-    pub SMtype: [u8; 8],
-    pub FMMU: [ec_fmmut; 4],
+    /// SM structure
+    pub SM: [ec_smt; EC_MAXSM],
+    /// SM type 0=unused 1=MbxWr 2=MbxRd 3=Outputs 4=Inputs
+    pub SMtype: [u8; EC_MAXSM],
+    /// FMMU structure
+    pub FMMU: [ec_fmmut; EC_MAXFMMU],
+    /// FMMU0 function
     pub FMMU0func: u8,
+    /// FMMU1 function
     pub FMMU1func: u8,
+    /// FMMU2 function
     pub FMMU2func: u8,
+    /// FMMU3 function
     pub FMMU3func: u8,
+    /// length of write mailbox in bytes, if no mailbox then 0
     pub mbx_l: u16,
+    /// mailbox write offset
     pub mbx_wo: u16,
+    /// length of read mailbox in bytes
     pub mbx_rl: u16,
+    /// mailbox read offset
     pub mbx_ro: u16,
+    /// mailbox supported protocols
     pub mbx_proto: u16,
+    /// Counter value of mailbox link layer protocol 1..7
     pub mbx_cnt: u8,
+    /// has DC capability
     pub hasdc: bool,
+    /// Physical type; Ebus, EtherNet combinations
     pub ptype: u8,
+    /// topology: 1 to 3 links
     pub topology: u8,
+    /// active ports bitmap : ....3210 , set if respective port is active *
     pub activeports: u8,
+    /// consumed ports bitmap : ....3210, used for internal delay measurement *
     pub consumedports: u8,
+    /// slave number for parent, 0=master
     pub parent: u16,
+    /// port number on parent this slave is connected to *
     pub parentport: u8,
+    /// port number on this slave the parent is connected to *
     pub entryport: u8,
+    /// DC receivetimes on port A
     pub DCrtA: i32,
+    /// DC receivetimes on port B
     pub DCrtB: i32,
+    /// DC receivetimes on port C
     pub DCrtC: i32,
+    /// DC receivetimes on port D
     pub DCrtD: i32,
+    /// propagation delay
     pub pdelay: i32,
+    /// next DC slave
     pub DCnext: u16,
+    /// previous DC slave
     pub DCprevious: u16,
+    /// DC cycle time in ns
     pub DCcycle: i32,
+    /// DC shift from clock modulus boundary
     pub DCshift: i32,
-    pub DCactive: u8,
+    /// DC sync activation, 0=off, 1=on
+    pub DCactive: bool,
+    /// link to config table
     pub configindex: u16,
+    /// link to SII config
     pub SIIindex: u16,
+    /// 1 = 8 bytes per read, 0 = 4 bytes per read
     pub eep_8byte: u8,
+    /// 0 = eeprom to master , 1 = eeprom to PDI
     pub eep_pdi: u8,
+    /// CoE details
     pub CoEdetails: u8,
+    /// FoE details
     pub FoEdetails: u8,
+    /// EoE details
     pub EoEdetails: u8,
+    /// SoE details
     pub SoEdetails: u8,
+    /// E-bus current
     pub Ebuscurrent: i16,
+    /// if >0 block use of LRW in processdata
     pub blockLRW: u8,
+    /// group
     pub group: u8,
+    /// first unused FMMU
     pub FMMUunused: u8,
+    /// Boolean for tracking whether the slave is (not) responding, not used/set by the SOEM library
     pub islost: bool,
+    /// registered configuration function PO->SO, (DEPRECATED)
     pub PO2SOconfig: Option<unsafe fn(_: u16) -> libc::c_int>,
+    /// registered configuration function PO->SO
     pub PO2SOconfigx: Option<unsafe fn(_: *mut ecx_contextt, _: u16) -> libc::c_int>,
-    pub name: [libc::c_char; 41],
+    /// readable name
+    pub name: [libc::c_char; EC_MAXNAME + 1],
 }
 
 #[derive(Copy, Clone)]
@@ -417,7 +484,7 @@ pub static mut ec_slave: [ec_slavet; 200] = [ec_slavet {
     mbx_ro: 0,
     mbx_proto: 0,
     mbx_cnt: 0,
-    hasdc: 0,
+    hasdc: false,
     ptype: 0,
     topology: 0,
     activeports: 0,
@@ -434,7 +501,7 @@ pub static mut ec_slave: [ec_slavet; 200] = [ec_slavet {
     DCprevious: 0,
     DCcycle: 0,
     DCshift: 0,
-    DCactive: 0,
+    DCactive: false,
     configindex: 0,
     SIIindex: 0,
     eep_8byte: 0,
@@ -447,7 +514,7 @@ pub static mut ec_slave: [ec_slavet; 200] = [ec_slavet {
     blockLRW: 0,
     group: 0,
     FMMUunused: 0,
-    islost: 0,
+    islost: false,
     PO2SOconfig: None,
     PO2SOconfigx: None,
     name: [0; 41],
@@ -463,7 +530,7 @@ pub static mut ec_group: [ec_groupt; 2] = [ec_groupt {
     outputs: 0 as *mut u8,
     Ibytes: 0,
     inputs: 0 as *mut u8,
-    hasdc: 0,
+    hasdc: false,
     DCnext: 0,
     Ebuscurrent: 0,
     blockLRW: 0,
@@ -472,7 +539,7 @@ pub static mut ec_group: [ec_groupt; 2] = [ec_groupt {
     Ioffset: 0,
     outputsWKC: 0,
     inputsWKC: 0,
-    docheckstate: 0,
+    docheckstate: false,
     IOsegment: [0; 64],
 }; 2];
 /* * cache for EEPROM read functions */
@@ -652,7 +719,7 @@ pub unsafe fn ecx_pusherror(mut context: *mut ecx_contextt, mut Ec: *const ec_er
     if (*(*context).elist).tail as libc::c_int > 64i32 {
         (*(*context).elist).tail = 0i16
     }
-    *(*context).ecaterror = 1u8;
+    *(*context).ecaterror = true;
 }
 /* * Pops an error from the list.
  *
@@ -666,13 +733,13 @@ pub unsafe fn ecx_poperror(mut context: *mut ecx_contextt, mut Ec: *mut ec_error
         != (*(*context).elist).tail as libc::c_int) as bool;
     *Ec = (*(*context).elist).Error[(*(*context).elist).tail as usize];
     (*(*context).elist).Error[(*(*context).elist).tail as usize].Signal = false;
-    if notEmpty != 0 {
+    if notEmpty == true {
         (*(*context).elist).tail += 1;
         if (*(*context).elist).tail as libc::c_int > 64i32 {
             (*(*context).elist).tail = 0i16
         }
     } else {
-        *(*context).ecaterror = 0u8
+        *(*context).ecaterror = false;
     }
     return notEmpty;
 }
@@ -720,7 +787,7 @@ pub unsafe fn ecx_packeterror(
     Ec.Slave = Slave;
     Ec.Index = Index;
     Ec.SubIdx = SubIdx;
-    *(*context).ecaterror = 1u8;
+    *(*context).ecaterror = true;
     Ec.Etype = ec_err_type::EC_ERR_TYPE_PACKET_ERROR;
     Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode = ErrorCode;
     ecx_pusherror(context, &mut Ec);
@@ -842,7 +909,7 @@ pub unsafe fn ecx_init_redundant(
         0u8,
         0u16,
         0u16,
-        2u16,
+        2,
         &mut zbuf as *mut libc::c_int as *mut libc::c_void,
     );
     (*(*context).port).txbuflength2 = core::mem::size_of::<ec_etherheadert>()
@@ -1055,11 +1122,11 @@ pub unsafe fn ecx_siistring(
                 }
                 i = i.wrapping_add(1)
             }
-            *ptr = 0u8
+            *ptr = 0;
         /* add zero terminator */
         } else {
             ptr = str;
-            *ptr = 0u8
+            *ptr = 0;
             /* empty string */
         }
     }
@@ -1358,7 +1425,7 @@ pub unsafe fn ecx_FPRD_multi(
     mut n: libc::c_int,
     mut configlst: *mut u16,
     mut slstatlst: *mut ec_alstatust,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut idx: u8 = 0;
@@ -1375,7 +1442,7 @@ pub unsafe fn ecx_FPRD_multi(
         idx,
         *configlst.offset(slcnt as isize),
         EthercatRegister::ECT_REG_ALSTAT as u16,
-        ::core::mem::size_of::<ec_alstatust>() as u16,
+        ::core::mem::size_of::<ec_alstatust>(),
         slstatlst.offset(slcnt as isize) as *mut libc::c_void,
     );
     sldatapos[slcnt as usize] = ::core::mem::size_of::<ec_comt>() as u16;
@@ -1390,10 +1457,10 @@ pub unsafe fn ecx_FPRD_multi(
                 as *mut libc::c_void,
             ec_cmdtype::EC_CMD_FPRD,
             idx,
-            1u8,
+            true,
             *configlst.offset(slcnt as isize),
             EthercatRegister::ECT_REG_ALSTAT as u16,
-            ::core::mem::size_of::<ec_alstatust>() as u16,
+            ::core::mem::size_of::<ec_alstatust>(),
             slstatlst.offset(slcnt as isize) as *mut libc::c_void,
         )
     }
@@ -1404,10 +1471,10 @@ pub unsafe fn ecx_FPRD_multi(
                 as *mut libc::c_void,
             ec_cmdtype::EC_CMD_FPRD,
             idx,
-            0u8,
+            false,
             *configlst.offset(slcnt as isize),
             EthercatRegister::ECT_REG_ALSTAT as u16,
-            ::core::mem::size_of::<ec_alstatust>() as u16,
+            ::core::mem::size_of::<ec_alstatust>(),
             slstatlst.offset(slcnt as isize) as *mut libc::c_void,
         )
     }
@@ -1459,27 +1526,27 @@ pub unsafe fn ecx_readstate(mut context: *mut ecx_contextt) -> libc::c_int {
         (*context).port,
         0u16,
         EthercatRegister::ECT_REG_ALSTAT as u16,
-        ::core::mem::size_of::<u16>() as u16,
+        ::core::mem::size_of::<u16>(),
         &mut rval as *mut u16 as *mut libc::c_void,
-        2000i32,
+        EC_TIMEOUTRET,
     );
     if wkc >= *(*context).slavecount {
-        allslavespresent = 1u8
+        allslavespresent = true;
     }
     rval = rval;
     bitwisestate = (rval as libc::c_int & 0xfi32) as u16;
     if rval as libc::c_int & ec_state::EC_STATE_ERROR as libc::c_int == 0i32 {
-        noerrorflag = 1u8;
+        noerrorflag = true;
         (*(*context).slavelist.offset(0isize)).ALstatuscode = 0u16
     } else {
-        noerrorflag = 0u8
+        noerrorflag = false;
     }
     match bitwisestate as libc::c_int {
         1 | 2 | 3 | 4 | 8 => {
-            allslavessamestate = 1u8;
+            allslavessamestate = true;
             (*(*context).slavelist.offset(0isize)).state = bitwisestate
         }
-        _ => allslavessamestate = 0u8,
+        _ => allslavessamestate = false,
     }
     if noerrorflag as libc::c_int != 0
         && allslavessamestate as libc::c_int != 0
@@ -1571,7 +1638,7 @@ pub unsafe fn ecx_writestate(mut context: *mut ecx_contextt, mut slave: u16) -> 
             (*context).port,
             0u16,
             EthercatRegister::ECT_REG_ALCTL as u16,
-            ::core::mem::size_of::<u16>() as u16,
+            ::core::mem::size_of::<u16>(),
             &mut slstate as *mut u16 as *mut libc::c_void,
             EC_TIMEOUTRET3,
         )
@@ -1601,7 +1668,7 @@ pub unsafe fn ecx_statecheck(
     mut context: *mut ecx_contextt,
     mut slave: u16,
     mut reqstate: u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> u16 {
     let mut configadr: u16 = 0; /* read slave status */
     let mut state: u16 = 0;
@@ -1617,18 +1684,18 @@ pub unsafe fn ecx_statecheck(
     if slave as libc::c_int > *(*context).slavecount {
         return 0u16;
     }
-    osal_timer_start(&mut timer, timeout as u32);
+    osal_timer_start(&mut timer, timeout);
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
     loop {
-        if (slave as libc::c_int) < 1i32 {
+        if slave < 1 {
             rval = 0u16;
             ecx_BRD(
                 (*context).port,
                 0u16,
                 EthercatRegister::ECT_REG_ALSTAT as u16,
-                ::core::mem::size_of::<u16>() as u16,
+                ::core::mem::size_of::<u16>(),
                 &mut rval as *mut u16 as *mut libc::c_void,
-                2000i32,
+                EC_TIMEOUTRET,
             );
             rval = rval
         } else {
@@ -1638,9 +1705,9 @@ pub unsafe fn ecx_statecheck(
                 (*context).port,
                 configadr,
                 EthercatRegister::ECT_REG_ALSTAT as u16,
-                ::core::mem::size_of::<ec_alstatust>() as u16,
+                ::core::mem::size_of::<ec_alstatust>(),
                 &mut slstat as *mut ec_alstatust as *mut libc::c_void,
-                2000i32,
+                EC_TIMEOUTRET,
             );
             rval = slstat.alstatus;
             (*(*context).slavelist.offset(slave as isize)).ALstatuscode = slstat.alstatuscode
@@ -1689,7 +1756,7 @@ pub unsafe fn ec_clearmbx(mut Mbx: *mut ec_mbxbuft) {
 pub unsafe fn ecx_mbxempty(
     mut context: *mut ecx_contextt,
     mut slave: u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut configadr: u16 = 0;
     let mut SMstat: u8 = 0;
@@ -1697,7 +1764,7 @@ pub unsafe fn ecx_mbxempty(
     let mut timer: osal_timert = osal_timert {
         stop_time: ec_timet { sec: 0, usec: 0 },
     };
-    osal_timer_start(&mut timer, timeout as u32);
+    osal_timer_start(&mut timer, timeout);
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
     loop {
         SMstat = 0u8;
@@ -1705,16 +1772,16 @@ pub unsafe fn ecx_mbxempty(
             (*context).port,
             configadr,
             EthercatRegister::ECT_REG_SM0STAT as u16,
-            ::core::mem::size_of::<u8>() as u16,
+            ::core::mem::size_of::<u8>(),
             &mut SMstat as *mut u8 as *mut libc::c_void,
-            2000i32,
+            EC_TIMEOUTRET,
         );
         SMstat = SMstat;
-        if SMstat as libc::c_int & 0x8i32 != 0i32 && timeout > 200i32 {
-            osal_usleep(200u32);
+        if SMstat as libc::c_int & 0x8i32 != 0i32 && timeout > EC_LOCALDELAY {
+            osal_usleep(EC_LOCALDELAY);
         }
         if !((wkc <= 0i32 || SMstat as libc::c_int & 0x8i32 != 0i32)
-            && osal_timer_is_expired(&mut timer) as libc::c_int == 0i32)
+            && osal_timer_is_expired(&mut timer) == false)
         {
             break;
         }
@@ -1736,16 +1803,16 @@ pub unsafe fn ecx_mbxsend(
     mut context: *mut ecx_contextt,
     mut slave: u16,
     mut mbx: *mut ec_mbxbuft,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut mbxwo: u16 = 0;
-    let mut mbxl: u16 = 0;
+    let mut mbxl: usize = 0;
     let mut configadr: u16 = 0;
     let mut wkc: libc::c_int = 0;
     wkc = 0i32;
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
-    mbxl = (*(*context).slavelist.offset(slave as isize)).mbx_l;
-    if mbxl as libc::c_int > 0i32 && mbxl as libc::c_int <= EC_MAXMBX {
+    mbxl = (*(*context).slavelist.offset(slave as isize)).mbx_l as usize;
+    if mbxl > 0 && mbxl <= EC_MAXMBX {
         if ecx_mbxempty(context, slave, timeout) != 0 {
             mbxwo = (*(*context).slavelist.offset(slave as isize)).mbx_wo;
             /* write slave in mailbox */
@@ -1776,10 +1843,10 @@ pub unsafe fn ecx_mbxreceive(
     mut context: *mut ecx_contextt,
     mut slave: u16,
     mut mbx: *mut ec_mbxbuft,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut mbxro: u16 = 0;
-    let mut mbxl: u16 = 0;
+    let mut mbxl: usize = 0;
     let mut configadr: u16 = 0;
     let mut wkc: libc::c_int = 0i32;
     let mut wkc2: libc::c_int = 0;
@@ -1789,12 +1856,12 @@ pub unsafe fn ecx_mbxreceive(
     let mut EMp: *mut ec_emcyt = 0 as *mut ec_emcyt;
     let mut MBXEp: *mut ec_mbxerrort = 0 as *mut ec_mbxerrort;
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
-    mbxl = (*(*context).slavelist.offset(slave as isize)).mbx_rl;
-    if mbxl as libc::c_int > 0i32 && mbxl as libc::c_int <= EC_MAXMBX {
+    mbxl = (*(*context).slavelist.offset(slave as isize)).mbx_rl as usize;
+    if mbxl as libc::c_int > 0i32 && mbxl <= EC_MAXMBX {
         let mut timer: osal_timert = osal_timert {
             stop_time: ec_timet { sec: 0, usec: 0 },
         };
-        osal_timer_start(&mut timer, timeout as u32);
+        osal_timer_start(&mut timer, timeout);
         wkc = 0i32;
         loop {
             /* wait for read mailbox available */
@@ -1803,13 +1870,13 @@ pub unsafe fn ecx_mbxreceive(
                 (*context).port,
                 configadr,
                 EthercatRegister::ECT_REG_SM1STAT as u16,
-                ::core::mem::size_of::<u16>() as u16,
+                ::core::mem::size_of::<u16>(),
                 &mut SMstat as *mut u16 as *mut libc::c_void,
-                2000i32,
+                EC_TIMEOUTRET,
             );
             SMstat = SMstat;
-            if SMstat as libc::c_int & 0x8i32 == 0i32 && timeout > 200i32 {
-                osal_usleep(200u32);
+            if SMstat as libc::c_int & 0x8i32 == 0i32 && timeout > EC_LOCALDELAY {
+                osal_usleep(EC_LOCALDELAY);
             }
             if !((wkc <= 0i32 || SMstat as libc::c_int & 0x8i32 == 0i32)
                 && osal_timer_is_expired(&mut timer) as libc::c_int == 0i32)
@@ -1829,7 +1896,7 @@ pub unsafe fn ecx_mbxreceive(
                     mbxro,
                     mbxl,
                     mbx as *mut libc::c_void,
-                    2000i32,
+                    EC_TIMEOUTRET,
                 ); /* get mailbox */
                 if wkc > 0i32 && (*mbxh).mbxtype as libc::c_int & 0xfi32 == 0i32 {
                     /* Mailbox error response? */
@@ -1888,9 +1955,9 @@ pub unsafe fn ecx_mbxreceive(
                         (*context).port,
                         configadr,
                         EthercatRegister::ECT_REG_SM1STAT as u16,
-                        ::core::mem::size_of::<u16>() as u16,
+                        ::core::mem::size_of::<u16>(),
                         &mut SMstat as *mut u16 as *mut libc::c_void,
-                        2000i32,
+                        EC_TIMEOUTRET,
                     );
                     SMstat = SMstat;
                     loop {
@@ -1899,9 +1966,9 @@ pub unsafe fn ecx_mbxreceive(
                             (*context).port,
                             configadr,
                             EthercatRegister::ECT_REG_SM1CONTR as u16,
-                            ::core::mem::size_of::<u8>() as u16,
+                            ::core::mem::size_of::<u8>(),
                             &mut SMcontr as *mut u8 as *mut libc::c_void,
-                            2000i32,
+                            EC_TIMEOUTRET,
                         );
                         if !((wkc2 <= 0i32
                             || SMcontr as libc::c_int & 0x2i32
@@ -1917,13 +1984,13 @@ pub unsafe fn ecx_mbxreceive(
                             (*context).port,
                             configadr,
                             EthercatRegister::ECT_REG_SM1STAT as u16,
-                            ::core::mem::size_of::<u16>() as u16,
+                            ::core::mem::size_of::<u16>(),
                             &mut SMstat as *mut u16 as *mut libc::c_void,
-                            2000i32,
+                            EC_TIMEOUTRET,
                         );
                         SMstat = SMstat;
-                        if SMstat as libc::c_int & 0x8i32 == 0i32 && timeout > 200i32 {
-                            osal_usleep(200u32);
+                        if SMstat as libc::c_int & 0x8i32 == 0i32 && timeout > EC_LOCALDELAY {
+                            osal_usleep(EC_LOCALDELAY);
                         }
                         if !((wkc2 <= 0i32 || SMstat as libc::c_int & 0x8i32 == 0i32)
                             && osal_timer_is_expired(&mut timer) as libc::c_int == 0i32)
@@ -1993,7 +2060,7 @@ pub unsafe fn ecx_readeeprom(
     mut context: *mut ecx_contextt,
     mut slave: u16,
     mut eeproma: u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> u32 {
     let mut configadr: u16 = 0; /* set eeprom control to master */
     ecx_eeprom2master(context, slave);
@@ -2014,7 +2081,7 @@ pub unsafe fn ecx_writeeeprom(
     mut slave: u16,
     mut eeproma: u16,
     mut data: u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut configadr: u16 = 0; /* set eeprom control to master */
     ecx_eeprom2master(context, slave);
@@ -2040,14 +2107,14 @@ pub unsafe fn ecx_eeprom2master(mut context: *mut ecx_contextt, mut slave: u16) 
                 (*context).port,
                 configadr,
                 EthercatRegister::ECT_REG_EEPCFG as u16,
-                ::core::mem::size_of::<u8>() as u16,
+                ::core::mem::size_of::<u8>(),
                 &mut eepctl as *mut u8 as *mut libc::c_void,
-                2000i32,
+                EC_TIMEOUTRET,
             );
             if !(wkc <= 0i32 && {
                 let fresh42 = cnt;
                 cnt = cnt + 1;
-                (fresh42) < 3i32
+                (fresh42) < EC_DEFAULTRETRIES
             }) {
                 break;
             }
@@ -2060,14 +2127,14 @@ pub unsafe fn ecx_eeprom2master(mut context: *mut ecx_contextt, mut slave: u16) 
                 (*context).port,
                 configadr,
                 EthercatRegister::ECT_REG_EEPCFG as u16,
-                ::core::mem::size_of::<u8>() as u16,
+                ::core::mem::size_of::<u8>(),
                 &mut eepctl as *mut u8 as *mut libc::c_void,
-                2000i32,
+                EC_TIMEOUTRET,
             );
             if !(wkc <= 0i32 && {
                 let fresh43 = cnt;
                 cnt = cnt + 1;
-                (fresh43) < 3i32
+                (fresh43) < EC_DEFAULTRETRIES
             }) {
                 break;
             }
@@ -2096,14 +2163,14 @@ pub unsafe fn ecx_eeprom2pdi(mut context: *mut ecx_contextt, mut slave: u16) -> 
                 (*context).port,
                 configadr,
                 EthercatRegister::ECT_REG_EEPCFG as u16,
-                ::core::mem::size_of::<u8>() as u16,
+                ::core::mem::size_of::<u8>(),
                 &mut eepctl as *mut u8 as *mut libc::c_void,
-                2000i32,
+                EC_TIMEOUTRET,
             );
             if !(wkc <= 0i32 && {
                 let fresh44 = cnt;
                 cnt = cnt + 1;
-                (fresh44) < 3i32
+                (fresh44) < EC_DEFAULTRETRIES
             }) {
                 break;
             }
@@ -2118,7 +2185,7 @@ pub unsafe fn ecx_eeprom_waitnotbusyAP(
     mut context: *mut ecx_contextt,
     mut aiadr: u16,
     mut estat: *mut u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> u16 {
     let mut wkc: libc::c_int = 0;
     let mut cnt: libc::c_int = 0i32;
@@ -2126,21 +2193,21 @@ pub unsafe fn ecx_eeprom_waitnotbusyAP(
     let mut timer: osal_timert = osal_timert {
         stop_time: ec_timet { sec: 0, usec: 0 },
     };
-    osal_timer_start(&mut timer, timeout as u32);
+    osal_timer_start(&mut timer, timeout);
     loop {
         let fresh45 = cnt;
         cnt = cnt + 1;
         if fresh45 != 0 {
-            osal_usleep(200u32);
+            osal_usleep(EC_LOCALDELAY);
         }
         *estat = 0u16;
         wkc = ecx_APRD(
             (*context).port,
             aiadr,
             EthercatRegister::ECT_REG_EEPSTAT as u16,
-            ::core::mem::size_of::<u16>() as u16,
+            ::core::mem::size_of::<u16>(),
             estat as *mut libc::c_void,
-            2000i32,
+            EC_TIMEOUTRET,
         );
         *estat = *estat;
         if !((wkc <= 0i32 || *estat as libc::c_int & 0x8000i32 > 0i32)
@@ -2166,7 +2233,7 @@ pub unsafe fn ecx_readeepromAP(
     mut context: *mut ecx_contextt,
     mut aiadr: u16,
     mut eeproma: u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> u64 {
     let mut estat: u16 = 0;
     let mut edat32: u32 = 0;
@@ -2182,14 +2249,14 @@ pub unsafe fn ecx_readeepromAP(
     edat64 = 0u64;
     edat32 = 0u32;
     if ecx_eeprom_waitnotbusyAP(context, aiadr, &mut estat, timeout) != 0 {
-        if estat as libc::c_int & 0x7800i32 != 0 {
+        if estat as libc::c_int & EC_ESTAT_EMASK != 0 {
             /* error bits are set */
             estat = ec_ecmdtype::EC_ECMD_NOP as u16; /* clear error bits */
             wkc = ecx_APWR(
                 (*context).port,
                 aiadr,
                 EthercatRegister::ECT_REG_EEPCTL as u16,
-                ::core::mem::size_of::<u16>() as u16,
+                ::core::mem::size_of::<u16>(),
                 &mut estat as *mut u16 as *mut libc::c_void,
                 EC_TIMEOUTRET3,
             )
@@ -2204,25 +2271,25 @@ pub unsafe fn ecx_readeepromAP(
                     (*context).port,
                     aiadr,
                     EthercatRegister::ECT_REG_EEPCTL as u16,
-                    ::core::mem::size_of::<ec_eepromt>() as u16,
+                    ::core::mem::size_of::<ec_eepromt>(),
                     &mut ed as *mut ec_eepromt as *mut libc::c_void,
-                    2000i32,
+                    EC_TIMEOUTRET,
                 );
                 if !(wkc <= 0i32 && {
                     let fresh46 = cnt;
                     cnt = cnt + 1;
-                    (fresh46) < 3i32
+                    (fresh46) < EC_DEFAULTRETRIES
                 }) {
                     break;
                 }
             }
             if wkc != 0 {
-                osal_usleep(200u32);
+                osal_usleep(EC_LOCALDELAY);
                 estat = 0u16;
                 if ecx_eeprom_waitnotbusyAP(context, aiadr, &mut estat, timeout) != 0 {
                     if estat as libc::c_int & 0x2000i32 != 0 {
                         nackcnt += 1;
-                        osal_usleep((200i32 * 5i32) as u32);
+                        osal_usleep(EC_LOCALDELAY * 5);
                     } else {
                         nackcnt = 0i32;
                         if estat as libc::c_int & 0x40i32 != 0 {
@@ -2232,14 +2299,14 @@ pub unsafe fn ecx_readeepromAP(
                                     (*context).port,
                                     aiadr,
                                     EthercatRegister::ECT_REG_EEPDAT as u16,
-                                    ::core::mem::size_of::<u64>() as u16,
+                                    ::core::mem::size_of::<u64>(),
                                     &mut edat64 as *mut u64 as *mut libc::c_void,
-                                    2000i32,
+                                    EC_TIMEOUTRET,
                                 );
                                 if !(wkc <= 0i32 && {
                                     let fresh47 = cnt;
                                     cnt = cnt + 1;
-                                    (fresh47) < 3i32
+                                    (fresh47) < EC_DEFAULTRETRIES
                                 }) {
                                     break;
                                 }
@@ -2251,14 +2318,14 @@ pub unsafe fn ecx_readeepromAP(
                                     (*context).port,
                                     aiadr,
                                     EthercatRegister::ECT_REG_EEPDAT as u16,
-                                    ::core::mem::size_of::<u32>() as u16,
+                                    ::core::mem::size_of::<u32>(),
                                     &mut edat32 as *mut u32 as *mut libc::c_void,
-                                    2000i32,
+                                    EC_TIMEOUTRET,
                                 );
                                 if !(wkc <= 0i32 && {
                                     let fresh48 = cnt;
                                     cnt = cnt + 1;
-                                    (fresh48) < 3i32
+                                    (fresh48) < EC_DEFAULTRETRIES
                                 }) {
                                     break;
                                 }
@@ -2289,7 +2356,7 @@ pub unsafe fn ecx_writeeepromAP(
     mut aiadr: u16,
     mut eeproma: u16,
     mut data: u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut estat: u16 = 0;
     let mut ed: ec_eepromt = ec_eepromt {
@@ -2302,14 +2369,14 @@ pub unsafe fn ecx_writeeepromAP(
     let mut cnt: libc::c_int = 0i32;
     let mut nackcnt: libc::c_int = 0i32;
     if ecx_eeprom_waitnotbusyAP(context, aiadr, &mut estat, timeout) != 0 {
-        if estat as libc::c_int & 0x7800i32 != 0 {
+        if estat as libc::c_int & EC_ESTAT_EMASK != 0 {
             /* error bits are set */
             estat = ec_ecmdtype::EC_ECMD_NOP as u16; /* clear error bits */
             wkc = ecx_APWR(
                 (*context).port,
                 aiadr,
                 EthercatRegister::ECT_REG_EEPCTL as u16,
-                ::core::mem::size_of::<u16>() as u16,
+                ::core::mem::size_of::<u16>(),
                 &mut estat as *mut u16 as *mut libc::c_void,
                 EC_TIMEOUTRET3,
             )
@@ -2321,14 +2388,14 @@ pub unsafe fn ecx_writeeepromAP(
                     (*context).port,
                     aiadr,
                     EthercatRegister::ECT_REG_EEPDAT as u16,
-                    ::core::mem::size_of::<u16>() as u16,
+                    ::core::mem::size_of::<u16>(),
                     &mut data as *mut u16 as *mut libc::c_void,
-                    2000i32,
+                    EC_TIMEOUTRET,
                 );
                 if !(wkc <= 0i32 && {
                     let fresh49 = cnt;
                     cnt = cnt + 1;
-                    (fresh49) < 3i32
+                    (fresh49) < EC_DEFAULTRETRIES
                 }) {
                     break;
                 }
@@ -2342,14 +2409,14 @@ pub unsafe fn ecx_writeeepromAP(
                     (*context).port,
                     aiadr,
                     EthercatRegister::ECT_REG_EEPCTL as u16,
-                    ::core::mem::size_of::<ec_eepromt>() as u16,
+                    ::core::mem::size_of::<ec_eepromt>(),
                     &mut ed as *mut ec_eepromt as *mut libc::c_void,
-                    2000i32,
+                    EC_TIMEOUTRET,
                 );
                 if !(wkc <= 0i32 && {
                     let fresh50 = cnt;
                     cnt = cnt + 1;
-                    (fresh50) < 3i32
+                    (fresh50) < EC_DEFAULTRETRIES
                 }) {
                     break;
                 }
@@ -2360,7 +2427,7 @@ pub unsafe fn ecx_writeeepromAP(
                 if ecx_eeprom_waitnotbusyAP(context, aiadr, &mut estat, timeout) != 0 {
                     if estat as libc::c_int & 0x2000i32 != 0 {
                         nackcnt += 1;
-                        osal_usleep((200i32 * 5i32) as u32);
+                        osal_usleep(EC_LOCALDELAY * 5);
                     } else {
                         nackcnt = 0i32;
                         rval = 1i32
@@ -2379,7 +2446,7 @@ pub unsafe fn ecx_eeprom_waitnotbusyFP(
     mut context: *mut ecx_contextt,
     mut configadr: u16,
     mut estat: *mut u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> u16 {
     let mut wkc: libc::c_int = 0;
     let mut cnt: libc::c_int = 0i32;
@@ -2387,21 +2454,21 @@ pub unsafe fn ecx_eeprom_waitnotbusyFP(
     let mut timer: osal_timert = osal_timert {
         stop_time: ec_timet { sec: 0, usec: 0 },
     };
-    osal_timer_start(&mut timer, timeout as u32);
+    osal_timer_start(&mut timer, timeout);
     loop {
         let fresh51 = cnt;
         cnt = cnt + 1;
         if fresh51 != 0 {
-            osal_usleep(200u32);
+            osal_usleep(EC_LOCALDELAY);
         }
         *estat = 0u16;
         wkc = ecx_FPRD(
             (*context).port,
             configadr,
             EthercatRegister::ECT_REG_EEPSTAT as u16,
-            ::core::mem::size_of::<u16>() as u16,
+            ::core::mem::size_of::<u16>(),
             estat as *mut libc::c_void,
-            2000i32,
+            EC_TIMEOUTRET,
         );
         *estat = *estat;
         if !((wkc <= 0i32 || *estat as libc::c_int & 0x8000i32 > 0i32)
@@ -2427,7 +2494,7 @@ pub unsafe fn ecx_readeepromFP(
     mut context: *mut ecx_contextt,
     mut configadr: u16,
     mut eeproma: u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> u64 {
     let mut estat: u16 = 0;
     let mut edat32: u32 = 0;
@@ -2443,14 +2510,14 @@ pub unsafe fn ecx_readeepromFP(
     edat64 = 0u64;
     edat32 = 0u32;
     if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, timeout) != 0 {
-        if estat as libc::c_int & 0x7800i32 != 0 {
+        if estat as libc::c_int & EC_ESTAT_EMASK != 0 {
             /* error bits are set */
             estat = ec_ecmdtype::EC_ECMD_NOP as u16; /* clear error bits */
             wkc = ecx_FPWR(
                 (*context).port,
                 configadr,
                 EthercatRegister::ECT_REG_EEPCTL as u16,
-                ::core::mem::size_of::<u16>() as u16,
+                ::core::mem::size_of::<u16>(),
                 &mut estat as *mut u16 as *mut libc::c_void,
                 EC_TIMEOUTRET3,
             )
@@ -2465,42 +2532,42 @@ pub unsafe fn ecx_readeepromFP(
                     (*context).port,
                     configadr,
                     EthercatRegister::ECT_REG_EEPCTL as u16,
-                    ::core::mem::size_of::<ec_eepromt>() as u16,
+                    ::core::mem::size_of::<ec_eepromt>(),
                     &mut ed as *mut ec_eepromt as *mut libc::c_void,
-                    2000i32,
+                    EC_TIMEOUTEEP,
                 );
                 if !(wkc <= 0i32 && {
                     let fresh52 = cnt;
                     cnt = cnt + 1;
-                    (fresh52) < 3i32
+                    (fresh52) < EC_DEFAULTRETRIES
                 }) {
                     break;
                 }
             }
             if wkc != 0 {
-                osal_usleep(200u32);
+                osal_usleep(EC_LOCALDELAY);
                 estat = 0u16;
                 if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, timeout) != 0 {
-                    if estat as libc::c_int & 0x2000i32 != 0 {
+                    if estat as libc::c_int & EC_ESTAT_NACK != 0 {
                         nackcnt += 1;
-                        osal_usleep((200i32 * 5i32) as u32);
+                        osal_usleep(EC_LOCALDELAY * 5);
                     } else {
                         nackcnt = 0i32;
-                        if estat as libc::c_int & 0x40i32 != 0 {
+                        if estat as libc::c_int & EC_ESTAT_R64 != 0 {
                             cnt = 0i32;
                             loop {
                                 wkc = ecx_FPRD(
                                     (*context).port,
                                     configadr,
                                     EthercatRegister::ECT_REG_EEPDAT as u16,
-                                    ::core::mem::size_of::<u64>() as u16,
+                                    ::core::mem::size_of::<u64>(),
                                     &mut edat64 as *mut u64 as *mut libc::c_void,
-                                    2000i32,
+                                    EC_TIMEOUTRET,
                                 );
                                 if !(wkc <= 0i32 && {
                                     let fresh53 = cnt;
                                     cnt = cnt + 1;
-                                    (fresh53) < 3i32
+                                    (fresh53) < EC_DEFAULTRETRIES
                                 }) {
                                     break;
                                 }
@@ -2512,14 +2579,14 @@ pub unsafe fn ecx_readeepromFP(
                                     (*context).port,
                                     configadr,
                                     EthercatRegister::ECT_REG_EEPDAT as u16,
-                                    ::core::mem::size_of::<u32>() as u16,
+                                    ::core::mem::size_of::<u32>(),
                                     &mut edat32 as *mut u32 as *mut libc::c_void,
-                                    2000i32,
+                                    EC_TIMEOUTRET,
                                 );
                                 if !(wkc <= 0i32 && {
                                     let fresh54 = cnt;
                                     cnt = cnt + 1;
-                                    (fresh54) < 3i32
+                                    (fresh54) < EC_DEFAULTRETRIES
                                 }) {
                                     break;
                                 }
@@ -2550,7 +2617,7 @@ pub unsafe fn ecx_writeeepromFP(
     mut configadr: u16,
     mut eeproma: u16,
     mut data: u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut estat: u16 = 0;
     let mut ed: ec_eepromt = ec_eepromt {
@@ -2563,14 +2630,14 @@ pub unsafe fn ecx_writeeepromFP(
     let mut cnt: libc::c_int = 0i32;
     let mut nackcnt: libc::c_int = 0i32;
     if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, timeout) != 0 {
-        if estat as libc::c_int & 0x7800i32 != 0 {
+        if estat as libc::c_int & EC_ESTAT_EMASK != 0 {
             /* error bits are set */
             estat = ec_ecmdtype::EC_ECMD_NOP as u16; /* clear error bits */
             wkc = ecx_FPWR(
                 (*context).port,
                 configadr,
                 EthercatRegister::ECT_REG_EEPCTL as u16,
-                ::core::mem::size_of::<u16>() as u16,
+                ::core::mem::size_of::<u16>(),
                 &mut estat as *mut u16 as *mut libc::c_void,
                 EC_TIMEOUTRET3,
             )
@@ -2582,14 +2649,14 @@ pub unsafe fn ecx_writeeepromFP(
                     (*context).port,
                     configadr,
                     EthercatRegister::ECT_REG_EEPDAT as u16,
-                    ::core::mem::size_of::<u16>() as u16,
+                    ::core::mem::size_of::<u16>(),
                     &mut data as *mut u16 as *mut libc::c_void,
-                    2000i32,
+                    EC_TIMEOUTRET,
                 );
                 if !(wkc <= 0i32 && {
                     let fresh55 = cnt;
                     cnt = cnt + 1;
-                    (fresh55) < 3i32
+                    (fresh55) < EC_DEFAULTRETRIES
                 }) {
                     break;
                 }
@@ -2603,14 +2670,14 @@ pub unsafe fn ecx_writeeepromFP(
                     (*context).port,
                     configadr,
                     EthercatRegister::ECT_REG_EEPCTL as u16,
-                    ::core::mem::size_of::<ec_eepromt>() as u16,
+                    ::core::mem::size_of::<ec_eepromt>(),
                     &mut ed as *mut ec_eepromt as *mut libc::c_void,
-                    2000i32,
+                    EC_TIMEOUTRET,
                 );
                 if !(wkc <= 0i32 && {
                     let fresh56 = cnt;
                     cnt = cnt + 1;
-                    (fresh56) < 3i32
+                    (fresh56) < EC_DEFAULTRETRIES
                 }) {
                     break;
                 }
@@ -2619,9 +2686,9 @@ pub unsafe fn ecx_writeeepromFP(
                 osal_usleep((200i32 * 2i32) as u32);
                 estat = 0u16;
                 if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, timeout) != 0 {
-                    if estat as libc::c_int & 0x2000i32 != 0 {
+                    if estat as libc::c_int & EC_ESTAT_NACK != 0 {
                         nackcnt += 1;
-                        osal_usleep((200i32 * 5i32) as u32);
+                        osal_usleep(EC_LOCALDELAY * 5);
                     } else {
                         nackcnt = 0i32;
                         rval = 1i32
@@ -2655,14 +2722,14 @@ pub unsafe fn ecx_readeeprom1(mut context: *mut ecx_contextt, mut slave: u16, mu
     ecx_eeprom2master(context, slave);
     configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
     if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, EC_TIMEOUTEEP) != 0 {
-        if estat as libc::c_int & 0x7800i32 != 0 {
+        if estat as libc::c_int & EC_ESTAT_EMASK != 0 {
             /* error bits are set */
             estat = ec_ecmdtype::EC_ECMD_NOP as u16; /* clear error bits */
             wkc = ecx_FPWR(
                 (*context).port,
                 configadr,
                 EthercatRegister::ECT_REG_EEPCTL as u16,
-                ::core::mem::size_of::<u16>() as u16,
+                ::core::mem::size_of::<u16>(),
                 &mut estat as *mut u16 as *mut libc::c_void,
                 EC_TIMEOUTRET3,
             )
@@ -2675,14 +2742,14 @@ pub unsafe fn ecx_readeeprom1(mut context: *mut ecx_contextt, mut slave: u16, mu
                 (*context).port,
                 configadr,
                 EthercatRegister::ECT_REG_EEPCTL as u16,
-                ::core::mem::size_of::<ec_eepromt>() as u16,
+                ::core::mem::size_of::<ec_eepromt>(),
                 &mut ed as *mut ec_eepromt as *mut libc::c_void,
-                2000i32,
+                EC_TIMEOUTRET,
             );
             if !(wkc <= 0i32 && {
                 let fresh57 = cnt;
                 cnt = cnt + 1;
-                (fresh57) < 3i32
+                (fresh57) < EC_DEFAULTRETRIES
             }) {
                 break;
             }
@@ -2700,7 +2767,7 @@ pub unsafe fn ecx_readeeprom1(mut context: *mut ecx_contextt, mut slave: u16, mu
 pub unsafe fn ecx_readeeprom2(
     mut context: *mut ecx_contextt,
     mut slave: u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> u32 {
     let mut estat: u16 = 0;
     let mut configadr: u16 = 0;
@@ -2716,14 +2783,14 @@ pub unsafe fn ecx_readeeprom2(
                 (*context).port,
                 configadr,
                 EthercatRegister::ECT_REG_EEPDAT as u16,
-                ::core::mem::size_of::<u32>() as u16,
+                ::core::mem::size_of::<u32>(),
                 &mut edat as *mut u32 as *mut libc::c_void,
-                2000i32,
+                EC_TIMEOUTRET,
             );
             if !(wkc <= 0i32 && {
                 let fresh58 = cnt;
                 cnt = cnt + 1;
-                (fresh58) < 3i32
+                (fresh58) < EC_DEFAULTRETRIES
             }) {
                 break;
             }
@@ -2742,13 +2809,13 @@ unsafe fn ecx_pushindex(
     mut context: *mut ecx_contextt,
     mut idx: u8,
     mut data: *mut libc::c_void,
-    mut length: u16,
+    mut length: usize,
     mut DCO: u16,
 ) {
     if ((*(*context).idxstack).pushed as libc::c_int) < 16i32 {
         (*(*context).idxstack).idx[(*(*context).idxstack).pushed as usize] = idx;
         (*(*context).idxstack).data[(*(*context).idxstack).pushed as usize] = data;
-        (*(*context).idxstack).length[(*(*context).idxstack).pushed as usize] = length;
+        (*(*context).idxstack).length[(*(*context).idxstack).pushed as usize] = length as u16;
         (*(*context).idxstack).dcoffset[(*(*context).idxstack).pushed as usize] = DCO;
         (*(*context).idxstack).pushed = (*(*context).idxstack).pushed.wrapping_add(1)
     };
@@ -2797,7 +2864,7 @@ unsafe fn ecx_main_send_processdata(
     let mut w1: u16 = 0;
     let mut w2: u16 = 0;
     let mut length: libc::c_int = 0;
-    let mut sublength: u16 = 0;
+    let mut sublength: usize = 0;
     let mut idx: u8 = 0;
     let mut wkc: libc::c_int = 0;
     let mut data: *mut u8 = 0 as *mut u8;
@@ -2806,11 +2873,11 @@ unsafe fn ecx_main_send_processdata(
     let mut iomapinputoffset: u32 = 0;
     let mut DCO: u16 = 0;
     wkc = 0i32;
-    if (*(*context).grouplist.offset(group as isize)).hasdc != 0 {
-        first = 1u8
+    if (*(*context).grouplist.offset(group as isize)).hasdc == true {
+        first = true
     }
     /* For overlapping IO map use the biggest */
-    if use_overlap_io as libc::c_int == 1i32 {
+    if use_overlap_io == true {
         /* For overlap IOmap make the frame EQ big to biggest part */
         length = if (*(*context).grouplist.offset(group as isize)).Obytes
             > (*(*context).grouplist.offset(group as isize)).Ibytes
@@ -2853,12 +2920,12 @@ unsafe fn ecx_main_send_processdata(
                             .wrapping_sub(
                                 (*(*context).grouplist.offset(group as isize)).Ioffset
                                     as libc::c_uint,
-                            ) as u16
+                            ) as usize
                     } else {
                         let fresh60 = currentsegment;
                         currentsegment = currentsegment.wrapping_add(1);
                         sublength = (*(*context).grouplist.offset(group as isize)).IOsegment
-                            [fresh60 as usize] as u16
+                            [fresh60 as usize] as usize
                     }
                     /* get new index */
                     idx = ecx_getindex((*context).port);
@@ -2876,7 +2943,7 @@ unsafe fn ecx_main_send_processdata(
                         sublength,
                         data as *mut libc::c_void,
                     );
-                    if first != 0 {
+                    if first == true {
                         /* FPRMW in second datagram */
                         DCO = ecx_adddatagram(
                             (*context).port,
@@ -2884,16 +2951,16 @@ unsafe fn ecx_main_send_processdata(
                                 as *mut ec_bufT as *mut libc::c_void,
                             ec_cmdtype::EC_CMD_FRMW,
                             idx,
-                            0u8,
+                            false,
                             (*(*context).slavelist.offset(
                                 (*(*context).grouplist.offset(group as isize)).DCnext as isize,
                             ))
                             .configadr,
                             EthercatRegister::ECT_REG_DCSYSTIME as u16,
-                            ::core::mem::size_of::<i64>() as u16,
+                            ::core::mem::size_of::<i64>(),
                             (*context).DCtime as *mut libc::c_void,
                         );
-                        first = 0u8
+                        first = false
                     }
                     /* send frame */
                     ecx_outframe_red((*context).port, idx);
@@ -2923,9 +2990,9 @@ unsafe fn ecx_main_send_processdata(
                     let fresh61 = currentsegment;
                     currentsegment = currentsegment.wrapping_add(1);
                     sublength = (*(*context).grouplist.offset(group as isize)).IOsegment
-                        [fresh61 as usize] as u16;
+                        [fresh61 as usize] as usize;
                     if (length - sublength as libc::c_int) < 0i32 {
-                        sublength = length as u16
+                        sublength = length as usize
                     }
                     /* get new index */
                     idx = ecx_getindex((*context).port);
@@ -2943,7 +3010,7 @@ unsafe fn ecx_main_send_processdata(
                         sublength,
                         data as *mut libc::c_void,
                     );
-                    if first != 0 {
+                    if first == true {
                         /* FPRMW in second datagram */
                         DCO = ecx_adddatagram(
                             (*context).port,
@@ -2951,16 +3018,16 @@ unsafe fn ecx_main_send_processdata(
                                 as *mut ec_bufT as *mut libc::c_void,
                             ec_cmdtype::EC_CMD_FRMW,
                             idx,
-                            0u8,
+                            false,
                             (*(*context).slavelist.offset(
                                 (*(*context).grouplist.offset(group as isize)).DCnext as isize,
                             ))
                             .configadr,
                             EthercatRegister::ECT_REG_DCSYSTIME as u16,
-                            ::core::mem::size_of::<i64>() as u16,
+                            ::core::mem::size_of::<i64>(),
                             (*context).DCtime as *mut libc::c_void,
                         );
-                        first = 0u8
+                        first = false
                     }
                     /* send frame */
                     ecx_outframe_red((*context).port, idx);
@@ -2993,7 +3060,7 @@ unsafe fn ecx_main_send_processdata(
                 let fresh62 = currentsegment;
                 currentsegment = currentsegment.wrapping_add(1);
                 sublength = (*(*context).grouplist.offset(group as isize)).IOsegment
-                    [fresh62 as usize] as u16;
+                    [fresh62 as usize] as usize;
                 /* get new index */
                 idx = ecx_getindex((*context).port);
                 w1 = (LogAdr & 0xffffu32) as u16;
@@ -3010,7 +3077,7 @@ unsafe fn ecx_main_send_processdata(
                     sublength,
                     data as *mut libc::c_void,
                 );
-                if first != 0 {
+                if first == true {
                     /* FPRMW in second datagram */
                     DCO = ecx_adddatagram(
                         (*context).port,
@@ -3018,16 +3085,16 @@ unsafe fn ecx_main_send_processdata(
                             as *mut ec_bufT as *mut libc::c_void,
                         ec_cmdtype::EC_CMD_FRMW,
                         idx,
-                        0u8,
+                        false,
                         (*(*context).slavelist.offset(
                             (*(*context).grouplist.offset(group as isize)).DCnext as isize,
                         ))
                         .configadr,
                         EthercatRegister::ECT_REG_DCSYSTIME as u16,
-                        ::core::mem::size_of::<i64>() as u16,
+                        ::core::mem::size_of::<i64>(),
                         (*context).DCtime as *mut libc::c_void,
                     );
-                    first = 0u8
+                    first = false
                 }
                 /* send frame */
                 ecx_outframe_red((*context).port, idx);
@@ -3074,7 +3141,7 @@ pub unsafe fn ecx_send_overlap_processdata_group(
     mut context: *mut ecx_contextt,
     mut group: u8,
 ) -> libc::c_int {
-    return ecx_main_send_processdata(context, group, 1u8);
+    return ecx_main_send_processdata(context, group, true);
 }
 /* * Transmit processdata to slaves.
 * Uses LRW, or LRD/LWR if LRW is not allowed (blockLRW).
@@ -3093,7 +3160,7 @@ pub unsafe fn ecx_send_processdata_group(
     mut context: *mut ecx_contextt,
     mut group: u8,
 ) -> libc::c_int {
-    return ecx_main_send_processdata(context, group, 0u8);
+    return ecx_main_send_processdata(context, group, false);
 }
 /* * Receive processdata from slaves.
  * Second part from ec_send_processdata().
@@ -3108,7 +3175,7 @@ pub unsafe fn ecx_send_processdata_group(
 pub unsafe fn ecx_receive_processdata_group(
     mut context: *mut ecx_contextt,
     mut group: u8,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut idx: u8 = 0;
     let mut pos: libc::c_int = 0;
@@ -3237,7 +3304,7 @@ pub unsafe fn ecx_send_overlap_processdata(mut context: *mut ecx_contextt) -> li
 #[no_mangle]
 pub unsafe fn ecx_receive_processdata(
     mut context: *mut ecx_contextt,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_receive_processdata_group(context, 0u8, timeout);
 }
@@ -3387,7 +3454,7 @@ pub unsafe fn ec_writestate(mut slave: u16) -> libc::c_int {
  * @see ecx_statecheck
  */
 #[no_mangle]
-pub unsafe fn ec_statecheck(mut slave: u16, mut reqstate: u16, mut timeout: libc::c_int) -> u16 {
+pub unsafe fn ec_statecheck(mut slave: u16, mut reqstate: u16, mut timeout: u32) -> u16 {
     return ecx_statecheck(&mut ecx_context, slave, reqstate, timeout);
 }
 /* * Check if IN mailbox of slave is empty.
@@ -3397,7 +3464,7 @@ pub unsafe fn ec_statecheck(mut slave: u16, mut reqstate: u16, mut timeout: libc
  * @see ecx_mbxempty
  */
 #[no_mangle]
-pub unsafe fn ec_mbxempty(mut slave: u16, mut timeout: libc::c_int) -> libc::c_int {
+pub unsafe fn ec_mbxempty(mut slave: u16, mut timeout: u32) -> libc::c_int {
     return ecx_mbxempty(&mut ecx_context, slave, timeout);
 }
 /* * Write IN mailbox to slave.
@@ -3411,7 +3478,7 @@ pub unsafe fn ec_mbxempty(mut slave: u16, mut timeout: libc::c_int) -> libc::c_i
 pub unsafe fn ec_mbxsend(
     mut slave: u16,
     mut mbx: *mut ec_mbxbuft,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_mbxsend(&mut ecx_context, slave, mbx, timeout);
 }
@@ -3427,7 +3494,7 @@ pub unsafe fn ec_mbxsend(
 pub unsafe fn ec_mbxreceive(
     mut slave: u16,
     mut mbx: *mut ec_mbxbuft,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_mbxreceive(&mut ecx_context, slave, mbx, timeout);
 }
@@ -3448,7 +3515,7 @@ pub unsafe fn ec_esidump(mut slave: u16, mut esibuf: *mut u8) {
  * @see ecx_readeeprom
  */
 #[no_mangle]
-pub unsafe fn ec_readeeprom(mut slave: u16, mut eeproma: u16, mut timeout: libc::c_int) -> u32 {
+pub unsafe fn ec_readeeprom(mut slave: u16, mut eeproma: u16, mut timeout: u32) -> u32 {
     return ecx_readeeprom(&mut ecx_context, slave, eeproma, timeout);
 }
 /* * Write EEPROM to slave bypassing cache.
@@ -3464,7 +3531,7 @@ pub unsafe fn ec_writeeeprom(
     mut slave: u16,
     mut eeproma: u16,
     mut data: u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_writeeeprom(&mut ecx_context, slave, eeproma, data, timeout);
 }
@@ -3485,7 +3552,7 @@ pub unsafe fn ec_eeprom2pdi(mut slave: u16) -> libc::c_int {
 pub unsafe fn ec_eeprom_waitnotbusyAP(
     mut aiadr: u16,
     mut estat: *mut u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> u16 {
     return ecx_eeprom_waitnotbusyAP(&mut ecx_context, aiadr, estat, timeout);
 }
@@ -3496,7 +3563,7 @@ pub unsafe fn ec_eeprom_waitnotbusyAP(
  * @return EEPROM data 64bit or 32bit
  */
 #[no_mangle]
-pub unsafe fn ec_readeepromAP(mut aiadr: u16, mut eeproma: u16, mut timeout: libc::c_int) -> u64 {
+pub unsafe fn ec_readeepromAP(mut aiadr: u16, mut eeproma: u16, mut timeout: u32) -> u64 {
     return ecx_readeepromAP(&mut ecx_context, aiadr, eeproma, timeout);
 }
 /* * Write EEPROM to slave bypassing cache. APWR method.
@@ -3512,7 +3579,7 @@ pub unsafe fn ec_writeeepromAP(
     mut aiadr: u16,
     mut eeproma: u16,
     mut data: u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_writeeepromAP(&mut ecx_context, aiadr, eeproma, data, timeout);
 }
@@ -3520,7 +3587,7 @@ pub unsafe fn ec_writeeepromAP(
 pub unsafe fn ec_eeprom_waitnotbusyFP(
     mut configadr: u16,
     mut estat: *mut u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> u16 {
     return ecx_eeprom_waitnotbusyFP(&mut ecx_context, configadr, estat, timeout);
 }
@@ -3532,11 +3599,7 @@ pub unsafe fn ec_eeprom_waitnotbusyFP(
  * @see ecx_readeepromFP
  */
 #[no_mangle]
-pub unsafe fn ec_readeepromFP(
-    mut configadr: u16,
-    mut eeproma: u16,
-    mut timeout: libc::c_int,
-) -> u64 {
+pub unsafe fn ec_readeepromFP(mut configadr: u16, mut eeproma: u16, mut timeout: u32) -> u64 {
     return ecx_readeepromFP(&mut ecx_context, configadr, eeproma, timeout);
 }
 /* * Write EEPROM to slave bypassing cache. FPWR method.
@@ -3552,7 +3615,7 @@ pub unsafe fn ec_writeeepromFP(
     mut configadr: u16,
     mut eeproma: u16,
     mut data: u16,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_writeeepromFP(&mut ecx_context, configadr, eeproma, data, timeout);
 }
@@ -3574,7 +3637,7 @@ pub unsafe fn ec_readeeprom1(mut slave: u16, mut eeproma: u16) {
  * @see ecx_readeeprom2
  */
 #[no_mangle]
-pub unsafe fn ec_readeeprom2(mut slave: u16, mut timeout: libc::c_int) -> u32 {
+pub unsafe fn ec_readeeprom2(mut slave: u16, mut timeout: u32) -> u32 {
     return ecx_readeeprom2(&mut ecx_context, slave, timeout);
 }
 /* * Transmit processdata to slaves.
@@ -3619,7 +3682,7 @@ pub unsafe fn ec_send_overlap_processdata_group(mut group: u8) -> libc::c_int {
  * @see ecx_receive_processdata_group
  */
 #[no_mangle]
-pub unsafe fn ec_receive_processdata_group(mut group: u8, mut timeout: libc::c_int) -> libc::c_int {
+pub unsafe fn ec_receive_processdata_group(mut group: u8, mut timeout: u32) -> libc::c_int {
     return ecx_receive_processdata_group(&mut ecx_context, group, timeout);
 }
 #[no_mangle]
@@ -3631,7 +3694,7 @@ pub unsafe fn ec_send_overlap_processdata() -> libc::c_int {
     return ec_send_overlap_processdata_group(0u8);
 }
 #[no_mangle]
-pub unsafe fn ec_receive_processdata(mut timeout: libc::c_int) -> libc::c_int {
+pub unsafe fn ec_receive_processdata(mut timeout: u32) -> libc::c_int {
     return ec_receive_processdata_group(0u8, timeout);
 }
 unsafe fn run_static_initializers() {

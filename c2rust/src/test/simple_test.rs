@@ -7,10 +7,12 @@ use crate::{
         ec_statecheck, ec_writestate,
     },
     ethercatprint::ec_ALstatuscode2string,
-    ethercattype::{self, ec_state, EC_TIMEOUTSTATE},
+    ethercattype::{self, ec_state, EC_TIMEOUTRET, EC_TIMEOUTSTATE},
     osal::linux::osal::{osal_thread_create, osal_usleep},
 };
 use libc::{c_void, pthread_t};
+
+const EC_TIMEOUTMON: u32 = 500;
 
 static mut IOmap: [libc::c_char; 4096] = [0; 4096];
 #[no_mangle]
@@ -32,8 +34,8 @@ pub unsafe fn simpletest(mut ifname: *mut libc::c_char) {
     let mut oloop: libc::c_int = 0;
     let mut iloop: libc::c_int = 0;
     let mut chk: libc::c_int = 0;
-    needlf = 0u8;
-    inOP = 0u8;
+    needlf = false;
+    inOP = false;
     println!("Starting simple test");
     /* initialise SOEM, bind socket to ifname */
     if ec_init(ifname) != 0 {
@@ -52,11 +54,7 @@ pub unsafe fn simpletest(mut ifname: *mut libc::c_char) {
             ec_configdc();
             println!("Slaves mapped, state to SAFE_OP.");
             /* wait for all slaves to reach SAFE_OP state */
-            ec_statecheck(
-                0u16,
-                ec_state::EC_STATE_SAFE_OP as u16,
-                EC_TIMEOUTSTATE * 4i32,
-            );
+            ec_statecheck(0u16, ec_state::EC_STATE_SAFE_OP as u16, EC_TIMEOUTSTATE * 4);
             oloop = ec_slave[0usize].Obytes as libc::c_int;
             if oloop == 0i32 && ec_slave[0usize].Obits as libc::c_int > 0i32 {
                 oloop = 1i32
@@ -87,7 +85,7 @@ pub unsafe fn simpletest(mut ifname: *mut libc::c_char) {
             ec_slave[0usize].state = ec_state::EC_STATE_OPERATIONAL as u16;
             /* send one valid process data to make outputs in slaves happy*/
             ec_send_processdata();
-            ec_receive_processdata(2000i32);
+            ec_receive_processdata(EC_TIMEOUTRET);
             /* request OP state for all slaves */
             ec_writestate(0u16);
             chk = 200i32;
@@ -95,8 +93,8 @@ pub unsafe fn simpletest(mut ifname: *mut libc::c_char) {
             /* wait for all slaves to reach OP state */
             {
                 ec_send_processdata();
-                ec_receive_processdata(2000i32);
-                ec_statecheck(0u16, ec_state::EC_STATE_OPERATIONAL as u16, 50000i32);
+                ec_receive_processdata(EC_TIMEOUTRET);
+                ec_statecheck(0u16, ec_state::EC_STATE_OPERATIONAL as u16, 50000);
                 let fresh0 = chk;
                 chk = chk - 1;
                 if !(fresh0 != 0
@@ -110,14 +108,14 @@ pub unsafe fn simpletest(mut ifname: *mut libc::c_char) {
                 == ec_state::EC_STATE_OPERATIONAL as libc::c_int
             {
                 println!("Operational state reached for all slaves.");
-                inOP = 1u8;
+                inOP = true;
                 /* cyclic loop */
                 i = 1i32;
                 while i <= 10000i32 {
                     ec_send_processdata();
                     ::core::ptr::write_volatile(
                         &mut wkc as *mut libc::c_int,
-                        ec_receive_processdata(2000i32),
+                        ec_receive_processdata(EC_TIMEOUTRET),
                     );
                     if wkc >= expectedWKC {
                         print!(
@@ -144,12 +142,12 @@ pub unsafe fn simpletest(mut ifname: *mut libc::c_char) {
                             j += 1
                         }
                         print!(" T:{:}\r", ec_DCtime as libc::c_long);
-                        needlf = 1u8
+                        needlf = true;
                     }
                     osal_usleep(5000u32);
                     i += 1
                 }
-                inOP = 0u8
+                inOP = false;
             } else {
                 println!("Not all slaves reached operational state.");
                 ec_readstate();
@@ -199,16 +197,16 @@ pub unsafe fn ecatcheck(mut _ptr: *mut libc::c_void) {
     let mut slave: libc::c_int = 0;
 
     loop {
-        if inOP as libc::c_int != 0
+        if inOP == true
             && (wkc < expectedWKC
                 || ec_group[currentgroup as usize].docheckstate as libc::c_int != 0)
         {
-            if needlf != 0 {
-                needlf = 0u8;
+            if needlf == true {
+                needlf = false;
                 println!("");
             }
             /* one ore more slaves are not responding */
-            ec_group[currentgroup as usize].docheckstate = 0u8;
+            ec_group[currentgroup as usize].docheckstate = false;
             ec_readstate();
             slave = 1i32;
             while slave <= ec_slavecount {
@@ -216,7 +214,7 @@ pub unsafe fn ecatcheck(mut _ptr: *mut libc::c_void) {
                     && ec_slave[slave as usize].state as libc::c_int
                         != ec_state::EC_STATE_OPERATIONAL as libc::c_int
                 {
-                    ec_group[currentgroup as usize].docheckstate = 1u8;
+                    ec_group[currentgroup as usize].docheckstate = true;
                     if ec_slave[slave as usize].state as libc::c_int
                         == ec_state::EC_STATE_SAFE_OP as libc::c_int
                             + ec_state::EC_STATE_ERROR as libc::c_int
@@ -241,37 +239,41 @@ pub unsafe fn ecatcheck(mut _ptr: *mut libc::c_void) {
                     } else if ec_slave[slave as usize].state as libc::c_int
                         > ec_state::EC_STATE_NONE as libc::c_int
                     {
-                        if ec_reconfig_slave(slave as u16, 500i32) != 0 {
-                            ec_slave[slave as usize].islost = 0u8;
+                        if ec_reconfig_slave(slave as u16, EC_TIMEOUTMON) != 0 {
+                            ec_slave[slave as usize].islost = false;
                             println!("MESSAGE : slave {:} reconfigured", slave as libc::c_int);
                         }
-                    } else if ec_slave[slave as usize].islost == 0 {
+                    } else if ec_slave[slave as usize].islost == true {
                         /* re-check state */
-                        ec_statecheck(slave as u16, ec_state::EC_STATE_OPERATIONAL as u16, 2000i32);
+                        ec_statecheck(
+                            slave as u16,
+                            ec_state::EC_STATE_OPERATIONAL as u16,
+                            EC_TIMEOUTRET,
+                        );
                         if ec_slave[slave as usize].state as libc::c_int
                             == ec_state::EC_STATE_NONE as libc::c_int
                         {
-                            ec_slave[slave as usize].islost = 1u8;
+                            ec_slave[slave as usize].islost = true;
                             println!("ERROR : slave {:} lost", slave as libc::c_int);
                         }
                     }
                 }
-                if ec_slave[slave as usize].islost != 0 {
+                if ec_slave[slave as usize].islost == true {
                     if ec_slave[slave as usize].state as libc::c_int
                         == ec_state::EC_STATE_NONE as libc::c_int
                     {
-                        if ec_recover_slave(slave as u16, 500i32) != 0 {
-                            ec_slave[slave as usize].islost = 0u8;
+                        if ec_recover_slave(slave as u16, EC_TIMEOUTMON) != 0 {
+                            ec_slave[slave as usize].islost = false;
                             println!("MESSAGE : slave {:} recovered", slave as libc::c_int);
                         }
                     } else {
-                        ec_slave[slave as usize].islost = 0u8;
+                        ec_slave[slave as usize].islost = false;
                         println!("MESSAGE : slave {:} found", slave as libc::c_int);
                     }
                 }
                 slave += 1
             }
-            if ec_group[currentgroup as usize].docheckstate == 0 {
+            if ec_group[currentgroup as usize].docheckstate == false {
                 println!("OK : all slaves resumed OPERATIONAL.");
             }
         }

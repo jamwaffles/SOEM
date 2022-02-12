@@ -117,7 +117,7 @@ pub unsafe fn ecx_SoEread(
     mut idn: u16,
     mut psize: *mut libc::c_int,
     mut p: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut SoEp: *mut ec_SoEt = 0 as *mut ec_SoEt;
     let mut aSoEp: *mut ec_SoEt = 0 as *mut ec_SoEt;
@@ -133,7 +133,7 @@ pub unsafe fn ecx_SoEread(
     let mut NotLast: bool = false;
     ec_clearmbx(&mut MbxIn);
     /* Empty slave out mailbox if something is in. Timeout set to 0 */
-    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0i32);
+    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0);
     ec_clearmbx(&mut MbxOut);
     aSoEp = &mut MbxIn as *mut ec_mbxbuft as *mut ec_SoEt;
     SoEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_SoEt;
@@ -167,7 +167,7 @@ pub unsafe fn ecx_SoEread(
     );
     if wkc > 0i32 {
         /* succeeded to place mailbox in slave ? */
-        while NotLast != 0 {
+        while NotLast != false {
             /* clean mailboxbuffer */
             ec_clearmbx(&mut MbxIn);
             /* read slave response */
@@ -269,7 +269,7 @@ pub unsafe fn ecx_SoEwrite(
     mut idn: u16,
     mut psize: libc::c_int,
     mut p: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut SoEp: *mut ec_SoEt = 0 as *mut ec_SoEt;
     let mut aSoEp: *mut ec_SoEt = 0 as *mut ec_SoEt;
@@ -285,7 +285,7 @@ pub unsafe fn ecx_SoEwrite(
     let mut NotLast: bool = false;
     ec_clearmbx(&mut MbxIn);
     /* Empty slave out mailbox if something is in. Timeout set to 0 */
-    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0i32); /*  segmented transfer needed  */
+    wkc = ecx_mbxreceive(context, slave, &mut MbxIn as *mut ec_mbxbuft, 0); /*  segmented transfer needed  */
     ec_clearmbx(&mut MbxOut);
     aSoEp = &mut MbxIn as *mut ec_mbxbuft as *mut ec_SoEt;
     SoEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_SoEt;
@@ -301,7 +301,7 @@ pub unsafe fn ecx_SoEwrite(
     maxdata = ((*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_ulong)
         .wrapping_sub(core::mem::size_of::<ec_SoEt>() as u64) as libc::c_int;
     NotLast = true;
-    while NotLast != 0 {
+    while NotLast != false {
         framedatasize = psize;
         NotLast = false;
         (*SoEp).c2rust_unnamed.idn = idn;
@@ -338,7 +338,7 @@ pub unsafe fn ecx_SoEwrite(
         );
         if wkc > 0i32 {
             /* succeeded to place mailbox in slave ? */
-            if NotLast == 0 || ecx_mbxempty(context, slave, timeout) == 0 {
+            if NotLast == false || ecx_mbxempty(context, slave, timeout) == 0 {
                 /* clean mailboxbuffer */
                 ec_clearmbx(&mut MbxIn);
                 /* read slave response */
@@ -529,7 +529,7 @@ pub unsafe fn ec_SoEread(
     mut idn: u16,
     mut psize: *mut libc::c_int,
     mut p: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_SoEread(
         &mut ecx_context,
@@ -550,7 +550,7 @@ pub unsafe fn ec_SoEwrite(
     mut idn: u16,
     mut psize: libc::c_int,
     mut p: *mut libc::c_void,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     return ecx_SoEwrite(
         &mut ecx_context,

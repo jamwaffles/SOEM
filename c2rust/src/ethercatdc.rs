@@ -1,9 +1,12 @@
 use crate::{
     ethercatbase::{ecx_BWR, ecx_FPRD, ecx_FPWR},
     ethercatmain::{ecx_context, ecx_contextt},
-    ethercattype::EthercatRegister,
+    ethercattype::{EthercatRegister, EC_TIMEOUTRET},
     osal::linux::osal::{ec_timet, osal_current_time},
 };
+
+/** 1st sync pulse delay in ns here 100ms */
+pub const SYNC_DELAY: i32 = 100_000_000;
 
 /* *
  * Set DC of slave to fire sync0 at CyclTime interval with CyclShift offset.
@@ -35,31 +38,30 @@ pub unsafe fn ecx_dcsync0(
         (*context).port,
         slaveh,
         EthercatRegister::ECT_REG_DCSYNCACT as u16,
-        ::core::mem::size_of::<u8>() as u16,
+        ::core::mem::size_of::<u8>(),
         &mut RA as *mut u8 as *mut libc::c_void,
-        2000i32,
+        EC_TIMEOUTRET,
     );
-    if act != 0 {
-        RA = (1i32 + 2i32) as u8
-        /* act cyclic operation and sync0, sync1 deactivated */
+    if act == true {
+        RA = 1 + 2; /* act cyclic operation and sync0, sync1 deactivated */
     } /* write access to ethercat */
     h = 0u8; /* read local time of slave */
     ecx_FPWR(
         (*context).port,
         slaveh,
         EthercatRegister::ECT_REG_DCCUC as u16,
-        ::core::mem::size_of::<u8>() as u16,
+        ::core::mem::size_of::<u8>(),
         &mut h as *mut u8 as *mut libc::c_void,
-        2000i32,
+        EC_TIMEOUTRET,
     );
     t1 = 0i64;
     ecx_FPRD(
         (*context).port,
         slaveh,
         EthercatRegister::ECT_REG_DCSYSTIME as u16,
-        ::core::mem::size_of::<i64>() as u16,
+        ::core::mem::size_of::<i64>(),
         &mut t1 as *mut i64 as *mut libc::c_void,
-        2000i32,
+        EC_TIMEOUTRET,
     );
     t1 = t1;
     /* Calculate first trigger time, always a whole multiple of CyclTime rounded up
@@ -67,11 +69,11 @@ pub unsafe fn ecx_dcsync0(
     This insures best synchronization between slaves, slaves with the same CyclTime
     will sync at the same moment (you can use CyclShift to shift the sync) */
     if CyclTime > 0u32 {
-        t = (t1 + 100000000i64) / CyclTime as libc::c_long * CyclTime as libc::c_long
+        t = (t1 + SYNC_DELAY as i64) / CyclTime as libc::c_long * CyclTime as libc::c_long
             + CyclTime as libc::c_long
             + CyclShift as libc::c_long
     } else {
-        t = t1 + 100000000i64 + CyclShift as libc::c_long
+        t = t1 + SYNC_DELAY as i64 + CyclShift as libc::c_long
         /* first trigger at T1 + CyclTime + SyncDelay + CyclShift in ns */
     } /* SYNC0 start time */
     t = t; /* SYNC0 cycle time */
@@ -79,26 +81,26 @@ pub unsafe fn ecx_dcsync0(
         (*context).port,
         slaveh,
         EthercatRegister::ECT_REG_DCSTART0 as u16,
-        ::core::mem::size_of::<i64>() as u16,
+        ::core::mem::size_of::<i64>(),
         &mut t as *mut i64 as *mut libc::c_void,
-        2000i32,
+        EC_TIMEOUTRET,
     ); /* activate cyclic operation */
     tc = CyclTime as i32;
     ecx_FPWR(
         (*context).port,
         slaveh,
         EthercatRegister::ECT_REG_DCCYCLE0 as u16,
-        ::core::mem::size_of::<i32>() as u16,
+        ::core::mem::size_of::<i32>(),
         &mut tc as *mut i32 as *mut libc::c_void,
-        2000i32,
+        EC_TIMEOUTRET,
     );
     ecx_FPWR(
         (*context).port,
         slaveh,
         EthercatRegister::ECT_REG_DCSYNCACT as u16,
-        ::core::mem::size_of::<u8>() as u16,
+        ::core::mem::size_of::<u8>(),
         &mut RA as *mut u8 as *mut libc::c_void,
-        2000i32,
+        EC_TIMEOUTRET,
     );
     // update ec_slave state
     (*(*context).slavelist.offset(slave as isize)).DCactive = act;
@@ -145,31 +147,30 @@ pub unsafe fn ecx_dcsync01(
         (*context).port,
         slaveh,
         EthercatRegister::ECT_REG_DCSYNCACT as u16,
-        ::core::mem::size_of::<u8>() as u16,
+        ::core::mem::size_of::<u8>(),
         &mut RA as *mut u8 as *mut libc::c_void,
-        2000i32,
+        EC_TIMEOUTRET,
     );
-    if act != 0 {
-        RA = (1i32 + 2i32 + 4i32) as u8
-        /* act cyclic operation and sync0 + sync1 */
+    if act == true {
+        RA = 1 + 2 + 4; /* act cyclic operation and sync0 + sync1 */
     } /* write access to ethercat */
     h = 0u8; /* read local time of slave */
     ecx_FPWR(
         (*context).port,
         slaveh,
         EthercatRegister::ECT_REG_DCCUC as u16,
-        ::core::mem::size_of::<u8>() as u16,
+        ::core::mem::size_of::<u8>(),
         &mut h as *mut u8 as *mut libc::c_void,
-        2000i32,
+        EC_TIMEOUTRET,
     );
     t1 = 0i64;
     ecx_FPRD(
         (*context).port,
         slaveh,
         EthercatRegister::ECT_REG_DCSYSTIME as u16,
-        ::core::mem::size_of::<i64>() as u16,
+        ::core::mem::size_of::<i64>(),
         &mut t1 as *mut i64 as *mut libc::c_void,
-        2000i32,
+        EC_TIMEOUTRET,
     );
     t1 = t1;
     /* Calculate first trigger time, always a whole multiple of TrueCyclTime rounded up
@@ -177,11 +178,11 @@ pub unsafe fn ecx_dcsync01(
     This insures best synchronization between slaves, slaves with the same CyclTime
     will sync at the same moment (you can use CyclShift to shift the sync) */
     if CyclTime0 > 0u32 {
-        t = (t1 + 100000000i64) / TrueCyclTime as libc::c_long * TrueCyclTime as libc::c_long
+        t = (t1 + SYNC_DELAY as i64) / TrueCyclTime as libc::c_long * TrueCyclTime as libc::c_long
             + TrueCyclTime as libc::c_long
             + CyclShift as libc::c_long
     } else {
-        t = t1 + 100000000i64 + CyclShift as libc::c_long
+        t = t1 + SYNC_DELAY as i64 + CyclShift as libc::c_long
         /* first trigger at T1 + CyclTime + SyncDelay + CyclShift in ns */
     } /* SYNC0 start time */
     t = t; /* SYNC0 cycle time */
@@ -189,35 +190,35 @@ pub unsafe fn ecx_dcsync01(
         (*context).port,
         slaveh,
         EthercatRegister::ECT_REG_DCSTART0 as u16,
-        ::core::mem::size_of::<i64>() as u16,
+        ::core::mem::size_of::<i64>(),
         &mut t as *mut i64 as *mut libc::c_void,
-        2000i32,
+        EC_TIMEOUTRET,
     ); /* SYNC1 cycle time */
     tc = CyclTime0 as i32; /* activate cyclic operation */
     ecx_FPWR(
         (*context).port,
         slaveh,
         EthercatRegister::ECT_REG_DCCYCLE0 as u16,
-        ::core::mem::size_of::<i32>() as u16,
+        ::core::mem::size_of::<i32>(),
         &mut tc as *mut i32 as *mut libc::c_void,
-        2000i32,
+        EC_TIMEOUTRET,
     );
     tc = CyclTime1 as i32;
     ecx_FPWR(
         (*context).port,
         slaveh,
         EthercatRegister::ECT_REG_DCCYCLE1 as u16,
-        ::core::mem::size_of::<i32>() as u16,
+        ::core::mem::size_of::<i32>(),
         &mut tc as *mut i32 as *mut libc::c_void,
-        2000i32,
+        EC_TIMEOUTRET,
     );
     ecx_FPWR(
         (*context).port,
         slaveh,
         EthercatRegister::ECT_REG_DCSYNCACT as u16,
-        ::core::mem::size_of::<u8>() as u16,
+        ::core::mem::size_of::<u8>(),
         &mut RA as *mut u8 as *mut libc::c_void,
-        2000i32,
+        EC_TIMEOUTRET,
     );
     // update ec_slave state
     (*(*context).slavelist.offset(slave as isize)).DCactive = act;
@@ -328,16 +329,16 @@ pub unsafe fn ecx_configdc(mut context: *mut ecx_contextt) -> bool {
     let mut tlist: [i32; 4] = [0; 4];
     let mut mastertime: ec_timet = ec_timet { sec: 0, usec: 0 };
     let mut mastertime64: u64 = 0;
-    (*(*context).slavelist.offset(0isize)).hasdc = 0u8;
-    (*(*context).grouplist.offset(0isize)).hasdc = 0u8;
+    (*(*context).slavelist.offset(0isize)).hasdc = false;
+    (*(*context).grouplist.offset(0isize)).hasdc = false;
     ht = 0i32;
     ecx_BWR(
         (*context).port,
         0u16,
         EthercatRegister::ECT_REG_DCTIME0 as u16,
-        ::core::mem::size_of::<i32>() as u16,
+        ::core::mem::size_of::<i32>(),
         &mut ht as *mut i32 as *mut libc::c_void,
-        2000i32,
+        EC_TIMEOUTRET,
     );
     mastertime = osal_current_time();
     mastertime.sec = (mastertime.sec as libc::c_ulong).wrapping_sub(946684800u64) as u32;
@@ -349,15 +350,15 @@ pub unsafe fn ecx_configdc(mut context: *mut ecx_contextt) -> bool {
     while i as libc::c_int <= *(*context).slavecount {
         (*(*context).slavelist.offset(i as isize)).consumedports =
             (*(*context).slavelist.offset(i as isize)).activeports;
-        if (*(*context).slavelist.offset(i as isize)).hasdc != 0 {
-            if (*(*context).slavelist.offset(0isize)).hasdc == 0 {
-                (*(*context).slavelist.offset(0isize)).hasdc = 1u8;
+        if (*(*context).slavelist.offset(i as isize)).hasdc == true {
+            if (*(*context).slavelist.offset(0isize)).hasdc == false {
+                (*(*context).slavelist.offset(0isize)).hasdc = true;
                 (*(*context).slavelist.offset(0isize)).DCnext = i;
                 (*(*context).slavelist.offset(i as isize)).DCprevious = 0u16;
                 (*(*context)
                     .grouplist
                     .offset((*(*context).slavelist.offset(i as isize)).group as isize))
-                .hasdc = 1u8;
+                .hasdc = true;
                 (*(*context)
                     .grouplist
                     .offset((*(*context).slavelist.offset(i as isize)).group as isize))
@@ -374,9 +375,9 @@ pub unsafe fn ecx_configdc(mut context: *mut ecx_contextt) -> bool {
                 (*context).port,
                 slaveh,
                 EthercatRegister::ECT_REG_DCTIME0 as u16,
-                ::core::mem::size_of::<i32>() as u16,
+                ::core::mem::size_of::<i32>(),
                 &mut ht as *mut i32 as *mut libc::c_void,
-                2000i32,
+                EC_TIMEOUTRET,
             );
             (*(*context).slavelist.offset(i as isize)).DCrtA = ht;
             /* 64bit latched DCrecvTimeA of each specific slave */
@@ -384,9 +385,9 @@ pub unsafe fn ecx_configdc(mut context: *mut ecx_contextt) -> bool {
                 (*context).port,
                 slaveh,
                 EthercatRegister::ECT_REG_DCSOF as u16,
-                ::core::mem::size_of::<i64>() as u16,
+                ::core::mem::size_of::<i64>(),
                 &mut hrt as *mut i64 as *mut libc::c_void,
-                2000i32,
+                EC_TIMEOUTRET,
             );
             /* use it as offset in order to set local time around 0 + mastertime */
             hrt = (-hrt as libc::c_ulong).wrapping_add(mastertime64) as i64;
@@ -395,35 +396,35 @@ pub unsafe fn ecx_configdc(mut context: *mut ecx_contextt) -> bool {
                 (*context).port,
                 slaveh,
                 EthercatRegister::ECT_REG_DCSYSOFFSET as u16,
-                ::core::mem::size_of::<i64>() as u16,
+                ::core::mem::size_of::<i64>(),
                 &mut hrt as *mut i64 as *mut libc::c_void,
-                2000i32,
+                EC_TIMEOUTRET,
             );
             ecx_FPRD(
                 (*context).port,
                 slaveh,
                 EthercatRegister::ECT_REG_DCTIME1 as u16,
-                ::core::mem::size_of::<i32>() as u16,
+                ::core::mem::size_of::<i32>(),
                 &mut ht as *mut i32 as *mut libc::c_void,
-                2000i32,
+                EC_TIMEOUTRET,
             );
             (*(*context).slavelist.offset(i as isize)).DCrtB = ht;
             ecx_FPRD(
                 (*context).port,
                 slaveh,
                 EthercatRegister::ECT_REG_DCTIME2 as u16,
-                ::core::mem::size_of::<i32>() as u16,
+                ::core::mem::size_of::<i32>(),
                 &mut ht as *mut i32 as *mut libc::c_void,
-                2000i32,
+                EC_TIMEOUTRET,
             );
             (*(*context).slavelist.offset(i as isize)).DCrtC = ht;
             ecx_FPRD(
                 (*context).port,
                 slaveh,
                 EthercatRegister::ECT_REG_DCTIME3 as u16,
-                ::core::mem::size_of::<i32>() as u16,
+                ::core::mem::size_of::<i32>(),
                 &mut ht as *mut i32 as *mut libc::c_void,
-                2000i32,
+                EC_TIMEOUTRET,
             );
             (*(*context).slavelist.offset(i as isize)).DCrtD = ht;
             /* make list of active ports and their time stamps */
@@ -556,9 +557,9 @@ pub unsafe fn ecx_configdc(mut context: *mut ecx_contextt) -> bool {
                     (*context).port,
                     slaveh,
                     EthercatRegister::ECT_REG_DCSYSDELAY as u16,
-                    ::core::mem::size_of::<i32>() as u16,
+                    ::core::mem::size_of::<i32>(),
                     &mut ht as *mut i32 as *mut libc::c_void,
-                    2000i32,
+                    EC_TIMEOUTRET,
                 );
             }
         } else {

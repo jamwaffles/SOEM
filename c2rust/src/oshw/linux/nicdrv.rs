@@ -2,7 +2,7 @@ use std::mem;
 
 use crate::{
     ethercatmain::ecx_port,
-    ethercattype::{ec_bufT, ec_bufstate, ec_comt, ec_etherheadert, htons, ntohs},
+    ethercattype::{ec_bufT, ec_bufstate, ec_comt, ec_etherheadert, htons, ntohs, EC_TIMEOUTRET},
     osal::linux::osal::{ec_timet, osal_timer_is_expired, osal_timer_start, osal_timert},
 };
 use libc::{
@@ -41,7 +41,7 @@ pub union C2RustUnnamed_0 {
     pub ifru_map: ifmap,
     pub ifru_slave: [libc::c_char; 16],
     pub ifru_newname: [libc::c_char; 16],
-    pub ifru_data: caddr_t,
+    pub ifru_data: *mut libc::c_char,
 }
 
 #[derive(Copy, Clone)]
@@ -208,7 +208,8 @@ pub unsafe fn ecx_setupnic(
         }
     } else {
         pthread_mutexattr_init(&mut mutexattr);
-        pthread_mutexattr_setprotocol(&mut mutexattr, PTHREAD_PRIO_INHERIT as libc::c_int);
+        // FIXME
+        // pthread_mutexattr_setprotocol(&mut mutexattr, PTHREAD_PRIO_INHERIT as libc::c_int);
         pthread_mutex_init(&mut (*port).getindex_mutex, &mut mutexattr);
         pthread_mutex_init(&mut (*port).tx_mutex, &mut mutexattr);
         pthread_mutex_init(&mut (*port).rx_mutex, &mut mutexattr);
@@ -394,7 +395,7 @@ pub unsafe fn ecx_outframe(
     rval = send(
         *(*stack).sock,
         (*(*stack).txbuf)[idx as usize].as_mut_ptr() as *const libc::c_void,
-        lp as size_t,
+        lp as usize,
         0i32,
     ) as libc::c_int;
     if rval == -(1i32) {
@@ -436,7 +437,7 @@ pub unsafe fn ecx_outframe_red(mut port: *mut ecx_portt, mut idx: u8) -> libc::c
         if send(
             (*(*port).redport).sockhandle,
             &mut (*port).txbuf2 as *mut ec_bufT as *const libc::c_void,
-            (*port).txbuflength2 as size_t,
+            (*port).txbuflength2 as usize,
             0i32,
         ) == -1isize
         {
@@ -464,7 +465,7 @@ unsafe fn ecx_recvpkt(mut port: *mut ecx_portt, mut stacknumber: libc::c_int) ->
     bytesrx = recv(
         *(*stack).sock,
         (*(*stack).tempbuf).as_mut_ptr() as *mut libc::c_void,
-        lp as size_t,
+        lp as usize,
         0i32,
     ) as libc::c_int;
     (*port).tempinbufs = bytesrx;
@@ -620,7 +621,7 @@ unsafe fn ecx_waitinframe_red(
                 wkc2 = ecx_inframe(port, idx, 1i32)
             }
         }
-        if !((wkc <= -(1i32) || wkc2 <= -(1i32)) && osal_timer_is_expired(timer) == 0) {
+        if !((wkc <= -(1i32) || wkc2 <= -(1i32)) && osal_timer_is_expired(timer) == false) {
             break;
         }
     }
@@ -677,7 +678,7 @@ unsafe fn ecx_waitinframe_red(
             loop {
                 /* retrieve frame */
                 wkc2 = ecx_inframe(port, idx, 1i32);
-                if !(wkc2 <= -(1i32) && osal_timer_is_expired(&mut timer2) == 0) {
+                if !(wkc2 <= -(1i32) && osal_timer_is_expired(&mut timer2) == false) {
                     break;
                 }
             }
@@ -709,13 +710,13 @@ unsafe fn ecx_waitinframe_red(
 pub unsafe fn ecx_waitinframe(
     mut port: *mut ecx_portt,
     mut idx: u8,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut wkc: libc::c_int = 0;
     let mut timer: osal_timert = osal_timert {
         stop_time: ec_timet { sec: 0, usec: 0 },
     };
-    osal_timer_start(&mut timer, timeout as u32);
+    osal_timer_start(&mut timer, timeout);
     wkc = ecx_waitinframe_red(port, idx, &mut timer);
     return wkc;
 }
@@ -735,7 +736,7 @@ pub unsafe fn ecx_waitinframe(
 pub unsafe fn ecx_srconfirm(
     mut port: *mut ecx_portt,
     mut idx: u8,
-    mut timeout: libc::c_int,
+    mut timeout: u32,
 ) -> libc::c_int {
     let mut wkc: libc::c_int = -(1i32);
     let mut timer1: osal_timert = osal_timert {
@@ -744,19 +745,19 @@ pub unsafe fn ecx_srconfirm(
     let mut timer2: osal_timert = osal_timert {
         stop_time: ec_timet { sec: 0, usec: 0 },
     };
-    osal_timer_start(&mut timer1, timeout as u32);
+    osal_timer_start(&mut timer1, timeout);
     loop {
         /* tx frame on primary and if in redundant mode a dummy on secondary */
         ecx_outframe_red(port, idx);
         if timeout < EC_TIMEOUTRET {
-            osal_timer_start(&mut timer2, timeout as u32);
+            osal_timer_start(&mut timer2, timeout);
         } else {
             /* wait for answer with WKC>=0 or otherwise retry until timeout */
             /* normally use partial timeout for rx */
             osal_timer_start(&mut timer2, EC_TIMEOUTRET);
         }
         wkc = ecx_waitinframe_red(port, idx, &mut timer2);
-        if !(wkc <= -(1i32) && osal_timer_is_expired(&mut timer1) == 0) {
+        if !(wkc <= -(1i32) && osal_timer_is_expired(&mut timer1) == false) {
             break;
         }
     }
@@ -794,11 +795,11 @@ pub unsafe fn ec_inframe(mut idx: u8, mut stacknumber: libc::c_int) -> libc::c_i
     return ecx_inframe(&mut ecx_port, idx, stacknumber);
 }
 #[no_mangle]
-pub unsafe fn ec_waitinframe(mut idx: u8, mut timeout: libc::c_int) -> libc::c_int {
+pub unsafe fn ec_waitinframe(mut idx: u8, mut timeout: u32) -> libc::c_int {
     return ecx_waitinframe(&mut ecx_port, idx, timeout);
 }
 #[no_mangle]
-pub unsafe fn ec_srconfirm(mut idx: u8, mut timeout: libc::c_int) -> libc::c_int {
+pub unsafe fn ec_srconfirm(mut idx: u8, mut timeout: u32) -> libc::c_int {
     return ecx_srconfirm(&mut ecx_port, idx, timeout);
 }
 /* get frame from primary or if in redundant mode possibly from secondary */
