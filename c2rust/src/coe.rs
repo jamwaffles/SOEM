@@ -4,14 +4,14 @@ use crate::{
         ec_nextmbxcnt, ecx_context, ecx_contextt, ecx_mbxreceive, ecx_mbxsend, ecx_packeterror,
         ecx_pusherror, EC_MAXNAME, EC_MAXSM, EC_SMENABLEMASK,
     },
-    osal::linux::osal::{ec_timet, osal_current_time},
+    osal::linux::osal::osal_current_time,
     types::{
         ec_err_type, ec_errort, C2RustUnnamed_0, CoEMailboxType, CoEObjectDescription,
         CoESDOCommand, MailboxType, ECT_SDO_PDOASSIGN, ECT_SDO_SMCOMMTYPE, EC_TIMEOUTRXM,
         EC_TIMEOUTTXM,
     },
 };
-use libc::{memcpy, memset, strncpy};
+use libc::{memcpy, strncpy};
 
 /** max entries in Object Description list */
 pub const EC_MAXODLIST: usize = 1024;
