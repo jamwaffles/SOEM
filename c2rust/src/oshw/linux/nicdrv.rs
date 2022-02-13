@@ -4,8 +4,8 @@ use crate::{
     main::ecx_port,
     osal::linux::osal::{ec_timet, osal_timer_is_expired, osal_timer_start, osal_timert},
     types::{
-        ec_bufT, htons, ntohs, BufferState, EthercatHeader, EthernetHeader, EC_MAXBUF, EC_NOFRAME,
-        EC_OTHERFRAME, EC_TIMEOUTRET, ETH_HEADERSIZE,
+        ec_bufT, htons, ntohs, BufferState, EthercatHeader, EthernetHeader, EC_BUFSIZE, EC_MAXBUF,
+        EC_NOFRAME, EC_OTHERFRAME, EC_TIMEOUTRET, ETH_HEADERSIZE,
     },
 };
 use libc::{
@@ -63,6 +63,20 @@ pub struct ec_stackT {
     pub rxsa: *mut [libc::c_int; EC_MAXBUF as usize],
 }
 
+impl Default for ec_stackT {
+    fn default() -> Self {
+        Self {
+            sock: 0 as *mut i32,
+            txbuf: 0 as *mut [ec_bufT; EC_MAXBUF as usize],
+            txbuflength: 0 as *mut [libc::c_int; EC_MAXBUF as usize],
+            tempbuf: 0 as *mut ec_bufT,
+            rxbuf: 0 as *mut [ec_bufT; EC_MAXBUF as usize],
+            rxbufstat: 0 as *mut [libc::c_int; EC_MAXBUF as usize],
+            rxsa: 0 as *mut [libc::c_int; EC_MAXBUF as usize],
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct ecx_redportt {
     pub stack: ec_stackT,
@@ -91,6 +105,29 @@ pub struct ecx_portt {
     pub getindex_mutex: pthread_mutex_t,
     pub tx_mutex: pthread_mutex_t,
     pub rx_mutex: pthread_mutex_t,
+}
+
+impl Default for ecx_portt {
+    fn default() -> Self {
+        Self {
+            stack: Default::default(),
+            sockhandle: Default::default(),
+            rxbuf: [[0; EC_BUFSIZE as usize]; EC_MAXBUF as usize],
+            rxbufstat: Default::default(),
+            rxsa: Default::default(),
+            tempinbuf: [0; EC_BUFSIZE as usize],
+            tempinbufs: Default::default(),
+            txbuf: [[0; EC_BUFSIZE as usize]; EC_MAXBUF as usize],
+            txbuflength: Default::default(),
+            txbuf2: [0; EC_BUFSIZE as usize],
+            txbuflength2: Default::default(),
+            lastidx: Default::default(),
+            redport: Default::default(),
+            getindex_mutex: unsafe { mem::zeroed() },
+            tx_mutex: unsafe { mem::zeroed() },
+            rx_mutex: unsafe { mem::zeroed() },
+        }
+    }
 }
 
 /// Redundancy mode.

@@ -99,7 +99,7 @@ pub fn ecx_SoEerror(context: &mut ecx_contextt, Slave: u16, idn: u16, Error: u16
  */
 #[no_mangle]
 pub unsafe fn ecx_SoEread(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     slave: u16,
     driveNo: u8,
     elementflags: u8,
@@ -218,16 +218,16 @@ pub unsafe fn ecx_SoEread(
                                 as isize,
                         );
                         errorcode = mp as *mut u16;
-                        ecx_SoEerror(context.as_mut().unwrap(), slave, idn, *errorcode);
+                        ecx_SoEerror(context, slave, idn, *errorcode);
                     } else {
-                        ecx_packeterror(context.as_mut().unwrap(), slave, idn, 0u8, 1u16);
+                        ecx_packeterror(context, slave, idn, 0u8, 1u16);
                         /* Unexpected frame returned */
                     }
                     wkc = 0i32
                 }
             } else {
                 NotLast = false;
-                ecx_packeterror(context.as_mut().unwrap(), slave, idn, 0u8, 4u16);
+                ecx_packeterror(context, slave, idn, 0u8, 4u16);
                 /* no response */
             }
         }
@@ -251,7 +251,7 @@ pub unsafe fn ecx_SoEread(
  */
 #[no_mangle]
 pub unsafe fn ecx_SoEwrite(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     slave: u16,
     driveNo: u8,
     elementflags: u8,
@@ -358,15 +358,15 @@ pub unsafe fn ecx_SoEwrite(
                                     as isize,
                             );
                             errorcode = mp as *mut u16;
-                            ecx_SoEerror(context.as_mut().unwrap(), slave, idn, *errorcode);
+                            ecx_SoEerror(context, slave, idn, *errorcode);
                         } else {
-                            ecx_packeterror(context.as_mut().unwrap(), slave, idn, 0u8, 1u16);
+                            ecx_packeterror(context, slave, idn, 0u8, 1u16);
                             /* Unexpected frame returned */
                         }
                         wkc = 0i32
                     }
                 } else {
-                    ecx_packeterror(context.as_mut().unwrap(), slave, idn, 0u8, 4u16);
+                    ecx_packeterror(context, slave, idn, 0u8, 4u16);
                     /* no response */
                 }
             }
@@ -388,7 +388,7 @@ pub unsafe fn ecx_SoEwrite(
  */
 #[no_mangle]
 pub unsafe fn ecx_readIDNmap(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     slave: u16,
     Osize: *mut u32,
     Isize: *mut u32,

@@ -38,7 +38,7 @@ pub union C2RustUnnamed_4 {
  */
 #[no_mangle]
 pub unsafe fn ecx_FOEdefinehook(
-    mut context: *mut ecx_contextt,
+    mut context: &mut ecx_contextt,
     hook: *mut libc::c_void,
 ) -> libc::c_int {
     (*context).FOEhook = ::core::mem::transmute::<
@@ -60,7 +60,7 @@ pub unsafe fn ecx_FOEdefinehook(
  */
 #[no_mangle]
 pub unsafe fn ecx_FOEread(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     slave: u16,
     filename: *mut libc::c_char,
     password: u32,
@@ -223,7 +223,7 @@ pub unsafe fn ecx_FOEread(
  */
 #[no_mangle]
 pub unsafe fn ecx_FOEwrite(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     slave: u16,
     filename: *mut libc::c_char,
     password: u32,

@@ -121,7 +121,7 @@ unsafe fn EOE_ip_byte_to_uint32(byte_ip: *mut u8, mut ip: *mut eoe_ip4_addr_t) {
 */
 #[no_mangle]
 pub unsafe fn ecx_EOEdefinehook(
-    mut context: *mut ecx_contextt,
+    mut context: &mut ecx_contextt,
     hook: *mut libc::c_void,
 ) -> libc::c_int {
     (*context).EOEhook = ::core::mem::transmute::<
@@ -141,7 +141,7 @@ pub unsafe fn ecx_EOEdefinehook(
 */
 #[no_mangle]
 pub unsafe fn ecx_EOEsetIp(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     slave: u16,
     port: u8,
     ipparam: *mut eoe_param_t,
@@ -280,7 +280,7 @@ pub unsafe fn ecx_EOEsetIp(
 */
 #[no_mangle]
 pub unsafe fn ecx_EOEgetIp(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     slave: u16,
     port: u8,
     ipparam: *mut eoe_param_t,
@@ -437,7 +437,7 @@ pub unsafe fn ecx_EOEgetIp(
 */
 #[no_mangle]
 pub unsafe fn ecx_EOEsend(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     slave: u16,
     port: u8,
     psize: libc::c_int,
@@ -537,7 +537,7 @@ pub unsafe fn ecx_EOEsend(
 */
 #[no_mangle]
 pub unsafe fn ecx_EOErecv(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     slave: u16,
     port: u8,
     psize: *mut libc::c_int,

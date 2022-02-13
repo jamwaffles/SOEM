@@ -144,7 +144,7 @@ fn ecx_SDOinfoerror(
  */
 #[no_mangle]
 pub unsafe fn ecx_SDOread(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     slave: u16,
     index: u16,
     mut subindex: u8,
@@ -230,7 +230,7 @@ pub unsafe fn ecx_SDOread(
                         *psize = bytesize as libc::c_int
                     } else {
                         wkc = 0i32;
-                        ecx_packeterror(context.as_mut().unwrap(), slave, index, subindex, 3u16);
+                        ecx_packeterror(context, slave, index, subindex, 3u16);
                         /* return the real parameter size */
                         /*  data container too small for type */
                     }
@@ -349,7 +349,7 @@ pub unsafe fn ecx_SDOread(
                                             {
                                                 /* SDO abort frame received */
                                                 ecx_SDOerror(
-                                                    context.as_mut().unwrap(),
+                                                    context,
                                                     slave,
                                                     index,
                                                     subindex,
@@ -357,11 +357,7 @@ pub unsafe fn ecx_SDOread(
                                                 );
                                             } else {
                                                 ecx_packeterror(
-                                                    context.as_mut().unwrap(),
-                                                    slave,
-                                                    index,
-                                                    subindex,
-                                                    1u16,
+                                                    context, slave, index, subindex, 1u16,
                                                 );
                                             }
                                             wkc = 0i32
@@ -384,7 +380,7 @@ pub unsafe fn ecx_SDOread(
                     } else {
                         /* parameter buffer too small */
                         wkc = 0i32;
-                        ecx_packeterror(context.as_mut().unwrap(), slave, index, subindex, 3u16);
+                        ecx_packeterror(context, slave, index, subindex, 3u16);
                         /*  data container too small for type */
                     }
                 }
@@ -393,14 +389,14 @@ pub unsafe fn ecx_SDOread(
                 if (*aSDOp).Command as libc::c_int == CoESDOCommand::Abort as libc::c_int {
                     /* SDO abort frame received */
                     ecx_SDOerror(
-                        context.as_mut().unwrap(),
+                        context,
                         slave,
                         index,
                         subindex,
                         (*aSDOp).data.ldata[0usize] as i32,
                     );
                 } else {
-                    ecx_packeterror(context.as_mut().unwrap(), slave, index, subindex, 1u16);
+                    ecx_packeterror(context, slave, index, subindex, 1u16);
                     /* Unexpected frame returned */
                 }
                 wkc = 0i32
@@ -428,7 +424,7 @@ pub unsafe fn ecx_SDOread(
  */
 #[no_mangle]
 pub unsafe fn ecx_SDOwrite(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     slave: u16,
     Index: u16,
     SubIndex: u8,
@@ -502,14 +498,14 @@ pub unsafe fn ecx_SDOwrite(
                     if (*aSDOp).Command as libc::c_int == CoESDOCommand::Abort as libc::c_int {
                         /* SDO abort frame received */
                         ecx_SDOerror(
-                            context.as_mut().unwrap(),
+                            context,
                             slave,
                             Index,
                             SubIndex,
                             (*aSDOp).data.ldata[0usize] as i32,
                         );
                     } else {
-                        ecx_packeterror(context.as_mut().unwrap(), slave, Index, SubIndex, 1u16);
+                        ecx_packeterror(context, slave, Index, SubIndex, 1u16);
                         /* Unexpected frame returned */
                     } /*  segmented transfer needed  */
                     wkc = 0i32
@@ -650,20 +646,14 @@ pub unsafe fn ecx_SDOwrite(
                                     {
                                         /* SDO abort frame received */
                                         ecx_SDOerror(
-                                            context.as_mut().unwrap(),
+                                            context,
                                             slave,
                                             Index,
                                             SubIndex,
                                             (*aSDOp).data.ldata[0usize] as i32,
                                         );
                                     } else {
-                                        ecx_packeterror(
-                                            context.as_mut().unwrap(),
-                                            slave,
-                                            Index,
-                                            SubIndex,
-                                            1u16,
-                                        );
+                                        ecx_packeterror(context, slave, Index, SubIndex, 1u16);
                                         /* Unexpected frame returned */
                                     }
                                     wkc = 0i32;
@@ -678,14 +668,14 @@ pub unsafe fn ecx_SDOwrite(
                     if (*aSDOp).Command as libc::c_int == CoESDOCommand::Abort as libc::c_int {
                         /* SDO abort frame received */
                         ecx_SDOerror(
-                            context.as_mut().unwrap(),
+                            context,
                             slave,
                             Index,
                             SubIndex,
                             (*aSDOp).data.ldata[0usize] as i32,
                         );
                     } else {
-                        ecx_packeterror(context.as_mut().unwrap(), slave, Index, SubIndex, 1u16);
+                        ecx_packeterror(context, slave, Index, SubIndex, 1u16);
                         /* Unexpected frame returned */
                     }
                     wkc = 0i32
@@ -708,7 +698,7 @@ pub unsafe fn ecx_SDOwrite(
  */
 #[no_mangle]
 pub unsafe fn ecx_RxPDO(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     slave: u16,
     RxPDOnumber: u16,
     psize: libc::c_int,
@@ -772,7 +762,7 @@ pub unsafe fn ecx_RxPDO(
  */
 #[no_mangle]
 pub unsafe fn ecx_TxPDO(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     slave: u16,
     TxPDOnumber: u16,
     psize: *mut libc::c_int,
@@ -835,7 +825,7 @@ pub unsafe fn ecx_TxPDO(
                     /* return the real parameter size */
                     /* parameter buffer too small */
                     wkc = 0i32;
-                    ecx_packeterror(context.as_mut().unwrap(), slave, 0u16, 0u8, 3u16);
+                    ecx_packeterror(context, slave, 0u16, 0u8, 3u16);
                     /*  data container too small for type */
                 }
             } else {
@@ -843,14 +833,14 @@ pub unsafe fn ecx_TxPDO(
                 if (*aSDOp).Command as libc::c_int == CoESDOCommand::Abort as libc::c_int {
                     /* SDO abort frame received */
                     ecx_SDOerror(
-                        context.as_mut().unwrap(),
+                        context,
                         slave,
                         0u16,
                         0u8,
                         (*aSDOp).data.ldata[0usize] as i32,
                     );
                 } else {
-                    ecx_packeterror(context.as_mut().unwrap(), slave, 0u16, 0u8, 1u16);
+                    ecx_packeterror(context, slave, 0u16, 0u8, 1u16);
                     /* Unexpected frame returned */
                 }
                 wkc = 0i32
@@ -866,7 +856,7 @@ pub unsafe fn ecx_TxPDO(
  * @return total bitlength of PDO assign
  */
 #[no_mangle]
-pub unsafe fn ecx_readPDOassign(context: *mut ecx_contextt, Slave: u16, PDOassign: u16) -> u32 {
+pub unsafe fn ecx_readPDOassign(context: &mut ecx_contextt, Slave: u16, PDOassign: u16) -> u32 {
     let mut idxloop: u16 = 0;
     let mut nidx: u16 = 0;
     let mut subidxloop: u16 = 0;
@@ -975,7 +965,7 @@ pub unsafe fn ecx_readPDOassign(context: *mut ecx_contextt, Slave: u16, PDOassig
  */
 #[no_mangle]
 pub unsafe fn ecx_readPDOassignCA(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     Slave: u16,
     Thread_n: libc::c_int,
     PDOassign: u16,
@@ -1076,7 +1066,7 @@ pub unsafe fn ecx_readPDOassignCA(
  */
 #[no_mangle]
 pub unsafe fn ecx_readPDOmap(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     slave: u16,
     Osize: *mut u32,
     Isize: *mut u32,
@@ -1195,7 +1185,7 @@ pub unsafe fn ecx_readPDOmap(
  */
 #[no_mangle]
 pub unsafe fn ecx_readPDOmapCA(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     slave: u16,
     Thread_n: libc::c_int,
     Osize: *mut u32,
@@ -1232,7 +1222,7 @@ pub unsafe fn ecx_readPDOmapCA(
         /* limit to maximum number of SM defined, if true the slave can't be configured */
         if nSM as usize > EC_MAXSM {
             nSM = EC_MAXSM as u8;
-            ecx_packeterror(context.as_mut().unwrap(), slave, 0u16, 0u8, 10u16);
+            ecx_packeterror(context, slave, 0u16, 0u8, 10u16);
             /* #SM larger than EC_MAXSM */
         }
         /* iterate for every SM type defined */
@@ -1291,7 +1281,7 @@ pub unsafe fn ecx_readPDOmapCA(
  */
 #[no_mangle]
 pub unsafe fn ecx_readODlist(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     slave: u16,
     mut pODlist: *mut ec_ODlistt,
 ) -> libc::c_int {
@@ -1362,7 +1352,7 @@ pub unsafe fn ecx_readODlist(
                     /* check if indexes fit in buffer structure */
                     if sp + n > EC_MAXODLIST as u16 {
                         n = (EC_MAXODLIST + 1 - sp as usize) as u16; /* Too many entries for master buffer */
-                        ecx_SDOinfoerror(context.as_mut().unwrap(), slave, 0u16, 0u8, 0xf000000i32);
+                        ecx_SDOinfoerror(context, slave, 0u16, 0u8, 0xf000000i32);
                         stop = true
                     }
                     /* trim to maximum number of ODlist entries defined */
@@ -1393,7 +1383,7 @@ pub unsafe fn ecx_readODlist(
                     {
                         /* SDO info error received */
                         ecx_SDOinfoerror(
-                            context.as_mut().unwrap(),
+                            context,
                             slave,
                             0u16,
                             0u8,
@@ -1401,7 +1391,7 @@ pub unsafe fn ecx_readODlist(
                         );
                         stop = true
                     } else {
-                        ecx_packeterror(context.as_mut().unwrap(), slave, 0u16, 0u8, 1u16);
+                        ecx_packeterror(context, slave, 0u16, 0u8, 1u16);
                         /* Unexpected frame returned */
                     }
                     wkc = 0i32;
@@ -1425,7 +1415,7 @@ pub unsafe fn ecx_readODlist(
  */
 #[no_mangle]
 pub unsafe fn ecx_readODdescription(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     Item: u16,
     mut pODlist: *mut ec_ODlistt,
 ) -> libc::c_int {
@@ -1498,20 +1488,14 @@ pub unsafe fn ecx_readODdescription(
                 {
                     /* SDO info error received */
                     ecx_SDOinfoerror(
-                        context.as_mut().unwrap(),
+                        context,
                         slave,
                         (*pODlist).Index[Item as usize],
                         0u8,
                         (*aSDOp).data.ldata[0usize] as i32,
                     );
                 } else {
-                    ecx_packeterror(
-                        context.as_mut().unwrap(),
-                        slave,
-                        (*pODlist).Index[Item as usize],
-                        0u8,
-                        1u16,
-                    );
+                    ecx_packeterror(context, slave, (*pODlist).Index[Item as usize], 0u8, 1u16);
                     /* Unexpected frame returned */
                 }
                 wkc = 0i32
@@ -1532,7 +1516,7 @@ pub unsafe fn ecx_readODdescription(
  */
 #[no_mangle]
 pub unsafe fn ecx_readOEsingle(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     Item: u16,
     SubI: u8,
     pODlist: *mut ec_ODlistt,
@@ -1613,14 +1597,14 @@ pub unsafe fn ecx_readOEsingle(
                 {
                     /* SDO info error received */
                     ecx_SDOinfoerror(
-                        context.as_mut().unwrap(),
+                        context,
                         slave,
                         Index,
                         SubI,
                         (*aSDOp).data.ldata[0usize] as i32,
                     );
                 } else {
-                    ecx_packeterror(context.as_mut().unwrap(), slave, Index, SubI, 1u16);
+                    ecx_packeterror(context, slave, Index, SubI, 1u16);
                     /* Unexpected frame returned */
                 }
                 wkc = 0i32
@@ -1639,7 +1623,7 @@ pub unsafe fn ecx_readOEsingle(
  */
 #[no_mangle]
 pub unsafe fn ecx_readOE(
-    context: *mut ecx_contextt,
+    context: &mut ecx_contextt,
     Item: u16,
     pODlist: *mut ec_ODlistt,
     mut pOElist: *mut ec_OElistt,
