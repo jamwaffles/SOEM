@@ -454,23 +454,24 @@ pub unsafe fn ecx_outframe_red(port: &mut ecx_portt, idx: u8) -> libc::c_int {
  * @param[in] stacknumber = 0=primary 1=secondary stack
  * @return >0 if frame is available and read
  */
-unsafe fn ecx_recvpkt(port: &mut ecx_portt, stacknumber: libc::c_int) -> libc::c_int {
-    let mut lp: libc::c_int = 0;
-    let mut bytesrx: libc::c_int = 0;
-
+unsafe fn ecx_recvpkt(
+    port: &ecx_portt,
+    tempinbufs: &mut i32,
+    stacknumber: libc::c_int,
+) -> libc::c_int {
     let stack = if stacknumber == 0 {
         &port.stack
     } else {
         port.redport.as_ref().map(|redport| &redport.stack).unwrap()
     };
-    lp = ::core::mem::size_of::<ec_bufT>() as libc::c_int;
-    bytesrx = recv(
+    let lp = ::core::mem::size_of::<ec_bufT>() as libc::c_int;
+    let bytesrx = recv(
         *(*stack).sock,
         (*(*stack).tempbuf).as_mut_ptr() as *mut libc::c_void,
         lp as usize,
         0i32,
     ) as libc::c_int;
-    port.tempinbufs = bytesrx;
+    *tempinbufs = bytesrx;
     return (bytesrx > 0i32) as libc::c_int;
 }
 /* * Non blocking receive frame function. Uses RX buffer and index to combine
@@ -517,7 +518,13 @@ unsafe fn ecx_inframe(port: &mut ecx_portt, idx: u8, stacknumber: libc::c_int) -
     } else {
         pthread_mutex_lock(&mut port.rx_mutex);
         /* non blocking call to retrieve frame from socket */
-        if ecx_recvpkt(port, stacknumber) != 0 {
+        if ecx_recvpkt(
+            port,
+            // FIXME: Just pass mutable reference when we sort out all this lifetime weirdness
+            unsafe { port.tempinbufs as *mut i32 }.as_mut().unwrap(),
+            stacknumber,
+        ) != 0
+        {
             rval = EC_OTHERFRAME;
             ehp = (*stack).tempbuf as *mut EthernetHeader;
             /* check if it is an EtherCAT frame */
@@ -640,8 +647,7 @@ unsafe fn ecx_waitinframe_red(
             memcpy(
                 &mut *port.rxbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                     as *mut libc::c_void,
-                redport.rxbuf.as_ptr().offset(idx as isize) as *const ec_bufT
-                    as *const libc::c_void,
+                redport.rxbuf[idx as usize].as_ptr() as *const ec_bufT as *const libc::c_void,
                 (port.txbuflength[idx as usize] as usize)
                     .wrapping_sub(core::mem::size_of::<EthernetHeader>()),
             );
@@ -662,8 +668,7 @@ unsafe fn ecx_waitinframe_red(
                         .as_mut_ptr()
                         .offset(::core::mem::size_of::<EthernetHeader>() as isize)
                         as *mut u8 as *mut libc::c_void,
-                    &mut *port.rxbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
-                        as *const libc::c_void,
+                    port.rxbuf[idx as usize].as_ptr() as *const ec_bufT as *const libc::c_void,
                     (port.txbuflength[idx as usize] as usize)
                         .wrapping_sub(core::mem::size_of::<EthernetHeader>()),
                 );
@@ -673,7 +678,14 @@ unsafe fn ecx_waitinframe_red(
             ecx_outframe(port, idx, 1i32);
             loop {
                 /* retrieve frame */
-                wkc2 = ecx_inframe(port, idx, 1i32);
+                wkc2 = ecx_inframe(
+                    // FIXME: Holy shit lmao
+                    unsafe { port as *const ecx_portt as *mut ecx_portt }
+                        .as_mut()
+                        .unwrap(),
+                    idx,
+                    1i32,
+                );
                 if !(wkc2 <= -1 && osal_timer_is_expired(&mut timer2) == false) {
                     break;
                 }
@@ -683,8 +695,7 @@ unsafe fn ecx_waitinframe_red(
                 memcpy(
                     &mut *(*port).rxbuf.as_mut_ptr().offset(idx as isize) as *mut ec_bufT
                         as *mut libc::c_void,
-                    redport.rxbuf.as_ptr().offset(idx as isize) as *const ec_bufT
-                        as *const libc::c_void,
+                    redport.rxbuf[idx as usize].as_ptr() as *const ec_bufT as *const libc::c_void,
                     ((*port).txbuflength[idx as usize] as usize)
                         .wrapping_sub(core::mem::size_of::<EthernetHeader>()),
                 );

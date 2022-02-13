@@ -10,7 +10,7 @@ use crate::{
     oshw::linux::nicdrv::ecx_portt,
     types::{
         ec_bufT, Command, EthercatHeader, EthernetHeader, EC_DATAGRAMFOLLOWS, EC_ECATTYPE,
-        EC_ELENGTHSIZE, EC_HEADERSIZE, EC_WKCSIZE, ETH_HEADERSIZE,
+        EC_ELENGTHSIZE, EC_HEADERSIZE, EC_MAXBUF, EC_WKCSIZE, ETH_HEADERSIZE,
     },
 };
 use libc::{c_void, memcpy, memset};
@@ -148,7 +148,7 @@ pub unsafe fn ecx_setupdatagram(
  */
 #[no_mangle]
 pub unsafe fn ecx_setupdatagram_new(
-    mut port: *mut ecx_portt,
+    txbuflength: &mut [i32; EC_MAXBUF as usize],
     frame: &mut ec_bufT,
     com: Command,
     idx: u8,
@@ -181,8 +181,8 @@ pub unsafe fn ecx_setupdatagram_new(
     frame[data_start + length + 1] = 0u8;
 
     /* set size of frame in buffer array */
-    (*port).txbuflength[idx as usize] =
-        (ETH_HEADERSIZE + EC_HEADERSIZE + EC_WKCSIZE + length) as i32;
+    txbuflength[idx as usize] = (ETH_HEADERSIZE + EC_HEADERSIZE + EC_WKCSIZE + length) as i32;
+
     return 0;
 }
 
@@ -292,7 +292,7 @@ pub unsafe fn ecx_adddatagram(
  */
 #[no_mangle]
 pub unsafe fn ecx_adddatagram_new(
-    port: &mut ecx_portt,
+    txbuflength: &mut [i32; EC_MAXBUF as usize],
     frame: &mut ec_bufT,
     com: Command,
     idx: u8,
@@ -303,7 +303,7 @@ pub unsafe fn ecx_adddatagram_new(
     data: *const libc::c_void,
 ) -> u16 {
     // copy previous frame size
-    let prevlength = (*port).txbuflength[idx as usize] as u16;
+    let prevlength = txbuflength[idx as usize] as u16;
 
     // Load ethercat header that's after ethernet frame header
     let mut first_header = &mut *(&mut frame[ETH_HEADERSIZE..(ETH_HEADERSIZE + EC_HEADERSIZE)]
@@ -341,7 +341,7 @@ pub unsafe fn ecx_adddatagram_new(
     frame[data_start + length] = 0x00;
     frame[data_start + length + 1] = 0x00;
     // set size of frame in buffer array
-    port.txbuflength[idx as usize] = (data_start + EC_WKCSIZE + length) as i32;
+    txbuflength[idx as usize] = (data_start + EC_WKCSIZE + length) as i32;
     // return offset to data in rx frame 14 bytes smaller than tx frame due to stripping of ethernet
     // header
     // FIXME: Saturating or checked sub
@@ -552,7 +552,7 @@ mod tests {
         };
         unsafe {
             ecx_setupdatagram_new(
-                &mut port_new,
+                &mut port_new.txbuflength,
                 &mut buf_new,
                 command,
                 0,
@@ -636,7 +636,7 @@ mod tests {
         };
         unsafe {
             ecx_setupdatagram_new(
-                &mut port_new,
+                &mut port_new.txbuflength,
                 &mut buf_new,
                 command,
                 0,
@@ -682,7 +682,7 @@ mod tests {
         };
         unsafe {
             ecx_adddatagram_new(
-                &mut port_new,
+                &mut port_new.txbuflength,
                 &mut buf_new,
                 command,
                 0,
@@ -761,7 +761,7 @@ mod tests {
         };
         unsafe {
             ecx_adddatagram_new(
-                &mut port_new,
+                &mut port_new.txbuflength,
                 &mut buf_new,
                 command,
                 0,
