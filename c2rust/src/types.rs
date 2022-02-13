@@ -469,13 +469,28 @@ pub struct ec_errort {
     pub c2rust_unnamed: C2RustUnnamed_0,
 }
 
+// TODO: Change to derive when union is replaced with enum
+impl Default for ec_errort {
+    fn default() -> Self {
+        Self {
+            Time: Default::default(),
+            Signal: Default::default(),
+            Slave: Default::default(),
+            Index: Default::default(),
+            SubIdx: Default::default(),
+            Etype: ec_err_type::EC_ERR_TYPE_SDO_ERROR,
+            c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
+        }
+    }
+}
+
 #[derive(Copy, Clone)]
 pub union C2RustUnnamed_0 {
     pub AbortCode: i32,
     pub c2rust_unnamed: C2RustUnnamed_1,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub struct C2RustUnnamed_1 {
     pub ErrorCode: u16,
     pub ErrorReg: u8,

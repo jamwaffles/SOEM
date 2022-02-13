@@ -3,13 +3,13 @@ use crate::{
         ec_clearmbx, ec_mbxbuft, ec_mbxheadert, ec_nextmbxcnt, ecx_context, ecx_contextt,
         ecx_mbxempty, ecx_mbxreceive, ecx_mbxsend, ecx_packeterror, ecx_pusherror,
     },
-    osal::linux::osal::{ec_timet, osal_current_time},
+    osal::linux::osal::osal_current_time,
     types::{
         ec_err_type, ec_errort, C2RustUnnamed_0, MailboxType, SoEOpCode, EC_TIMEOUTRXM,
         EC_TIMEOUTTXM,
     },
 };
-use libc::{memcpy, memset};
+use libc::memcpy;
 
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
@@ -63,29 +63,23 @@ pub union C2RustUnnamed_3 {
  * @param[in]  Error      = Error code, see EtherCAT documentation for list
  */
 #[no_mangle]
-pub unsafe fn ecx_SoEerror(context: *mut ecx_contextt, Slave: u16, idn: u16, Error: u16) {
-    let mut Ec: ec_errort = ec_errort {
-        Time: ec_timet { sec: 0, usec: 0 },
-        Signal: false,
-        Slave: 0,
-        Index: 0,
+pub fn ecx_SoEerror(context: &mut ecx_contextt, Slave: u16, idn: u16, Error: u16) {
+    let Ec: ec_errort = ec_errort {
+        Time: osal_current_time(),
+        Slave: Slave,
+        Index: idn,
         SubIdx: 0,
-        Etype: ec_err_type::EC_ERR_TYPE_SDO_ERROR,
-        c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
+        Etype: ec_err_type::EC_ERR_TYPE_SOE_ERROR,
+        Signal: false,
+        c2rust_unnamed: C2RustUnnamed_0 {
+            c2rust_unnamed: crate::types::C2RustUnnamed_1 {
+                ErrorCode: Error,
+                ..Default::default()
+            },
+        },
     };
-    memset(
-        &mut Ec as *mut ec_errort as *mut libc::c_void,
-        0i32,
-        core::mem::size_of::<ec_errort>(),
-    );
-    Ec.Time = osal_current_time();
-    Ec.Slave = Slave;
-    Ec.Index = idn;
-    Ec.SubIdx = 0u8;
-    *(*context).ecaterror = true;
-    Ec.Etype = ec_err_type::EC_ERR_TYPE_SOE_ERROR;
-    Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode = Error;
-    ecx_pusherror(context, &mut Ec);
+
+    ecx_pusherror(context, Ec);
 }
 /* * SoE read, blocking.
  *
@@ -224,16 +218,16 @@ pub unsafe fn ecx_SoEread(
                                 as isize,
                         );
                         errorcode = mp as *mut u16;
-                        ecx_SoEerror(context, slave, idn, *errorcode);
+                        ecx_SoEerror(context.as_mut().unwrap(), slave, idn, *errorcode);
                     } else {
-                        ecx_packeterror(context, slave, idn, 0u8, 1u16);
+                        ecx_packeterror(context.as_mut().unwrap(), slave, idn, 0u8, 1u16);
                         /* Unexpected frame returned */
                     }
                     wkc = 0i32
                 }
             } else {
                 NotLast = false;
-                ecx_packeterror(context, slave, idn, 0u8, 4u16);
+                ecx_packeterror(context.as_mut().unwrap(), slave, idn, 0u8, 4u16);
                 /* no response */
             }
         }
@@ -364,15 +358,15 @@ pub unsafe fn ecx_SoEwrite(
                                     as isize,
                             );
                             errorcode = mp as *mut u16;
-                            ecx_SoEerror(context, slave, idn, *errorcode);
+                            ecx_SoEerror(context.as_mut().unwrap(), slave, idn, *errorcode);
                         } else {
-                            ecx_packeterror(context, slave, idn, 0u8, 1u16);
+                            ecx_packeterror(context.as_mut().unwrap(), slave, idn, 0u8, 1u16);
                             /* Unexpected frame returned */
                         }
                         wkc = 0i32
                     }
                 } else {
-                    ecx_packeterror(context, slave, idn, 0u8, 4u16);
+                    ecx_packeterror(context.as_mut().unwrap(), slave, idn, 0u8, 4u16);
                     /* no response */
                 }
             }

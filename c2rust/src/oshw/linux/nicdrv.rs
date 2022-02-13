@@ -4,8 +4,8 @@ use crate::{
     main::ecx_port,
     osal::linux::osal::{ec_timet, osal_timer_is_expired, osal_timer_start, osal_timert},
     types::{
-        ec_bufT, htons, ntohs, BufferState, EthercatHeader, EthernetHeader, EC_MAXBUF,
-        EC_TIMEOUTRET,
+        ec_bufT, htons, ntohs, BufferState, EthercatHeader, EthernetHeader, EC_MAXBUF, EC_NOFRAME,
+        EC_OTHERFRAME, EC_TIMEOUTRET,
     },
 };
 use libc::{
@@ -55,21 +55,21 @@ pub union C2RustUnnamed_1 {
 #[derive(Clone)]
 pub struct ec_stackT {
     pub sock: *mut libc::c_int,
-    pub txbuf: *mut [ec_bufT; 16],
-    pub txbuflength: *mut [libc::c_int; 16],
+    pub txbuf: *mut [ec_bufT; EC_MAXBUF as usize],
+    pub txbuflength: *mut [libc::c_int; EC_MAXBUF as usize],
     pub tempbuf: *mut ec_bufT,
-    pub rxbuf: *mut [ec_bufT; 16],
-    pub rxbufstat: *mut [libc::c_int; 16],
-    pub rxsa: *mut [libc::c_int; 16],
+    pub rxbuf: *mut [ec_bufT; EC_MAXBUF as usize],
+    pub rxbufstat: *mut [libc::c_int; EC_MAXBUF as usize],
+    pub rxsa: *mut [libc::c_int; EC_MAXBUF as usize],
 }
 
 #[derive(Clone)]
 pub struct ecx_redportt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
-    pub rxbuf: [ec_bufT; 16],
-    pub rxbufstat: [libc::c_int; 16],
-    pub rxsa: [libc::c_int; 16],
+    pub rxbuf: [ec_bufT; EC_MAXBUF as usize],
+    pub rxbufstat: [libc::c_int; EC_MAXBUF as usize],
+    pub rxsa: [libc::c_int; EC_MAXBUF as usize],
     pub tempinbuf: ec_bufT,
 }
 
@@ -77,13 +77,13 @@ pub struct ecx_redportt {
 pub struct ecx_portt {
     pub stack: ec_stackT,
     pub sockhandle: libc::c_int,
-    pub rxbuf: [ec_bufT; 16],
-    pub rxbufstat: [libc::c_int; 16],
-    pub rxsa: [libc::c_int; 16],
+    pub rxbuf: [ec_bufT; EC_MAXBUF as usize],
+    pub rxbufstat: [libc::c_int; EC_MAXBUF as usize],
+    pub rxsa: [libc::c_int; EC_MAXBUF as usize],
     pub tempinbuf: ec_bufT,
     pub tempinbufs: libc::c_int,
-    pub txbuf: [ec_bufT; 16],
-    pub txbuflength: [libc::c_int; 16],
+    pub txbuf: [ec_bufT; EC_MAXBUF as usize],
+    pub txbuflength: [libc::c_int; EC_MAXBUF as usize],
     pub txbuf2: ec_bufT,
     pub txbuflength2: libc::c_int,
     pub lastidx: u8,
@@ -492,18 +492,16 @@ unsafe fn ecx_recvpkt(port: &mut ecx_portt, stacknumber: libc::c_int) -> libc::c
 #[no_mangle]
 unsafe fn ecx_inframe(port: &mut ecx_portt, idx: u8, stacknumber: libc::c_int) -> libc::c_int {
     let mut l: u16 = 0;
-    let mut rval: libc::c_int = 0;
     let mut idxf: u8 = 0;
     let mut ehp: *mut EthernetHeader = 0 as *mut EthernetHeader;
     let mut ecp: *mut EthercatHeader = 0 as *mut EthercatHeader;
-    let mut rxbuf: *mut ec_bufT = 0 as *mut ec_bufT;
     let stack = if stacknumber == 0 {
         &port.stack
     } else {
         port.redport.as_ref().map(|redport| &redport.stack).unwrap()
     };
-    rval = -1;
-    rxbuf = &mut *(*(*stack).rxbuf).as_mut_ptr().offset(idx as isize) as *mut ec_bufT;
+    let mut rval = EC_NOFRAME;
+    let mut rxbuf = &mut *(*(*stack).rxbuf).as_mut_ptr().offset(idx as isize) as *mut ec_bufT;
     /* check if requested index is already in buffer ? */
     if idx < EC_MAXBUF
         && (*(*stack).rxbufstat)[idx as usize] == BufferState::Received as libc::c_int
@@ -520,7 +518,7 @@ unsafe fn ecx_inframe(port: &mut ecx_portt, idx: u8, stacknumber: libc::c_int) -
         pthread_mutex_lock(&mut port.rx_mutex);
         /* non blocking call to retrieve frame from socket */
         if ecx_recvpkt(port, stacknumber) != 0 {
-            rval = -(2i32);
+            rval = EC_OTHERFRAME;
             ehp = (*stack).tempbuf as *mut EthernetHeader;
             /* check if it is an EtherCAT frame */
             if (*ehp).etype as libc::c_int == htons(0x88a4u16) as libc::c_int {

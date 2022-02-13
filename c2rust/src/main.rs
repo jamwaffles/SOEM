@@ -1,5 +1,3 @@
-use std::mem;
-
 use crate::{
     base::{
         ecx_APRD, ecx_APWR, ecx_BRD, ecx_BWR, ecx_FPRD, ecx_FPWR, ecx_FPWRw, ecx_adddatagram,
@@ -24,6 +22,7 @@ use crate::{
     },
 };
 use libc::{memcpy, memset, pthread_mutex_t};
+use std::mem;
 
 /** max. entries in EtherCAT error list */
 pub const EC_MAXELIST: u16 = 64;
@@ -99,30 +98,54 @@ pub struct ec_sm {
 }
 pub type ec_smt = ec_sm;
 
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct ecx_context {
+    /// port reference, may include red_port
     pub port: *mut ecx_portt,
+    /// slavelist reference
     pub slavelist: *mut ec_slavet,
+    /// number of slaves found in configuration
     pub slavecount: *mut libc::c_int,
+    /// maximum number of slaves allowed in slavelist
     pub maxslave: libc::c_int,
+    /// grouplist reference
     pub grouplist: *mut ec_groupt,
+    /// maximum number of groups allowed in grouplist
     pub maxgroup: libc::c_int,
+    /// internal, reference to eeprom cache buffer
     pub esibuf: *mut u8,
+    /// internal, reference to eeprom cache map
     pub esimap: *mut u32,
+    /// internal, current slave for eeprom cache
     pub esislave: u16,
-    pub elist: *mut ec_eringt,
+    /// internal, reference to error list
+    // TODO: Use a ringbuffer instead, looks like that was the previous implementation
+    pub elist: heapless::Vec<ec_errort, { EC_MAXELIST as usize }>,
+    /// internal, reference to processdata stack buffer info
     pub idxstack: *mut ec_idxstackT,
-    pub ecaterror: *mut bool,
+    /// reference to ecaterror state
+    pub ecaterror: bool,
+    /// reference to last DC time from slaves
     pub DCtime: *mut i64,
+    /// internal, SM buffer
     pub SMcommtype: *mut ec_SMcommtypet,
+    /// internal, PDO assign list
     pub PDOassign: *mut ec_PDOassignt,
+    /// internal, PDO description list
     pub PDOdesc: *mut ec_PDOdesct,
+    /// internal, SM list from eeprom
     pub eepSM: *mut ec_eepromSMt,
+    /// internal, FMMU list from eeprom
     pub eepFMMU: *mut ec_eepromFMMUt,
+    /// registered FoE hook
     pub FOEhook: Option<unsafe fn(_: u16, _: libc::c_int, _: libc::c_int) -> libc::c_int>,
+    /// registered EoE hook
     pub EOEhook:
         Option<unsafe fn(_: *mut ecx_contextt, _: u16, _: *mut libc::c_void) -> libc::c_int>,
+    /// flag to control legacy automatic state change or manual state change
     pub manualstatechange: libc::c_int,
+    /// userdata, promotes application configuration esp. in EC_VER2 with multiple *ec_context
+    /// instances. Note: userdata memory is managed by application, not SOEM
     pub userdata: *mut libc::c_void,
 }
 pub type ecx_contextt = ecx_context;
@@ -199,7 +222,7 @@ pub type ec_eringt = ec_ering;
 pub struct ec_ering {
     pub head: i16,
     pub tail: i16,
-    pub Error: [ec_errort; 65],
+    pub Error: [ec_errort; EC_MAXELIST as usize],
 }
 
 pub type ec_groupt = ec_group;
@@ -547,19 +570,7 @@ static mut EC_ESI_BUF: [u8; 4096] = [0; 4096];
 /* * bitmap for filled cache buffer bytes */
 static mut EC_ESI_MAP: [u32; 128] = [0; 128];
 /* * current slave for EEPROM cache buffer */
-static mut EC_ELIST: ec_eringt = ec_eringt {
-    head: 0,
-    tail: 0,
-    Error: [ec_errort {
-        Time: ec_timet { sec: 0, usec: 0 },
-        Signal: false,
-        Slave: 0,
-        Index: 0,
-        SubIdx: 0,
-        Etype: ec_err_type::EC_ERR_TYPE_SDO_ERROR,
-        c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
-    }; 65],
-};
+static mut EC_ELIST: heapless::Vec<ec_errort, { EC_MAXELIST as usize }> = heapless::Vec::new();
 static mut EC_IDX_STACK: ec_idxstackT = ec_idxstackT {
     pushed: 0,
     pulled: 0,
@@ -667,9 +678,9 @@ pub static mut ecx_context: ecx_contextt = ecx_contextt {
     esibuf: 0 as *mut u8,
     esimap: 0 as *mut u32,
     esislave: 0,
-    elist: 0 as *mut ec_eringt,
+    elist: heapless::Vec::new(),
     idxstack: 0 as *mut ec_idxstackT,
-    ecaterror: 0 as *mut bool,
+    ecaterror: false,
     DCtime: 0 as *mut i64,
     SMcommtype: 0 as *mut ec_SMcommtypet,
     PDOassign: 0 as *mut ec_PDOassignt,
@@ -705,20 +716,12 @@ pub unsafe fn ec_free_adapters(adapter: *mut ec_adaptert) {
  * @param[in] Ec pointer describing the error.
  */
 #[no_mangle]
-pub unsafe fn ecx_pusherror(mut context: *mut ecx_contextt, Ec: *const ec_errort) {
-    (*(*context).elist).Error[(*(*context).elist).head as usize] = *Ec;
-    (*(*context).elist).Error[(*(*context).elist).head as usize].Signal = true;
-    (*(*context).elist).head += 1;
-    if (*(*context).elist).head as libc::c_int > 64i32 {
-        (*(*context).elist).head = 0i16
-    }
-    if (*(*context).elist).head as libc::c_int == (*(*context).elist).tail as libc::c_int {
-        (*(*context).elist).tail += 1
-    }
-    if (*(*context).elist).tail as libc::c_int > 64i32 {
-        (*(*context).elist).tail = 0i16
-    }
-    *(*context).ecaterror = true;
+pub fn ecx_pusherror(context: &mut ecx_contextt, Ec: ec_errort) {
+    context.ecaterror = true;
+
+    // TODO: Handle case where error list is full
+    // TODO: Use a ringbuffer like original implementation
+    context.elist.push(Ec);
 }
 /* * Pops an error from the list.
  *
@@ -727,20 +730,14 @@ pub unsafe fn ecx_pusherror(mut context: *mut ecx_contextt, Ec: *const ec_errort
  * @return TRUE if an error was popped.
  */
 #[no_mangle]
-pub unsafe fn ecx_poperror(mut context: *mut ecx_contextt, Ec: *mut ec_errort) -> bool {
-    let notEmpty: bool = ((*(*context).elist).head as libc::c_int
-        != (*(*context).elist).tail as libc::c_int) as bool;
-    *Ec = (*(*context).elist).Error[(*(*context).elist).tail as usize];
-    (*(*context).elist).Error[(*(*context).elist).tail as usize].Signal = false;
-    if notEmpty == true {
-        (*(*context).elist).tail += 1;
-        if (*(*context).elist).tail as libc::c_int > 64i32 {
-            (*(*context).elist).tail = 0i16
-        }
+pub fn ecx_poperror(context: &mut ecx_contextt, Ec: &mut ec_errort) -> bool {
+    if let Some(error) = context.elist.pop() {
+        *Ec = error;
+
+        true
     } else {
-        *(*context).ecaterror = false;
+        false
     }
-    return notEmpty;
 }
 /* * Check if error list has entries.
  *
@@ -748,9 +745,8 @@ pub unsafe fn ecx_poperror(mut context: *mut ecx_contextt, Ec: *mut ec_errort) -
  * @return TRUE if error list contains entries.
  */
 #[no_mangle]
-pub unsafe fn ecx_iserror(context: *mut ecx_contextt) -> bool {
-    return ((*(*context).elist).head as libc::c_int != (*(*context).elist).tail as libc::c_int)
-        as bool;
+pub fn ecx_iserror(context: &ecx_contextt) -> bool {
+    !context.elist.is_empty()
 }
 /* * Report packet error
  *
@@ -761,35 +757,31 @@ pub unsafe fn ecx_iserror(context: *mut ecx_contextt) -> bool {
  * @param[in]  ErrorCode  = Error code
  */
 #[no_mangle]
-pub unsafe fn ecx_packeterror(
-    context: *mut ecx_contextt,
+pub fn ecx_packeterror(
+    context: &mut ecx_contextt,
     Slave: u16,
     Index: u16,
     SubIdx: u8,
     ErrorCode: u16,
 ) {
-    let mut Ec: ec_errort = ec_errort {
-        Time: ec_timet { sec: 0, usec: 0 },
+    let Ec: ec_errort = ec_errort {
         Signal: false,
-        Slave: 0,
-        Index: 0,
-        SubIdx: 0,
-        Etype: ec_err_type::EC_ERR_TYPE_SDO_ERROR,
-        c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
+        Time: osal_current_time(),
+        Slave: Slave,
+        Index: Index,
+        SubIdx: SubIdx,
+        Etype: ec_err_type::EC_ERR_TYPE_PACKET_ERROR,
+        c2rust_unnamed: C2RustUnnamed_0 {
+            c2rust_unnamed: crate::types::C2RustUnnamed_1 {
+                ErrorCode,
+                ..crate::types::C2RustUnnamed_1::default()
+            },
+        },
     };
-    memset(
-        &mut Ec as *mut ec_errort as *mut libc::c_void,
-        0i32,
-        core::mem::size_of::<ec_errort>(),
-    );
-    Ec.Time = osal_current_time();
-    Ec.Slave = Slave;
-    Ec.Index = Index;
-    Ec.SubIdx = SubIdx;
-    *(*context).ecaterror = true;
-    Ec.Etype = ec_err_type::EC_ERR_TYPE_PACKET_ERROR;
-    Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode = ErrorCode;
-    ecx_pusherror(context, &mut Ec);
+
+    context.ecaterror = true;
+
+    ecx_pusherror(context, Ec);
 }
 /* * Report Mailbox Error
  *
@@ -797,28 +789,25 @@ pub unsafe fn ecx_packeterror(
  * @param[in]  Slave        = Slave number
  * @param[in]  Detail       = Following EtherCAT specification
  */
-unsafe fn ecx_mbxerror(context: *mut ecx_contextt, Slave: u16, Detail: u16) {
-    let mut Ec: ec_errort = ec_errort {
-        Time: ec_timet { sec: 0, usec: 0 },
+fn ecx_mbxerror(context: &mut ecx_contextt, Slave: u16, Detail: u16) {
+    let Ec: ec_errort = ec_errort {
         Signal: false,
-        Slave: 0,
+        Time: osal_current_time(),
+        Slave: Slave,
         Index: 0,
         SubIdx: 0,
-        Etype: ec_err_type::EC_ERR_TYPE_SDO_ERROR,
-        c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
+        Etype: ec_err_type::EC_ERR_TYPE_MBX_ERROR,
+        c2rust_unnamed: C2RustUnnamed_0 {
+            c2rust_unnamed: crate::types::C2RustUnnamed_1 {
+                ErrorCode: Detail,
+                ..crate::types::C2RustUnnamed_1::default()
+            },
+        },
     };
-    memset(
-        &mut Ec as *mut ec_errort as *mut libc::c_void,
-        0i32,
-        ::core::mem::size_of::<ec_errort>(),
-    );
-    Ec.Time = osal_current_time();
-    Ec.Slave = Slave;
-    Ec.Index = 0u16;
-    Ec.SubIdx = 0u8;
-    Ec.Etype = ec_err_type::EC_ERR_TYPE_MBX_ERROR;
-    Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode = Detail;
-    ecx_pusherror(context, &mut Ec);
+
+    context.ecaterror = true;
+
+    ecx_pusherror(context, Ec);
 }
 /* * Report Mailbox Emergency Error
  *
@@ -830,8 +819,8 @@ unsafe fn ecx_mbxerror(context: *mut ecx_contextt, Slave: u16, Detail: u16) {
  * @param[in]  w1
  * @param[in]  w2
  */
-unsafe fn ecx_mbxemergencyerror(
-    context: *mut ecx_contextt,
+fn ecx_mbxemergencyerror(
+    context: &mut ecx_contextt,
     Slave: u16,
     ErrorCode: u16,
     ErrorReg: u16,
@@ -839,31 +828,25 @@ unsafe fn ecx_mbxemergencyerror(
     w1: u16,
     w2: u16,
 ) {
-    let mut Ec: ec_errort = ec_errort {
-        Time: ec_timet { sec: 0, usec: 0 },
+    let Ec: ec_errort = ec_errort {
         Signal: false,
-        Slave: 0,
+        Time: osal_current_time(),
+        Slave: Slave,
         Index: 0,
         SubIdx: 0,
-        Etype: ec_err_type::EC_ERR_TYPE_SDO_ERROR,
-        c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
+        Etype: ec_err_type::EC_ERR_TYPE_EMERGENCY,
+        c2rust_unnamed: C2RustUnnamed_0 {
+            c2rust_unnamed: crate::types::C2RustUnnamed_1 {
+                ErrorCode: ErrorCode,
+                ErrorReg: ErrorReg as u8,
+                b1: b1,
+                w1: w1,
+                w2: w2,
+            },
+        },
     };
-    memset(
-        &mut Ec as *mut ec_errort as *mut libc::c_void,
-        0i32,
-        core::mem::size_of::<ec_errort>(),
-    );
-    Ec.Time = osal_current_time();
-    Ec.Slave = Slave;
-    Ec.Index = 0u16;
-    Ec.SubIdx = 0u8;
-    Ec.Etype = ec_err_type::EC_ERR_TYPE_EMERGENCY;
-    Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode = ErrorCode;
-    Ec.c2rust_unnamed.c2rust_unnamed.ErrorReg = ErrorReg as u8;
-    Ec.c2rust_unnamed.c2rust_unnamed.b1 = b1;
-    Ec.c2rust_unnamed.c2rust_unnamed.w1 = w1;
-    Ec.c2rust_unnamed.c2rust_unnamed.w2 = w2;
-    ecx_pusherror(context, &mut Ec);
+
+    ecx_pusherror(context, Ec);
 }
 /* * Initialise lib in single NIC mode
  * @param[in]  context = context struct
@@ -1889,7 +1872,7 @@ pub unsafe fn ecx_mbxreceive(
                 if wkc > 0i32 && (*mbxh).mbxtype as libc::c_int & 0xfi32 == 0i32 {
                     /* Mailbox error response? */
                     MBXEp = mbx as *mut ec_mbxerrort;
-                    ecx_mbxerror(context, slave, (*MBXEp).Detail);
+                    ecx_mbxerror(context.as_mut().unwrap(), slave, (*MBXEp).Detail);
                     wkc = 0i32
                 /* prevent emergency to cascade up, it is already handled. */
                 } else if wkc > 0i32
@@ -1900,7 +1883,7 @@ pub unsafe fn ecx_mbxreceive(
                     if (*EMp).CANOpen as libc::c_int >> 12i32 == 0x1i32 {
                         /* Emergency request? */
                         ecx_mbxemergencyerror(
-                            context,
+                            context.as_mut().unwrap(),
                             slave,
                             (*EMp).ErrorCode,
                             (*EMp).ErrorReg as u16,
@@ -3281,11 +3264,11 @@ pub unsafe fn ecx_receive_processdata(context: *mut ecx_contextt, timeout: u32) 
     return ecx_receive_processdata_group(context, 0u8, timeout);
 }
 #[no_mangle]
-pub unsafe fn ec_pusherror(Ec: *const ec_errort) {
+pub unsafe fn ec_pusherror(Ec: ec_errort) {
     ecx_pusherror(&mut ecx_context, Ec);
 }
 #[no_mangle]
-pub unsafe fn ec_poperror(Ec: *mut ec_errort) -> bool {
+pub unsafe fn ec_poperror(Ec: &mut ec_errort) -> bool {
     return ecx_poperror(&mut ecx_context, Ec);
 }
 #[no_mangle]
@@ -3656,9 +3639,9 @@ unsafe fn run_static_initializers() {
             esibuf: &mut *EC_ESI_BUF.as_mut_ptr().offset(0isize) as *mut u8,
             esimap: &mut *EC_ESI_MAP.as_mut_ptr().offset(0isize) as *mut u32,
             esislave: 0u16,
-            elist: &mut EC_ELIST,
+            elist: heapless::Vec::new(),
             idxstack: &mut EC_IDX_STACK,
-            ecaterror: &mut EcatError,
+            ecaterror: EcatError,
             DCtime: &mut ec_DCtime,
             SMcommtype: &mut *EC_SM_COMMTYPE.as_mut_ptr().offset(0isize) as *mut ec_SMcommtypet,
             PDOassign: &mut *EC_PDO_ASSIGN.as_mut_ptr().offset(0isize) as *mut ec_PDOassignt,

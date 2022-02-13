@@ -1,9 +1,7 @@
 use crate::{
     main::{ecx_context, ecx_contextt, ecx_poperror},
-    osal::linux::osal::ec_timet,
-    types::{ec_err_type, ec_errort, C2RustUnnamed_0},
+    types::{ec_err_type, ec_errort},
 };
-use libc::sprintf;
 
 #[derive(Copy, Clone)]
 struct ec_sdoerrorlist_t {
@@ -29,10 +27,10 @@ pub struct ec_mbxerrorlist_t {
     pub errordescription: &'static str,
 }
 #[no_mangle]
-pub static mut estring: [libc::c_char; 127] = [0; 127];
+pub static mut ESTRING: [libc::c_char; 127] = [0; 127];
 /* * SDO error list definition */
 #[no_mangle]
-static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = {
+static ec_sdoerrorlist: [ec_sdoerrorlist_t; 31] = {
     [
         {
             let init = ec_sdoerrorlist_t {
@@ -254,18 +252,11 @@ static mut ec_sdoerrorlist: [ec_sdoerrorlist_t; 32] = {
             };
             init
         },
-        {
-            let init = ec_sdoerrorlist_t {
-                errorcode: 0xffffffffu32,
-                errordescription: "Unknown",
-            };
-            init
-        },
     ]
 };
 /* * AL status code list definition */
 #[no_mangle]
-pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = {
+static ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 52] = {
     [
         {
             let init = ec_ALstatuscodelist_t {
@@ -631,18 +622,11 @@ pub static mut ec_ALstatuscodelist: [ec_ALstatuscodelist_t; 53] = {
             };
             init
         },
-        {
-            let init = ec_ALstatuscodelist_t {
-                ALstatuscode: 0xffffu16,
-                ALstatuscodedescription: "Unknown",
-            };
-            init
-        },
     ]
 };
 /* * SoE error list definition */
 #[no_mangle]
-pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = {
+static ec_soeerrorlist: [ec_soeerrorlist_t; 50] = {
     [
         {
             let init = ec_soeerrorlist_t {
@@ -995,18 +979,11 @@ pub static mut ec_soeerrorlist: [ec_soeerrorlist_t; 51] = {
             };
             init
         },
-        {
-            let init = ec_soeerrorlist_t {
-                errorcode: 0xffffu16,
-                errordescription: "Unknown",
-            };
-            init
-        },
     ]
 };
 /* * MBX error list definition */
 #[no_mangle]
-pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] = {
+static ec_mbxerrorlist: [ec_mbxerrorlist_t; 9] = {
     [
         {
             let init = ec_mbxerrorlist_t {
@@ -1071,13 +1048,6 @@ pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] = {
             };
             init
         },
-        {
-            let init = ec_mbxerrorlist_t {
-                errorcode: 0xffffu16,
-                errordescription: "Unknown",
-            };
-            init
-        },
     ]
 };
 /* * Look up text string that belongs to SDO error code.
@@ -1086,14 +1056,12 @@ pub static mut ec_mbxerrorlist: [ec_mbxerrorlist_t; 10] = {
  * @return readable string
  */
 #[no_mangle]
-pub unsafe fn ec_sdoerror2string(sdoerrorcode: u32) -> &'static str {
-    let mut i: libc::c_int = 0i32;
-    while ec_sdoerrorlist[i as usize].errorcode as libc::c_ulong != 0xffffffffu64
-        && ec_sdoerrorlist[i as usize].errorcode != sdoerrorcode
-    {
-        i += 1
-    }
-    return ec_sdoerrorlist[i as usize].errordescription;
+pub fn ec_sdoerror2string(sdoerrorcode: u32) -> &'static str {
+    ec_sdoerrorlist
+        .iter()
+        .find(|error| error.errorcode == sdoerrorcode)
+        .map(|error| error.errordescription)
+        .unwrap_or("Unknown")
 }
 /* * Look up text string that belongs to AL status code.
  *
@@ -1101,17 +1069,12 @@ pub unsafe fn ec_sdoerror2string(sdoerrorcode: u32) -> &'static str {
  * @return readable string
  */
 #[no_mangle]
-pub unsafe fn ec_ALstatuscode2string(ALstatuscode: u16) -> *mut libc::c_char {
-    let mut i: libc::c_int = 0i32;
-    while ec_ALstatuscodelist[i as usize].ALstatuscode as libc::c_int != 0xffffi32
-        && ec_ALstatuscodelist[i as usize].ALstatuscode as libc::c_int
-            != ALstatuscode as libc::c_int
-    {
-        i += 1
-    }
-    return ec_ALstatuscodelist[i as usize]
-        .ALstatuscodedescription
-        .as_ptr() as *mut libc::c_char;
+pub fn ec_ALstatuscode2string(ALstatuscode: u16) -> &'static str {
+    ec_ALstatuscodelist
+        .iter()
+        .find(|error| error.ALstatuscode == ALstatuscode)
+        .map(|error| error.ALstatuscodedescription)
+        .unwrap_or("Unknown")
 }
 /* * Look up text string that belongs to SoE error code.
  *
@@ -1119,14 +1082,12 @@ pub unsafe fn ec_ALstatuscode2string(ALstatuscode: u16) -> *mut libc::c_char {
  * @return readable string
  */
 #[no_mangle]
-pub unsafe fn ec_soeerror2string(errorcode: u16) -> *mut libc::c_char {
-    let mut i: libc::c_int = 0i32;
-    while ec_soeerrorlist[i as usize].errorcode as libc::c_int != 0xffffi32
-        && ec_soeerrorlist[i as usize].errorcode as libc::c_int != errorcode as libc::c_int
-    {
-        i += 1
-    }
-    return ec_soeerrorlist[i as usize].errordescription.as_ptr() as *mut libc::c_char;
+pub fn ec_soeerror2string(errorcode: u16) -> &'static str {
+    ec_soeerrorlist
+        .iter()
+        .find(|error| error.errorcode == errorcode)
+        .map(|error| error.errordescription)
+        .unwrap_or("Unknown")
 }
 /* * Look up text string that belongs to MBX error code.
  *
@@ -1134,14 +1095,12 @@ pub unsafe fn ec_soeerror2string(errorcode: u16) -> *mut libc::c_char {
  * @return readable string
  */
 #[no_mangle]
-pub unsafe fn ec_mbxerror2string(errorcode: u16) -> *mut libc::c_char {
-    let mut i: libc::c_int = 0i32;
-    while ec_mbxerrorlist[i as usize].errorcode as libc::c_int != 0xffffi32
-        && ec_mbxerrorlist[i as usize].errorcode as libc::c_int != errorcode as libc::c_int
-    {
-        i += 1
-    }
-    return ec_mbxerrorlist[i as usize].errordescription.as_ptr() as *mut libc::c_char;
+pub fn ec_mbxerror2string(errorcode: u16) -> &'static str {
+    ec_mbxerrorlist
+        .iter()
+        .find(|error| error.errorcode == errorcode)
+        .map(|error| error.errordescription)
+        .unwrap_or("Unknown")
 }
 /* * Convert an error to text string.
  *
@@ -1149,92 +1108,78 @@ pub unsafe fn ec_mbxerror2string(errorcode: u16) -> *mut libc::c_char {
  * @return readable string
  */
 #[no_mangle]
-pub unsafe fn ecx_err2string(Ec: ec_errort) -> *mut libc::c_char {
-    let mut timestr: [libc::c_char; 20] = [0; 20];
-    sprintf(
-        timestr.as_mut_ptr(),
-        b"Time:%12.3f" as *const u8 as *const libc::c_char,
-        Ec.Time.sec as libc::c_double + Ec.Time.usec as libc::c_double / 1000000.0f64,
+pub fn ecx_err2string(Ec: ec_errort) -> String {
+    let timestr = format!(
+        "Time:{:12.3}",
+        Ec.Time.sec as f64 + Ec.Time.usec as f64 / 1000000.0f64
     );
+
     match Ec.Etype {
         ec_err_type::EC_ERR_TYPE_SDO_ERROR => {
-            sprintf(
-                estring.as_mut_ptr(),
-                b"%s SDO slave:%d index:%4.4x.%2.2x error:%8.8x %s\n" as *const u8
-                    as *const libc::c_char,
-                timestr.as_mut_ptr(),
+            format!(
+                "{} SDO slave:{} index:{:4.4x}.{:2.2x} error:{:8.8x} {}\n",
+                timestr,
                 Ec.Slave as libc::c_int,
                 Ec.Index as libc::c_int,
                 Ec.SubIdx as libc::c_int,
-                Ec.c2rust_unnamed.AbortCode as libc::c_uint,
-                ec_sdoerror2string(Ec.c2rust_unnamed.AbortCode as u32),
-            );
+                unsafe { Ec.c2rust_unnamed.AbortCode as libc::c_uint },
+                ec_sdoerror2string(unsafe { Ec.c2rust_unnamed.AbortCode as u32 }),
+            )
         }
         ec_err_type::EC_ERR_TYPE_EMERGENCY => {
-            sprintf(
-                estring.as_mut_ptr(),
-                b"%s EMERGENCY slave:%d error:%4.4x\n" as *const u8 as *const libc::c_char,
-                timestr.as_mut_ptr(),
+            format!(
+                "{} EMERGENCY slave:{} error:{:4.4x}\n",
+                timestr,
                 Ec.Slave as libc::c_int,
-                Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode as libc::c_int,
-            );
+                unsafe { Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode as libc::c_int },
+            )
         }
         ec_err_type::EC_ERR_TYPE_PACKET_ERROR => {
-            sprintf(
-                estring.as_mut_ptr(),
-                b"%s PACKET slave:%d index:%4.4x.%2.2x error:%d\n" as *const u8
-                    as *const libc::c_char,
-                timestr.as_mut_ptr(),
+            format!(
+                "{} PACKET slave:{} index:{:4.4x}.{:2.2x} error:{}\n",
+                timestr,
                 Ec.Slave as libc::c_int,
                 Ec.Index as libc::c_int,
                 Ec.SubIdx as libc::c_int,
-                Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode as libc::c_int,
-            );
+                unsafe { Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode as libc::c_int },
+            )
         }
         ec_err_type::EC_ERR_TYPE_SDOINFO_ERROR => {
-            sprintf(
-                estring.as_mut_ptr(),
-                b"%s SDO slave:%d index:%4.4x.%2.2x error:%8.8x %s\n" as *const u8
-                    as *const libc::c_char,
-                timestr.as_mut_ptr(),
+            format!(
+                "{} SDO slave:{} index:{:4.4x}.{:2.2x} error:{:8.8x} {}\n",
+                timestr,
                 Ec.Slave as libc::c_int,
                 Ec.Index as libc::c_int,
                 Ec.SubIdx as libc::c_int,
-                Ec.c2rust_unnamed.AbortCode as libc::c_uint,
-                ec_sdoerror2string(Ec.c2rust_unnamed.AbortCode as u32),
-            );
+                unsafe { Ec.c2rust_unnamed.AbortCode as libc::c_uint },
+                ec_sdoerror2string(unsafe { Ec.c2rust_unnamed.AbortCode as u32 }),
+            )
         }
         ec_err_type::EC_ERR_TYPE_SOE_ERROR => {
-            sprintf(
-                estring.as_mut_ptr(),
-                b"%s SoE slave:%d IDN:%4.4x error:%4.4x %s\n" as *const u8 as *const libc::c_char,
-                timestr.as_mut_ptr(),
+            format!(
+                "{} SoE slave:{} IDN:{:4.4x} error:{:4.4x} {}\n",
+                timestr,
                 Ec.Slave as libc::c_int,
                 Ec.Index as libc::c_int,
-                Ec.c2rust_unnamed.AbortCode as libc::c_uint,
-                ec_soeerror2string(Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode),
-            );
+                unsafe { Ec.c2rust_unnamed.AbortCode as libc::c_uint },
+                ec_soeerror2string(unsafe { Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode }),
+            )
         }
         ec_err_type::EC_ERR_TYPE_MBX_ERROR => {
-            sprintf(
-                estring.as_mut_ptr(),
-                b"%s MBX slave:%d error:%4.4x %s\n" as *const u8 as *const libc::c_char,
-                timestr.as_mut_ptr(),
+            format!(
+                "{} MBX slave:{} error:{:4.4x} {}\n",
+                timestr,
                 Ec.Slave as libc::c_int,
-                Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode as libc::c_int,
-                ec_mbxerror2string(Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode),
-            );
+                unsafe { Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode as libc::c_int },
+                ec_mbxerror2string(unsafe { Ec.c2rust_unnamed.c2rust_unnamed.ErrorCode }),
+            )
         }
         _ => {
-            sprintf(
-                estring.as_mut_ptr(),
-                b"%s error:%8.8x\n" as *const u8 as *const libc::c_char,
-                timestr.as_mut_ptr(),
-                Ec.c2rust_unnamed.AbortCode as libc::c_uint,
-            );
+            format!("{} error:{:8.8x}\n", timestr, unsafe {
+                Ec.c2rust_unnamed.AbortCode as libc::c_uint
+            },)
         }
     }
-    return estring.as_mut_ptr();
 }
 /* * Look up error in ec_errorlist and convert to text string.
  *
@@ -1242,23 +1187,17 @@ pub unsafe fn ecx_err2string(Ec: ec_errort) -> *mut libc::c_char {
  * @return readable string
  */
 #[no_mangle]
-pub unsafe fn ecx_elist2string(context: *mut ecx_contextt) -> *mut libc::c_char {
-    let mut Ec: ec_errort = ec_errort {
-        Time: ec_timet { sec: 0, usec: 0 },
-        Signal: false,
-        Slave: 0,
-        Index: 0,
-        SubIdx: 0,
-        Etype: ec_err_type::EC_ERR_TYPE_SDO_ERROR,
-        c2rust_unnamed: C2RustUnnamed_0 { AbortCode: 0 },
-    };
+pub fn ecx_elist2string(context: &mut ecx_contextt) -> String {
+    let mut Ec: ec_errort = ec_errort::default();
+
     if ecx_poperror(context, &mut Ec) != false {
         return ecx_err2string(Ec);
     } else {
-        return b"" as *const u8 as *mut libc::c_char;
+        // TODO: Refactor to Option<String>
+        return String::new();
     };
 }
 #[no_mangle]
-pub unsafe fn ec_elist2string() -> *mut libc::c_char {
+pub unsafe fn ec_elist2string() -> String {
     return ecx_elist2string(&mut ecx_context);
 }

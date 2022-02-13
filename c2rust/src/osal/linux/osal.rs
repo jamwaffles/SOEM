@@ -7,7 +7,7 @@ use std::mem;
 
 const USECS_PER_SEC: u32 = 1_000_000;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub struct ec_timet {
     pub sec: u32,
     pub usec: u32,
@@ -31,13 +31,13 @@ pub unsafe fn osal_usleep(usec: u32) -> libc::c_int {
     return nanosleep(&mut ts, 0 as *mut timespec);
 }
 #[no_mangle]
-pub unsafe fn osal_current_time() -> ec_timet {
+pub fn osal_current_time() -> ec_timet {
     let mut current_time: timespec = timespec {
         tv_sec: 0,
         tv_nsec: 0,
     };
     let mut return_value: ec_timet = ec_timet { sec: 0, usec: 0 };
-    clock_gettime(CLOCK_REALTIME, &mut current_time);
+    unsafe { clock_gettime(CLOCK_REALTIME, &mut current_time) };
     return_value.sec = current_time.tv_sec as u32;
     return_value.usec = (current_time.tv_nsec / 1000i64) as u32;
     return return_value;

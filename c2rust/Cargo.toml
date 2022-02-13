@@ -21,5 +21,6 @@ c2rust-bitfields = "0.3"
 libc = "0.2"
 strum = { version = "0.23.0", features = ["derive"] }
 soem-sys = { path = "../../soem-sys" }
+heapless = "0.7.10"
 
 [features]
