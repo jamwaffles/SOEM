@@ -616,7 +616,7 @@ unsafe fn ecx_waitinframe_red(
                 wkc2 = ecx_inframe(port, idx, 1i32)
             }
         }
-        if !((wkc <= -1 || wkc2 <= -1) && osal_timer_is_expired(timer) == false) {
+        if !((wkc <= -1 || wkc2 <= -1) && osal_timer_is_expired(timer.as_mut().unwrap()) == false) {
             break;
         }
     }

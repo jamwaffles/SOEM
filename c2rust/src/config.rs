@@ -489,13 +489,8 @@ pub unsafe fn ec_findconfig(man: u32, id: u32) -> libc::c_int {
 #[no_mangle]
 pub unsafe fn ecx_init_context(context: *mut ecx_contextt) {
     let mut lp: libc::c_int = 0;
-    *(*context).slavecount = 0i32;
     /* clean ec_slave array */
-    memset(
-        (*context).slavelist as *mut libc::c_void,
-        0i32,
-        core::mem::size_of::<ec_slavet>().wrapping_mul((*context).maxslave as usize),
-    );
+    (*context).slavelist = heapless::Vec::new();
     memset(
         (*context).grouplist as *mut libc::c_void,
         0i32,
@@ -555,7 +550,7 @@ pub unsafe fn ecx_detect_slaves(context: *mut ecx_contextt) -> libc::c_int {
     if wkc > 0i32 {
         /* this is strictly "less than" since the master is "slave 0" */
         if wkc < EC_MAXSLAVE as i32 {
-            *(*context).slavecount = wkc
+            (*context).slavecount = wkc as u16;
         } else {
             // FIXME: Find other `EC_PRINT` and convert to eprintln. This should be a log::error in
             // the future.
@@ -694,56 +689,55 @@ unsafe fn ecx_set_slaves_to_default(context: *mut ecx_contextt) {
 }
 unsafe fn ecx_config_from_table(context: *mut ecx_contextt, slave: u16) -> libc::c_int {
     let mut cindex: libc::c_int = 0;
-    let mut csl: *mut ec_slavet = 0 as *mut ec_slavet;
-    csl = &mut *(*context).slavelist.offset(slave as isize) as *mut ec_slavet;
-    cindex = ec_findconfig((*csl).eep_man, (*csl).eep_id);
-    (*csl).configindex = cindex as u16;
+    let mut csl = &mut (*context).slavelist[slave as usize];
+    cindex = ec_findconfig(csl.eep_man, csl.eep_id);
+    csl.configindex = cindex as u16;
     /* slave found in configuration table ? */
     if cindex != 0 {
-        (*csl).Dtype = ec_configlist[cindex as usize].Dtype as u16;
+        csl.Dtype = ec_configlist[cindex as usize].Dtype as u16;
         strcpy(
-            (*csl).name.as_mut_ptr(),
+            csl.name.as_mut_ptr(),
             ec_configlist[cindex as usize].name.as_ptr() as *const i8,
         );
-        (*csl).Ibits = ec_configlist[cindex as usize].Ibits;
-        (*csl).Obits = ec_configlist[cindex as usize].Obits;
-        if (*csl).Obits != 0 {
-            (*csl).FMMU0func = 1u8
+        csl.Ibits = ec_configlist[cindex as usize].Ibits;
+        csl.Obits = ec_configlist[cindex as usize].Obits;
+        if csl.Obits != 0 {
+            csl.FMMU0func = 1u8
         }
-        if (*csl).Ibits != 0 {
-            (*csl).FMMU1func = 2u8
+        if csl.Ibits != 0 {
+            csl.FMMU1func = 2u8
         }
-        (*csl).FMMU[0usize].FMMUactive = ec_configlist[cindex as usize].FM0ac;
-        (*csl).FMMU[1usize].FMMUactive = ec_configlist[cindex as usize].FM1ac;
-        (*csl).SM[2usize].StartAddr = ec_configlist[cindex as usize].SM2a;
-        (*csl).SM[2usize].SMflags = ec_configlist[cindex as usize].SM2f;
+        csl.FMMU[0usize].FMMUactive = ec_configlist[cindex as usize].FM0ac;
+        csl.FMMU[1usize].FMMUactive = ec_configlist[cindex as usize].FM1ac;
+        csl.SM[2usize].StartAddr = ec_configlist[cindex as usize].SM2a;
+        csl.SM[2usize].SMflags = ec_configlist[cindex as usize].SM2f;
         /* simple (no mailbox) output slave found ? */
-        if (*csl).Obits as libc::c_int != 0 && (*csl).SM[2usize].StartAddr == 0 {
-            (*csl).SM[0usize].StartAddr = 0xf00u16;
-            (*csl).SM[0usize].SMlength = (((*csl).Obits as libc::c_int + 7i32) / 8i32) as u16;
-            (*csl).SM[0usize].SMflags = 0x10044u32;
-            (*csl).FMMU[0usize].FMMUactive = 1u8;
-            (*csl).FMMU[0usize].FMMUtype = 2u8;
-            (*csl).SMtype[0usize] = 3u8
+        if csl.Obits as libc::c_int != 0 && csl.SM[2usize].StartAddr == 0 {
+            csl.SM[0usize].StartAddr = 0xf00u16;
+            csl.SM[0usize].SMlength = ((csl.Obits as libc::c_int + 7i32) / 8i32) as u16;
+            csl.SM[0usize].SMflags = 0x10044u32;
+            csl.FMMU[0usize].FMMUactive = 1u8;
+            csl.FMMU[0usize].FMMUtype = 2u8;
+            csl.SMtype[0usize] = 3u8
         } else {
             /* complex output slave */
-            (*csl).SM[2usize].SMlength = (((*csl).Obits as libc::c_int + 7i32) / 8i32) as u16;
-            (*csl).SMtype[2usize] = 3u8
+            csl.SM[2usize].SMlength = ((csl.Obits as libc::c_int + 7i32) / 8i32) as u16;
+            csl.SMtype[2usize] = 3u8
         }
-        (*csl).SM[3usize].StartAddr = ec_configlist[cindex as usize].SM3a;
-        (*csl).SM[3usize].SMflags = ec_configlist[cindex as usize].SM3f;
+        csl.SM[3usize].StartAddr = ec_configlist[cindex as usize].SM3a;
+        csl.SM[3usize].SMflags = ec_configlist[cindex as usize].SM3f;
         /* simple (no mailbox) input slave found ? */
-        if (*csl).Ibits as libc::c_int != 0 && (*csl).SM[3usize].StartAddr == 0 {
-            (*csl).SM[1usize].StartAddr = 0x1000u16;
-            (*csl).SM[1usize].SMlength = (((*csl).Ibits as libc::c_int + 7i32) / 8i32) as u16;
-            (*csl).SM[1usize].SMflags = 0u32;
-            (*csl).FMMU[1usize].FMMUactive = 1u8;
-            (*csl).FMMU[1usize].FMMUtype = 1u8;
-            (*csl).SMtype[1usize] = 4u8
+        if csl.Ibits as libc::c_int != 0 && csl.SM[3usize].StartAddr == 0 {
+            csl.SM[1usize].StartAddr = 0x1000u16;
+            csl.SM[1usize].SMlength = ((csl.Ibits as libc::c_int + 7i32) / 8i32) as u16;
+            csl.SM[1usize].SMflags = 0u32;
+            csl.FMMU[1usize].FMMUactive = 1u8;
+            csl.FMMU[1usize].FMMUtype = 1u8;
+            csl.SMtype[1usize] = 4u8
         } else {
             /* complex input slave */
-            (*csl).SM[3usize].SMlength = (((*csl).Ibits as libc::c_int + 7i32) / 8i32) as u16;
-            (*csl).SMtype[3usize] = 4u8
+            csl.SM[3usize].SMlength = ((csl.Ibits as libc::c_int + 7i32) / 8i32) as u16;
+            csl.SMtype[3usize] = 4u8
         }
     }
     return cindex;
@@ -754,63 +748,61 @@ unsafe fn ecx_config_from_table(context: *mut ecx_contextt, slave: u16) -> libc:
 unsafe fn ecx_lookup_prev_sii(context: *mut ecx_contextt, slave: u16) -> libc::c_int {
     let mut i: libc::c_int = 0;
     let mut nSM: libc::c_int = 0;
-    if slave as libc::c_int > 1i32 && *(*context).slavecount > 0i32 {
+    if slave as libc::c_int > 1i32 && (*context).slavelist.len() > 0 {
         i = 1i32;
-        while ((*(*context).slavelist.offset(i as isize)).eep_man
-            != (*(*context).slavelist.offset(slave as isize)).eep_man
-            || (*(*context).slavelist.offset(i as isize)).eep_id
-                != (*(*context).slavelist.offset(slave as isize)).eep_id
-            || (*(*context).slavelist.offset(i as isize)).eep_rev
-                != (*(*context).slavelist.offset(slave as isize)).eep_rev)
+        while ((*context).slavelist[i as usize].eep_man
+            != (*context).slavelist[slave as usize].eep_man
+            || (*context).slavelist[i as usize].eep_id
+                != (*context).slavelist[slave as usize].eep_id
+            || (*context).slavelist[i as usize].eep_rev
+                != (*context).slavelist[slave as usize].eep_rev)
             && i < slave as libc::c_int
         {
             i += 1
         }
         if i < slave as libc::c_int {
-            (*(*context).slavelist.offset(slave as isize)).CoEdetails =
-                (*(*context).slavelist.offset(i as isize)).CoEdetails;
-            (*(*context).slavelist.offset(slave as isize)).FoEdetails =
-                (*(*context).slavelist.offset(i as isize)).FoEdetails;
-            (*(*context).slavelist.offset(slave as isize)).EoEdetails =
-                (*(*context).slavelist.offset(i as isize)).EoEdetails;
-            (*(*context).slavelist.offset(slave as isize)).SoEdetails =
-                (*(*context).slavelist.offset(i as isize)).SoEdetails;
-            if (*(*context).slavelist.offset(i as isize)).blockLRW as libc::c_int > 0i32 {
-                (*(*context).slavelist.offset(slave as isize)).blockLRW = 1u8;
-                let ref mut fresh0 = (*(*context).slavelist.offset(0isize)).blockLRW;
+            (*context).slavelist[slave as usize].CoEdetails =
+                (*context).slavelist[i as usize].CoEdetails;
+            (*context).slavelist[slave as usize].FoEdetails =
+                (*context).slavelist[i as usize].FoEdetails;
+            (*context).slavelist[slave as usize].EoEdetails =
+                (*context).slavelist[i as usize].EoEdetails;
+            (*context).slavelist[slave as usize].SoEdetails =
+                (*context).slavelist[i as usize].SoEdetails;
+            if (*context).slavelist[i as usize].blockLRW as libc::c_int > 0i32 {
+                (*context).slavelist[slave as usize].blockLRW = 1u8;
+                let ref mut fresh0 = (*context).slavelist[0].blockLRW;
                 *fresh0 = (*fresh0).wrapping_add(1)
             }
-            (*(*context).slavelist.offset(slave as isize)).Ebuscurrent =
-                (*(*context).slavelist.offset(i as isize)).Ebuscurrent;
-            let ref mut fresh1 = (*(*context).slavelist.offset(0isize)).Ebuscurrent;
+            (*context).slavelist[slave as usize].Ebuscurrent =
+                (*context).slavelist[i as usize].Ebuscurrent;
+            let ref mut fresh1 = (*context).slavelist[0].Ebuscurrent;
             *fresh1 = (*fresh1 as libc::c_int
-                + (*(*context).slavelist.offset(slave as isize)).Ebuscurrent as libc::c_int)
+                + (*context).slavelist[slave as usize].Ebuscurrent as libc::c_int)
                 as i16;
             memcpy(
-                (*(*context).slavelist.offset(slave as isize))
-                    .name
-                    .as_mut_ptr() as *mut libc::c_void,
-                (*(*context).slavelist.offset(i as isize)).name.as_mut_ptr() as *const libc::c_void,
+                (*context).slavelist[slave as usize].name.as_mut_ptr() as *mut libc::c_void,
+                (*context).slavelist[i as usize].name.as_mut_ptr() as *const libc::c_void,
                 (40i32 + 1i32) as usize,
             );
             nSM = 0i32;
             while nSM < 8i32 {
-                (*(*context).slavelist.offset(slave as isize)).SM[nSM as usize].StartAddr =
-                    (*(*context).slavelist.offset(i as isize)).SM[nSM as usize].StartAddr;
-                (*(*context).slavelist.offset(slave as isize)).SM[nSM as usize].SMlength =
-                    (*(*context).slavelist.offset(i as isize)).SM[nSM as usize].SMlength;
-                (*(*context).slavelist.offset(slave as isize)).SM[nSM as usize].SMflags =
-                    (*(*context).slavelist.offset(i as isize)).SM[nSM as usize].SMflags;
+                (*context).slavelist[slave as usize].SM[nSM as usize].StartAddr =
+                    (*context).slavelist[i as usize].SM[nSM as usize].StartAddr;
+                (*context).slavelist[slave as usize].SM[nSM as usize].SMlength =
+                    (*context).slavelist[i as usize].SM[nSM as usize].SMlength;
+                (*context).slavelist[slave as usize].SM[nSM as usize].SMflags =
+                    (*context).slavelist[i as usize].SM[nSM as usize].SMflags;
                 nSM += 1
             }
-            (*(*context).slavelist.offset(slave as isize)).FMMU0func =
-                (*(*context).slavelist.offset(i as isize)).FMMU0func;
-            (*(*context).slavelist.offset(slave as isize)).FMMU1func =
-                (*(*context).slavelist.offset(i as isize)).FMMU1func;
-            (*(*context).slavelist.offset(slave as isize)).FMMU2func =
-                (*(*context).slavelist.offset(i as isize)).FMMU2func;
-            (*(*context).slavelist.offset(slave as isize)).FMMU3func =
-                (*(*context).slavelist.offset(i as isize)).FMMU3func;
+            (*context).slavelist[slave as usize].FMMU0func =
+                (*context).slavelist[i as usize].FMMU0func;
+            (*context).slavelist[slave as usize].FMMU1func =
+                (*context).slavelist[i as usize].FMMU1func;
+            (*context).slavelist[slave as usize].FMMU2func =
+                (*context).slavelist[i as usize].FMMU2func;
+            (*context).slavelist[slave as usize].FMMU3func =
+                (*context).slavelist[i as usize].FMMU3func;
             return 1i32;
         }
     }
@@ -846,7 +838,7 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
     if wkc > 0i32 {
         ecx_set_slaves_to_default(context);
         slave = 1u16;
-        while slave as libc::c_int <= *(*context).slavecount {
+        while slave as libc::c_int <= (*context).slavelist.len() as i32 {
             ADPh = (1i32 - slave as libc::c_int) as u16;
             /* Manuf */
             val16 = ecx_APRDw(
@@ -855,7 +847,7 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
                 EthercatRegister::ECT_REG_PDICTL as u16,
                 EC_TIMEOUTRET3,
             ); /* read interface type of slave */
-            (*(*context).slavelist.offset(slave as isize)).Itype = val16;
+            (*context).slavelist[slave as usize].Itype = val16;
             ecx_APWRw(
                 (*context).port.as_mut().unwrap(),
                 ADPh,
@@ -887,7 +879,7 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
                 EC_TIMEOUTRET3,
             );
             configadr = configadr;
-            (*(*context).slavelist.offset(slave as isize)).configadr = configadr;
+            (*context).slavelist[slave as usize].configadr = configadr;
             ecx_FPRD(
                 (*context).port.as_mut().unwrap(),
                 configadr,
@@ -896,7 +888,7 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
                 &mut aliasadr as *mut i16 as *mut libc::c_void,
                 EC_TIMEOUTRET3,
             );
-            (*(*context).slavelist.offset(slave as isize)).aliasadr = aliasadr as u16;
+            (*context).slavelist[slave as usize].aliasadr = aliasadr as u16;
             ecx_FPRD(
                 (*context).port.as_mut().unwrap(),
                 configadr,
@@ -908,59 +900,59 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
             estat = estat;
             if estat as libc::c_int & 0x40i32 != 0 {
                 /* check if slave can read 8 byte chunks */
-                (*(*context).slavelist.offset(slave as isize)).eep_8byte = 1u8
+                (*context).slavelist[slave as usize].eep_8byte = 1u8
             } /* Manuf */
             ecx_readeeprom1(context, slave, SiiGeneral::Manufacturer as u16);
             slave = slave.wrapping_add(1)
         }
         slave = 1u16;
-        while slave as libc::c_int <= *(*context).slavecount {
+        while slave as libc::c_int <= (*context).slavelist.len() as i32 {
             eedat = ecx_readeeprom2(context, slave, EC_TIMEOUTEEP);
-            (*(*context).slavelist.offset(slave as isize)).eep_man = eedat;
+            (*context).slavelist[slave as usize].eep_man = eedat;
             ecx_readeeprom1(context, slave, SiiGeneral::Id as u16);
             slave = slave.wrapping_add(1)
             /* ID */
         } /* ID */
         slave = 1u16;
-        while slave as libc::c_int <= *(*context).slavecount {
+        while slave as libc::c_int <= (*context).slavelist.len() as i32 {
             eedat = ecx_readeeprom2(context, slave, EC_TIMEOUTEEP);
-            (*(*context).slavelist.offset(slave as isize)).eep_id = eedat;
+            (*context).slavelist[slave as usize].eep_id = eedat;
             ecx_readeeprom1(context, slave, SiiGeneral::Revision as u16);
             slave = slave.wrapping_add(1)
             /* revision */
         } /* revision */
         slave = 1u16;
-        while slave as libc::c_int <= *(*context).slavecount {
+        while slave as libc::c_int <= (*context).slavelist.len() as i32 {
             eedat = ecx_readeeprom2(context, slave, EC_TIMEOUTEEP);
-            (*(*context).slavelist.offset(slave as isize)).eep_rev = eedat;
+            (*context).slavelist[slave as usize].eep_rev = eedat;
             ecx_readeeprom1(context, slave, SiiGeneral::RxMailboxAddress as u16);
             slave = slave.wrapping_add(1)
             /* write mailbox address + mailboxsize */
         } /* write mailbox address and mailboxsize */
         slave = 1u16;
-        while slave as libc::c_int <= *(*context).slavecount {
+        while slave as libc::c_int <= (*context).slavelist.len() as i32 {
             eedat = ecx_readeeprom2(context, slave, EC_TIMEOUTEEP);
-            (*(*context).slavelist.offset(slave as isize)).mbx_wo = (eedat & 0xffffu32) as u16;
-            (*(*context).slavelist.offset(slave as isize)).mbx_l = (eedat >> 16i32) as u16;
-            if (*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int > 0i32 {
+            (*context).slavelist[slave as usize].mbx_wo = (eedat & 0xffffu32) as u16;
+            (*context).slavelist[slave as usize].mbx_l = (eedat >> 16i32) as u16;
+            if (*context).slavelist[slave as usize].mbx_l as libc::c_int > 0i32 {
                 ecx_readeeprom1(context, slave, SiiGeneral::TxMailboxAddress as u16);
                 /* read mailbox offset */
             } /* read mailbox offset */
             slave = slave.wrapping_add(1)
         } /* read mailbox offset */
         slave = 1u16; /*read mailbox length */
-        while slave as libc::c_int <= *(*context).slavecount {
-            if (*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int > 0i32 {
+        while slave as libc::c_int <= (*context).slavelist.len() as i32 {
+            if (*context).slavelist[slave as usize].mbx_l as libc::c_int > 0i32 {
                 eedat = ecx_readeeprom2(context, slave, EC_TIMEOUTEEP);
-                (*(*context).slavelist.offset(slave as isize)).mbx_ro = (eedat & 0xffffu32) as u16;
-                (*(*context).slavelist.offset(slave as isize)).mbx_rl = (eedat >> 16i32) as u16;
-                if (*(*context).slavelist.offset(slave as isize)).mbx_rl as libc::c_int == 0i32 {
-                    (*(*context).slavelist.offset(slave as isize)).mbx_rl =
-                        (*(*context).slavelist.offset(slave as isize)).mbx_l
+                (*context).slavelist[slave as usize].mbx_ro = (eedat & 0xffffu32) as u16;
+                (*context).slavelist[slave as usize].mbx_rl = (eedat >> 16i32) as u16;
+                if (*context).slavelist[slave as usize].mbx_rl as libc::c_int == 0i32 {
+                    (*context).slavelist[slave as usize].mbx_rl =
+                        (*context).slavelist[slave as usize].mbx_l
                 }
                 ecx_readeeprom1(context, slave, SiiGeneral::MailboxProtocol as u16);
             }
-            configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+            configadr = (*context).slavelist[slave as usize].configadr;
             val16 = ecx_FPRDw(
                 (*context).port.as_mut().unwrap(),
                 configadr,
@@ -969,9 +961,9 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
             );
             /* Support DC? */
             if val16 & 0x4 > 0 {
-                (*(*context).slavelist.offset(slave as isize)).hasdc = true;
+                (*context).slavelist[slave as usize].hasdc = true;
             } else {
-                (*(*context).slavelist.offset(slave as isize)).hasdc = false;
+                (*context).slavelist[slave as usize].hasdc = false;
             } /* extract topology from DL status */
             topology = ecx_FPRDw(
                 (*context).port.as_mut().unwrap(),
@@ -1009,22 +1001,21 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
                 EthercatRegister::ECT_REG_PORTDES as u16,
                 EC_TIMEOUTRET3,
             );
-            (*(*context).slavelist.offset(slave as isize)).ptype =
-                (val16 as libc::c_int & 0xffi32) as u8;
-            (*(*context).slavelist.offset(slave as isize)).topology = h;
-            (*(*context).slavelist.offset(slave as isize)).activeports = b;
+            (*context).slavelist[slave as usize].ptype = (val16 as libc::c_int & 0xffi32) as u8;
+            (*context).slavelist[slave as usize].topology = h;
+            (*context).slavelist[slave as usize].activeports = b;
             /* 0=no links, not possible             */
             /* 1=1 link  , end of line              */
             /* 2=2 links , one before and one after */
             /* 3=3 links , split point              */
             /* 4=4 links , cross point              */
             /* search for parent */
-            (*(*context).slavelist.offset(slave as isize)).parent = 0u16; /* parent is master */
+            (*context).slavelist[slave as usize].parent = 0u16; /* parent is master */
             if slave as libc::c_int > 1i32 {
                 topoc = 0i16;
                 slavec = (slave as libc::c_int - 1i32) as i16;
                 loop {
-                    topology = (*(*context).slavelist.offset(slavec as isize)).topology as u16;
+                    topology = (*context).slavelist[slavec as usize].topology as u16;
                     if topology as libc::c_int == 1i32 {
                         topoc -= 1
                         /* endpoint found */
@@ -1041,7 +1032,7 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
                         || slavec as libc::c_int == 1i32
                     {
                         /* parent found */
-                        (*(*context).slavelist.offset(slave as isize)).parent = slavec as u16; //* check state change Init */
+                        (*context).slavelist[slave as usize].parent = slavec as u16; //* check state change Init */
                         slavec = 1i16
                     }
                     slavec -= 1;
@@ -1052,23 +1043,23 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
             }
             ecx_statecheck(context, slave, SlaveState::Init as u16, EC_TIMEOUTSTATE);
             /* set default mailbox configuration if slave has mailbox */
-            if (*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int > 0i32 {
-                (*(*context).slavelist.offset(slave as isize)).SMtype[0usize] = 1u8;
-                (*(*context).slavelist.offset(slave as isize)).SMtype[1usize] = 2u8;
-                (*(*context).slavelist.offset(slave as isize)).SMtype[2usize] = 3u8;
-                (*(*context).slavelist.offset(slave as isize)).SMtype[3usize] = 4u8;
-                (*(*context).slavelist.offset(slave as isize)).SM[0usize].StartAddr =
-                    (*(*context).slavelist.offset(slave as isize)).mbx_wo;
-                (*(*context).slavelist.offset(slave as isize)).SM[0usize].SMlength =
-                    (*(*context).slavelist.offset(slave as isize)).mbx_l;
-                (*(*context).slavelist.offset(slave as isize)).SM[0usize].SMflags = 0x10026u32;
-                (*(*context).slavelist.offset(slave as isize)).SM[1usize].StartAddr =
-                    (*(*context).slavelist.offset(slave as isize)).mbx_ro;
-                (*(*context).slavelist.offset(slave as isize)).SM[1usize].SMlength =
-                    (*(*context).slavelist.offset(slave as isize)).mbx_rl;
-                (*(*context).slavelist.offset(slave as isize)).SM[1usize].SMflags = 0x10022u32;
+            if (*context).slavelist[slave as usize].mbx_l as libc::c_int > 0i32 {
+                (*context).slavelist[slave as usize].SMtype[0usize] = 1u8;
+                (*context).slavelist[slave as usize].SMtype[1usize] = 2u8;
+                (*context).slavelist[slave as usize].SMtype[2usize] = 3u8;
+                (*context).slavelist[slave as usize].SMtype[3usize] = 4u8;
+                (*context).slavelist[slave as usize].SM[0usize].StartAddr =
+                    (*context).slavelist[slave as usize].mbx_wo;
+                (*context).slavelist[slave as usize].SM[0usize].SMlength =
+                    (*context).slavelist[slave as usize].mbx_l;
+                (*context).slavelist[slave as usize].SM[0usize].SMflags = 0x10026u32;
+                (*context).slavelist[slave as usize].SM[1usize].StartAddr =
+                    (*context).slavelist[slave as usize].mbx_ro;
+                (*context).slavelist[slave as usize].SM[1usize].SMlength =
+                    (*context).slavelist[slave as usize].mbx_rl;
+                (*context).slavelist[slave as usize].SM[1usize].SMflags = 0x10022u32;
                 eedat = ecx_readeeprom2(context, slave, EC_TIMEOUTEEP);
-                (*(*context).slavelist.offset(slave as isize)).mbx_proto = eedat as u16
+                (*context).slavelist[slave as usize].mbx_proto = eedat as u16
             }
             cindex = 0i32;
             /* use configuration table ? */
@@ -1080,65 +1071,61 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
                 ssigen = ecx_siifind(context, slave, SiiCategory::General as u16) as u16;
                 /* SII general section */
                 if ssigen != 0 {
-                    (*(*context).slavelist.offset(slave as isize)).CoEdetails =
+                    (*context).slavelist[slave as usize].CoEdetails =
                         ecx_siigetbyte(context, slave, (ssigen as libc::c_int + 0x7i32) as u16);
-                    (*(*context).slavelist.offset(slave as isize)).FoEdetails =
+                    (*context).slavelist[slave as usize].FoEdetails =
                         ecx_siigetbyte(context, slave, (ssigen as libc::c_int + 0x8i32) as u16);
-                    (*(*context).slavelist.offset(slave as isize)).EoEdetails =
+                    (*context).slavelist[slave as usize].EoEdetails =
                         ecx_siigetbyte(context, slave, (ssigen as libc::c_int + 0x9i32) as u16);
-                    (*(*context).slavelist.offset(slave as isize)).SoEdetails =
+                    (*context).slavelist[slave as usize].SoEdetails =
                         ecx_siigetbyte(context, slave, (ssigen as libc::c_int + 0xai32) as u16);
                     if ecx_siigetbyte(context, slave, (ssigen as libc::c_int + 0xdi32) as u16)
                         as libc::c_int
                         & 0x2i32
                         > 0i32
                     {
-                        (*(*context).slavelist.offset(slave as isize)).blockLRW = 1u8;
-                        let ref mut fresh2 = (*(*context).slavelist.offset(0isize)).blockLRW;
+                        (*context).slavelist[slave as usize].blockLRW = 1u8;
+                        let ref mut fresh2 = (*context).slavelist[0].blockLRW;
                         *fresh2 = (*fresh2).wrapping_add(1)
                     }
-                    (*(*context).slavelist.offset(slave as isize)).Ebuscurrent =
+                    (*context).slavelist[slave as usize].Ebuscurrent =
                         ecx_siigetbyte(context, slave, (ssigen as libc::c_int + 0xei32) as u16)
                             as i16;
-                    let ref mut fresh3 = (*(*context).slavelist.offset(slave as isize)).Ebuscurrent;
+                    let ref mut fresh3 = (*context).slavelist[slave as usize].Ebuscurrent;
                     *fresh3 = (*fresh3 as libc::c_int
                         + ((ecx_siigetbyte(context, slave, (ssigen as libc::c_int + 0xfi32) as u16)
                             as libc::c_int)
                             << 8i32)) as i16;
-                    let ref mut fresh4 = (*(*context).slavelist.offset(0isize)).Ebuscurrent;
+                    let ref mut fresh4 = (*context).slavelist[0].Ebuscurrent;
                     *fresh4 = (*fresh4 as libc::c_int
-                        + (*(*context).slavelist.offset(slave as isize)).Ebuscurrent as libc::c_int)
+                        + (*context).slavelist[slave as usize].Ebuscurrent as libc::c_int)
                         as i16
                 }
                 /* SII strings section */
                 if ecx_siifind(context, slave, SiiCategory::String as u16) as libc::c_int > 0i32 {
                     ecx_siistring(
                         context,
-                        (*(*context).slavelist.offset(slave as isize))
-                            .name
-                            .as_mut_ptr(),
+                        (*context).slavelist[slave as usize].name.as_mut_ptr(),
                         slave,
                         1u16,
                     );
                 } else {
                     /* no name for slave found, use constructed name */
                     sprintf(
-                        (*(*context).slavelist.offset(slave as isize))
-                            .name
-                            .as_mut_ptr(),
+                        (*context).slavelist[slave as usize].name.as_mut_ptr(),
                         b"? M:%8.8x I:%8.8x" as *const u8 as *const libc::c_char,
-                        (*(*context).slavelist.offset(slave as isize)).eep_man,
-                        (*(*context).slavelist.offset(slave as isize)).eep_id,
+                        (*context).slavelist[slave as usize].eep_man,
+                        (*context).slavelist[slave as usize].eep_id,
                     );
                 }
                 /* SII SM section */
                 nSM = ecx_siiSM(context, slave, (*context).eepSM) as libc::c_int;
                 if nSM > 0i32 {
-                    (*(*context).slavelist.offset(slave as isize)).SM[0usize].StartAddr =
+                    (*context).slavelist[slave as usize].SM[0usize].StartAddr =
                         (*(*context).eepSM).PhStart;
-                    (*(*context).slavelist.offset(slave as isize)).SM[0usize].SMlength =
+                    (*context).slavelist[slave as usize].SM[0usize].SMlength =
                         (*(*context).eepSM).Plength;
-                    (*(*context).slavelist.offset(slave as isize)).SM[0usize].SMflags =
+                    (*context).slavelist[slave as usize].SM[0usize].SMflags =
                         ((*(*context).eepSM).Creg as libc::c_int
                             + (((*(*context).eepSM).Activate as libc::c_int) << 16i32))
                             as u32;
@@ -1148,11 +1135,11 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
                             as libc::c_int
                             != 0
                     {
-                        (*(*context).slavelist.offset(slave as isize)).SM[SMc as usize].StartAddr =
+                        (*context).slavelist[slave as usize].SM[SMc as usize].StartAddr =
                             (*(*context).eepSM).PhStart;
-                        (*(*context).slavelist.offset(slave as isize)).SM[SMc as usize].SMlength =
+                        (*context).slavelist[slave as usize].SM[SMc as usize].SMlength =
                             (*(*context).eepSM).Plength;
-                        (*(*context).slavelist.offset(slave as isize)).SM[SMc as usize].SMflags =
+                        (*context).slavelist[slave as usize].SM[SMc as usize].SMflags =
                             ((*(*context).eepSM).Creg as libc::c_int
                                 + (((*(*context).eepSM).Activate as libc::c_int) << 16i32))
                                 as u32;
@@ -1162,43 +1149,35 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
                 /* SII FMMU section */
                 if ecx_siiFMMU(context, slave, (*context).eepFMMU) != 0 {
                     if (*(*context).eepFMMU).FMMU0 as libc::c_int != 0xffi32 {
-                        (*(*context).slavelist.offset(slave as isize)).FMMU0func =
-                            (*(*context).eepFMMU).FMMU0
+                        (*context).slavelist[slave as usize].FMMU0func = (*(*context).eepFMMU).FMMU0
                     }
                     if (*(*context).eepFMMU).FMMU1 as libc::c_int != 0xffi32 {
-                        (*(*context).slavelist.offset(slave as isize)).FMMU1func =
-                            (*(*context).eepFMMU).FMMU1
+                        (*context).slavelist[slave as usize].FMMU1func = (*(*context).eepFMMU).FMMU1
                     }
                     if (*(*context).eepFMMU).FMMU2 as libc::c_int != 0xffi32 {
-                        (*(*context).slavelist.offset(slave as isize)).FMMU2func =
-                            (*(*context).eepFMMU).FMMU2
+                        (*context).slavelist[slave as usize].FMMU2func = (*(*context).eepFMMU).FMMU2
                     }
                     if (*(*context).eepFMMU).FMMU3 as libc::c_int != 0xffi32 {
-                        (*(*context).slavelist.offset(slave as isize)).FMMU3func =
-                            (*(*context).eepFMMU).FMMU3
+                        (*context).slavelist[slave as usize].FMMU3func = (*(*context).eepFMMU).FMMU3
                     }
                 }
             }
-            if (*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int > 0i32 {
-                if (*(*context).slavelist.offset(slave as isize)).SM[0usize].StartAddr
-                    as libc::c_int
-                    == 0i32
+            if (*context).slavelist[slave as usize].mbx_l as libc::c_int > 0i32 {
+                if (*context).slavelist[slave as usize].SM[0usize].StartAddr as libc::c_int == 0i32
                 {
                     /* should never happen */
-                    (*(*context).slavelist.offset(slave as isize)).SM[0usize].StartAddr = 0x1000u16;
-                    (*(*context).slavelist.offset(slave as isize)).SM[0usize].SMlength = 0x80u16;
-                    (*(*context).slavelist.offset(slave as isize)).SM[0usize].SMflags = 0x10026u32;
-                    (*(*context).slavelist.offset(slave as isize)).SMtype[0usize] = 1u8
+                    (*context).slavelist[slave as usize].SM[0usize].StartAddr = 0x1000u16;
+                    (*context).slavelist[slave as usize].SM[0usize].SMlength = 0x80u16;
+                    (*context).slavelist[slave as usize].SM[0usize].SMflags = 0x10026u32;
+                    (*context).slavelist[slave as usize].SMtype[0usize] = 1u8
                 }
-                if (*(*context).slavelist.offset(slave as isize)).SM[1usize].StartAddr
-                    as libc::c_int
-                    == 0i32
+                if (*context).slavelist[slave as usize].SM[1usize].StartAddr as libc::c_int == 0i32
                 {
                     /* should never happen */
-                    (*(*context).slavelist.offset(slave as isize)).SM[1usize].StartAddr = 0x1080u16;
-                    (*(*context).slavelist.offset(slave as isize)).SM[1usize].SMlength = 0x80u16;
-                    (*(*context).slavelist.offset(slave as isize)).SM[1usize].SMflags = 0x10022u32;
-                    (*(*context).slavelist.offset(slave as isize)).SMtype[1usize] = 2u8
+                    (*context).slavelist[slave as usize].SM[1usize].StartAddr = 0x1080u16;
+                    (*context).slavelist[slave as usize].SM[1usize].SMlength = 0x80u16;
+                    (*context).slavelist[slave as usize].SM[1usize].SMflags = 0x10022u32;
+                    (*context).slavelist[slave as usize].SMtype[1usize] = 2u8
                 }
                 /* program SM0 mailbox in and SM1 mailbox out for slave */
                 /* writing both SM in one datagram will solve timing issue in old NETX */
@@ -1207,7 +1186,7 @@ pub unsafe fn ecx_config_init(context: *mut ecx_contextt, usetable: u8) -> libc:
                     configadr,
                     EthercatRegister::ECT_REG_SM0 as u16,
                     core::mem::size_of::<ec_smt>().wrapping_mul(2usize),
-                    &mut *(*(*context).slavelist.offset(slave as isize))
+                    &mut *(*context).slavelist[slave as usize]
                         .SM
                         .as_mut_ptr()
                         .offset(0isize) as *mut ec_smt as *mut libc::c_void,
@@ -1244,14 +1223,14 @@ unsafe fn ecx_lookup_mapping(
 ) -> libc::c_int {
     let mut i: libc::c_int = 0; /* check state change pre-op */
     let mut nSM: libc::c_int = 0;
-    if slave as libc::c_int > 1i32 && *(*context).slavecount > 0i32 {
+    if slave as libc::c_int > 1i32 && (*context).slavelist.len() > 0 {
         i = 1i32;
-        while ((*(*context).slavelist.offset(i as isize)).eep_man
-            != (*(*context).slavelist.offset(slave as isize)).eep_man
-            || (*(*context).slavelist.offset(i as isize)).eep_id
-                != (*(*context).slavelist.offset(slave as isize)).eep_id
-            || (*(*context).slavelist.offset(i as isize)).eep_rev
-                != (*(*context).slavelist.offset(slave as isize)).eep_rev)
+        while ((*context).slavelist[i as usize].eep_man
+            != (*context).slavelist[slave as usize].eep_man
+            || (*context).slavelist[i as usize].eep_id
+                != (*context).slavelist[slave as usize].eep_id
+            || (*context).slavelist[i as usize].eep_rev
+                != (*context).slavelist[slave as usize].eep_rev)
             && i < slave as libc::c_int
         {
             i += 1
@@ -1259,16 +1238,16 @@ unsafe fn ecx_lookup_mapping(
         if i < slave as libc::c_int {
             nSM = 0i32;
             while nSM < 8i32 {
-                (*(*context).slavelist.offset(slave as isize)).SM[nSM as usize].SMlength =
-                    (*(*context).slavelist.offset(i as isize)).SM[nSM as usize].SMlength;
-                (*(*context).slavelist.offset(slave as isize)).SMtype[nSM as usize] =
-                    (*(*context).slavelist.offset(i as isize)).SMtype[nSM as usize];
+                (*context).slavelist[slave as usize].SM[nSM as usize].SMlength =
+                    (*context).slavelist[i as usize].SM[nSM as usize].SMlength;
+                (*context).slavelist[slave as usize].SMtype[nSM as usize] =
+                    (*context).slavelist[i as usize].SMtype[nSM as usize];
                 nSM += 1
             }
-            *Osize = (*(*context).slavelist.offset(i as isize)).Obits as u32;
-            *Isize = (*(*context).slavelist.offset(i as isize)).Ibits as u32;
-            (*(*context).slavelist.offset(slave as isize)).Obits = *Osize as u16;
-            (*(*context).slavelist.offset(slave as isize)).Ibits = *Isize as u16;
+            *Osize = (*context).slavelist[i as usize].Obits as u32;
+            *Isize = (*context).slavelist[i as usize].Ibits as u32;
+            (*context).slavelist[slave as usize].Obits = *Osize as u16;
+            (*context).slavelist[slave as usize].Ibits = *Isize as u16;
             return 1i32;
         }
     }
@@ -1284,34 +1263,26 @@ unsafe fn ecx_map_coe_soe(
     let mut rval: libc::c_int = 0;
     ecx_statecheck(context, slave, SlaveState::PreOp as u16, EC_TIMEOUTSTATE);
     /* execute special slave configuration hook Pre-Op to Safe-OP */
-    if (*(*context).slavelist.offset(slave as isize))
-        .PO2SOconfig
-        .is_some()
-    {
+    if (*context).slavelist[slave as usize].PO2SOconfig.is_some() {
         /* only if registered */
-        (*(*context).slavelist.offset(slave as isize))
+        (*context).slavelist[slave as usize]
             .PO2SOconfig
             .expect("non-null function pointer")(slave);
     }
-    if (*(*context).slavelist.offset(slave as isize))
-        .PO2SOconfigx
-        .is_some()
-    {
+    if (*context).slavelist[slave as usize].PO2SOconfigx.is_some() {
         /* only if registered */
-        (*(*context).slavelist.offset(slave as isize))
+        (*context).slavelist[slave as usize]
             .PO2SOconfigx
             .expect("non-null function pointer")(context, slave);
     }
     /* if slave not found in configlist find IO mapping in slave self */
-    if (*(*context).slavelist.offset(slave as isize)).configindex == 0 {
+    if (*context).slavelist[slave as usize].configindex == 0 {
         Isize = 0u32;
         Osize = 0u32;
-        if (*(*context).slavelist.offset(slave as isize)).mbx_proto as libc::c_int & 0x4i32 != 0 {
+        if (*context).slavelist[slave as usize].mbx_proto as libc::c_int & 0x4i32 != 0 {
             /* has CoE */
             rval = 0i32;
-            if (*(*context).slavelist.offset(slave as isize)).CoEdetails as libc::c_int & 0x20i32
-                != 0
-            {
+            if (*context).slavelist[slave as usize].CoEdetails as libc::c_int & 0x20i32 != 0 {
                 /* has Complete Access */
                 /* read PDO mapping via CoE and use Complete Access */
                 rval = ecx_readPDOmapCA(context, slave, thread_n, &mut Osize, &mut Isize)
@@ -1324,19 +1295,18 @@ unsafe fn ecx_map_coe_soe(
         }
         if Isize == 0
             && Osize == 0
-            && (*(*context).slavelist.offset(slave as isize)).mbx_proto as libc::c_int & 0x10i32
-                != 0
+            && (*context).slavelist[slave as usize].mbx_proto as libc::c_int & 0x10i32 != 0
         {
             /* has SoE */
             /* read AT / MDT mapping via SoE */
             rval = ecx_readIDNmap(context, slave, &mut Osize, &mut Isize);
-            (*(*context).slavelist.offset(slave as isize)).SM[2usize].SMlength =
+            (*context).slavelist[slave as usize].SM[2usize].SMlength =
                 Osize.wrapping_add(7u32).wrapping_div(8u32) as u16;
-            (*(*context).slavelist.offset(slave as isize)).SM[3usize].SMlength =
+            (*context).slavelist[slave as usize].SM[3usize].SMlength =
                 Isize.wrapping_add(7u32).wrapping_div(8u32) as u16
         }
-        (*(*context).slavelist.offset(slave as isize)).Obits = Osize as u16;
-        (*(*context).slavelist.offset(slave as isize)).Ibits = Isize as u16
+        (*context).slavelist[slave as usize].Obits = Osize as u16;
+        (*context).slavelist[slave as usize].Ibits = Isize as u16
     }
     return 1i32;
 }
@@ -1353,8 +1323,8 @@ unsafe fn ecx_map_sii(context: *mut ecx_contextt, slave: u16) -> libc::c_int {
         BitSize: [0; 512],
         SMbitsize: [0; 8],
     };
-    Osize = (*(*context).slavelist.offset(slave as isize)).Obits as u32;
-    Isize = (*(*context).slavelist.offset(slave as isize)).Ibits as u32;
+    Osize = (*context).slavelist[slave as usize].Obits as u32;
+    Isize = (*context).slavelist[slave as usize].Ibits as u32;
     if Isize == 0 && Osize == 0 {
         /* find PDO in previous slave with same ID */
         ecx_lookup_mapping(context, slave, &mut Osize, &mut Isize);
@@ -1370,9 +1340,9 @@ unsafe fn ecx_map_sii(context: *mut ecx_contextt, slave: u16) -> libc::c_int {
         nSM = 0i32;
         while nSM < 8i32 {
             if eepPDO.SMbitsize[nSM as usize] as libc::c_int > 0i32 {
-                (*(*context).slavelist.offset(slave as isize)).SM[nSM as usize].SMlength =
+                (*context).slavelist[slave as usize].SM[nSM as usize].SMlength =
                     ((eepPDO.SMbitsize[nSM as usize] as libc::c_int + 7i32) / 8i32) as u16;
-                (*(*context).slavelist.offset(slave as isize)).SMtype[nSM as usize] = 4u8
+                (*context).slavelist[slave as usize].SMtype[nSM as usize] = 4u8
             }
             nSM += 1
         }
@@ -1380,45 +1350,45 @@ unsafe fn ecx_map_sii(context: *mut ecx_contextt, slave: u16) -> libc::c_int {
         nSM = 0i32;
         while nSM < 8i32 {
             if eepPDO.SMbitsize[nSM as usize] as libc::c_int > 0i32 {
-                (*(*context).slavelist.offset(slave as isize)).SM[nSM as usize].SMlength =
+                (*context).slavelist[slave as usize].SM[nSM as usize].SMlength =
                     ((eepPDO.SMbitsize[nSM as usize] as libc::c_int + 7i32) / 8i32) as u16;
-                (*(*context).slavelist.offset(slave as isize)).SMtype[nSM as usize] = 3u8
+                (*context).slavelist[slave as usize].SMtype[nSM as usize] = 3u8
             }
             nSM += 1
         }
     }
-    (*(*context).slavelist.offset(slave as isize)).Obits = Osize as u16;
-    (*(*context).slavelist.offset(slave as isize)).Ibits = Isize as u16;
+    (*context).slavelist[slave as usize].Obits = Osize as u16;
+    (*context).slavelist[slave as usize].Ibits = Isize as u16;
     return 1i32;
 }
 unsafe fn ecx_map_sm(context: *mut ecx_contextt, slave: u16) -> libc::c_int {
     let mut configadr: u16 = 0;
     let mut nSM: libc::c_int = 0;
-    configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
-    if (*(*context).slavelist.offset(slave as isize)).mbx_l == 0
-        && (*(*context).slavelist.offset(slave as isize)).SM[0usize].StartAddr as libc::c_int != 0
+    configadr = (*context).slavelist[slave as usize].configadr;
+    if (*context).slavelist[slave as usize].mbx_l == 0
+        && (*context).slavelist[slave as usize].SM[0usize].StartAddr as libc::c_int != 0
     {
         ecx_FPWR(
             (*context).port.as_mut().unwrap(),
             configadr,
             EthercatRegister::ECT_REG_SM0 as u16,
             ::core::mem::size_of::<ec_smt>(),
-            &mut *(*(*context).slavelist.offset(slave as isize))
+            &mut *(*context).slavelist[slave as usize]
                 .SM
                 .as_mut_ptr()
                 .offset(0isize) as *mut ec_smt as *mut libc::c_void,
             EC_TIMEOUTRET3,
         );
     }
-    if (*(*context).slavelist.offset(slave as isize)).mbx_l == 0
-        && (*(*context).slavelist.offset(slave as isize)).SM[1usize].StartAddr as libc::c_int != 0
+    if (*context).slavelist[slave as usize].mbx_l == 0
+        && (*context).slavelist[slave as usize].SM[1usize].StartAddr as libc::c_int != 0
     {
         ecx_FPWR(
             (*context).port.as_mut().unwrap(),
             configadr,
             EthercatRegister::ECT_REG_SM1 as u16,
             ::core::mem::size_of::<ec_smt>(),
-            &mut *(*(*context).slavelist.offset(slave as isize))
+            &mut *(*context).slavelist[slave as usize]
                 .SM
                 .as_mut_ptr()
                 .offset(1isize) as *mut ec_smt as *mut libc::c_void,
@@ -1428,20 +1398,16 @@ unsafe fn ecx_map_sm(context: *mut ecx_contextt, slave: u16) -> libc::c_int {
     /* program SM2 to SMx */
     nSM = 2i32;
     while nSM < 8i32 {
-        if (*(*context).slavelist.offset(slave as isize)).SM[nSM as usize].StartAddr != 0 {
+        if (*context).slavelist[slave as usize].SM[nSM as usize].StartAddr != 0 {
             /* check if SM length is zero -> clear enable flag */
-            if (*(*context).slavelist.offset(slave as isize)).SM[nSM as usize].SMlength
-                as libc::c_int
-                == 0i32
+            if (*context).slavelist[slave as usize].SM[nSM as usize].SMlength as libc::c_int == 0i32
             {
-                (*(*context).slavelist.offset(slave as isize)).SM[nSM as usize].SMflags =
-                    (*(*context).slavelist.offset(slave as isize)).SM[nSM as usize].SMflags
-                        & 0xfffeffffu32
+                (*context).slavelist[slave as usize].SM[nSM as usize].SMflags =
+                    (*context).slavelist[slave as usize].SM[nSM as usize].SMflags & 0xfffeffffu32
             } else {
                 /* if SM length is non zero always set enable flag */
-                (*(*context).slavelist.offset(slave as isize)).SM[nSM as usize].SMflags =
-                    (*(*context).slavelist.offset(slave as isize)).SM[nSM as usize].SMflags
-                        | !(0xfffeffffu32)
+                (*context).slavelist[slave as usize].SM[nSM as usize].SMflags =
+                    (*context).slavelist[slave as usize].SM[nSM as usize].SMflags | !(0xfffeffffu32)
             }
             ecx_FPWR(
                 (*context).port.as_mut().unwrap(),
@@ -1450,7 +1416,7 @@ unsafe fn ecx_map_sm(context: *mut ecx_contextt, slave: u16) -> libc::c_int {
                     (nSM as libc::c_ulong).wrapping_mul(core::mem::size_of::<ec_smt>() as u64),
                 ) as u16,
                 ::core::mem::size_of::<ec_smt>(),
-                &mut *(*(*context).slavelist.offset(slave as isize))
+                &mut *(*context).slavelist[slave as usize]
                     .SM
                     .as_mut_ptr()
                     .offset(nSM as isize) as *mut ec_smt as *mut libc::c_void,
@@ -1459,15 +1425,13 @@ unsafe fn ecx_map_sm(context: *mut ecx_contextt, slave: u16) -> libc::c_int {
         }
         nSM += 1
     }
-    if (*(*context).slavelist.offset(slave as isize)).Ibits as libc::c_int > 7i32 {
-        (*(*context).slavelist.offset(slave as isize)).Ibytes =
-            (((*(*context).slavelist.offset(slave as isize)).Ibits as libc::c_int + 7i32) / 8i32)
-                as u32
+    if (*context).slavelist[slave as usize].Ibits as libc::c_int > 7i32 {
+        (*context).slavelist[slave as usize].Ibytes =
+            (((*context).slavelist[slave as usize].Ibits as libc::c_int + 7i32) / 8i32) as u32
     }
-    if (*(*context).slavelist.offset(slave as isize)).Obits as libc::c_int > 7i32 {
-        (*(*context).slavelist.offset(slave as isize)).Obytes =
-            (((*(*context).slavelist.offset(slave as isize)).Obits as libc::c_int + 7i32) / 8i32)
-                as u32
+    if (*context).slavelist[slave as usize].Obits as libc::c_int > 7i32 {
+        (*context).slavelist[slave as usize].Obytes =
+            (((*context).slavelist[slave as usize].Obits as libc::c_int + 7i32) / 8i32) as u32
     }
     return 1i32;
 }
@@ -1493,10 +1457,9 @@ unsafe fn ecx_config_find_mappings(context: *mut ecx_contextt, group: u8) {
     }
     /* find CoE and SoE mapping of slaves in multiple threads */
     slave = 1u16;
-    while slave as libc::c_int <= *(*context).slavecount {
+    while slave as libc::c_int <= (*context).slavelist.len() as i32 {
         if group == 0
-            || group as libc::c_int
-                == (*(*context).slavelist.offset(slave as isize)).group as libc::c_int
+            || group as libc::c_int == (*context).slavelist[slave as usize].group as libc::c_int
         {
             /* serialised version */
             ecx_map_coe_soe(context, slave, 0i32);
@@ -1516,10 +1479,9 @@ unsafe fn ecx_config_find_mappings(context: *mut ecx_contextt, group: u8) {
     }
     /* find SII mapping of slave and program SM */
     slave = 1u16;
-    while slave as libc::c_int <= *(*context).slavecount {
+    while slave as libc::c_int <= (*context).slavelist.len() as i32 {
         if group == 0
-            || group as libc::c_int
-                == (*(*context).slavelist.offset(slave as isize)).group as libc::c_int
+            || group as libc::c_int == (*context).slavelist[slave as usize].group as libc::c_int
         {
             ecx_map_sii(context, slave);
             ecx_map_sm(context, slave);
@@ -1545,79 +1507,69 @@ unsafe fn ecx_config_create_input_mappings(
     let mut SMlength: u16 = 0;
     let mut configadr: u16 = 0;
     let mut FMMUc: u8 = 0;
-    configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
-    FMMUc = (*(*context).slavelist.offset(slave as isize)).FMMUunused;
-    if (*(*context).slavelist.offset(slave as isize)).Obits != 0 {
+    configadr = (*context).slavelist[slave as usize].configadr;
+    FMMUc = (*context).slavelist[slave as usize].FMMUunused;
+    if (*context).slavelist[slave as usize].Obits != 0 {
         /* find free FMMU */
-        while (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogStart != 0 {
+        while (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogStart != 0 {
             FMMUc = FMMUc.wrapping_add(1)
         }
     }
     /* search for SM that contribute to the input mapping */
     while (SMc as libc::c_int) < 8i32 - 1i32
-        && FMMUdone
-            < ((*(*context).slavelist.offset(slave as isize)).Ibits as libc::c_int + 7i32) / 8i32
+        && FMMUdone < ((*context).slavelist[slave as usize].Ibits as libc::c_int + 7i32) / 8i32
     {
         while (SMc as libc::c_int) < 8i32 - 1i32
-            && (*(*context).slavelist.offset(slave as isize)).SMtype[SMc as usize] as libc::c_int
-                != 4i32
+            && (*context).slavelist[slave as usize].SMtype[SMc as usize] as libc::c_int != 4i32
         {
             SMc = SMc.wrapping_add(1)
         }
-        (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].PhysStart =
-            (*(*context).slavelist.offset(slave as isize)).SM[SMc as usize].StartAddr;
-        SMlength = (*(*context).slavelist.offset(slave as isize)).SM[SMc as usize].SMlength;
+        (*context).slavelist[slave as usize].FMMU[FMMUc as usize].PhysStart =
+            (*context).slavelist[slave as usize].SM[SMc as usize].StartAddr;
+        SMlength = (*context).slavelist[slave as usize].SM[SMc as usize].SMlength;
         ByteCount = (ByteCount as libc::c_int + SMlength as libc::c_int) as u16;
         BitCount += SMlength as libc::c_int * 8i32;
-        EndAddr = ((*(*context).slavelist.offset(slave as isize)).SM[SMc as usize].StartAddr
-            as libc::c_int
+        EndAddr = ((*context).slavelist[slave as usize].SM[SMc as usize].StartAddr as libc::c_int
             + SMlength as libc::c_int) as u16;
-        while BitCount < (*(*context).slavelist.offset(slave as isize)).Ibits as libc::c_int
+        while BitCount < (*context).slavelist[slave as usize].Ibits as libc::c_int
             && (SMc as libc::c_int) < 8i32 - 1i32
         {
             /* more SM for input */
             SMc = SMc.wrapping_add(1);
             while (SMc as libc::c_int) < 8i32 - 1i32
-                && (*(*context).slavelist.offset(slave as isize)).SMtype[SMc as usize]
-                    as libc::c_int
-                    != 4i32
+                && (*context).slavelist[slave as usize].SMtype[SMc as usize] as libc::c_int != 4i32
             {
                 SMc = SMc.wrapping_add(1)
             }
             /* if addresses from more SM connect use one FMMU otherwise break up in multiple FMMU */
-            if (*(*context).slavelist.offset(slave as isize)).SM[SMc as usize].StartAddr
-                as libc::c_int
+            if (*context).slavelist[slave as usize].SM[SMc as usize].StartAddr as libc::c_int
                 > EndAddr as libc::c_int
             {
                 break;
             }
-            SMlength = (*(*context).slavelist.offset(slave as isize)).SM[SMc as usize].SMlength;
+            SMlength = (*context).slavelist[slave as usize].SM[SMc as usize].SMlength;
             ByteCount = (ByteCount as libc::c_int + SMlength as libc::c_int) as u16;
             BitCount += SMlength as libc::c_int * 8i32;
-            EndAddr = ((*(*context).slavelist.offset(slave as isize)).SM[SMc as usize].StartAddr
+            EndAddr = ((*context).slavelist[slave as usize].SM[SMc as usize].StartAddr
                 as libc::c_int
                 + SMlength as libc::c_int) as u16
         }
         /* bit oriented slave */
-        if (*(*context).slavelist.offset(slave as isize)).Ibytes == 0 {
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogStart = *LogAddr;
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogStartbit =
-                *BitPos;
+        if (*context).slavelist[slave as usize].Ibytes == 0 {
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogStart = *LogAddr;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogStartbit = *BitPos;
             *BitPos = (*BitPos as libc::c_int
-                + ((*(*context).slavelist.offset(slave as isize)).Ibits as libc::c_int - 1i32))
+                + ((*context).slavelist[slave as usize].Ibits as libc::c_int - 1i32))
                 as u8;
             if *BitPos as libc::c_int > 7i32 {
                 *LogAddr = (*LogAddr).wrapping_add(1u32);
                 *BitPos = (*BitPos as libc::c_int - 8i32) as u8
             }
             FMMUsize = (*LogAddr)
-                .wrapping_sub(
-                    (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogStart,
-                )
+                .wrapping_sub((*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogStart)
                 .wrapping_add(1u32) as u16;
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogLength =
-                FMMUsize;
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogEndbit = *BitPos;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogLength = FMMUsize;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogEndbit = *BitPos;
             *BitPos = (*BitPos as libc::c_int + 1i32) as u8;
             if *BitPos as libc::c_int > 7i32 {
                 *LogAddr = (*LogAddr).wrapping_add(1u32);
@@ -1629,29 +1581,27 @@ unsafe fn ecx_config_create_input_mappings(
                 *LogAddr = (*LogAddr).wrapping_add(1u32);
                 *BitPos = 0u8
             }
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogStart = *LogAddr;
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogStartbit =
-                *BitPos;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogStart = *LogAddr;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogStartbit = *BitPos;
             *BitPos = 7u8;
             FMMUsize = ByteCount;
             if FMMUsize as libc::c_int + FMMUdone
-                > (*(*context).slavelist.offset(slave as isize)).Ibytes as libc::c_int
+                > (*context).slavelist[slave as usize].Ibytes as libc::c_int
             {
-                FMMUsize = (*(*context).slavelist.offset(slave as isize))
+                FMMUsize = (*context).slavelist[slave as usize]
                     .Ibytes
                     .wrapping_sub(FMMUdone as libc::c_uint) as u16
             }
             *LogAddr = (*LogAddr).wrapping_add(FMMUsize as libc::c_uint);
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogLength =
-                FMMUsize;
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogEndbit = *BitPos;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogLength = FMMUsize;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogEndbit = *BitPos;
             *BitPos = 0u8
         }
         FMMUdone += FMMUsize as libc::c_int;
-        if (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogLength != 0 {
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].PhysStartBit = 0u8;
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].FMMUtype = 1u8;
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].FMMUactive = 1u8;
+        if (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogLength != 0 {
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].PhysStartBit = 0u8;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].FMMUtype = 1u8;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].FMMUactive = 1u8;
             /* program FMMU for input */
             ecx_FPWR(
                 (*context).port.as_mut().unwrap(),
@@ -1660,7 +1610,7 @@ unsafe fn ecx_config_create_input_mappings(
                     core::mem::size_of::<ec_fmmut>().wrapping_mul(FMMUc as usize) as u64,
                 ) as u16,
                 ::core::mem::size_of::<ec_fmmut>(),
-                &mut *(*(*context).slavelist.offset(slave as isize))
+                &mut *(*context).slavelist[slave as usize]
                     .FMMU
                     .as_mut_ptr()
                     .offset(FMMUc as isize) as *mut ec_fmmut as *mut libc::c_void,
@@ -1670,31 +1620,26 @@ unsafe fn ecx_config_create_input_mappings(
             a single ESC can only contribute once */
             AddToInputsWKC = 1i32
         }
-        if (*(*context).slavelist.offset(slave as isize))
-            .inputs
-            .is_null()
-        {
+        if (*context).slavelist[slave as usize].inputs.is_null() {
             if group != 0 {
-                let ref mut fresh5 = (*(*context).slavelist.offset(slave as isize)).inputs;
+                let ref mut fresh5 = (*context).slavelist[slave as usize].inputs;
                 *fresh5 = (pIOmap as *mut u8)
                     .offset(
-                        (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogStart
-                            as isize,
+                        (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogStart as isize,
                     )
                     .offset(-((*(*context).grouplist.offset(group as isize)).logstartaddr as isize))
             } else {
-                let ref mut fresh6 = (*(*context).slavelist.offset(slave as isize)).inputs;
+                let ref mut fresh6 = (*context).slavelist[slave as usize].inputs;
                 *fresh6 = (pIOmap as *mut u8).offset(
-                    (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogStart
-                        as isize,
+                    (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogStart as isize,
                 )
             }
-            (*(*context).slavelist.offset(slave as isize)).Istartbit =
-                (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogStartbit
+            (*context).slavelist[slave as usize].Istartbit =
+                (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogStartbit
         }
         FMMUc = FMMUc.wrapping_add(1)
     }
-    (*(*context).slavelist.offset(slave as isize)).FMMUunused = FMMUc;
+    (*context).slavelist[slave as usize].FMMUunused = FMMUc;
     /* Add one WKC for an input if flag is true */
     if AddToInputsWKC != 0 {
         let ref mut fresh7 = (*(*context).grouplist.offset(group as isize)).inputsWKC;
@@ -1719,73 +1664,63 @@ unsafe fn ecx_config_create_output_mappings(
     let mut SMlength: u16 = 0;
     let mut configadr: u16 = 0;
     let mut FMMUc: u8 = 0;
-    FMMUc = (*(*context).slavelist.offset(slave as isize)).FMMUunused;
-    configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+    FMMUc = (*context).slavelist[slave as usize].FMMUunused;
+    configadr = (*context).slavelist[slave as usize].configadr;
     /* search for SM that contribute to the output mapping */
     while (SMc as libc::c_int) < 8i32 - 1i32
-        && FMMUdone
-            < ((*(*context).slavelist.offset(slave as isize)).Obits as libc::c_int + 7i32) / 8i32
+        && FMMUdone < ((*context).slavelist[slave as usize].Obits as libc::c_int + 7i32) / 8i32
     {
         while (SMc as libc::c_int) < 8i32 - 1i32
-            && (*(*context).slavelist.offset(slave as isize)).SMtype[SMc as usize] as libc::c_int
-                != 3i32
+            && (*context).slavelist[slave as usize].SMtype[SMc as usize] as libc::c_int != 3i32
         {
             SMc = SMc.wrapping_add(1)
         }
-        (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].PhysStart =
-            (*(*context).slavelist.offset(slave as isize)).SM[SMc as usize].StartAddr;
-        SMlength = (*(*context).slavelist.offset(slave as isize)).SM[SMc as usize].SMlength;
+        (*context).slavelist[slave as usize].FMMU[FMMUc as usize].PhysStart =
+            (*context).slavelist[slave as usize].SM[SMc as usize].StartAddr;
+        SMlength = (*context).slavelist[slave as usize].SM[SMc as usize].SMlength;
         ByteCount = (ByteCount as libc::c_int + SMlength as libc::c_int) as u16;
         BitCount += SMlength as libc::c_int * 8i32;
-        EndAddr = ((*(*context).slavelist.offset(slave as isize)).SM[SMc as usize].StartAddr
-            as libc::c_int
+        EndAddr = ((*context).slavelist[slave as usize].SM[SMc as usize].StartAddr as libc::c_int
             + SMlength as libc::c_int) as u16;
-        while BitCount < (*(*context).slavelist.offset(slave as isize)).Obits as libc::c_int
+        while BitCount < (*context).slavelist[slave as usize].Obits as libc::c_int
             && (SMc as libc::c_int) < 8i32 - 1i32
         {
             /* more SM for output */
             SMc = SMc.wrapping_add(1);
             while (SMc as libc::c_int) < 8i32 - 1i32
-                && (*(*context).slavelist.offset(slave as isize)).SMtype[SMc as usize]
-                    as libc::c_int
-                    != 3i32
+                && (*context).slavelist[slave as usize].SMtype[SMc as usize] as libc::c_int != 3i32
             {
                 SMc = SMc.wrapping_add(1)
             }
             /* if addresses from more SM connect use one FMMU otherwise break up in multiple FMMU */
-            if (*(*context).slavelist.offset(slave as isize)).SM[SMc as usize].StartAddr
-                as libc::c_int
+            if (*context).slavelist[slave as usize].SM[SMc as usize].StartAddr as libc::c_int
                 > EndAddr as libc::c_int
             {
                 break;
             }
-            SMlength = (*(*context).slavelist.offset(slave as isize)).SM[SMc as usize].SMlength;
+            SMlength = (*context).slavelist[slave as usize].SM[SMc as usize].SMlength;
             ByteCount = (ByteCount as libc::c_int + SMlength as libc::c_int) as u16;
             BitCount += SMlength as libc::c_int * 8i32;
-            EndAddr = ((*(*context).slavelist.offset(slave as isize)).SM[SMc as usize].StartAddr
+            EndAddr = ((*context).slavelist[slave as usize].SM[SMc as usize].StartAddr
                 as libc::c_int
                 + SMlength as libc::c_int) as u16
         }
         /* bit oriented slave */
-        if (*(*context).slavelist.offset(slave as isize)).Obytes == 0 {
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogStart = *LogAddr;
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogStartbit =
-                *BitPos;
+        if (*context).slavelist[slave as usize].Obytes == 0 {
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogStart = *LogAddr;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogStartbit = *BitPos;
             *BitPos = (*BitPos as libc::c_int
-                + ((*(*context).slavelist.offset(slave as isize)).Obits as libc::c_int - 1i32))
+                + ((*context).slavelist[slave as usize].Obits as libc::c_int - 1i32))
                 as u8;
             if *BitPos as libc::c_int > 7i32 {
                 *LogAddr = (*LogAddr).wrapping_add(1u32);
                 *BitPos = (*BitPos as libc::c_int - 8i32) as u8
             }
             FMMUsize = (*LogAddr)
-                .wrapping_sub(
-                    (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogStart,
-                )
+                .wrapping_sub((*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogStart)
                 .wrapping_add(1u32) as u16;
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogLength =
-                FMMUsize;
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogEndbit = *BitPos;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogLength = FMMUsize;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogEndbit = *BitPos;
             *BitPos = (*BitPos as libc::c_int + 1i32) as u8;
             if *BitPos as libc::c_int > 7i32 {
                 *LogAddr = (*LogAddr).wrapping_add(1u32);
@@ -1797,29 +1732,27 @@ unsafe fn ecx_config_create_output_mappings(
                 *LogAddr = (*LogAddr).wrapping_add(1u32);
                 *BitPos = 0u8
             }
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogStart = *LogAddr;
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogStartbit =
-                *BitPos;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogStart = *LogAddr;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogStartbit = *BitPos;
             *BitPos = 7u8;
             FMMUsize = ByteCount;
             if FMMUsize as libc::c_int + FMMUdone
-                > (*(*context).slavelist.offset(slave as isize)).Obytes as libc::c_int
+                > (*context).slavelist[slave as usize].Obytes as libc::c_int
             {
-                FMMUsize = (*(*context).slavelist.offset(slave as isize))
+                FMMUsize = (*context).slavelist[slave as usize]
                     .Obytes
                     .wrapping_sub(FMMUdone as libc::c_uint) as u16
             }
             *LogAddr = (*LogAddr).wrapping_add(FMMUsize as libc::c_uint);
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogLength =
-                FMMUsize;
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogEndbit = *BitPos;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogLength = FMMUsize;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogEndbit = *BitPos;
             *BitPos = 0u8
         }
         FMMUdone += FMMUsize as libc::c_int;
-        if (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogLength != 0 {
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].PhysStartBit = 0u8;
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].FMMUtype = 2u8;
-            (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].FMMUactive = 1u8;
+        if (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogLength != 0 {
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].PhysStartBit = 0u8;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].FMMUtype = 2u8;
+            (*context).slavelist[slave as usize].FMMU[FMMUc as usize].FMMUactive = 1u8;
             /* program FMMU for output */
             ecx_FPWR(
                 (*context).port.as_mut().unwrap(),
@@ -1828,7 +1761,7 @@ unsafe fn ecx_config_create_output_mappings(
                     core::mem::size_of::<ec_fmmut>().wrapping_mul(FMMUc as usize) as u64,
                 ) as u16,
                 ::core::mem::size_of::<ec_fmmut>(),
-                &mut *(*(*context).slavelist.offset(slave as isize))
+                &mut *(*context).slavelist[slave as usize]
                     .FMMU
                     .as_mut_ptr()
                     .offset(FMMUc as isize) as *mut ec_fmmut as *mut libc::c_void,
@@ -1838,31 +1771,26 @@ unsafe fn ecx_config_create_output_mappings(
             a single ESC can only contribute once */
             AddToOutputsWKC = 1i32
         }
-        if (*(*context).slavelist.offset(slave as isize))
-            .outputs
-            .is_null()
-        {
+        if (*context).slavelist[slave as usize].outputs.is_null() {
             if group != 0 {
-                let ref mut fresh8 = (*(*context).slavelist.offset(slave as isize)).outputs;
+                let ref mut fresh8 = (*context).slavelist[slave as usize].outputs;
                 *fresh8 = (pIOmap as *mut u8)
                     .offset(
-                        (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogStart
-                            as isize,
+                        (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogStart as isize,
                     )
                     .offset(-((*(*context).grouplist.offset(group as isize)).logstartaddr as isize))
             } else {
-                let ref mut fresh9 = (*(*context).slavelist.offset(slave as isize)).outputs;
+                let ref mut fresh9 = (*context).slavelist[slave as usize].outputs;
                 *fresh9 = (pIOmap as *mut u8).offset(
-                    (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogStart
-                        as isize,
+                    (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogStart as isize,
                 )
             }
-            (*(*context).slavelist.offset(slave as isize)).Ostartbit =
-                (*(*context).slavelist.offset(slave as isize)).FMMU[FMMUc as usize].LogStartbit
+            (*context).slavelist[slave as usize].Ostartbit =
+                (*context).slavelist[slave as usize].FMMU[FMMUc as usize].LogStartbit
         }
         FMMUc = FMMUc.wrapping_add(1)
     }
-    (*(*context).slavelist.offset(slave as isize)).FMMUunused = FMMUc;
+    (*context).slavelist[slave as usize].FMMUunused = FMMUc;
     /* Add one WKC for an output if flag is true */
     if AddToOutputsWKC != 0 {
         let ref mut fresh10 = (*(*context).grouplist.offset(group as isize)).outputsWKC;
@@ -1892,7 +1820,7 @@ pub unsafe fn ecx_config_map_group(
     let mut diff: u32 = 0;
     let mut currentsegment: u16 = 0u16;
     let mut segmentsize: u32 = 0u32;
-    if *(*context).slavecount > 0i32 && (group as libc::c_int) < (*context).maxgroup {
+    if (*context).slavelist.len() > 0 && (group as libc::c_int) < (*context).maxgroup {
         LogAddr = (*(*context).grouplist.offset(group as isize)).logstartaddr;
         oLogAddr = LogAddr;
         BitPos = 0u8;
@@ -1903,14 +1831,13 @@ pub unsafe fn ecx_config_map_group(
         ecx_config_find_mappings(context, group);
         /* do output mapping of slave and program FMMUs */
         slave = 1u16;
-        while slave as libc::c_int <= *(*context).slavecount {
-            configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+        while slave as libc::c_int <= (*context).slavelist.len() as i32 {
+            configadr = (*context).slavelist[slave as usize].configadr;
             if group == 0
-                || group as libc::c_int
-                    == (*(*context).slavelist.offset(slave as isize)).group as libc::c_int
+                || group as libc::c_int == (*context).slavelist[slave as usize].group as libc::c_int
             {
                 /* create output mapping */
-                if (*(*context).slavelist.offset(slave as isize)).Obits != 0 {
+                if (*context).slavelist[slave as usize].Obits != 0 {
                     ecx_config_create_output_mappings(
                         context,
                         pIOmap,
@@ -1963,22 +1890,21 @@ pub unsafe fn ecx_config_map_group(
         (*(*context).grouplist.offset(group as isize)).Isegment = currentsegment;
         (*(*context).grouplist.offset(group as isize)).Ioffset = segmentsize as u16;
         if group == 0 {
-            let ref mut fresh12 = (*(*context).slavelist.offset(0isize)).outputs;
+            let ref mut fresh12 = (*context).slavelist[0].outputs;
             *fresh12 = pIOmap as *mut u8;
-            (*(*context).slavelist.offset(0isize)).Obytes =
+            (*context).slavelist[0].Obytes =
                 LogAddr.wrapping_sub((*(*context).grouplist.offset(group as isize)).logstartaddr)
             /* store output bytes in master record */
         }
         /* do input mapping of slave and program FMMUs */
         slave = 1u16;
-        while slave as libc::c_int <= *(*context).slavecount {
-            configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+        while slave as libc::c_int <= (*context).slavelist.len() as i32 {
+            configadr = (*context).slavelist[slave as usize].configadr;
             if group == 0
-                || group as libc::c_int
-                    == (*(*context).slavelist.offset(slave as isize)).group as libc::c_int
+                || group as libc::c_int == (*context).slavelist[slave as usize].group as libc::c_int
             {
                 /* create input mapping */
-                if (*(*context).slavelist.offset(slave as isize)).Ibits != 0 {
+                if (*context).slavelist[slave as usize].Ibits != 0 {
                     ecx_config_create_input_mappings(
                         context,
                         pIOmap,
@@ -2015,13 +1941,13 @@ pub unsafe fn ecx_config_map_group(
                     );
                     /* set safeop status */
                 }
-                if (*(*context).slavelist.offset(slave as isize)).blockLRW != 0 {
+                if (*context).slavelist[slave as usize].blockLRW != 0 {
                     let ref mut fresh13 = (*(*context).grouplist.offset(group as isize)).blockLRW;
                     *fresh13 = (*fresh13).wrapping_add(1)
                 }
                 let ref mut fresh14 = (*(*context).grouplist.offset(group as isize)).Ebuscurrent;
                 *fresh14 = (*fresh14 as libc::c_int
-                    + (*(*context).slavelist.offset(slave as isize)).Ebuscurrent as libc::c_int)
+                    + (*context).slavelist[slave as usize].Ebuscurrent as libc::c_int)
                     as i16
             }
             slave = slave.wrapping_add(1)
@@ -2054,12 +1980,11 @@ pub unsafe fn ecx_config_map_group(
             .wrapping_sub((*(*context).grouplist.offset(group as isize)).logstartaddr)
             .wrapping_sub((*(*context).grouplist.offset(group as isize)).Obytes);
         if group == 0 {
-            let ref mut fresh16 = (*(*context).slavelist.offset(0isize)).inputs;
-            *fresh16 =
-                (pIOmap as *mut u8).offset((*(*context).slavelist.offset(0isize)).Obytes as isize);
-            (*(*context).slavelist.offset(0isize)).Ibytes = LogAddr
+            let ref mut fresh16 = (*context).slavelist[0].inputs;
+            *fresh16 = (pIOmap as *mut u8).offset((*context).slavelist[0].Obytes as isize);
+            (*context).slavelist[0].Ibytes = LogAddr
                 .wrapping_sub((*(*context).grouplist.offset(group as isize)).logstartaddr)
-                .wrapping_sub((*(*context).slavelist.offset(0isize)).Obytes)
+                .wrapping_sub((*context).slavelist[0].Obytes)
             /* store input bytes in master record */
         }
         return LogAddr.wrapping_sub((*(*context).grouplist.offset(group as isize)).logstartaddr)
@@ -2091,7 +2016,7 @@ pub unsafe fn ecx_config_overlap_map_group(
     let mut diff: u32 = 0;
     let mut currentsegment: u16 = 0u16;
     let mut segmentsize: u32 = 0u32;
-    if *(*context).slavecount > 0i32 && (group as libc::c_int) < (*context).maxgroup {
+    if (*context).slavelist.len() > 0 && (group as libc::c_int) < (*context).maxgroup {
         mLogAddr = (*(*context).grouplist.offset(group as isize)).logstartaddr;
         siLogAddr = mLogAddr;
         soLogAddr = mLogAddr;
@@ -2103,16 +2028,15 @@ pub unsafe fn ecx_config_overlap_map_group(
         ecx_config_find_mappings(context, group);
         /* do IO mapping of slave and program FMMUs */
         slave = 1u16;
-        while slave as libc::c_int <= *(*context).slavecount {
-            configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+        while slave as libc::c_int <= (*context).slavelist.len() as i32 {
+            configadr = (*context).slavelist[slave as usize].configadr;
             soLogAddr = mLogAddr;
             siLogAddr = soLogAddr;
             if group == 0
-                || group as libc::c_int
-                    == (*(*context).slavelist.offset(slave as isize)).group as libc::c_int
+                || group as libc::c_int == (*context).slavelist[slave as usize].group as libc::c_int
             {
                 /* create output mapping */
-                if (*(*context).slavelist.offset(slave as isize)).Obits != 0 {
+                if (*context).slavelist[slave as usize].Obits != 0 {
                     ecx_config_create_output_mappings(
                         context,
                         pIOmap,
@@ -2127,7 +2051,7 @@ pub unsafe fn ecx_config_overlap_map_group(
                     }
                 }
                 /* create input mapping */
-                if (*(*context).slavelist.offset(slave as isize)).Ibits != 0 {
+                if (*context).slavelist[slave as usize].Ibits != 0 {
                     ecx_config_create_input_mappings(
                         context,
                         pIOmap,
@@ -2172,13 +2096,13 @@ pub unsafe fn ecx_config_overlap_map_group(
                         EC_TIMEOUTRET3,
                     );
                 }
-                if (*(*context).slavelist.offset(slave as isize)).blockLRW != 0 {
+                if (*context).slavelist[slave as usize].blockLRW != 0 {
                     let ref mut fresh17 = (*(*context).grouplist.offset(group as isize)).blockLRW;
                     *fresh17 = (*fresh17).wrapping_add(1)
                 }
                 let ref mut fresh18 = (*(*context).grouplist.offset(group as isize)).Ebuscurrent;
                 *fresh18 = (*fresh18 as libc::c_int
-                    + (*(*context).slavelist.offset(slave as isize)).Ebuscurrent as libc::c_int)
+                    + (*context).slavelist[slave as usize].Ebuscurrent as libc::c_int)
                     as i16
             }
             slave = slave.wrapping_add(1)
@@ -2200,13 +2124,12 @@ pub unsafe fn ecx_config_overlap_map_group(
             .offset((*(*context).grouplist.offset(group as isize)).Obytes as isize);
         /* Move calculated inputs with OBytes offset*/
         slave = 1u16;
-        while slave as libc::c_int <= *(*context).slavecount {
+        while slave as libc::c_int <= (*context).slavelist.len() as i32 {
             if group == 0
-                || group as libc::c_int
-                    == (*(*context).slavelist.offset(slave as isize)).group as libc::c_int
+                || group as libc::c_int == (*context).slavelist[slave as usize].group as libc::c_int
             {
-                if (*(*context).slavelist.offset(slave as isize)).Ibits as libc::c_int > 0i32 {
-                    let ref mut fresh21 = (*(*context).slavelist.offset(slave as isize)).inputs;
+                if (*context).slavelist[slave as usize].Ibits as libc::c_int > 0i32 {
+                    let ref mut fresh21 = (*context).slavelist[slave as usize].inputs;
                     *fresh21 = (*fresh21)
                         .offset((*(*context).grouplist.offset(group as isize)).Obytes as isize)
                 }
@@ -2215,14 +2138,13 @@ pub unsafe fn ecx_config_overlap_map_group(
         }
         if group == 0 {
             /* store output bytes in master record */
-            let ref mut fresh22 = (*(*context).slavelist.offset(0isize)).outputs;
+            let ref mut fresh22 = (*context).slavelist[0].outputs;
             *fresh22 = pIOmap as *mut u8;
-            (*(*context).slavelist.offset(0isize)).Obytes =
+            (*context).slavelist[0].Obytes =
                 soLogAddr.wrapping_sub((*(*context).grouplist.offset(group as isize)).logstartaddr);
-            let ref mut fresh23 = (*(*context).slavelist.offset(0isize)).inputs;
-            *fresh23 =
-                (pIOmap as *mut u8).offset((*(*context).slavelist.offset(0isize)).Obytes as isize);
-            (*(*context).slavelist.offset(0isize)).Ibytes =
+            let ref mut fresh23 = (*context).slavelist[0].inputs;
+            *fresh23 = (pIOmap as *mut u8).offset((*context).slavelist[0].Obytes as isize);
+            (*context).slavelist[0].Ibytes =
                 siLogAddr.wrapping_sub((*(*context).grouplist.offset(group as isize)).logstartaddr)
         }
         return (*(*context).grouplist.offset(group as isize))
@@ -2251,7 +2173,7 @@ pub unsafe fn ecx_recover_slave(
     let mut configadr: u16 = 0;
     let mut readadr: u16 = 0;
     rval = 0i32;
-    configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+    configadr = (*context).slavelist[slave as usize].configadr;
     ADPh = (1i32 - slave as libc::c_int) as u16;
     /* check if we found another slave than the requested */
     readadr = 0xfffeu16;
@@ -2296,7 +2218,7 @@ pub unsafe fn ecx_recover_slave(
             return 0i32;
             /* slave fails to respond */
         } /* temporary config address */
-        (*(*context).slavelist.offset(slave as isize)).configadr = 0xffffu16; /* set Eeprom control to master */
+        (*context).slavelist[slave as usize].configadr = 0xffffu16; /* set Eeprom control to master */
         ecx_eeprom2master(context, slave);
         /* check if slave is the same as configured before */
         if ecx_FPRDw(
@@ -2305,17 +2227,17 @@ pub unsafe fn ecx_recover_slave(
             EthercatRegister::ECT_REG_ALIAS as u16,
             timeout,
         ) as libc::c_int
-            == (*(*context).slavelist.offset(slave as isize)).aliasadr as libc::c_int
+            == (*context).slavelist[slave as usize].aliasadr as libc::c_int
             && ecx_readeeprom(context, slave, SiiGeneral::Id as u16, EC_TIMEOUTEEP)
-                == (*(*context).slavelist.offset(slave as isize)).eep_id
+                == (*context).slavelist[slave as usize].eep_id
             && ecx_readeeprom(
                 context,
                 slave,
                 SiiGeneral::Manufacturer as u16,
                 EC_TIMEOUTEEP,
-            ) == (*(*context).slavelist.offset(slave as isize)).eep_man
+            ) == (*context).slavelist[slave as usize].eep_man
             && ecx_readeeprom(context, slave, SiiGeneral::Revision as u16, EC_TIMEOUTEEP)
-                == (*(*context).slavelist.offset(slave as isize)).eep_rev
+                == (*context).slavelist[slave as usize].eep_rev
         {
             rval = ecx_FPWRw(
                 (*context).port.as_mut().unwrap(),
@@ -2324,7 +2246,7 @@ pub unsafe fn ecx_recover_slave(
                 configadr,
                 timeout,
             );
-            (*(*context).slavelist.offset(slave as isize)).configadr = configadr
+            (*context).slavelist[slave as usize].configadr = configadr
         } else {
             /* slave is not the expected one, remove config address*/
             ecx_FPWRw(
@@ -2334,7 +2256,7 @@ pub unsafe fn ecx_recover_slave(
                 0u16,
                 timeout,
             );
-            (*(*context).slavelist.offset(slave as isize)).configadr = configadr
+            (*context).slavelist[slave as usize].configadr = configadr
         }
     }
     return rval;
@@ -2356,7 +2278,7 @@ pub unsafe fn ecx_reconfig_slave(
     let mut nSM: libc::c_int = 0;
     let mut FMMUc: libc::c_int = 0;
     let mut configadr: u16 = 0;
-    configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+    configadr = (*context).slavelist[slave as usize].configadr;
     if ecx_FPWRw(
         (*context).port.as_mut().unwrap(),
         configadr,
@@ -2375,7 +2297,7 @@ pub unsafe fn ecx_reconfig_slave(
         /* program all enabled SM */
         nSM = 0i32; /* check state change pre-op */
         while nSM < 8i32 {
-            if (*(*context).slavelist.offset(slave as isize)).SM[nSM as usize].StartAddr != 0 {
+            if (*context).slavelist[slave as usize].SM[nSM as usize].StartAddr != 0 {
                 ecx_FPWR(
                     (*context).port.as_mut().unwrap(),
                     configadr,
@@ -2384,7 +2306,7 @@ pub unsafe fn ecx_reconfig_slave(
                             as u64,
                     ) as u16,
                     ::core::mem::size_of::<ec_smt>(),
-                    &mut *(*(*context).slavelist.offset(slave as isize))
+                    &mut *(*context).slavelist[slave as usize]
                         .SM
                         .as_mut_ptr()
                         .offset(nSM as isize) as *mut ec_smt
@@ -2405,21 +2327,15 @@ pub unsafe fn ecx_reconfig_slave(
             as libc::c_int;
         if state == SlaveState::PreOp as libc::c_int {
             /* execute special slave configuration hook Pre-Op to Safe-OP */
-            if (*(*context).slavelist.offset(slave as isize))
-                .PO2SOconfig
-                .is_some()
-            {
+            if (*context).slavelist[slave as usize].PO2SOconfig.is_some() {
                 /* only if registered */
-                (*(*context).slavelist.offset(slave as isize))
+                (*context).slavelist[slave as usize]
                     .PO2SOconfig
                     .expect("non-null function pointer")(slave);
             }
-            if (*(*context).slavelist.offset(slave as isize))
-                .PO2SOconfigx
-                .is_some()
-            {
+            if (*context).slavelist[slave as usize].PO2SOconfigx.is_some() {
                 /* only if registered */
-                (*(*context).slavelist.offset(slave as isize))
+                (*context).slavelist[slave as usize]
                     .PO2SOconfigx
                     .expect("non-null function pointer")(context, slave); /* set safeop status */
             } /* check state change safe-op */
@@ -2434,7 +2350,7 @@ pub unsafe fn ecx_reconfig_slave(
                 as libc::c_int;
             /* program configured FMMU */
             FMMUc = 0i32;
-            while FMMUc < (*(*context).slavelist.offset(slave as isize)).FMMUunused as libc::c_int {
+            while FMMUc < (*context).slavelist[slave as usize].FMMUunused as libc::c_int {
                 ecx_FPWR(
                     (*context).port.as_mut().unwrap(),
                     configadr,
@@ -2442,7 +2358,7 @@ pub unsafe fn ecx_reconfig_slave(
                         core::mem::size_of::<ec_fmmut>().wrapping_mul(FMMUc as usize) as u64,
                     ) as u16,
                     ::core::mem::size_of::<ec_fmmut>(),
-                    &mut *(*(*context).slavelist.offset(slave as isize))
+                    &mut *(*context).slavelist[slave as usize]
                         .FMMU
                         .as_mut_ptr()
                         .offset(FMMUc as isize) as *mut ec_fmmut

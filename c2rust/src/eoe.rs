@@ -168,8 +168,8 @@ pub unsafe fn ecx_EOEsetIp(
     data_offset = EOE_PARAM_OFFSET;
     // FIXME: Lots of magic constants below
     /* get new mailbox count value, used as session handle */
-    cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* EoE */
-    (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
+    cnt = ec_nextmbxcnt((*context).slavelist[slave as usize].mbx_cnt); /* EoE */
+    (*context).slavelist[slave as usize].mbx_cnt = cnt;
     (*EOEp).mbxheader.mbxtype = (MailboxType::Eoe as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as u8 as libc::c_int)
         as u8;
@@ -305,8 +305,8 @@ pub unsafe fn ecx_EOEgetIp(
     (*EOEp).mbxheader.priority = 0u8;
     data_offset = 4u8;
     /* get new mailbox count value, used as session handle */
-    cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* EoE */
-    (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
+    cnt = ec_nextmbxcnt((*context).slavelist[slave as usize].mbx_cnt); /* EoE */
+    (*context).slavelist[slave as usize].mbx_cnt = cnt;
     (*EOEp).mbxheader.mbxtype = (MailboxType::Eoe as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as u8 as libc::c_int)
         as u8;
@@ -462,7 +462,7 @@ pub unsafe fn ecx_EOEsend(
     (*EOEp).mbxheader.address = 0u16;
     (*EOEp).mbxheader.priority = 0u8;
     /* data section=mailbox size - 6 mbx - 4 EoEh */
-    maxdata = (*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int - 0xai32;
+    maxdata = (*context).slavelist[slave as usize].mbx_l as libc::c_int - 0xai32;
     txframesize = psize;
     txfragmentno = 0u8;
     txframeoffset = 0i32;
@@ -496,8 +496,8 @@ pub unsafe fn ecx_EOEsend(
             | ((txframeno as libc::c_int & 0xfi32) << 12i32) as u16 as libc::c_int)
             as u16;
         /* get new mailbox count value, used as session handle */
-        cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* no timestamp */
-        (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt; /* EoE */
+        cnt = ec_nextmbxcnt((*context).slavelist[slave as usize].mbx_cnt); /* no timestamp */
+        (*context).slavelist[slave as usize].mbx_cnt = cnt; /* EoE */
         (*EOEp).mbxheader.length = (4i32 + txframesize) as u16;
         (*EOEp).mbxheader.mbxtype = (MailboxType::Eoe as libc::c_int
             + ((cnt as libc::c_int) << 4i32) as u8 as libc::c_int)

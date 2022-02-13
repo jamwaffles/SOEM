@@ -90,7 +90,7 @@ pub unsafe fn ecx_FOEread(
     aFOEp = &mut MbxIn as *mut ec_mbxbuft as *mut ec_FOEt;
     FOEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_FOEt;
     fnsize = strlen(filename) as u16;
-    maxdata = ((*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int - 12i32) as u16;
+    maxdata = ((*context).slavelist[slave as usize].mbx_l as libc::c_int - 12i32) as u16;
     if fnsize as libc::c_int > maxdata as libc::c_int {
         fnsize = maxdata
     }
@@ -98,8 +98,8 @@ pub unsafe fn ecx_FOEread(
     (*FOEp).MbxHeader.address = 0u16;
     (*FOEp).MbxHeader.priority = 0u8;
     /* get new mailbox count value, used as session handle */
-    cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* FoE */
-    (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
+    cnt = ec_nextmbxcnt((*context).slavelist[slave as usize].mbx_cnt); /* FoE */
+    (*context).slavelist[slave as usize].mbx_cnt = cnt;
     (*FOEp).MbxHeader.mbxtype = (MailboxType::Foe as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as u8 as libc::c_int)
         as u8;
@@ -160,10 +160,8 @@ pub unsafe fn ecx_FOEread(
                             (*FOEp).MbxHeader.address = 0u16;
                             (*FOEp).MbxHeader.priority = 0u8;
                             /* get new mailbox count value */
-                            cnt = ec_nextmbxcnt(
-                                (*(*context).slavelist.offset(slave as isize)).mbx_cnt,
-                            ); /* FoE */
-                            (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
+                            cnt = ec_nextmbxcnt((*context).slavelist[slave as usize].mbx_cnt); /* FoE */
+                            (*context).slavelist[slave as usize].mbx_cnt = cnt;
                             (*FOEp).MbxHeader.mbxtype = (MailboxType::Foe as libc::c_int
                                 + ((cnt as libc::c_int) << 4i32) as u8 as libc::c_int)
                                 as u8;
@@ -255,7 +253,7 @@ pub unsafe fn ecx_FOEwrite(
     FOEp = &mut MbxOut as *mut ec_mbxbuft as *mut ec_FOEt;
     dofinalzero = false;
     fnsize = strlen(filename) as u16;
-    maxdata = ((*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_int - 12i32) as u16;
+    maxdata = ((*context).slavelist[slave as usize].mbx_l as libc::c_int - 12i32) as u16;
     if fnsize as libc::c_int > maxdata as libc::c_int {
         fnsize = maxdata
     }
@@ -263,8 +261,8 @@ pub unsafe fn ecx_FOEwrite(
     (*FOEp).MbxHeader.address = 0u16;
     (*FOEp).MbxHeader.priority = 0u8;
     /* get new mailbox count value, used as session handle */
-    cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* FoE */
-    (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
+    cnt = ec_nextmbxcnt((*context).slavelist[slave as usize].mbx_cnt); /* FoE */
+    (*context).slavelist[slave as usize].mbx_cnt = cnt;
     (*FOEp).MbxHeader.mbxtype = (MailboxType::Foe as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as u8 as libc::c_int)
         as u8;
@@ -330,10 +328,9 @@ pub unsafe fn ecx_FOEwrite(
                                     (*FOEp).MbxHeader.address = 0u16;
                                     (*FOEp).MbxHeader.priority = 0u8;
                                     /* get new mailbox count value */
-                                    cnt = ec_nextmbxcnt(
-                                        (*(*context).slavelist.offset(slave as isize)).mbx_cnt,
-                                    ); /* FoE */
-                                    (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
+                                    cnt =
+                                        ec_nextmbxcnt((*context).slavelist[slave as usize].mbx_cnt); /* FoE */
+                                    (*context).slavelist[slave as usize].mbx_cnt = cnt;
                                     (*FOEp).MbxHeader.mbxtype = (MailboxType::Foe as libc::c_int
                                         + ((cnt as libc::c_int) << 4i32) as u8 as libc::c_int)
                                         as u8;

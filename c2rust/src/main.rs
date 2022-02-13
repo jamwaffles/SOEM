@@ -74,7 +74,7 @@ pub struct ec_adapter {
 pub type ec_adaptert = ec_adapter;
 
 #[repr(C, packed)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub struct ec_fmmu {
     pub LogStart: u32,
     pub LogLength: u16,
@@ -90,7 +90,7 @@ pub struct ec_fmmu {
 pub type ec_fmmut = ec_fmmu;
 
 #[repr(C, packed)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub struct ec_sm {
     pub StartAddr: u16,
     pub SMlength: u16,
@@ -103,9 +103,9 @@ pub struct ecx_context {
     /// port reference, may include red_port
     pub port: *mut ecx_portt,
     /// slavelist reference
-    pub slavelist: *mut ec_slavet,
+    pub slavelist: heapless::Vec<ec_slave, { EC_MAXSLAVE as usize }>,
     /// number of slaves found in configuration
-    pub slavecount: *mut libc::c_int,
+    pub slavecount: u16,
     /// maximum number of slaves allowed in slavelist
     pub maxslave: libc::c_int,
     /// grouplist reference
@@ -379,6 +379,78 @@ pub struct ec_slave {
     pub PO2SOconfigx: Option<unsafe fn(_: *mut ecx_contextt, _: u16) -> libc::c_int>,
     /// readable name
     pub name: [libc::c_char; EC_MAXNAME + 1],
+}
+
+// TODO: Remove for derive when all the raw pointers are gone
+impl Default for ec_slave {
+    fn default() -> Self {
+        Self {
+            state: Default::default(),
+            ALstatuscode: Default::default(),
+            configadr: Default::default(),
+            aliasadr: Default::default(),
+            eep_man: Default::default(),
+            eep_id: Default::default(),
+            eep_rev: Default::default(),
+            Itype: Default::default(),
+            Dtype: Default::default(),
+            Obits: Default::default(),
+            Obytes: Default::default(),
+            outputs: 0 as *mut u8,
+            Ostartbit: Default::default(),
+            Ibits: Default::default(),
+            Ibytes: Default::default(),
+            inputs: 0 as *mut u8,
+            Istartbit: Default::default(),
+            SM: [ec_sm::default(); EC_MAXSM],
+            SMtype: Default::default(),
+            FMMU: [ec_fmmu::default(); EC_MAXFMMU],
+            FMMU0func: Default::default(),
+            FMMU1func: Default::default(),
+            FMMU2func: Default::default(),
+            FMMU3func: Default::default(),
+            mbx_l: Default::default(),
+            mbx_wo: Default::default(),
+            mbx_rl: Default::default(),
+            mbx_ro: Default::default(),
+            mbx_proto: Default::default(),
+            mbx_cnt: Default::default(),
+            hasdc: Default::default(),
+            ptype: Default::default(),
+            topology: Default::default(),
+            activeports: Default::default(),
+            consumedports: Default::default(),
+            parent: Default::default(),
+            parentport: Default::default(),
+            entryport: Default::default(),
+            DCrtA: Default::default(),
+            DCrtB: Default::default(),
+            DCrtC: Default::default(),
+            DCrtD: Default::default(),
+            pdelay: Default::default(),
+            DCnext: Default::default(),
+            DCprevious: Default::default(),
+            DCcycle: Default::default(),
+            DCshift: Default::default(),
+            DCactive: Default::default(),
+            configindex: Default::default(),
+            SIIindex: Default::default(),
+            eep_8byte: Default::default(),
+            eep_pdi: Default::default(),
+            CoEdetails: Default::default(),
+            FoEdetails: Default::default(),
+            EoEdetails: Default::default(),
+            SoEdetails: Default::default(),
+            Ebuscurrent: Default::default(),
+            blockLRW: Default::default(),
+            group: Default::default(),
+            FMMUunused: Default::default(),
+            islost: Default::default(),
+            PO2SOconfig: Default::default(),
+            PO2SOconfigx: Default::default(),
+            name: [0; EC_MAXNAME + 1],
+        }
+    }
 }
 
 #[derive(Copy, Clone)]
@@ -670,8 +742,8 @@ pub static mut ecx_redport: ecx_redportt = ecx_redportt {
 #[no_mangle]
 pub static mut ecx_context: ecx_contextt = ecx_contextt {
     port: 0 as *mut ecx_portt,
-    slavelist: 0 as *mut ec_slavet,
-    slavecount: 0 as *mut libc::c_int,
+    slavelist: heapless::Vec::new(),
+    slavecount: 0,
     maxslave: 0,
     grouplist: 0 as *mut ec_groupt,
     maxgroup: 0,
@@ -941,12 +1013,12 @@ pub unsafe fn ecx_siigetbyte(mut context: *mut ecx_contextt, slave: u16, address
             retval = *(*context).esibuf.offset(address as isize)
         } else {
             /* byte is not in buffer, put it there */
-            configadr = (*(*context).slavelist.offset(slave as isize)).configadr; /* set eeprom control to master */
+            configadr = (*context).slavelist[slave as usize].configadr; /* set eeprom control to master */
             ecx_eeprom2master(context, slave);
             eadr = (address as libc::c_int >> 1i32) as u16;
             edat64 = ecx_readeepromFP(context, configadr, eadr, EC_TIMEOUTEEP);
             /* 8 byte response */
-            if (*(*context).slavelist.offset(slave as isize)).eep_8byte != 0 {
+            if (*context).slavelist[slave as usize].eep_8byte != 0 {
                 memcpy(
                     &mut *(*context)
                         .esibuf
@@ -999,7 +1071,7 @@ pub unsafe fn ecx_siigetbyte(mut context: *mut ecx_contextt, slave: u16, address
 pub unsafe fn ecx_siifind(context: *mut ecx_contextt, slave: u16, cat: u16) -> i16 {
     let mut a: i16 = 0;
     let mut p: u16 = 0;
-    let eectl: u8 = (*(*context).slavelist.offset(slave as isize)).eep_pdi;
+    let eectl: u8 = (*context).slavelist[slave as usize].eep_pdi;
     a = ((0x40i32) << 1i32) as i16;
     /* read first SII section category */
     let fresh1 = a;
@@ -1061,7 +1133,7 @@ pub unsafe fn ecx_siistring(
     let mut n: u16 = 0;
     let mut ba: u16 = 0;
     let mut ptr: *mut libc::c_char = 0 as *mut libc::c_char;
-    let eectl: u8 = (*(*context).slavelist.offset(slave as isize)).eep_pdi;
+    let eectl: u8 = (*context).slavelist[slave as usize].eep_pdi;
     ptr = str;
     a = ecx_siifind(context, slave, SiiCategory::String as u16) as u16;
     if a as libc::c_int > 0i32 {
@@ -1123,7 +1195,7 @@ pub unsafe fn ecx_siiFMMU(
     FMMU: *mut ec_eepromFMMUt,
 ) -> u16 {
     let mut a: u16 = 0;
-    let eectl: u8 = (*(*context).slavelist.offset(slave as isize)).eep_pdi;
+    let eectl: u8 = (*context).slavelist[slave as usize].eep_pdi;
     (*FMMU).nFMMU = 0u8;
     (*FMMU).FMMU0 = 0u8;
     (*FMMU).FMMU1 = 0u8;
@@ -1172,7 +1244,7 @@ pub unsafe fn ecx_siiFMMU(
 pub unsafe fn ecx_siiSM(context: *mut ecx_contextt, slave: u16, mut SM: *mut ec_eepromSMt) -> u16 {
     let mut a: u16 = 0;
     let mut w: u16 = 0;
-    let eectl: u8 = (*(*context).slavelist.offset(slave as isize)).eep_pdi;
+    let eectl: u8 = (*context).slavelist[slave as usize].eep_pdi;
     (*SM).nSM = 0u8;
     (*SM).Startpos = ecx_siifind(context, slave, SiiCategory::Sm as u16) as u16;
     if (*SM).Startpos as libc::c_int > 0i32 {
@@ -1236,7 +1308,7 @@ pub unsafe fn ecx_siiSMnext(
 ) -> u16 {
     let mut a: u16 = 0;
     let mut retVal: u16 = 0u16;
-    let eectl: u8 = (*(*context).slavelist.offset(slave as isize)).eep_pdi;
+    let eectl: u8 = (*context).slavelist[slave as usize].eep_pdi;
     if (n as libc::c_int) < (*SM).nSM as libc::c_int {
         a = ((*SM).Startpos as libc::c_int + 2i32 + n as libc::c_int * 8i32) as u16;
         let fresh26 = a;
@@ -1295,7 +1367,7 @@ pub unsafe fn ecx_siiPDO(
     let mut e: u16 = 0;
     let mut er: u16 = 0;
     let mut Size: u16 = 0;
-    let eectl: u8 = (*(*context).slavelist.offset(slave as isize)).eep_pdi;
+    let eectl: u8 = (*context).slavelist[slave as usize].eep_pdi;
     Size = 0u16;
     (*PDO).nPDO = 0u16;
     (*PDO).Length = 0u16;
@@ -1501,14 +1573,14 @@ pub unsafe fn ecx_readstate(context: *mut ecx_contextt) -> libc::c_int {
         &mut rval as *mut u16 as *mut libc::c_void,
         EC_TIMEOUTRET,
     );
-    if wkc >= *(*context).slavecount {
+    if wkc >= (*context).slavelist.len() as i32 {
         allslavespresent = true;
     }
     rval = rval;
     bitwisestate = (rval as libc::c_int & 0xfi32) as u16;
     if rval as libc::c_int & SlaveState::Error as libc::c_int == 0i32 {
         noerrorflag = true;
-        (*(*context).slavelist.offset(0isize)).ALstatuscode = 0u16
+        (*context).slavelist[0].ALstatuscode = 0u16
     } else {
         noerrorflag = false;
     }
@@ -1519,7 +1591,7 @@ pub unsafe fn ecx_readstate(context: *mut ecx_contextt) -> libc::c_int {
         | SlaveState::SafeOp
         | SlaveState::Op => {
             allslavessamestate = true;
-            (*(*context).slavelist.offset(0isize)).state = bitwisestate
+            (*context).slavelist[0].state = bitwisestate
         }
         _ => allslavessamestate = false,
     }
@@ -1532,20 +1604,20 @@ pub unsafe fn ecx_readstate(context: *mut ecx_contextt) -> libc::c_int {
          * the slaves have reached the same state so the internal state
          * can be updated without sending any datagram. */
         slave = 1u16;
-        while slave as libc::c_int <= *(*context).slavecount {
-            (*(*context).slavelist.offset(slave as isize)).ALstatuscode = 0u16;
-            (*(*context).slavelist.offset(slave as isize)).state = bitwisestate;
+        while slave as libc::c_int <= (*context).slavelist.len() as i32 {
+            (*context).slavelist[slave as usize].ALstatuscode = 0u16;
+            (*context).slavelist[slave as usize].state = bitwisestate;
             slave = slave.wrapping_add(1)
         }
         lowest = bitwisestate
     } else {
         /* Not all slaves have the same state or at least one is in error so one datagram per slave
          * is needed. */
-        (*(*context).slavelist.offset(0isize)).ALstatuscode = 0u16;
+        (*context).slavelist[0].ALstatuscode = 0u16;
         lowest = 0xffu16;
         fslave = 1u16;
         loop {
-            lslave = *(*context).slavecount as u16;
+            lslave = (*context).slavelist.len() as u16;
             if lslave as libc::c_int - fslave as libc::c_int >= 64i32 {
                 lslave = (fslave as libc::c_int + 64i32 - 1i32) as u16
             }
@@ -1559,7 +1631,7 @@ pub unsafe fn ecx_readstate(context: *mut ecx_contextt) -> libc::c_int {
                     };
                     init
                 };
-                configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+                configadr = (*context).slavelist[slave as usize].configadr;
                 slca[(slave as libc::c_int - fslave as libc::c_int) as usize] = configadr;
                 sl[(slave as libc::c_int - fslave as libc::c_int) as usize] = zero;
                 slave = slave.wrapping_add(1)
@@ -1573,26 +1645,26 @@ pub unsafe fn ecx_readstate(context: *mut ecx_contextt) -> libc::c_int {
             );
             slave = fslave;
             while slave as libc::c_int <= lslave as libc::c_int {
-                configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+                configadr = (*context).slavelist[slave as usize].configadr;
                 rval = sl[(slave as libc::c_int - fslave as libc::c_int) as usize].alstatus;
-                (*(*context).slavelist.offset(slave as isize)).ALstatuscode =
+                (*context).slavelist[slave as usize].ALstatuscode =
                     sl[(slave as libc::c_int - fslave as libc::c_int) as usize].alstatuscode;
                 if (rval as libc::c_int & 0xfi32) < lowest as libc::c_int {
                     lowest = (rval as libc::c_int & 0xfi32) as u16
                 }
-                (*(*context).slavelist.offset(slave as isize)).state = rval;
-                let ref mut fresh41 = (*(*context).slavelist.offset(0isize)).ALstatuscode;
+                (*context).slavelist[slave as usize].state = rval;
+                let ref mut fresh41 = (*context).slavelist[0].ALstatuscode;
                 *fresh41 = (*fresh41 as libc::c_int
-                    | (*(*context).slavelist.offset(slave as isize)).ALstatuscode as libc::c_int)
+                    | (*context).slavelist[slave as usize].ALstatuscode as libc::c_int)
                     as u16;
                 slave = slave.wrapping_add(1)
             }
             fslave = (lslave as libc::c_int + 1i32) as u16;
-            if !((lslave as libc::c_int) < *(*context).slavecount) {
+            if !((lslave as libc::c_int) < (*context).slavelist.len() as i32) {
                 break;
             }
         }
-        (*(*context).slavelist.offset(0isize)).state = lowest
+        (*context).slavelist[0].state = lowest
     }
     return lowest as libc::c_int;
 }
@@ -1608,7 +1680,7 @@ pub unsafe fn ecx_writestate(context: *mut ecx_contextt, slave: u16) -> libc::c_
     let mut configadr: u16 = 0;
     let mut slstate: u16 = 0;
     if slave as libc::c_int == 0i32 {
-        slstate = (*(*context).slavelist.offset(slave as isize)).state;
+        slstate = (*context).slavelist[slave as usize].state;
         ret = ecx_BWR(
             (*context).port.as_mut().unwrap(),
             0u16,
@@ -1618,12 +1690,12 @@ pub unsafe fn ecx_writestate(context: *mut ecx_contextt, slave: u16) -> libc::c_
             EC_TIMEOUTRET3,
         )
     } else {
-        configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+        configadr = (*context).slavelist[slave as usize].configadr;
         ret = ecx_FPWRw(
             (*context).port.as_mut().unwrap(),
             configadr,
             EthercatRegister::ECT_REG_ALCTL as u16,
-            (*(*context).slavelist.offset(slave as isize)).state,
+            (*context).slavelist[slave as usize].state,
             EC_TIMEOUTRET3,
         )
     }
@@ -1656,11 +1728,11 @@ pub unsafe fn ecx_statecheck(
     let mut timer: osal_timert = osal_timert {
         stop_time: ec_timet { sec: 0, usec: 0 },
     };
-    if slave as libc::c_int > *(*context).slavecount {
+    if slave > (*context).slavelist.len() as u16 {
         return 0u16;
     }
     osal_timer_start(&mut timer, timeout);
-    configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+    configadr = (*context).slavelist[slave as usize].configadr;
     loop {
         if slave < 1 {
             rval = 0u16;
@@ -1685,7 +1757,7 @@ pub unsafe fn ecx_statecheck(
                 EC_TIMEOUTRET,
             );
             rval = slstat.alstatus;
-            (*(*context).slavelist.offset(slave as isize)).ALstatuscode = slstat.alstatuscode
+            (*context).slavelist[slave as usize].ALstatuscode = slstat.alstatuscode
         }
         state = (rval as libc::c_int & 0xfi32) as u16;
         if state as libc::c_int != reqstate as libc::c_int {
@@ -1697,7 +1769,7 @@ pub unsafe fn ecx_statecheck(
             break;
         }
     }
-    (*(*context).slavelist.offset(slave as isize)).state = rval;
+    (*context).slavelist[slave as usize].state = rval;
     return state;
 }
 /* * Get index of next mailbox counter value.
@@ -1736,7 +1808,7 @@ pub unsafe fn ecx_mbxempty(context: *mut ecx_contextt, slave: u16, timeout: u32)
         stop_time: ec_timet { sec: 0, usec: 0 },
     };
     osal_timer_start(&mut timer, timeout);
-    configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+    configadr = (*context).slavelist[slave as usize].configadr;
     loop {
         SMstat = 0u8;
         wkc = ecx_FPRD(
@@ -1781,11 +1853,11 @@ pub unsafe fn ecx_mbxsend(
     let mut configadr: u16 = 0;
     let mut wkc: libc::c_int = 0;
     wkc = 0i32;
-    configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
-    mbxl = (*(*context).slavelist.offset(slave as isize)).mbx_l as usize;
+    configadr = (*context).slavelist[slave as usize].configadr;
+    mbxl = (*context).slavelist[slave as usize].mbx_l as usize;
     if mbxl > 0 && mbxl <= EC_MAXMBX {
         if ecx_mbxempty(context, slave, timeout) != 0 {
-            mbxwo = (*(*context).slavelist.offset(slave as isize)).mbx_wo;
+            mbxwo = (*context).slavelist[slave as usize].mbx_wo;
             /* write slave in mailbox */
             wkc = ecx_FPWR(
                 (*context).port.as_mut().unwrap(),
@@ -1826,8 +1898,8 @@ pub unsafe fn ecx_mbxreceive(
     let mut mbxh: *mut ec_mbxheadert = 0 as *mut ec_mbxheadert;
     let mut EMp: *mut ec_emcyt = 0 as *mut ec_emcyt;
     let mut MBXEp: *mut ec_mbxerrort = 0 as *mut ec_mbxerrort;
-    configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
-    mbxl = (*(*context).slavelist.offset(slave as isize)).mbx_rl as usize;
+    configadr = (*context).slavelist[slave as usize].configadr;
+    mbxl = (*context).slavelist[slave as usize].mbx_rl as usize;
     if mbxl as libc::c_int > 0i32 && mbxl <= EC_MAXMBX {
         let mut timer: osal_timert = osal_timert {
             stop_time: ec_timet { sec: 0, usec: 0 },
@@ -1857,7 +1929,7 @@ pub unsafe fn ecx_mbxreceive(
         }
         if wkc > 0i32 && SMstat as libc::c_int & 0x8i32 > 0i32 {
             /* read mailbox available ? */
-            mbxro = (*(*context).slavelist.offset(slave as isize)).mbx_ro;
+            mbxro = (*context).slavelist[slave as usize].mbx_ro;
             mbxh = mbx as *mut ec_mbxheadert;
             loop {
                 /* if WKC<=0 repeat */
@@ -1992,12 +2064,12 @@ pub unsafe fn ecx_esidump(context: *mut ecx_contextt, slave: u16, esibuf: *mut u
     let mut p64: *mut u64 = 0 as *mut u64;
     let mut p16: *mut u16 = 0 as *mut u16;
     let mut edat: u64 = 0;
-    let eectl: u8 = (*(*context).slavelist.offset(slave as isize)).eep_pdi;
+    let eectl: u8 = (*context).slavelist[slave as usize].eep_pdi;
     ecx_eeprom2master(context, slave);
-    configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+    configadr = (*context).slavelist[slave as usize].configadr;
     address = 0x40u16;
     p16 = esibuf as *mut u16;
-    if (*(*context).slavelist.offset(slave as isize)).eep_8byte != 0 {
+    if (*context).slavelist[slave as usize].eep_8byte != 0 {
         incr = 4u16
     } else {
         incr = 2u16
@@ -2033,7 +2105,7 @@ pub unsafe fn ecx_readeeprom(
 ) -> u32 {
     let mut configadr: u16 = 0; /* set eeprom control to master */
     ecx_eeprom2master(context, slave);
-    configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+    configadr = (*context).slavelist[slave as usize].configadr;
     return ecx_readeepromFP(context, configadr, eeproma, timeout) as u32;
 }
 /* * Write EEPROM to slave bypassing cache.
@@ -2054,7 +2126,7 @@ pub unsafe fn ecx_writeeeprom(
 ) -> libc::c_int {
     let mut configadr: u16 = 0; /* set eeprom control to master */
     ecx_eeprom2master(context, slave);
-    configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+    configadr = (*context).slavelist[slave as usize].configadr;
     return ecx_writeeepromFP(context, configadr, eeproma, data, timeout);
 }
 /* * Set eeprom control to master. Only if set to PDI.
@@ -2068,8 +2140,8 @@ pub unsafe fn ecx_eeprom2master(context: *mut ecx_contextt, slave: u16) -> libc:
     let mut cnt: libc::c_int = 0i32;
     let mut configadr: u16 = 0;
     let mut eepctl: u8 = 0;
-    if (*(*context).slavelist.offset(slave as isize)).eep_pdi != 0 {
-        configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+    if (*context).slavelist[slave as usize].eep_pdi != 0 {
+        configadr = (*context).slavelist[slave as usize].configadr;
         eepctl = 2u8;
         loop {
             wkc = ecx_FPWR(
@@ -2109,7 +2181,7 @@ pub unsafe fn ecx_eeprom2master(context: *mut ecx_contextt, slave: u16) -> libc:
             }
             /* set Eeprom to master */
         }
-        (*(*context).slavelist.offset(slave as isize)).eep_pdi = 0u8
+        (*context).slavelist[slave as usize].eep_pdi = 0u8
     }
     return wkc;
 }
@@ -2124,8 +2196,8 @@ pub unsafe fn ecx_eeprom2pdi(context: *mut ecx_contextt, slave: u16) -> libc::c_
     let mut cnt: libc::c_int = 0i32;
     let mut configadr: u16 = 0;
     let mut eepctl: u8 = 0;
-    if (*(*context).slavelist.offset(slave as isize)).eep_pdi == 0 {
-        configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+    if (*context).slavelist[slave as usize].eep_pdi == 0 {
+        configadr = (*context).slavelist[slave as usize].configadr;
         eepctl = 1u8;
         loop {
             wkc = ecx_FPWR(
@@ -2145,7 +2217,7 @@ pub unsafe fn ecx_eeprom2pdi(context: *mut ecx_contextt, slave: u16) -> libc::c_
             }
             /* set Eeprom to PDI */
         } /* wait for eeprom ready */
-        (*(*context).slavelist.offset(slave as isize)).eep_pdi = 1u8
+        (*context).slavelist[slave as usize].eep_pdi = 1u8
     }
     return wkc;
 }
@@ -2689,7 +2761,7 @@ pub unsafe fn ecx_readeeprom1(context: *mut ecx_contextt, slave: u16, eeproma: u
     let mut wkc: libc::c_int = 0;
     let mut cnt: libc::c_int = 0i32;
     ecx_eeprom2master(context, slave);
-    configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+    configadr = (*context).slavelist[slave as usize].configadr;
     if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, EC_TIMEOUTEEP) != 0 {
         if estat as libc::c_int & EC_ESTAT_EMASK != 0 {
             /* error bits are set */
@@ -2739,7 +2811,7 @@ pub unsafe fn ecx_readeeprom2(context: *mut ecx_contextt, slave: u16, timeout: u
     let mut edat: u32 = 0;
     let mut wkc: libc::c_int = 0;
     let mut cnt: libc::c_int = 0i32;
-    configadr = (*(*context).slavelist.offset(slave as isize)).configadr;
+    configadr = (*context).slavelist[slave as usize].configadr;
     edat = 0u32;
     estat = 0u16;
     if ecx_eeprom_waitnotbusyFP(context, configadr, &mut estat, timeout) != 0 {
@@ -2917,10 +2989,9 @@ unsafe fn ecx_main_send_processdata(
                             Command::Frmw,
                             idx,
                             false,
-                            (*(*context).slavelist.offset(
-                                (*(*context).grouplist.offset(group as isize)).DCnext as isize,
-                            ))
-                            .configadr,
+                            (*context).slavelist
+                                [(*(*context).grouplist.offset(group as isize)).DCnext as usize]
+                                .configadr,
                             EthercatRegister::ECT_REG_DCSYSTIME as u16,
                             ::core::mem::size_of::<i64>(),
                             (*context).DCtime as *mut libc::c_void,
@@ -2984,10 +3055,9 @@ unsafe fn ecx_main_send_processdata(
                             Command::Frmw,
                             idx,
                             false,
-                            (*(*context).slavelist.offset(
-                                (*(*context).grouplist.offset(group as isize)).DCnext as isize,
-                            ))
-                            .configadr,
+                            (*context).slavelist
+                                [(*(*context).grouplist.offset(group as isize)).DCnext as usize]
+                                .configadr,
                             EthercatRegister::ECT_REG_DCSYSTIME as u16,
                             ::core::mem::size_of::<i64>(),
                             (*context).DCtime as *mut libc::c_void,
@@ -3051,10 +3121,9 @@ unsafe fn ecx_main_send_processdata(
                         Command::Frmw,
                         idx,
                         false,
-                        (*(*context).slavelist.offset(
-                            (*(*context).grouplist.offset(group as isize)).DCnext as isize,
-                        ))
-                        .configadr,
+                        (*context).slavelist
+                            [(*(*context).grouplist.offset(group as isize)).DCnext as usize]
+                            .configadr,
                         EthercatRegister::ECT_REG_DCSYSTIME as u16,
                         ::core::mem::size_of::<i64>(),
                         (*context).DCtime as *mut libc::c_void,
@@ -3631,9 +3700,9 @@ unsafe fn run_static_initializers() {
     ecx_context = {
         let init = ecx_context {
             port: &mut ecx_port,
-            slavelist: &mut *ec_slave.as_mut_ptr().offset(0isize) as *mut ec_slavet,
-            slavecount: &mut ec_slavecount,
-            maxslave: 200i32,
+            slavelist: heapless::Vec::new(),
+            slavecount: 0,
+            maxslave: EC_MAXSLAVE as i32,
             grouplist: &mut *ec_group.as_mut_ptr().offset(0isize) as *mut ec_groupt,
             maxgroup: 2i32,
             esibuf: &mut *EC_ESI_BUF.as_mut_ptr().offset(0isize) as *mut u8,

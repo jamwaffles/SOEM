@@ -131,8 +131,8 @@ pub unsafe fn ecx_SoEread(
     (*SoEp).MbxHeader.address = 0u16;
     (*SoEp).MbxHeader.priority = 0u8;
     /* get new mailbox count value, used as session handle */
-    cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* SoE */
-    (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
+    cnt = ec_nextmbxcnt((*context).slavelist[slave as usize].mbx_cnt); /* SoE */
+    (*context).slavelist[slave as usize].mbx_cnt = cnt;
     (*SoEp).MbxHeader.mbxtype = (MailboxType::Soe as libc::c_int
         + ((cnt as libc::c_int) << 4i32) as u8 as libc::c_int)
         as u8;
@@ -287,7 +287,7 @@ pub unsafe fn ecx_SoEwrite(
     hp = p as *mut u8;
     mp = (&mut MbxOut as *mut ec_mbxbuft as *mut u8)
         .offset(::core::mem::size_of::<ec_SoEt>() as isize);
-    maxdata = ((*(*context).slavelist.offset(slave as isize)).mbx_l as libc::c_ulong)
+    maxdata = ((*context).slavelist[slave as usize].mbx_l as libc::c_ulong)
         .wrapping_sub(core::mem::size_of::<ec_SoEt>() as u64) as libc::c_int;
     NotLast = true;
     while NotLast != false {
@@ -305,8 +305,8 @@ pub unsafe fn ecx_SoEwrite(
             .wrapping_sub(core::mem::size_of::<ec_mbxheadert>())
             .wrapping_add(framedatasize as usize) as u16;
         /* get new mailbox counter, used for session handle */
-        cnt = ec_nextmbxcnt((*(*context).slavelist.offset(slave as isize)).mbx_cnt); /* SoE */
-        (*(*context).slavelist.offset(slave as isize)).mbx_cnt = cnt;
+        cnt = ec_nextmbxcnt((*context).slavelist[slave as usize].mbx_cnt); /* SoE */
+        (*context).slavelist[slave as usize].mbx_cnt = cnt;
         (*SoEp).MbxHeader.mbxtype = (MailboxType::Soe as libc::c_int
             + ((cnt as libc::c_int) << 4i32) as u8 as libc::c_int)
             as u8;

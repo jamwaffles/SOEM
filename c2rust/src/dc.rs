@@ -31,7 +31,7 @@ pub unsafe fn ecx_dcsync0(
     let mut t: i64 = 0;
     let mut t1: i64 = 0;
     let mut tc: i32 = 0;
-    slaveh = (*(*context).slavelist.offset(slave as isize)).configadr;
+    slaveh = (*context).slavelist[slave as usize].configadr;
     RA = 0u8;
     /* stop cyclic operation, ready for next trigger */
     ecx_FPWR(
@@ -103,9 +103,9 @@ pub unsafe fn ecx_dcsync0(
         EC_TIMEOUTRET,
     );
     // update ec_slave state
-    (*(*context).slavelist.offset(slave as isize)).DCactive = act;
-    (*(*context).slavelist.offset(slave as isize)).DCshift = CyclShift;
-    (*(*context).slavelist.offset(slave as isize)).DCcycle = CyclTime as i32;
+    (*context).slavelist[slave as usize].DCactive = act;
+    (*context).slavelist[slave as usize].DCshift = CyclShift;
+    (*context).slavelist[slave as usize].DCcycle = CyclTime as i32;
 }
 /* *
 * Set DC of slave to fire sync0 and sync1 at CyclTime interval with CyclShift offset.
@@ -140,7 +140,7 @@ pub unsafe fn ecx_dcsync01(
         .wrapping_div(CyclTime0)
         .wrapping_add(1u32)
         .wrapping_mul(CyclTime0);
-    slaveh = (*(*context).slavelist.offset(slave as isize)).configadr;
+    slaveh = (*context).slavelist[slave as usize].configadr;
     RA = 0u8;
     /* stop cyclic operation, ready for next trigger */
     ecx_FPWR(
@@ -221,18 +221,18 @@ pub unsafe fn ecx_dcsync01(
         EC_TIMEOUTRET,
     );
     // update ec_slave state
-    (*(*context).slavelist.offset(slave as isize)).DCactive = act;
-    (*(*context).slavelist.offset(slave as isize)).DCshift = CyclShift;
-    (*(*context).slavelist.offset(slave as isize)).DCcycle = CyclTime0 as i32;
+    (*context).slavelist[slave as usize].DCactive = act;
+    (*context).slavelist[slave as usize].DCshift = CyclShift;
+    (*context).slavelist[slave as usize].DCcycle = CyclTime0 as i32;
 }
 /* latched port time of slave */
 unsafe fn ecx_porttime(context: *mut ecx_contextt, slave: u16, port: u8) -> i32 {
     let mut ts: i32 = 0;
     match port as libc::c_int {
-        0 => ts = (*(*context).slavelist.offset(slave as isize)).DCrtA,
-        1 => ts = (*(*context).slavelist.offset(slave as isize)).DCrtB,
-        2 => ts = (*(*context).slavelist.offset(slave as isize)).DCrtC,
-        3 => ts = (*(*context).slavelist.offset(slave as isize)).DCrtD,
+        0 => ts = (*context).slavelist[slave as usize].DCrtA,
+        1 => ts = (*context).slavelist[slave as usize].DCrtB,
+        2 => ts = (*context).slavelist[slave as usize].DCrtC,
+        3 => ts = (*context).slavelist[slave as usize].DCrtD,
         _ => ts = 0i32,
     }
     return ts;
@@ -240,7 +240,7 @@ unsafe fn ecx_porttime(context: *mut ecx_contextt, slave: u16, port: u8) -> i32 
 /* calculate previous active port of a slave */
 unsafe fn ecx_prevport(context: *mut ecx_contextt, slave: u16, port: u8) -> u8 {
     let mut pport: u8 = port;
-    let aport: u8 = (*(*context).slavelist.offset(slave as isize)).activeports;
+    let aport: u8 = (*context).slavelist[slave as usize].activeports;
     match port as libc::c_int {
         0 => {
             if aport as libc::c_int & 0x4i32 != 0 {
@@ -287,7 +287,7 @@ unsafe fn ecx_parentport(context: *mut ecx_contextt, parent: u16) -> u8 {
     let mut parentport: u8 = 0u8;
     let mut b: u8 = 0;
     /* search order is important, here 3 - 1 - 2 - 0 */
-    b = (*(*context).slavelist.offset(parent as isize)).consumedports;
+    b = (*context).slavelist[parent as usize].consumedports;
     if b as libc::c_int & 0x8i32 != 0 {
         parentport = 3u8;
         b = (b as libc::c_int & !(0x8i32) as u8 as libc::c_int) as u8
@@ -301,7 +301,7 @@ unsafe fn ecx_parentport(context: *mut ecx_contextt, parent: u16) -> u8 {
         parentport = 0u8;
         b = (b as libc::c_int & !(0x1i32) as u8 as libc::c_int) as u8
     }
-    (*(*context).slavelist.offset(parent as isize)).consumedports = b;
+    (*context).slavelist[parent as usize].consumedports = b;
     return parentport;
 }
 /* *
@@ -329,7 +329,7 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
     let mut tlist: [i32; 4] = [0; 4];
     let mut mastertime: ec_timet = ec_timet { sec: 0, usec: 0 };
     let mut mastertime64: u64 = 0;
-    (*(*context).slavelist.offset(0isize)).hasdc = false;
+    (*context).slavelist[0].hasdc = false;
     (*(*context).grouplist.offset(0isize)).hasdc = false;
     ht = 0i32;
     ecx_BWR(
@@ -348,30 +348,30 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
         .wrapping_add(mastertime.usec as u64)
         .wrapping_mul(1000u64);
     i = 1u16;
-    while i as libc::c_int <= *(*context).slavecount {
-        (*(*context).slavelist.offset(i as isize)).consumedports =
-            (*(*context).slavelist.offset(i as isize)).activeports;
-        if (*(*context).slavelist.offset(i as isize)).hasdc == true {
-            if (*(*context).slavelist.offset(0isize)).hasdc == false {
-                (*(*context).slavelist.offset(0isize)).hasdc = true;
-                (*(*context).slavelist.offset(0isize)).DCnext = i;
-                (*(*context).slavelist.offset(i as isize)).DCprevious = 0u16;
+    while i as libc::c_int <= (*context).slavelist.len() as i32 {
+        (*context).slavelist[i as usize].consumedports =
+            (*context).slavelist[i as usize].activeports;
+        if (*context).slavelist[i as usize].hasdc == true {
+            if (*context).slavelist[0].hasdc == false {
+                (*context).slavelist[0].hasdc = true;
+                (*context).slavelist[0].DCnext = i;
+                (*context).slavelist[i as usize].DCprevious = 0u16;
                 (*(*context)
                     .grouplist
-                    .offset((*(*context).slavelist.offset(i as isize)).group as isize))
+                    .offset((*context).slavelist[i as usize].group as isize))
                 .hasdc = true;
                 (*(*context)
                     .grouplist
-                    .offset((*(*context).slavelist.offset(i as isize)).group as isize))
+                    .offset((*context).slavelist[i as usize].group as isize))
                 .DCnext = i
             } else {
-                (*(*context).slavelist.offset(prevDCslave as isize)).DCnext = i;
-                (*(*context).slavelist.offset(i as isize)).DCprevious = prevDCslave
+                (*context).slavelist[prevDCslave as usize].DCnext = i;
+                (*context).slavelist[i as usize].DCprevious = prevDCslave
             }
             /* this branch has DC slave so remove parenthold */
             parenthold = 0u16;
             prevDCslave = i;
-            slaveh = (*(*context).slavelist.offset(i as isize)).configadr;
+            slaveh = (*context).slavelist[i as usize].configadr;
             ecx_FPRD(
                 (*context).port.as_mut().unwrap(),
                 slaveh,
@@ -380,7 +380,7 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
                 &mut ht as *mut i32 as *mut libc::c_void,
                 EC_TIMEOUTRET,
             );
-            (*(*context).slavelist.offset(i as isize)).DCrtA = ht;
+            (*context).slavelist[i as usize].DCrtA = ht;
             /* 64bit latched DCrecvTimeA of each specific slave */
             ecx_FPRD(
                 (*context).port.as_mut().unwrap(),
@@ -409,7 +409,7 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
                 &mut ht as *mut i32 as *mut libc::c_void,
                 EC_TIMEOUTRET,
             );
-            (*(*context).slavelist.offset(i as isize)).DCrtB = ht;
+            (*context).slavelist[i as usize].DCrtB = ht;
             ecx_FPRD(
                 (*context).port.as_mut().unwrap(),
                 slaveh,
@@ -418,7 +418,7 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
                 &mut ht as *mut i32 as *mut libc::c_void,
                 EC_TIMEOUTRET,
             );
-            (*(*context).slavelist.offset(i as isize)).DCrtC = ht;
+            (*context).slavelist[i as usize].DCrtC = ht;
             ecx_FPRD(
                 (*context).port.as_mut().unwrap(),
                 slaveh,
@@ -427,27 +427,27 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
                 &mut ht as *mut i32 as *mut libc::c_void,
                 EC_TIMEOUTRET,
             );
-            (*(*context).slavelist.offset(i as isize)).DCrtD = ht;
+            (*context).slavelist[i as usize].DCrtD = ht;
             /* make list of active ports and their time stamps */
             nlist = 0i8;
-            if (*(*context).slavelist.offset(i as isize)).activeports as libc::c_int & 0x1i32 != 0 {
+            if (*context).slavelist[i as usize].activeports as libc::c_int & 0x1i32 != 0 {
                 plist[nlist as usize] = 0i8;
-                tlist[nlist as usize] = (*(*context).slavelist.offset(i as isize)).DCrtA;
+                tlist[nlist as usize] = (*context).slavelist[i as usize].DCrtA;
                 nlist += 1
             }
-            if (*(*context).slavelist.offset(i as isize)).activeports as libc::c_int & 0x8i32 != 0 {
+            if (*context).slavelist[i as usize].activeports as libc::c_int & 0x8i32 != 0 {
                 plist[nlist as usize] = 3i8;
-                tlist[nlist as usize] = (*(*context).slavelist.offset(i as isize)).DCrtD;
+                tlist[nlist as usize] = (*context).slavelist[i as usize].DCrtD;
                 nlist += 1
             }
-            if (*(*context).slavelist.offset(i as isize)).activeports as libc::c_int & 0x2i32 != 0 {
+            if (*context).slavelist[i as usize].activeports as libc::c_int & 0x2i32 != 0 {
                 plist[nlist as usize] = 1i8;
-                tlist[nlist as usize] = (*(*context).slavelist.offset(i as isize)).DCrtB;
+                tlist[nlist as usize] = (*context).slavelist[i as usize].DCrtB;
                 nlist += 1
             }
-            if (*(*context).slavelist.offset(i as isize)).activeports as libc::c_int & 0x4i32 != 0 {
+            if (*context).slavelist[i as usize].activeports as libc::c_int & 0x4i32 != 0 {
                 plist[nlist as usize] = 2i8;
-                tlist[nlist as usize] = (*(*context).slavelist.offset(i as isize)).DCrtC;
+                tlist[nlist as usize] = (*context).slavelist[i as usize].DCrtC;
                 nlist += 1
             }
             /* entryport is port with the lowest timestamp */
@@ -462,9 +462,9 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
                 entryport = 3u8
             }
             entryport = plist[entryport as usize] as u8;
-            (*(*context).slavelist.offset(i as isize)).entryport = entryport;
+            (*context).slavelist[i as usize].entryport = entryport;
             /* consume entryport from activeports */
-            let ref mut fresh0 = (*(*context).slavelist.offset(i as isize)).consumedports;
+            let ref mut fresh0 = (*context).slavelist[i as usize].consumedports;
             *fresh0 = (*fresh0 as libc::c_int
                 & !((1i32) << entryport as libc::c_int) as u8 as libc::c_int)
                 as u8;
@@ -472,9 +472,9 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
             parent = i;
             loop {
                 child = parent;
-                parent = (*(*context).slavelist.offset(parent as isize)).parent;
+                parent = (*context).slavelist[parent as usize].parent;
                 if parent as libc::c_int == 0i32
-                    || (*(*context).slavelist.offset(parent as isize)).hasdc as libc::c_int != 0
+                    || (*context).slavelist[parent as usize].hasdc as libc::c_int != 0
                 {
                     break;
                 }
@@ -482,46 +482,30 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
             /* only calculate propagation delay if slave is not the first */
             if parent as libc::c_int > 0i32 {
                 /* find port on parent this slave is connected to */
-                (*(*context).slavelist.offset(i as isize)).parentport =
-                    ecx_parentport(context, parent);
-                if (*(*context).slavelist.offset(parent as isize)).topology as libc::c_int == 1i32 {
-                    (*(*context).slavelist.offset(i as isize)).parentport =
-                        (*(*context).slavelist.offset(parent as isize)).entryport
+                (*context).slavelist[i as usize].parentport = ecx_parentport(context, parent);
+                if (*context).slavelist[parent as usize].topology as libc::c_int == 1i32 {
+                    (*context).slavelist[i as usize].parentport =
+                        (*context).slavelist[parent as usize].entryport
                 }
                 dt1 = 0i32;
                 dt2 = 0i32;
                 /* delta time of (parentport - 1) - parentport */
                 /* note: order of ports is 0 - 3 - 1 -2 */
                 /* non active ports are skipped */
-                dt3 = ecx_porttime(
-                    context,
-                    parent,
-                    (*(*context).slavelist.offset(i as isize)).parentport,
-                ) - ecx_porttime(
-                    context,
-                    parent,
-                    ecx_prevport(
+                dt3 = ecx_porttime(context, parent, (*context).slavelist[i as usize].parentport)
+                    - ecx_porttime(
                         context,
                         parent,
-                        (*(*context).slavelist.offset(i as isize)).parentport,
-                    ),
-                );
+                        ecx_prevport(context, parent, (*context).slavelist[i as usize].parentport),
+                    );
                 /* current slave has children */
                 /* those children's delays need to be subtracted */
-                if (*(*context).slavelist.offset(i as isize)).topology as libc::c_int > 1i32 {
+                if (*context).slavelist[i as usize].topology as libc::c_int > 1i32 {
                     dt1 = ecx_porttime(
                         context,
                         i,
-                        ecx_prevport(
-                            context,
-                            i,
-                            (*(*context).slavelist.offset(i as isize)).entryport,
-                        ),
-                    ) - ecx_porttime(
-                        context,
-                        i,
-                        (*(*context).slavelist.offset(i as isize)).entryport,
-                    )
+                        ecx_prevport(context, i, (*context).slavelist[i as usize].entryport),
+                    ) - ecx_porttime(context, i, (*context).slavelist[i as usize].entryport)
                 }
                 /* we are only interested in positive difference */
                 if dt1 > dt3 {
@@ -533,15 +517,11 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
                     dt2 = ecx_porttime(
                         context,
                         parent,
-                        ecx_prevport(
-                            context,
-                            parent,
-                            (*(*context).slavelist.offset(i as isize)).parentport,
-                        ),
+                        ecx_prevport(context, parent, (*context).slavelist[i as usize].parentport),
                     ) - ecx_porttime(
                         context,
                         parent,
-                        (*(*context).slavelist.offset(parent as isize)).entryport,
+                        (*context).slavelist[parent as usize].entryport,
                     )
                 }
                 if dt2 < 0i32 {
@@ -549,10 +529,9 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
                 }
                 /* calculate current slave delay from delta times */
                 /* assumption : forward delay equals return delay */
-                (*(*context).slavelist.offset(i as isize)).pdelay = (dt3 - dt1) / 2i32
-                    + dt2
-                    + (*(*context).slavelist.offset(parent as isize)).pdelay;
-                ht = (*(*context).slavelist.offset(i as isize)).pdelay;
+                (*context).slavelist[i as usize].pdelay =
+                    (dt3 - dt1) / 2i32 + dt2 + (*context).slavelist[parent as usize].pdelay;
+                ht = (*context).slavelist[i as usize].pdelay;
                 /* write propagation delay*/
                 ecx_FPWR(
                     (*context).port.as_mut().unwrap(),
@@ -564,20 +543,20 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
                 );
             }
         } else {
-            (*(*context).slavelist.offset(i as isize)).DCrtA = 0i32;
-            (*(*context).slavelist.offset(i as isize)).DCrtB = 0i32;
-            (*(*context).slavelist.offset(i as isize)).DCrtC = 0i32;
-            (*(*context).slavelist.offset(i as isize)).DCrtD = 0i32;
-            parent = (*(*context).slavelist.offset(i as isize)).parent;
+            (*context).slavelist[i as usize].DCrtA = 0i32;
+            (*context).slavelist[i as usize].DCrtB = 0i32;
+            (*context).slavelist[i as usize].DCrtC = 0i32;
+            (*context).slavelist[i as usize].DCrtD = 0i32;
+            parent = (*context).slavelist[i as usize].parent;
             /* if non DC slave found on first position on branch hold root parent */
             if parent as libc::c_int > 0i32
-                && (*(*context).slavelist.offset(parent as isize)).topology as libc::c_int > 2i32
+                && (*context).slavelist[parent as usize].topology as libc::c_int > 2i32
             {
                 parenthold = parent
             }
             /* if branch has no DC slaves consume port on root parent */
             if parenthold as libc::c_int != 0
-                && (*(*context).slavelist.offset(i as isize)).topology as libc::c_int == 1i32
+                && (*context).slavelist[i as usize].topology as libc::c_int == 1i32
             {
                 ecx_parentport(context, parenthold);
                 parenthold = 0u16
@@ -585,7 +564,7 @@ pub unsafe fn ecx_configdc(context: *mut ecx_contextt) -> bool {
         }
         i = i.wrapping_add(1)
     }
-    return (*(*context).slavelist.offset(0isize)).hasdc;
+    return (*context).slavelist[0].hasdc;
 }
 #[no_mangle]
 pub unsafe fn ec_dcsync0(slave: u16, act: bool, CyclTime: u32, CyclShift: i32) {

@@ -20,15 +20,15 @@ pub struct osal_timer {
 pub type osal_timert = osal_timer;
 
 #[no_mangle]
-pub unsafe fn osal_usleep(usec: u32) -> libc::c_int {
+pub fn osal_usleep(usec: u32) -> libc::c_int {
     let mut ts: timespec = timespec {
         tv_sec: 0,
         tv_nsec: 0,
     };
     ts.tv_sec = usec.wrapping_div(USECS_PER_SEC) as time_t;
     ts.tv_nsec = usec.wrapping_rem(USECS_PER_SEC).wrapping_mul(1000) as i64;
-    /* usleep is deprecated, use nanosleep instead */
-    return nanosleep(&mut ts, 0 as *mut timespec);
+
+    return unsafe { nanosleep(&mut ts, 0 as *mut timespec) };
 }
 #[no_mangle]
 pub fn osal_current_time() -> ec_timet {
@@ -43,21 +43,18 @@ pub fn osal_current_time() -> ec_timet {
     return return_value;
 }
 #[no_mangle]
-pub unsafe fn osal_time_diff(start: *mut ec_timet, end: *mut ec_timet, mut diff: *mut ec_timet) {
-    if (*end).usec < (*start).usec {
-        (*diff).sec = (*end).sec.wrapping_sub((*start).sec).wrapping_sub(1u32);
-        (*diff).usec = (*end)
-            .usec
-            .wrapping_add(USECS_PER_SEC)
-            .wrapping_sub((*start).usec)
+pub fn osal_time_diff(start: &ec_timet, end: &ec_timet, diff: &mut ec_timet) {
+    if end.usec < start.usec {
+        diff.sec = end.sec.wrapping_sub(start.sec).wrapping_sub(1u32);
+        diff.usec = end.usec + USECS_PER_SEC + start.usec;
     } else {
-        (*diff).sec = (*end).sec.wrapping_sub((*start).sec);
-        (*diff).usec = (*end).usec.wrapping_sub((*start).usec)
+        diff.sec = end.sec - start.sec;
+        diff.usec = end.usec - start.usec
     };
 }
 /* Returns time from some unspecified moment in past,
  * strictly increasing, used for time intervals measurement. */
-unsafe fn osal_getrelativetime(mut tv: *mut timeval) {
+fn osal_getrelativetime(mut tv: &mut timeval) {
     let mut ts: timespec = timespec {
         tv_sec: 0,
         tv_nsec: 0,
@@ -66,9 +63,9 @@ unsafe fn osal_getrelativetime(mut tv: *mut timeval) {
      * Gettimeofday uses CLOCK_REALTIME that can get NTP timeadjust.
      * If this function preempts timeadjust and it uses vpage it live-locks.
      * Also when using XENOMAI, only clock_gettime is RT safe */
-    clock_gettime(CLOCK_MONOTONIC, &mut ts);
-    (*tv).tv_sec = ts.tv_sec;
-    (*tv).tv_usec = ts.tv_nsec / 1000;
+    unsafe { clock_gettime(CLOCK_MONOTONIC, &mut ts) };
+    tv.tv_sec = ts.tv_sec;
+    tv.tv_usec = ts.tv_nsec / 1000;
 }
 #[no_mangle]
 pub unsafe fn osal_timer_start(mut self_0: *mut osal_timert, timeout_usec: u32) {
@@ -97,7 +94,7 @@ pub unsafe fn osal_timer_start(mut self_0: *mut osal_timert, timeout_usec: u32) 
     (*self_0).stop_time.usec = stop_time.tv_usec as u32;
 }
 #[no_mangle]
-pub unsafe fn osal_timer_is_expired(self_0: *mut osal_timert) -> bool {
+pub fn osal_timer_is_expired(self_0: &osal_timert) -> bool {
     let mut current_time: timeval = timeval {
         tv_sec: 0,
         tv_usec: 0,
@@ -108,8 +105,8 @@ pub unsafe fn osal_timer_is_expired(self_0: *mut osal_timert) -> bool {
     };
     let mut is_not_yet_expired: libc::c_int = 0;
     osal_getrelativetime(&mut current_time);
-    stop_time.tv_sec = (*self_0).stop_time.sec as time_t;
-    stop_time.tv_usec = (*self_0).stop_time.usec as suseconds_t;
+    stop_time.tv_sec = self_0.stop_time.sec as time_t;
+    stop_time.tv_usec = self_0.stop_time.usec as suseconds_t;
     is_not_yet_expired = if current_time.tv_sec == stop_time.tv_sec {
         (current_time.tv_usec < stop_time.tv_usec) as libc::c_int
     } else {
